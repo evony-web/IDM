@@ -170,3 +170,23 @@ Stage Summary:
 - Fix: Added `prisma db push --accept-data-loss` to Vercel build script
 - Better error logging added to all video highlight API routes
 - Pushed to GitHub, Vercel deployment should fix the issue
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Leaderboard show top 7 + CTA modal, Informasi Terbaru show 4 visible max 7 scroll
+
+Work Log:
+- Modified TopPlayersSection: VISIBLE_COUNT from 11 → 7
+- Replaced inline expand/collapse with modal popup (like AllRankingsModal in Dashboard)
+- Modal features: drag-to-close, backdrop blur, Top 3 podium with avatar rings, remaining players list
+- Modal players are clickable → opens player profile then closes modal
+- Modified InformasiTerbaruSection: maxItems = 7 (was 15), displayed = newsItems.slice(0, maxItems)
+- Changed scrollable container: mobile max-h-[304px] (shows ~4 items), desktop md:max-h-none md:flex-1
+- Only newest 7 items are kept, oldest automatically dropped when new ones come in
+- Committed and pushed to GitHub (commit 6eedaec)
+
+Stage Summary:
+- Leaderboard: Shows top 7 players, "Lihat Semua" opens full leaderboard modal with podium + all players
+- Informasi Terbaru: Shows 4 items visible, scrollable up to 7 items max, oldest removed when new items arrive
+- Both changes pushed to GitHub for Vercel deployment
