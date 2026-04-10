@@ -267,68 +267,88 @@ export default function PlayerProfileModal() {
 
                 {profile && !loading && !error && (
                   <div>
-                    {/* Header Section — Large Photo */}
-                    <div className="relative">
-                      {/* Full-width Photo Frame */}
+                    {/* Header Section — Large Circular Avatar */}
+                    <div className="relative flex flex-col items-center pt-6 pb-4 px-5">
+                      {/* Accent glow behind avatar */}
                       <div
-                        className="relative w-full overflow-hidden"
-                        style={{
-                          height: '45dvh',
-                          minHeight: '280px',
-                          maxHeight: '400px',
-                          background: profile.avatar
-                            ? 'none'
-                            : `linear-gradient(135deg, rgba(${accentRGB},0.15) 0%, rgba(10,10,14,0.95) 50%, rgba(${accentRGB},0.08) 100%)`,
-                        }}
-                      >
-                        {profile.avatar ? (
-                          <img
-                            src={profile.avatar}
-                            alt={profile.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              if ((e.target as HTMLImageElement).nextElementSibling) {
-                                ((e.target as HTMLImageElement).nextElementSibling as HTMLElement).classList.remove('hidden');
-                              }
-                            }}
-                          />
-                        ) : null}
-                        {/* Fallback initial when no avatar */}
-                        {!profile.avatar && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span
-                              className="text-8xl font-black"
-                              style={{ color: `rgba(${accentRGB},0.25)` }}
-                            >
-                              {profile.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        {/* Bottom gradient overlay for text readability */}
+                        className="absolute top-4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full opacity-15 blur-3xl pointer-events-none"
+                        style={{ background: accent }}
+                      />
+
+                      {/* Avatar Container with double border */}
+                      <div className="relative">
+                        {/* Outer decorative ring */}
                         <div
-                          className="absolute inset-0 pointer-events-none"
+                          className="absolute -inset-2 rounded-full"
                           style={{
-                            background: 'linear-gradient(to top, rgba(20,20,24,1) 0%, rgba(20,20,24,0.7) 35%, rgba(20,20,24,0.2) 60%, transparent 100%)',
+                            border: `3px solid rgba(${accentRGB},0.25)`,
+                            boxShadow: `0 0 20px rgba(${accentRGB},0.08)`,
                           }}
                         />
-                        {/* Accent glow at bottom */}
+                        {/* Inner avatar circle */}
                         <div
-                          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-20 rounded-full opacity-30 blur-2xl pointer-events-none"
-                          style={{ background: accent }}
-                        />
-                        {/* Photo border accent line at top */}
+                          className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full flex items-center justify-center overflow-hidden"
+                          style={{
+                            background: profile.avatar
+                              ? 'none'
+                              : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
+                            border: `2.5px solid ${accent}`,
+                            boxShadow: profile.isMVP
+                              ? '0 0 24px rgba(255,215,0,0.20), 0 0 0 3px rgba(255,215,0,0.10)'
+                              : `0 0 16px rgba(${accentRGB},0.12)`,
+                          }}
+                        >
+                          {profile.avatar ? (
+                            <img
+                              src={profile.avatar}
+                              alt={profile.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const fallback = (e.target as HTMLImageElement).nextElementSibling;
+                                if (fallback) fallback.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className={`text-4xl sm:text-5xl font-black ${profile.avatar ? 'hidden' : ''}`}
+                            style={{ color: accent }}
+                          >
+                            {profile.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Tier badge on bottom-right of avatar */}
                         <div
-                          className="absolute top-0 left-0 right-0 h-[2px]"
-                          style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
-                        />
+                          className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-black"
+                          style={{
+                            background: tier.bg,
+                            border: `2.5px solid ${tier.color}`,
+                            color: tier.color,
+                            boxShadow: `0 2px 8px ${tier.color}33`,
+                          }}
+                        >
+                          {tier.label}
+                        </div>
+
+                        {/* MVP Crown badge on top-right of avatar */}
+                        {profile.isMVP && (
+                          <div
+                            className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                            style={{
+                              background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                              boxShadow: '0 2px 12px rgba(255,215,0,0.35)',
+                            }}
+                          >
+                            <Crown className="w-4 h-4 text-black" strokeWidth={2.5} />
+                          </div>
+                        )}
                       </div>
 
-                      {/* Player Info overlaid at bottom of photo */}
-                      <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 pt-8">
-                        {/* Name + Badges */}
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-xl font-black text-white truncate drop-shadow-lg">
+                      {/* Player Name — below avatar */}
+                      <div className="mt-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <h2 className="text-xl font-black text-white">
                             {profile.name}
                           </h2>
                           {profile.isMVP && (
@@ -344,23 +364,18 @@ export default function PlayerProfileModal() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          {/* Tier Badge */}
+                        {/* Division + Gender + City row */}
+                        <div className="flex items-center justify-center gap-2 mt-1.5">
                           <span
-                            className="text-[11px] font-bold px-2 py-0.5 rounded-md"
+                            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                             style={{
-                              color: tier.color,
-                              background: tier.bg,
-                              border: `1px solid ${tier.color}33`,
+                              color: accent,
+                              background: `rgba(${accentRGB},0.12)`,
+                              border: `1px solid rgba(${accentRGB},0.20)`,
                             }}
                           >
-                            TIER {tier.label}
+                            {profile.gender === 'male' ? '♂ Male' : '♀ Female'}
                           </span>
-                          {/* Gender */}
-                          <span className="text-[10px] text-white/50">
-                            {profile.gender === 'male' ? '♂' : '♀'} {profile.gender === 'male' ? 'Male' : 'Female'}
-                          </span>
-                          {/* City */}
                           {profile.city && (
                             <span className="text-[10px] text-white/40 flex items-center gap-0.5">
                               <MapPin className="w-3 h-3" />
@@ -369,48 +384,87 @@ export default function PlayerProfileModal() {
                           )}
                         </div>
                       </div>
-
-                      {/* MVP Crown floating badge */}
-                      {profile.isMVP && (
-                        <div
-                          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
-                          style={{
-                            background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                            boxShadow: '0 2px 12px rgba(255,215,0,0.35)',
-                          }}
-                        >
-                          <Crown className="w-4.5 h-4.5 text-black" strokeWidth={2.5} />
-                        </div>
-                      )}
                     </div>
 
-                    {/* Club */}
-                    {profile.club && (
+                    {/* Player Information Section */}
+                    <div className="mx-5 mb-4">
                       <div
-                        className="mx-5 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+                        className="flex items-center gap-2 px-3 py-2 rounded-t-xl"
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: `rgba(${accentRGB},0.08)`,
+                          borderBottom: `1px solid rgba(${accentRGB},0.15)`,
                         }}
                       >
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
-                          style={{
-                            background: 'rgba(255,255,255,0.05)',
-                          }}
-                        >
-                          {profile.club.logoUrl ? (
-                            <img src={profile.club.logoUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <Building2 className="w-4 h-4 text-white/30" />
-                          )}
+                        <Users className="w-3.5 h-3.5" style={{ color: accent }} />
+                        <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: accent }}>
+                          Player Information
+                        </span>
+                      </div>
+                      <div
+                        className="rounded-b-xl overflow-hidden"
+                        style={{
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                          borderTop: 'none',
+                        }}
+                      >
+                        {/* Tier */}
+                        <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <span className="text-[11px] text-white/40">Tier</span>
+                          <span className="text-[11px] font-bold" style={{ color: tier.color }}>
+                            {tier.label} — {tier.label === 'S' ? 'Professional' : tier.label === 'A' ? 'Expert' : tier.label === 'B' ? 'Skilled' : tier.label === 'C' ? 'Standard' : 'Beginner'}
+                          </span>
                         </div>
-                        <div>
-                          <p className="text-[12px] font-semibold text-white/70">{profile.club.name}</p>
-                          <p className="text-[10px] text-white/30">Club</p>
+                        {/* Club */}
+                        <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <span className="text-[11px] text-white/40">Club</span>
+                          <div className="flex items-center gap-1.5">
+                            {profile.club ? (
+                              <>
+                                {profile.club.logoUrl ? (
+                                  <img src={profile.club.logoUrl} alt="" className="w-4 h-4 rounded object-cover" />
+                                ) : (
+                                  <Building2 className="w-3.5 h-3.5 text-white/30" />
+                                )}
+                                <span className="text-[11px] font-semibold text-white/70">{profile.club.name}</span>
+                              </>
+                            ) : (
+                              <span className="text-[11px] text-white/25">—</span>
+                            )}
+                          </div>
+                        </div>
+                        {/* Status */}
+                        <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <span className="text-[11px] text-white/40">Status</span>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span className="text-[11px] text-emerald-400 font-medium">Active</span>
+                          </div>
+                        </div>
+                        {/* Points */}
+                        <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <span className="text-[11px] text-white/40">Total Points</span>
+                          <span
+                            className="text-[11px] font-black"
+                            style={{
+                              background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              backgroundClip: 'text',
+                            }}
+                          >
+                            #{profile.points.toLocaleString()}
+                          </span>
+                        </div>
+                        {/* Gender */}
+                        <div className="flex items-center justify-between px-3 py-2.5">
+                          <span className="text-[11px] text-white/40">Division</span>
+                          <span className="text-[11px] font-semibold" style={{ color: accent }}>
+                            {profile.gender === 'male' ? 'Putra' : 'Putri'}
+                          </span>
                         </div>
                       </div>
-                    )}
+                    </div>
 
                     {/* Stats Section */}
                     <div
