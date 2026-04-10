@@ -373,6 +373,61 @@ export async function GET() {
       })) : [],
     };
 
+    // Fetch recent donations & sawer for the home screen showcase
+    const [recentDonations, recentSawers] = await Promise.all([
+      db.donation.findMany({
+        where: { paymentStatus: 'confirmed' },
+        select: {
+          id: true,
+          donorName: true,
+          amount: true,
+          message: true,
+          anonymous: true,
+          createdAt: true,
+          user: { select: { name: true, avatar: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+      db.sawer.findMany({
+        where: { paymentStatus: 'confirmed' },
+        select: {
+          id: true,
+          senderName: true,
+          senderAvatar: true,
+          targetPlayerName: true,
+          targetPlayerId: true,
+          amount: true,
+          message: true,
+          createdAt: true,
+          tournament: { select: { division: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+    ]);
+
+    responseData.recentDonations = recentDonations.map((d: any) => ({
+      id: d.id,
+      donorName: d.anonymous ? 'Hamba Allah' : (d.donorName || d.user?.name || 'Donatur'),
+      donorAvatar: d.anonymous ? null : (d.user?.avatar || null),
+      amount: d.amount,
+      message: d.message,
+      anonymous: d.anonymous,
+      createdAt: d.createdAt,
+    }));
+
+    responseData.recentSawers = recentSawers.map((s: any) => ({
+      id: s.id,
+      senderName: s.senderName,
+      senderAvatar: s.senderAvatar || null,
+      targetPlayerName: s.targetPlayerName || null,
+      amount: s.amount,
+      message: s.message,
+      division: s.tournament?.division || null,
+      createdAt: s.createdAt,
+    }));
+
     console.log(`[Landing API] Combined data loaded (${Date.now() - startTime}ms)`);
 
     return NextResponse.json({

@@ -108,6 +108,27 @@ interface ChampionData {
   round: number;
 }
 
+interface DonationItem {
+  id: string;
+  donorName: string;
+  donorAvatar: string | null;
+  amount: number;
+  message: string | null;
+  anonymous: boolean;
+  createdAt: string;
+}
+
+interface SawerItem {
+  id: string;
+  senderName: string;
+  senderAvatar: string | null;
+  targetPlayerName: string | null;
+  amount: number;
+  message: string | null;
+  division: string | null;
+  createdAt: string;
+}
+
 interface LandingData {
   male: DivisionData;
   female: DivisionData;
@@ -122,6 +143,8 @@ interface LandingData {
   liveMatches: MatchResult[];
   liveMatchCount: number;
   recentAchievements: AchievementItem[];
+  recentDonations: DonationItem[];
+  recentSawers: SawerItem[];
 }
 
 /* ────────────────────────────────────────────
@@ -1573,6 +1596,338 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 /* ════════════════════════════════════════════
+   Donasi & Sawer Showcase — Motivating donation section
+   ════════════════════════════════════════════ */
+
+function DonasiSawerSection({ data }: { data: LandingData }) {
+  const [activeTab, setActiveTab] = useState<'sawer' | 'donasi'>('sawer');
+
+  const totalDana = data.totalDonation + data.totalSawer;
+  const hasSawer = data.recentSawers.length > 0;
+  const hasDonasi = data.recentDonations.length > 0;
+  const hasAny = hasSawer || hasDonasi;
+
+  return (
+    <motion.div variants={itemVariants} className="w-full max-w-7xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Heart className="w-4 h-4" style={{ color: '#F472B6' }} />
+          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Dukungan & Sawer</h2>
+        </div>
+        {/* Total fund raised */}
+        <motion.div
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
+          style={{
+            background: 'linear-gradient(135deg, rgba(244,114,182,0.10) 0%, rgba(255,215,0,0.05) 100%)',
+            border: '1px solid rgba(244,114,182,0.15)',
+          }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <Coins className="w-3.5 h-3.5" style={{ color: '#FFD700' }} />
+          <span
+            className="text-[12px] font-bold"
+            style={{
+              background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            {formatRupiah(totalDana)}
+          </span>
+          <span className="text-[9px] text-white/25">terkumpul</span>
+        </motion.div>
+      </div>
+
+      {hasAny ? (
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, rgba(244,114,182,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+            border: '1px solid rgba(244,114,182,0.08)',
+          }}
+        >
+          {/* Top gradient accent */}
+          <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.4), rgba(255,215,0,0.3), transparent)' }} />
+
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-1 p-2 mx-3 mt-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <button
+              onClick={() => setActiveTab('sawer')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                activeTab === 'sawer' ? 'text-white' : 'text-white/30 hover:text-white/50'
+              }`}
+              style={activeTab === 'sawer' ? {
+                background: 'linear-gradient(135deg, rgba(244,114,182,0.15) 0%, rgba(244,114,182,0.05) 100%)',
+                border: '1px solid rgba(244,114,182,0.20)',
+                boxShadow: '0 0 12px rgba(244,114,182,0.08)',
+              } : {}}
+            >
+              <Zap className="w-3.5 h-3.5" style={{ color: activeTab === 'sawer' ? '#F472B6' : 'currentColor' }} />
+              Sawer ({data.recentSawers.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('donasi')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                activeTab === 'donasi' ? 'text-white' : 'text-white/30 hover:text-white/50'
+              }`}
+              style={activeTab === 'donasi' ? {
+                background: 'linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.04) 100%)',
+                border: '1px solid rgba(255,215,0,0.18)',
+                boxShadow: '0 0 12px rgba(255,215,0,0.06)',
+              } : {}}
+            >
+              <Heart className="w-3.5 h-3.5" style={{ color: activeTab === 'donasi' ? '#FFD700' : 'currentColor' }} />
+              Donasi ({data.recentDonations.length})
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-3 pt-2 max-h-96 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(244,114,182,0.15) transparent' }}>
+            <AnimatePresence mode="wait">
+              {activeTab === 'sawer' ? (
+                <motion.div
+                  key="sawer"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-2"
+                >
+                  {data.recentSawers.map((sawer, idx) => (
+                    <motion.div
+                      key={sawer.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.04 }}
+                      className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03]"
+                      style={{
+                        background: 'rgba(255,255,255,0.01)',
+                        border: '1px solid rgba(255,255,255,0.04)',
+                      }}
+                    >
+                      {/* Avatar */}
+                      <div
+                        className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                        style={{
+                          background: sawer.senderAvatar
+                            ? `url(${sawer.senderAvatar}) center/cover`
+                            : 'linear-gradient(135deg, rgba(244,114,182,0.25), rgba(244,114,182,0.08))',
+                          border: '1.5px solid rgba(244,114,182,0.20)',
+                        }}
+                      >
+                        {!sawer.senderAvatar && (
+                          <span className="text-[11px] font-bold text-[#F472B6]">
+                            {sawer.senderName.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-[12px] font-semibold text-white/85 truncate">{sawer.senderName}</p>
+                          {sawer.targetPlayerName && (
+                            <>
+                              <span className="text-[10px] text-white/20">→</span>
+                              <p className="text-[11px] font-medium truncate" style={{ color: sawer.division === 'male' ? '#73FF00' : '#38BDF8' }}>
+                                {sawer.targetPlayerName}
+                              </p>
+                            </>
+                          )}
+                          {sawer.division && (
+                            <span
+                              className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                              style={{
+                                background: sawer.division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                                color: sawer.division === 'male' ? '#73FF00' : '#38BDF8',
+                                border: `1px solid ${sawer.division === 'male' ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
+                              }}
+                            >
+                              {sawer.division === 'male' ? 'M' : 'F'}
+                            </span>
+                          )}
+                        </div>
+                        {sawer.message && (
+                          <p className="text-[11px] text-white/30 mt-0.5 truncate">&quot;{sawer.message}&quot;</p>
+                        )}
+                        <p className="text-[9px] text-white/15 mt-0.5">{timeAgo(sawer.createdAt)}</p>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="flex-shrink-0 text-right">
+                        <p
+                          className="text-[13px] font-bold"
+                          style={{
+                            background: 'linear-gradient(135deg, #F472B6, #FFD700)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}
+                        >
+                          {formatRupiah(sawer.amount)}
+                        </p>
+                        <div className="flex items-center justify-end gap-0.5 mt-0.5">
+                          <Zap className="w-2.5 h-2.5 text-[#F472B6]/40" />
+                          <span className="text-[8px] text-[#F472B6]/40 font-semibold">SAWER</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="donasi"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-2"
+                >
+                  {data.recentDonations.map((donation, idx) => (
+                    <motion.div
+                      key={donation.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.04 }}
+                      className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03]"
+                      style={{
+                        background: 'rgba(255,255,255,0.01)',
+                        border: '1px solid rgba(255,255,255,0.04)',
+                      }}
+                    >
+                      {/* Avatar */}
+                      <div
+                        className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                        style={{
+                          background: donation.anonymous
+                            ? 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05))'
+                            : donation.donorAvatar
+                              ? `url(${donation.donorAvatar}) center/cover`
+                              : 'linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,215,0,0.08))',
+                          border: donation.anonymous
+                            ? '1.5px solid rgba(255,215,0,0.15)'
+                            : '1.5px solid rgba(255,215,0,0.20)',
+                        }}
+                      >
+                        {donation.anonymous ? (
+                          <Heart className="w-3.5 h-3.5 text-yellow-400/50" />
+                        ) : !donation.donorAvatar ? (
+                          <span className="text-[11px] font-bold text-yellow-400">
+                            {donation.donorName.charAt(0).toUpperCase()}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[12px] font-semibold text-white/85 truncate">
+                            {donation.anonymous ? '🤲 Hamba Allah' : donation.donorName}
+                          </p>
+                          {donation.anonymous && (
+                            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
+                              ANONIM
+                            </span>
+                          )}
+                        </div>
+                        {donation.message && (
+                          <p className="text-[11px] text-white/30 mt-0.5 truncate">&quot;{donation.message}&quot;</p>
+                        )}
+                        <p className="text-[9px] text-white/15 mt-0.5">{timeAgo(donation.createdAt)}</p>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="flex-shrink-0 text-right">
+                        <p
+                          className="text-[13px] font-bold"
+                          style={{
+                            background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}
+                        >
+                          {formatRupiah(donation.amount)}
+                        </p>
+                        <div className="flex items-center justify-end gap-0.5 mt-0.5">
+                          <Heart className="w-2.5 h-2.5 text-yellow-400/40" />
+                          <span className="text-[8px] text-yellow-400/40 font-semibold">DONASI</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Motivational CTA Footer */}
+          <div
+            className="m-3 mt-0 p-3 rounded-xl text-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(244,114,182,0.06) 0%, rgba(255,215,0,0.04) 100%)',
+              border: '1px dashed rgba(244,114,182,0.15)',
+            }}
+          >
+            <p className="text-[11px] text-white/40">
+              💖 Dukung turnamen & pemain favoritmu!
+            </p>
+            <p className="text-[9px] text-white/20 mt-0.5">Sawer langsung ke pemain atau donasi ke prize pool</p>
+          </div>
+        </div>
+      ) : (
+        /* Empty state - motivasi untuk mulai menyawer/donasi */
+        <motion.div
+          variants={cardVariants}
+          className="rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, rgba(244,114,182,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+            border: '1px solid rgba(244,114,182,0.08)',
+          }}
+        >
+          <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.3), rgba(255,215,0,0.2), transparent)' }} />
+
+          <div className="p-8 flex flex-col items-center text-center">
+            {/* Animated heart icon */}
+            <motion.div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+              style={{
+                background: 'linear-gradient(135deg, rgba(244,114,182,0.12) 0%, rgba(255,215,0,0.06) 100%)',
+                border: '1px solid rgba(244,114,182,0.15)',
+              }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <Heart className="w-8 h-8 text-pink-400/50" />
+            </motion.div>
+
+            <p className="text-[15px] font-bold text-white/50 mb-1">Belum Ada Dukungan</p>
+            <p className="text-[12px] text-white/25 max-w-[280px] leading-relaxed">
+              Jadilah yang pertama menyawer pemain favorit atau mendonasi untuk menambah prize pool turnamen!
+            </p>
+
+            {/* Decorative stats */}
+            <div className="flex items-center gap-4 mt-5">
+              <div className="flex flex-col items-center">
+                <Zap className="w-4 h-4 text-pink-400/30 mb-1" />
+                <span className="text-[10px] text-white/15 font-semibold">SAWER</span>
+                <span className="text-[9px] text-white/10">ke pemain</span>
+              </div>
+              <div className="w-px h-8" style={{ background: 'rgba(244,114,182,0.10)' }} />
+              <div className="flex flex-col items-center">
+                <Heart className="w-4 h-4 text-yellow-400/30 mb-1" />
+                <span className="text-[10px] text-white/15 font-semibold">DONASI</span>
+                <span className="text-[9px] text-white/10">ke prize pool</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+
+/* ════════════════════════════════════════════
    Champion Carousel Banner — Full-width auto-rotating
    Shows Male & Female division champions alternately
    ════════════════════════════════════════════ */
@@ -1932,6 +2287,8 @@ const FALLBACK_DATA: LandingData = {
   liveMatches: [],
   liveMatchCount: 0,
   recentAchievements: [],
+  recentDonations: [],
+  recentSawers: [],
 };
 
 export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, preloadedData }: LandingPageProps) {
@@ -2075,6 +2432,11 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ RECENT MATCHES SECTION ═══ */}
         <div className="w-full max-w-7xl mb-10 md:mb-14">
           <RecentMatchesSection data={activeData} />
+        </div>
+
+        {/* ═══ DONASI & SAWER SECTION ═══ */}
+        <div className="w-full max-w-7xl mb-10 md:mb-14">
+          <DonasiSawerSection data={activeData} />
         </div>
 
         {/* ═══ TOP PLAYERS SECTION ═══ */}
