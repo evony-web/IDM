@@ -357,9 +357,19 @@ export async function PUT(request: NextRequest) {
     if (phone) updateData.phone = phone;
     if (whatsappJid) updateData.whatsappJid = whatsappJid;
     
+    // Track club transfer for activity log
+    let clubTransferFrom: string | null = null;
+    let clubTransferTo: string | null = null;
+
     if (club !== undefined) {
+      // Get current club name before change
+      if (existingUser.clubId) {
+        const oldClub = await db.club.findUnique({ where: { id: existingUser.clubId } });
+        clubTransferFrom = oldClub?.name || null;
+      }
       if (club === null || club === '') {
         updateData.clubId = null;
+        clubTransferTo = null;
       } else {
         const slug = (club as string).trim().toLowerCase().replace(/\s+/g, '-');
         let clubRecord = await db.club.findUnique({ where: { slug } });
@@ -367,6 +377,7 @@ export async function PUT(request: NextRequest) {
           clubRecord = await db.club.create({ data: { name: (club as string).trim(), slug } });
         }
         updateData.clubId = clubRecord.id;
+        clubTransferTo = clubRecord.name;
       }
     }
 
@@ -374,6 +385,26 @@ export async function PUT(request: NextRequest) {
       where: { id: userId },
       data: updateData,
     });
+
+    // Log club transfer activity
+    if (club !== undefined && clubTransferFrom !== clubTransferTo && (clubTransferFrom || clubTransferTo)) {
+      try {
+        await db.activityLog.create({
+          data: {
+            action: 'club_transfer',
+            details: JSON.stringify({
+              from: clubTransferFrom,
+              to: clubTransferTo,
+              playerName: existingUser.name,
+            }),
+            userId,
+          },
+        });
+      } catch (e) {
+        // Non-critical, don't fail the update
+        console.warn('[Users PUT] Failed to log club transfer activity:', e);
+      }
+    }
 
     if (points !== undefined) {
       const existingRanking = await db.ranking.findUnique({ where: { userId } });

@@ -318,7 +318,7 @@ export async function GET() {
       round: femaleChampionMatch.round,
     } : null;
 
-    const responseData = {
+    const responseData: Record<string, any> = {
       male: maleData,
       female: femaleData,
       totalDonation: globalDonationAgg._sum.amount || 0,
@@ -373,8 +373,8 @@ export async function GET() {
       })) : [],
     };
 
-    // Fetch recent donations & sawer for the home screen showcase
-    const [recentDonations, recentSawers] = await Promise.all([
+    // Fetch recent donations & sawer + activity logs for the home screen
+    const [recentDonations, recentSawers, activityLogs] = await Promise.all([
       db.donation.findMany({
         where: { paymentStatus: 'confirmed' },
         select: {
@@ -405,6 +405,20 @@ export async function GET() {
         orderBy: { createdAt: 'desc' },
         take: 10,
       }),
+      // Activity logs - club transfers and other events
+      ...(db.activityLog ? [db.activityLog.findMany({
+        where: { action: { in: ['club_transfer', 'win_streak', 'tournament_win'] } },
+        select: {
+          id: true,
+          action: true,
+          details: true,
+          userId: true,
+          createdAt: true,
+          user: { select: { id: true, name: true, avatar: true, gender: true, club: { select: { name: true } } } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 15,
+      })] : [Promise.resolve([])]),
     ]);
 
     responseData.recentDonations = recentDonations.map((d: any) => ({
@@ -427,6 +441,19 @@ export async function GET() {
       division: s.tournament?.division || null,
       createdAt: s.createdAt,
     }));
+
+    // Activity logs for news feed
+    responseData.activityLogs = Array.isArray(activityLogs) ? activityLogs.map((log: any) => ({
+      id: log.id,
+      action: log.action,
+      details: log.details,
+      userId: log.userId,
+      userName: log.user?.name || 'Unknown',
+      userAvatar: log.user?.avatar || null,
+      userGender: log.user?.gender || 'male',
+      userClub: log.user?.club?.name || null,
+      createdAt: log.createdAt,
+    })) : [];
 
     console.log(`[Landing API] Combined data loaded (${Date.now() - startTime}ms)`);
 

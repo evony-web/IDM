@@ -19,7 +19,6 @@ import {
   Info,
   Heart,
   ArrowRight,
-  Award,
   X,
 } from 'lucide-react';
 
@@ -129,6 +128,32 @@ interface SawerItem {
   createdAt: string;
 }
 
+interface ActivityLogItem {
+  id: string;
+  action: string;
+  details: string | null;
+  userId: string | null;
+  userName: string;
+  userAvatar: string | null;
+  userGender: string;
+  userClub: string | null;
+  createdAt: string;
+}
+
+type NewsFeedItem = {
+  id: string;
+  type: 'club_transfer' | 'match_result' | 'achievement' | 'win_streak' | 'tournament_win';
+  timestamp: string;
+  playerName: string;
+  playerAvatar: string | null;
+  playerGender: string;
+  playerClub: string | null;
+  icon: string;
+  title: string;
+  subtitle: string;
+  accent: string;
+};
+
 interface LandingData {
   male: DivisionData;
   female: DivisionData;
@@ -145,6 +170,7 @@ interface LandingData {
   recentAchievements: AchievementItem[];
   recentDonations: DonationItem[];
   recentSawers: SawerItem[];
+  activityLogs: ActivityLogItem[];
 }
 
 /* ────────────────────────────────────────────
@@ -1081,344 +1107,235 @@ function QuickInfoSection() {
 }
 
 /* ────────────────────────────────────────────
-   Recent Matches Section
+   Informasi Terbaru Section (News Feed)
+   Combines: club transfers, match results, achievements, win streaks
    ──────────────────────────────────────────── */
 
-function RecentMatchesSection({ data }: { data: LandingData }) {
-  const matches = data.recentMatches.slice(0, 6);
-  const { liveMatchCount } = data;
+function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
+  // Build unified news feed from all sources
+  const newsItems: NewsFeedItem[] = [];
 
-  return (
-    <motion.div variants={itemVariants} className="w-full max-w-7xl">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Trophy className="w-4 h-4" style={{ color: '#FFD700' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Hasil Pertandingan Terbaru</h2>
-        </div>
-        {liveMatchCount > 0 && (
-          <motion.div
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold"
-            style={{
-              background: 'rgba(239,68,68,0.12)',
-              border: '1px solid rgba(239,68,68,0.20)',
-              color: '#EF4444',
-            }}
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-            </span>
-            🔴 {liveMatchCount} Pertandingan Sedang Berlangsung
-          </motion.div>
-        )}
-      </div>
+  // 1. Club transfers from activity logs
+  if (data.activityLogs && Array.isArray(data.activityLogs)) {
+    data.activityLogs.forEach((log) => {
+      const isMale = log.userGender === 'male';
+      const accent = isMale ? '115,255,0' : '56,189,248';
 
-      {matches.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {matches.map((match, idx) => {
-            const isMale = match.division === 'male';
-            const accent = isMale ? '115,255,0' : '56,189,248';
-            const accentHex = isMale ? '#73FF00' : '#38BDF8';
-            const teamAWon = match.scoreA > match.scoreB;
-            const teamBWon = match.scoreB > match.scoreA;
+      if (log.action === 'club_transfer') {
+        try {
+          const details = log.details ? JSON.parse(log.details) : {};
+          const from = details.from || 'Tanpa Club';
+          const to = details.to || 'Tanpa Club';
+          newsItems.push({
+            id: `transfer-${log.id}`,
+            type: 'club_transfer',
+            timestamp: log.createdAt,
+            playerName: log.userName,
+            playerAvatar: log.userAvatar,
+            playerGender: log.userGender,
+            playerClub: log.userClub,
+            icon: '🔄',
+            title: `${log.userName} berpindah club`,
+            subtitle: `${from} → ${to}`,
+            accent,
+          });
+        } catch { /* skip malformed */ }
+      }
 
-            return (
-              <motion.div
-                key={match.id}
-                variants={cardVariants}
-                className="rounded-2xl p-4 relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-                  border: `1px solid rgba(${accent},0.08)`,
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                }}
-                whileHover={{
-                  borderColor: `rgba(${accent},0.16)`,
-                  y: -2,
-                  transition: { type: 'spring', stiffness: 400, damping: 25 },
-                }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {/* Top gradient accent */}
-                <div
-                  className="absolute top-0 left-0 right-0 h-[2px]"
-                  style={{
-                    background: `linear-gradient(90deg, transparent, rgba(${accent},0.3), transparent)`,
-                  }}
-                />
+      if (log.action === 'win_streak') {
+        try {
+          const details = log.details ? JSON.parse(log.details) : {};
+          newsItems.push({
+            id: `streak-${log.id}`,
+            type: 'win_streak',
+            timestamp: log.createdAt,
+            playerName: log.userName,
+            playerAvatar: log.userAvatar,
+            playerGender: log.userGender,
+            playerClub: log.userClub,
+            icon: '🔥',
+            title: `${log.userName} Win Streak ${details.streak || 3}×!`,
+            subtitle: `${details.streak || 3} kali menang beruntun`,
+            accent: '255,165,0',
+          });
+        } catch { /* skip malformed */ }
+      }
 
-                {/* Division badge + Round info */}
-                <div className="flex items-center justify-between mb-3">
-                  <span
-                    className="text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wider uppercase"
-                    style={{
-                      background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)',
-                      color: isMale ? '#73FF00' : '#38BDF8',
-                      border: `1px solid ${isMale ? 'rgba(115,255,0,0.18)' : 'rgba(56,189,248,0.18)'}`,
-                    }}
-                  >
-                    {isMale ? 'M' : 'F'} Division
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/25">
-                      R{match.round} · #{match.matchNumber}
-                    </span>
-                    <ShareButton
-                      compact
-                      text={`🏆 ${match.teamAName || 'Team A'} ${match.scoreA} - ${match.scoreB} ${match.teamBName || 'Team B'} | IDOL META TARKAM`}
-                      matchData={{
-                        teamAName: match.teamAName || 'Team A',
-                        teamBName: match.teamBName || 'Team B',
-                        scoreA: match.scoreA,
-                        scoreB: match.scoreB,
-                        winnerName: match.winnerName || undefined,
-                      }}
-                    />
-                  </div>
-                </div>
+      if (log.action === 'tournament_win') {
+        try {
+          const details = log.details ? JSON.parse(log.details) : {};
+          newsItems.push({
+            id: `twin-${log.id}`,
+            type: 'tournament_win',
+            timestamp: log.createdAt,
+            playerName: log.userName,
+            playerAvatar: log.userAvatar,
+            playerGender: log.userGender,
+            playerClub: log.userClub,
+            icon: '🏆',
+            title: `${log.userName} juara turnamen!`,
+            subtitle: details.tournamentName || details.division || '',
+            accent,
+          });
+        } catch { /* skip malformed */ }
+      }
+    });
+  }
 
-                {/* Teams + Score */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  {/* Team A */}
-                  <div className="flex-1 min-w-0 text-right">
-                    <p
-                      className={`text-[12px] font-bold truncate ${teamAWon ? '' : 'text-white/60'}`}
-                      style={teamAWon ? { color: accentHex } : {}}
-                    >
-                      {match.teamAName || 'Team A'}
-                    </p>
-                  </div>
+  // 2. Match results from recentMatches
+  data.recentMatches.forEach((match) => {
+    const isMale = match.division === 'male';
+    const accent = isMale ? '115,255,0' : '56,189,248';
+    const matchLabel = match.round >= 3 ? 'Final' : match.round === 2 ? 'Semi-Final' : `R${match.round}`;
+    newsItems.push({
+      id: `match-${match.id}`,
+      type: 'match_result',
+      timestamp: match.completedAt,
+      playerName: match.winnerName || 'Unknown',
+      playerAvatar: match.mvpAvatar,
+      playerGender: isMale ? 'male' : 'female',
+      playerClub: null,
+      icon: '⚔️',
+      title: `Hasil ${matchLabel}: ${match.teamAName || 'TBD'} ${match.scoreA} - ${match.scoreB} ${match.teamBName || 'TBD'}`,
+      subtitle: match.winnerName ? `🏆 ${match.winnerName} menang${match.mvpName ? ` · MVP: ${match.mvpName}` : ''}` : '',
+      accent,
+    });
+  });
 
-                  {/* Score */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span
-                      className="text-[18px] font-black tabular-nums"
-                      style={teamAWon ? { color: accentHex } : { color: 'rgba(255,255,255,0.35)' }}
-                    >
-                      {match.scoreA}
-                    </span>
-                    <span className="text-[12px] text-white/20 font-medium">-</span>
-                    <span
-                      className="text-[18px] font-black tabular-nums"
-                      style={teamBWon ? { color: accentHex } : { color: 'rgba(255,255,255,0.35)' }}
-                    >
-                      {match.scoreB}
-                    </span>
-                  </div>
+  // 3. Achievements
+  data.recentAchievements.forEach((achievement) => {
+    const isMale = achievement.userGender === 'male';
+    const accent = isMale ? '115,255,0' : '56,189,248';
+    newsItems.push({
+      id: `ach-${achievement.id}`,
+      type: 'achievement',
+      timestamp: achievement.earnedAt,
+      playerName: achievement.userName,
+      playerAvatar: achievement.userAvatar,
+      playerGender: achievement.userGender,
+      playerClub: null,
+      icon: achievement.icon || '🏅',
+      title: `${achievement.userName} mendapat pencapaian`,
+      subtitle: achievement.name,
+      accent,
+    });
+  });
 
-                  {/* Team B */}
-                  <div className="flex-1 min-w-0 text-left">
-                    <p
-                      className={`text-[12px] font-bold truncate ${teamBWon ? '' : 'text-white/60'}`}
-                      style={teamBWon ? { color: accentHex } : {}}
-                    >
-                      {match.teamBName || 'Team B'}
-                    </p>
-                  </div>
-                </div>
+  // Sort all by timestamp descending
+  newsItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-                {/* Winner badge */}
-                {match.winnerName && (
-                  <div className="flex items-center justify-center mb-2">
-                    <span
-                      className="text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"
-                      style={{
-                        background: 'rgba(34,197,94,0.10)',
-                        color: '#22C55E',
-                        border: '1px solid rgba(34,197,94,0.18)',
-                      }}
-                    >
-                      <Trophy className="w-3 h-3" />
-                      {match.winnerName}
-                    </span>
-                  </div>
-                )}
-
-                {/* MVP info */}
-                {match.mvpName && (
-                  <div className="flex items-center justify-center">
-                    <div className="flex items-center gap-1.5">
-                      {match.mvpAvatar ? (
-                        <div
-                          className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0"
-                          style={{
-                            background: `url(${match.mvpAvatar}) center/cover`,
-                            border: '1px solid rgba(255,215,0,0.3)',
-                          }}
-                        />
-                      ) : (
-                        <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{
-                            background: 'rgba(255,215,0,0.10)',
-                            border: '1px solid rgba(255,215,0,0.2)',
-                          }}
-                        >
-                          <Star className="w-3 h-3 text-yellow-500" />
-                        </div>
-                      )}
-                      <span className="text-[10px] text-yellow-500/70 font-semibold">
-                        MVP: {match.mvpName}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Time ago */}
-                <div className="mt-2 text-center">
-                  <span className="text-[9px] text-white/20">{timeAgo(match.completedAt)}</span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      ) : (
-        <motion.div
-          variants={cardVariants}
-          className="rounded-2xl p-8 text-center"
-          style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            <Swords className="w-6 h-6 text-white/20" />
-          </div>
-          <p className="text-[13px] font-semibold text-white/30 mb-1">Belum ada pertandingan selesai</p>
-          <p className="text-[11px] text-white/18">Pertandingan akan muncul setelah turnamen dimulai</p>
-        </motion.div>
-      )}
-    </motion.div>
-  );
-}
-
-/* ────────────────────────────────────────────
-   Achievement Showcase Section
-   ──────────────────────────────────────────── */
-
-function AchievementShowcaseSection({ achievements }: { achievements: AchievementItem[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const displayed = newsItems.slice(0, 15);
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-7xl">
       <div className="flex items-center gap-2 mb-4">
-        <Star className="w-4 h-4" style={{ color: '#FFD700' }} />
-        <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Pencapaian Terbaru</h2>
-        {achievements.length > 0 && (
-          <span className="text-[11px] text-white/25 ml-1">{achievements.length} pencapaian</span>
+        <Zap className="w-4 h-4" style={{ color: '#FFD700' }} />
+        <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi Terbaru</h2>
+        {newsItems.length > 0 && (
+          <span className="text-[11px] text-white/25 ml-1">{newsItems.length} update</span>
         )}
       </div>
 
-      {achievements.length > 0 ? (
+      {displayed.length > 0 ? (
         <div
-          ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scroll-smooth pb-2 -mx-1 px-1"
+          className="rounded-2xl overflow-hidden"
           style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,215,0,0.06)',
           }}
         >
-          <style>{`[data-achievement-scroll]::-webkit-scrollbar{display:none}`}</style>
-          <div data-achievement-scroll="" className="contents">
-            {achievements.slice(0, 8).map((achievement, idx) => {
-              const isMale = achievement.userGender === 'male';
-              const accent = isMale ? '115,255,0' : '56,189,248';
-              const accentHex = isMale ? '#73FF00' : '#38BDF8';
+          {/* Top gradient accent */}
+          <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.3), rgba(115,255,0,0.2), transparent)' }} />
+
+          <div className="p-2 max-h-[520px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
+            {displayed.map((item, idx) => {
+              const isMale = item.playerGender === 'male';
+              const genderAccent = isMale ? '115,255,0' : '56,189,248';
+              const genderAccentHex = isMale ? '#73FF00' : '#38BDF8';
+
+              // Type-specific badge colors
+              const typeConfig: Record<string, { bg: string; border: string; color: string; label: string }> = {
+                club_transfer: { bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.15)', color: '#38BDF8', label: 'Transfer' },
+                match_result: { bg: 'rgba(115,255,0,0.08)', border: 'rgba(115,255,0,0.15)', color: '#73FF00', label: 'Pertandingan' },
+                achievement: { bg: 'rgba(255,215,0,0.08)', border: 'rgba(255,215,0,0.15)', color: '#FFD700', label: 'Pencapaian' },
+                win_streak: { bg: 'rgba(255,165,0,0.08)', border: 'rgba(255,165,0,0.15)', color: '#FFA500', label: 'Win Streak' },
+                tournament_win: { bg: 'rgba(255,215,0,0.10)', border: 'rgba(255,215,0,0.20)', color: '#FFD700', label: 'Juara' },
+              };
+              const cfg = typeConfig[item.type] || typeConfig.achievement;
 
               return (
                 <motion.div
-                  key={achievement.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  key={item.id}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex-shrink-0 w-[200px] sm:w-[220px] rounded-2xl p-3 relative overflow-hidden"
+                  transition={{ duration: 0.3, delay: idx * 0.04 }}
+                  className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03] mb-1"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-                    border: `1px solid rgba(${accent},0.08)`,
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                  }}
-                  whileHover={{
-                    borderColor: `rgba(${accent},0.16)`,
-                    y: -2,
-                    transition: { type: 'spring', stiffness: 400, damping: 25 },
+                    background: 'rgba(255,255,255,0.01)',
+                    border: '1px solid rgba(255,255,255,0.04)',
                   }}
                 >
-                  {/* Top gradient accent */}
+                  {/* Type Icon */}
                   <div
-                    className="absolute top-0 left-0 right-0 h-[2px]"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base"
                     style={{
-                      background: `linear-gradient(90deg, transparent, rgba(${accent},0.3), transparent)`,
+                      background: `linear-gradient(135deg, rgba(${item.accent},0.12) 0%, rgba(${item.accent},0.04) 100%)`,
+                      border: `1px solid rgba(${item.accent},0.12)`,
                     }}
-                  />
-
-                  {/* Icon + Achievement Name */}
-                  <div className="flex items-start gap-2.5 mb-2.5">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
-                      style={{
-                        background: `linear-gradient(135deg, rgba(${accent},0.15) 0%, rgba(${accent},0.05) 100%)`,
-                        border: `1px solid rgba(${accent},0.12)`,
-                      }}
-                    >
-                      {achievement.icon || '🏆'}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[12px] font-bold text-white/80 truncate leading-tight">{achievement.name}</p>
-                      <p className="text-[9px] text-white/25 mt-0.5">{timeAgo(achievement.earnedAt)}</p>
-                    </div>
+                  >
+                    {item.icon}
                   </div>
 
-                  {/* User info */}
-                  <div className="flex items-center gap-2 mt-auto">
-                    {achievement.userAvatar ? (
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {/* Player avatar mini */}
                       <div
-                        className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0"
+                        className="w-5 h-5 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center"
                         style={{
-                          background: `url(${achievement.userAvatar}) center/cover`,
-                          border: `1px solid rgba(${accent},0.20)`,
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background: `linear-gradient(135deg, rgba(${accent},0.25), rgba(${accent},0.08))`,
-                          border: `1px solid rgba(${accent},0.15)`,
+                          background: item.playerAvatar
+                            ? `url(${item.playerAvatar}) center/cover`
+                            : `linear-gradient(135deg, rgba(${genderAccent},0.25), rgba(${genderAccent},0.08))`,
+                          border: `1px solid rgba(${genderAccent},0.20)`,
                         }}
                       >
-                        <span className="text-[9px] font-bold" style={{ color: accentHex }}>
-                          {achievement.userName.charAt(0).toUpperCase()}
-                        </span>
+                        {!item.playerAvatar && (
+                          <span className="text-[8px] font-bold" style={{ color: genderAccentHex }}>
+                            {item.playerName.charAt(0).toUpperCase()}
+                          </span>
+                        )}
                       </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold truncate" style={{ color: accentHex }}>
-                        {achievement.userName}
-                      </p>
+                      <p className="text-[12px] font-semibold text-white/85 truncate">{item.title}</p>
                     </div>
-                    {/* Gender badge */}
-                    <span
-                      className="ml-auto text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                      style={{
-                        background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)',
-                        color: isMale ? '#73FF00' : '#38BDF8',
-                        border: `1px solid ${isMale ? 'rgba(115,255,0,0.18)' : 'rgba(56,189,248,0.18)'}`,
-                      }}
-                    >
-                      {isMale ? 'M' : 'F'}
-                    </span>
+                    {item.subtitle && (
+                      <p className="text-[11px] text-white/35 mt-0.5 truncate">{item.subtitle}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-1">
+                      {/* Type badge */}
+                      <span
+                        className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 uppercase tracking-wider"
+                        style={{
+                          background: cfg.bg,
+                          border: `1px solid ${cfg.border}`,
+                          color: cfg.color,
+                        }}
+                      >
+                        {cfg.label}
+                      </span>
+                      {/* Gender badge */}
+                      <span
+                        className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                        style={{
+                          background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                          color: genderAccentHex,
+                          border: `1px solid ${isMale ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
+                        }}
+                      >
+                        {isMale ? 'M' : 'F'}
+                      </span>
+                      {/* Time ago */}
+                      <span className="text-[9px] text-white/15">{timeAgo(item.timestamp)}</span>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -1428,23 +1345,28 @@ function AchievementShowcaseSection({ achievements }: { achievements: Achievemen
       ) : (
         <motion.div
           variants={cardVariants}
-          className="rounded-2xl p-8 text-center"
+          className="rounded-2xl overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.02)',
             border: '1px solid rgba(255,255,255,0.06)',
           }}
         >
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-            style={{
-              background: 'rgba(255,215,0,0.06)',
-              border: '1px solid rgba(255,215,0,0.10)',
-            }}
-          >
-            <Award className="w-6 h-6 text-yellow-500/30" />
+          <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent)' }} />
+          <div className="p-8 flex flex-col items-center text-center">
+            <motion.div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+              style={{
+                background: 'rgba(255,215,0,0.06)',
+                border: '1px solid rgba(255,215,0,0.10)',
+              }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <Zap className="w-8 h-8 text-yellow-500/30" />
+            </motion.div>
+            <p className="text-[13px] font-semibold text-white/30 mb-1">Belum ada informasi terbaru</p>
+            <p className="text-[11px] text-white/18">Update akan muncul saat ada aktivitas turnamen, transfer club, atau pencapaian</p>
           </div>
-          <p className="text-[13px] font-semibold text-white/30 mb-1">Belum ada pencapaian</p>
-          <p className="text-[11px] text-white/18">Pencapaian akan tercatat saat pemain mencapai milestone</p>
         </motion.div>
       )}
     </motion.div>
@@ -2289,6 +2211,7 @@ const FALLBACK_DATA: LandingData = {
   recentAchievements: [],
   recentDonations: [],
   recentSawers: [],
+  activityLogs: [],
 };
 
 export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, preloadedData }: LandingPageProps) {
@@ -2437,14 +2360,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ TOP PLAYERS SECTION ═══ */}
         <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
 
-        {/* ═══ RECENT MATCHES SECTION ═══ */}
-        <div className="w-full max-w-7xl mb-10 md:mb-14">
-          <RecentMatchesSection data={activeData} />
-        </div>
-
-        {/* ═══ ACHIEVEMENT SHOWCASE SECTION ═══ */}
+        {/* ═══ INFORMASI TERBARU SECTION ═══ */}
         <div className="w-full max-w-7xl mt-10 md:mt-14 mb-10 md:mb-14">
-          <AchievementShowcaseSection achievements={activeData.recentAchievements} />
+          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ QUICK INFO SECTION ═══ */}

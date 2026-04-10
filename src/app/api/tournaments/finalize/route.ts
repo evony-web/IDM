@@ -183,6 +183,45 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
+    // Log tournament_win activity for champion members
+    if (champion) {
+      for (const member of champion.TeamMember) {
+        try {
+          // Count consecutive tournament wins for this user
+          const userRanking = await db.ranking.findUnique({ where: { userId: member.userId } });
+          const totalWins = userRanking?.wins || 0;
+          await db.activityLog.create({
+            data: {
+              action: 'tournament_win',
+              details: JSON.stringify({
+                tournamentName: tournament.name,
+                division: tournament.division,
+                week: tournament.week,
+                teamName: champion.name,
+                totalWins,
+              }),
+              userId: member.userId,
+            },
+          });
+          // Log win_streak if 3+ consecutive wins
+          if (totalWins >= 3 && totalWins % 1 === 0) {
+            await db.activityLog.create({
+              data: {
+                action: 'win_streak',
+                details: JSON.stringify({
+                  streak: totalWins,
+                  tournamentName: tournament.name,
+                }),
+                userId: member.userId,
+              },
+            });
+          }
+        } catch (e) {
+          console.warn('[Finalize] Failed to log tournament win activity:', e);
+        }
+      }
+    }
+
     pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'tournament-update', { action: 'finalized', tournamentId, division: tournament.division }).catch(() => {});
     pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'announcement', { message: 'Tournament completed!', type: 'success', tournamentId }).catch(() => {});
 
