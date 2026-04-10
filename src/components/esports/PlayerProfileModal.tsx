@@ -268,10 +268,10 @@ export default function PlayerProfileModal() {
                 {profile && !loading && !error && (
                   <div>
                     {/* Header Section — Large Circular Avatar */}
-                    <div className="relative flex flex-col items-center pt-6 pb-4 px-5">
+                    <div className="relative flex flex-col items-center pt-8 pb-4 px-5">
                       {/* Accent glow behind avatar */}
                       <div
-                        className="absolute top-4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full opacity-15 blur-3xl pointer-events-none"
+                        className="absolute top-4 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full opacity-15 blur-3xl pointer-events-none"
                         style={{ background: accent }}
                       />
 
@@ -279,15 +279,15 @@ export default function PlayerProfileModal() {
                       <div className="relative">
                         {/* Outer decorative ring */}
                         <div
-                          className="absolute -inset-2 rounded-full"
+                          className="absolute -inset-3 rounded-full"
                           style={{
-                            border: `3px solid rgba(${accentRGB},0.25)`,
-                            boxShadow: `0 0 20px rgba(${accentRGB},0.08)`,
+                            border: `3px solid rgba(${accentRGB},0.30)`,
+                            boxShadow: `0 0 24px rgba(${accentRGB},0.10)`,
                           }}
                         />
                         {/* Inner avatar circle */}
                         <div
-                          className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full flex items-center justify-center overflow-hidden"
+                          className="relative w-40 h-40 sm:w-52 sm:h-52 rounded-full flex items-center justify-center overflow-hidden"
                           style={{
                             background: profile.avatar
                               ? 'none'
@@ -311,7 +311,7 @@ export default function PlayerProfileModal() {
                             />
                           ) : null}
                           <span
-                            className={`text-4xl sm:text-5xl font-black ${profile.avatar ? 'hidden' : ''}`}
+                            className={`text-6xl sm:text-7xl font-black ${profile.avatar ? 'hidden' : ''}`}
                             style={{ color: accent }}
                           >
                             {profile.name.charAt(0).toUpperCase()}
@@ -320,7 +320,7 @@ export default function PlayerProfileModal() {
 
                         {/* Tier badge on bottom-right of avatar */}
                         <div
-                          className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-black"
+                          className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-black"
                           style={{
                             background: tier.bg,
                             border: `2.5px solid ${tier.color}`,
@@ -334,13 +334,13 @@ export default function PlayerProfileModal() {
                         {/* MVP Crown badge on top-right of avatar */}
                         {profile.isMVP && (
                           <div
-                            className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                            className="absolute -top-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center"
                             style={{
                               background: 'linear-gradient(135deg, #FFD700, #FFA500)',
                               boxShadow: '0 2px 12px rgba(255,215,0,0.35)',
                             }}
                           >
-                            <Crown className="w-4 h-4 text-black" strokeWidth={2.5} />
+                            <Crown className="w-5 h-5 text-black" strokeWidth={2.5} />
                           </div>
                         )}
                       </div>
@@ -412,7 +412,7 @@ export default function PlayerProfileModal() {
                         <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                           <span className="text-[11px] text-white/40">Tier</span>
                           <span className="text-[11px] font-bold" style={{ color: tier.color }}>
-                            {tier.label} — {tier.label === 'S' ? 'Professional' : tier.label === 'A' ? 'Expert' : tier.label === 'B' ? 'Skilled' : tier.label === 'C' ? 'Standard' : 'Beginner'}
+                            {tier.label}
                           </span>
                         </div>
                         {/* Club */}
@@ -440,21 +440,6 @@ export default function PlayerProfileModal() {
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                             <span className="text-[11px] text-emerald-400 font-medium">Active</span>
                           </div>
-                        </div>
-                        {/* Points */}
-                        <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                          <span className="text-[11px] text-white/40">Total Points</span>
-                          <span
-                            className="text-[11px] font-black"
-                            style={{
-                              background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
-                              backgroundClip: 'text',
-                            }}
-                          >
-                            #{profile.points.toLocaleString()}
-                          </span>
                         </div>
                         {/* Gender */}
                         <div className="flex items-center justify-between px-3 py-2.5">

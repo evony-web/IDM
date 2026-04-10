@@ -169,7 +169,7 @@ function LoadingSkeleton() {
 
       {/* Avatar + name skeleton */}
       <div className="flex flex-col items-center py-8 px-4">
-        <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white/[0.04] animate-pulse mb-4" />
+        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-white/[0.04] animate-pulse mb-4" />
         <div className="w-40 h-7 rounded-lg bg-white/[0.05] animate-pulse mb-2" />
         <div className="w-24 h-4 rounded bg-white/[0.04] animate-pulse" />
       </div>
@@ -464,7 +464,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   />
                   {/* Inner avatar circle */}
                   <div
-                    className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full p-[3px]"
+                    className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full p-[3px]"
                     style={{
                       background: `linear-gradient(135deg, ${accentColor} 0%, rgba(${accentColorRGB}, 0.3) 50%, ${accentColor} 100%)`,
                     }}
@@ -661,7 +661,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   />
                   {/* City */}
                   <InfoRow
-                    label="City"
+                    label="Kota"
                     accentColor={accentColor}
                     value={
                       profile.city ? (
