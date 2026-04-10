@@ -1204,6 +1204,15 @@ const playerRowKeyframes = `
 }
 `;
 
+/* ── Inline keyframes for #1 sawer fire glow ── */
+const fireGlowKeyframes = `
+@keyframes fireGlow {
+  0%, 100% { box-shadow: 0 0 25px rgba(255,107,53,0.25), 0 0 50px rgba(244,114,182,0.15), 0 0 80px rgba(255,215,0,0.08), inset 0 0 15px rgba(255,107,53,0.06); }
+  33% { box-shadow: 0 0 35px rgba(255,107,53,0.35), 0 0 70px rgba(244,114,182,0.20), 0 0 100px rgba(255,215,0,0.12), inset 0 0 20px rgba(255,107,53,0.10); }
+  66% { box-shadow: 0 0 30px rgba(255,69,0,0.30), 0 0 60px rgba(244,114,182,0.18), 0 0 90px rgba(255,165,0,0.10), inset 0 0 18px rgba(255,69,0,0.08); }
+}
+`;
+
 /* ────────────────────────────────────────────
    Clubs Carousel Section
    ──────────────────────────────────────────── */
@@ -1931,10 +1940,20 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
 
 function DonasiSawerSection({ data }: { data: LandingData }) {
   const [activeTab, setActiveTab] = useState<'sawer' | 'donasi'>('sawer');
+  const [showAllDonasi, setShowAllDonasi] = useState(false);
   const totalDana = data.totalDonation + data.totalSawer;
   const hasSawer = data.recentSawers.length > 0;
   const hasDonasi = data.recentDonations.length > 0;
   const hasAny = hasSawer || hasDonasi;
+
+  // Sort penyawer by amount descending (highest first)
+  const sortedSawers = [...data.recentSawers].sort((a, b) => b.amount - a.amount);
+  // Sort donasi by newest first
+  const sortedDonations = [...data.recentDonations].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  // Limit donasi to 5 unless "Lihat Semua" is clicked
+  const MAX_DONASI_VISIBLE = 5;
+  const visibleDonations = showAllDonasi ? sortedDonations : sortedDonations.slice(0, MAX_DONASI_VISIBLE);
+  const hasMoreDonasi = sortedDonations.length > MAX_DONASI_VISIBLE;
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
@@ -1997,7 +2016,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                 } : {}}
               >
                 <Zap className="w-3.5 h-3.5" style={{ color: activeTab === 'sawer' ? '#F472B6' : 'currentColor' }} />
-                Sawer ({data.recentSawers.length})
+                Sawer ({sortedSawers.length})
               </button>
               <button
                 onClick={() => setActiveTab('donasi')}
@@ -2011,7 +2030,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                 } : {}}
               >
                 <Heart className="w-3.5 h-3.5" style={{ color: activeTab === 'donasi' ? '#FFD700' : 'currentColor' }} />
-                Donasi ({data.recentDonations.length})
+                Donasi ({sortedDonations.length})
               </button>
             </div>
 
@@ -2026,7 +2045,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                     transition={{ duration: 0.25 }}
                     className="space-y-2"
                   >
-                    {data.recentSawers.map((sawer, idx) => (
+                    {sortedSawers.map((sawer, idx) => (
                       <motion.div
                         key={sawer.id}
                         initial={{ opacity: 0, y: 8 }}
@@ -2035,27 +2054,42 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03] relative"
                         style={{
                           background: idx === 0
-                            ? 'linear-gradient(135deg, rgba(244,114,182,0.10) 0%, rgba(255,215,0,0.06) 50%, rgba(244,114,182,0.04) 100%)'
+                            ? 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(244,114,182,0.10) 40%, rgba(255,215,0,0.06) 70%, rgba(255,107,53,0.08) 100%)'
                             : 'rgba(255,255,255,0.01)',
                           border: idx === 0
-                            ? '1px solid rgba(244,114,182,0.25)'
+                            ? '1px solid rgba(255,107,53,0.35)'
                             : '1px solid rgba(255,255,255,0.04)',
                           boxShadow: idx === 0
-                            ? '0 0 20px rgba(244,114,182,0.15), 0 0 40px rgba(255,215,0,0.08)'
+                            ? '0 0 25px rgba(255,107,53,0.25), 0 0 50px rgba(244,114,182,0.15), 0 0 80px rgba(255,215,0,0.08), inset 0 0 15px rgba(255,107,53,0.06)'
                             : 'none',
+                          animation: idx === 0 ? 'fireGlow 2s ease-in-out infinite' : 'none',
                         }}
                       >
-                        {/* #1 Top Sawer glow effect */}
+                        {/* #1 Top Sawer fire blazing effect */}
                         {idx === 0 && (
                           <>
                             <motion.div
-                              className="absolute -top-1 -right-1"
-                              animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
-                              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                              className="absolute -top-2 -right-1"
+                              animate={{ scale: [1, 1.3, 0.9, 1.2, 1], rotate: [0, 15, -10, 5, 0] }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                             >
-                              <Flame className="w-4 h-4" style={{ color: '#FF6B35', filter: 'drop-shadow(0 0 6px rgba(255,107,53,0.6))' }} />
+                              <Flame className="w-5 h-5" style={{ color: '#FF6B35', filter: 'drop-shadow(0 0 8px rgba(255,107,53,0.8)) drop-shadow(0 0 16px rgba(255,69,0,0.4))' }} />
                             </motion.div>
-                            <div className="absolute inset-0 rounded-xl pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(244,114,182,0.04), transparent, rgba(255,215,0,0.03))' }} />
+                            <motion.div
+                              className="absolute -top-1 right-4"
+                              animate={{ scale: [0.8, 1.1, 0.7, 1], opacity: [0.5, 0.9, 0.4, 0.8] }}
+                              transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                            >
+                              <Flame className="w-3.5 h-3.5" style={{ color: '#FFD700', filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' }} />
+                            </motion.div>
+                            <motion.div
+                              className="absolute top-0 right-9"
+                              animate={{ scale: [0.6, 1, 0.5, 0.9], opacity: [0.3, 0.7, 0.2, 0.6] }}
+                              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+                            >
+                              <Flame className="w-2.5 h-2.5" style={{ color: '#FFA500', filter: 'drop-shadow(0 0 4px rgba(255,165,0,0.6))' }} />
+                            </motion.div>
+                            <div className="absolute inset-0 rounded-xl pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,107,53,0.06), transparent 40%, rgba(255,215,0,0.04))' }} />
                           </>
                         )}
                         <div
@@ -2067,7 +2101,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                             border: idx === 0
                               ? '2px solid rgba(255,215,0,0.50)'
                               : '1.5px solid rgba(244,114,182,0.20)',
-                            boxShadow: idx === 0 ? '0 0 12px rgba(255,215,0,0.25)' : 'none',
+                            boxShadow: idx === 0 ? '0 0 15px rgba(255,215,0,0.30), 0 0 30px rgba(255,107,53,0.15)' : 'none',
                           }}
                         >
                           {!sawer.senderAvatar && (
@@ -2079,7 +2113,12 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {idx === 0 && (
-                              <span className="text-[7px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: '#FFD700', border: '1px solid rgba(255,215,0,0.30)' }}>👑 #1</span>
+                              <motion.span
+                                className="text-[7px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
+                                style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: '#FFD700', border: '1px solid rgba(255,215,0,0.30)' }}
+                                animate={{ textShadow: ['0 0 4px rgba(255,215,0,0.3)', '0 0 8px rgba(255,215,0,0.6)', '0 0 4px rgba(255,215,0,0.3)'] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                              >👑 #1</motion.span>
                             )}
                             <p className="text-[12px] font-semibold text-white/85 truncate">{sawer.senderName}</p>
                             {sawer.targetPlayerName && (
@@ -2137,7 +2176,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                     transition={{ duration: 0.25 }}
                     className="space-y-2"
                   >
-                    {data.recentDonations.map((donation, idx) => (
+                    {visibleDonations.map((donation, idx) => (
                       <motion.div
                         key={donation.id}
                         initial={{ opacity: 0, y: 8 }}
@@ -2205,6 +2244,25 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         </div>
                       </motion.div>
                     ))}
+                    {/* Lihat Semua CTA for mobile donasi */}
+                    {hasMoreDonasi && !showAllDonasi && (
+                      <motion.button
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowAllDonasi(true)}
+                        className="w-full py-2 rounded-xl text-center text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,215,0,0.06), rgba(255,165,0,0.04))',
+                          border: '1px dashed rgba(255,215,0,0.15)',
+                          color: 'rgba(255,215,0,0.7)',
+                        }}
+                      >
+                        <span>Lihat Semua</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </motion.button>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -2221,10 +2279,10 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                 <div className="flex items-center gap-1.5 mb-2 px-1">
                   <Heart className="w-3 h-3" style={{ color: '#FFD700' }} />
                   <span className="text-[10px] font-bold tracking-wider uppercase text-yellow-400/70">Donasi</span>
-                  <span className="text-[9px] text-white/20 ml-0.5">({data.recentDonations.length})</span>
+                  <span className="text-[9px] text-white/20 ml-0.5">({sortedDonations.length})</span>
                 </div>
                 <div className="space-y-1.5">
-                  {data.recentDonations.map((donation, idx) => (
+                  {visibleDonations.map((donation, idx) => (
                     <motion.div
                       key={donation.id}
                       initial={{ opacity: 0, y: 8 }}
@@ -2288,6 +2346,25 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                       </div>
                     </motion.div>
                   ))}
+                  {/* Lihat Semua CTA for desktop donasi */}
+                  {hasMoreDonasi && !showAllDonasi && (
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowAllDonasi(true)}
+                      className="w-full py-1.5 rounded-xl text-center text-[10px] font-semibold flex items-center justify-center gap-1 transition-all"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255,215,0,0.06), rgba(255,165,0,0.04))',
+                        border: '1px dashed rgba(255,215,0,0.15)',
+                        color: 'rgba(255,215,0,0.7)',
+                      }}
+                    >
+                      <span>Lihat Semua</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </motion.button>
+                  )}
                 </div>
               </div>
             )}
@@ -2303,10 +2380,10 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                 <div className="flex items-center gap-1.5 mb-2 px-1">
                   <Zap className="w-3 h-3" style={{ color: '#F472B6' }} />
                   <span className="text-[10px] font-bold tracking-wider uppercase text-[#F472B6]/70">Sawer</span>
-                  <span className="text-[9px] text-white/20 ml-0.5">({data.recentSawers.length})</span>
+                  <span className="text-[9px] text-white/20 ml-0.5">({sortedSawers.length})</span>
                 </div>
                 <div className="space-y-1.5">
-                  {data.recentSawers.map((sawer, idx) => (
+                  {sortedSawers.map((sawer, idx) => (
                     <motion.div
                       key={sawer.id}
                       initial={{ opacity: 0, y: 8 }}
@@ -2315,27 +2392,42 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                       className="flex items-start gap-3 p-2.5 rounded-xl transition-all hover:bg-white/[0.03] relative"
                       style={{
                         background: idx === 0
-                          ? 'linear-gradient(135deg, rgba(244,114,182,0.10) 0%, rgba(255,215,0,0.06) 50%, rgba(244,114,182,0.04) 100%)'
+                          ? 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(244,114,182,0.10) 40%, rgba(255,215,0,0.06) 70%, rgba(255,107,53,0.08) 100%)'
                           : 'rgba(255,255,255,0.01)',
                         border: idx === 0
-                          ? '1px solid rgba(244,114,182,0.25)'
+                          ? '1px solid rgba(255,107,53,0.35)'
                           : '1px solid rgba(244,114,182,0.06)',
                         boxShadow: idx === 0
-                          ? '0 0 20px rgba(244,114,182,0.15), 0 0 40px rgba(255,215,0,0.08)'
+                          ? '0 0 25px rgba(255,107,53,0.25), 0 0 50px rgba(244,114,182,0.15), 0 0 80px rgba(255,215,0,0.08), inset 0 0 15px rgba(255,107,53,0.06)'
                           : 'none',
+                        animation: idx === 0 ? 'fireGlow 2s ease-in-out infinite' : 'none',
                       }}
                     >
-                      {/* #1 Top Sawer glow effect */}
+                      {/* #1 Top Sawer fire blazing effect */}
                       {idx === 0 && (
                         <>
                           <motion.div
-                            className="absolute -top-1 -right-1"
-                            animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            className="absolute -top-2 -right-1"
+                            animate={{ scale: [1, 1.3, 0.9, 1.2, 1], rotate: [0, 15, -10, 5, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                           >
-                            <Flame className="w-3.5 h-3.5" style={{ color: '#FF6B35', filter: 'drop-shadow(0 0 6px rgba(255,107,53,0.6))' }} />
+                            <Flame className="w-4 h-4" style={{ color: '#FF6B35', filter: 'drop-shadow(0 0 8px rgba(255,107,53,0.8)) drop-shadow(0 0 16px rgba(255,69,0,0.4))' }} />
                           </motion.div>
-                          <div className="absolute inset-0 rounded-xl pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(244,114,182,0.04), transparent, rgba(255,215,0,0.03))' }} />
+                          <motion.div
+                            className="absolute -top-1 right-3"
+                            animate={{ scale: [0.8, 1.1, 0.7, 1], opacity: [0.5, 0.9, 0.4, 0.8] }}
+                            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                          >
+                            <Flame className="w-3 h-3" style={{ color: '#FFD700', filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' }} />
+                          </motion.div>
+                          <motion.div
+                            className="absolute top-0 right-7"
+                            animate={{ scale: [0.6, 1, 0.5, 0.9], opacity: [0.3, 0.7, 0.2, 0.6] }}
+                            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+                          >
+                            <Flame className="w-2 h-2" style={{ color: '#FFA500', filter: 'drop-shadow(0 0 4px rgba(255,165,0,0.6))' }} />
+                          </motion.div>
+                          <div className="absolute inset-0 rounded-xl pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,107,53,0.06), transparent 40%, rgba(255,215,0,0.04))' }} />
                         </>
                       )}
                       <div
@@ -2347,7 +2439,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                           border: idx === 0
                             ? '2px solid rgba(255,215,0,0.50)'
                             : '1.5px solid rgba(244,114,182,0.20)',
-                          boxShadow: idx === 0 ? '0 0 12px rgba(255,215,0,0.25)' : 'none',
+                          boxShadow: idx === 0 ? '0 0 15px rgba(255,215,0,0.30), 0 0 30px rgba(255,107,53,0.15)' : 'none',
                         }}
                       >
                         {!sawer.senderAvatar && (
@@ -2359,7 +2451,12 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {idx === 0 && (
-                            <span className="text-[7px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: '#FFD700', border: '1px solid rgba(255,215,0,0.30)' }}>👑 #1</span>
+                            <motion.span
+                              className="text-[7px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
+                              style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: '#FFD700', border: '1px solid rgba(255,215,0,0.30)' }}
+                              animate={{ textShadow: ['0 0 4px rgba(255,215,0,0.3)', '0 0 8px rgba(255,215,0,0.6)', '0 0 4px rgba(255,215,0,0.3)'] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            >👑 #1</motion.span>
                           )}
                           <p className="text-[11px] font-semibold text-white/85 truncate">{sawer.senderName}</p>
                           {sawer.targetPlayerName && (
@@ -2837,6 +2934,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
   return (
     <>
     <style>{playerRowKeyframes}</style>
+    <style>{fireGlowKeyframes}</style>
     <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} activeData={activeData} />
     <div className="h-full relative overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
       {/* ── Background ── */}
