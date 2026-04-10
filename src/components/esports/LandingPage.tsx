@@ -96,6 +96,18 @@ interface AchievementItem {
   earnedAt: string;
 }
 
+interface ChampionData {
+  teamName: string | null;
+  playerId: string | null;
+  playerName: string | null;
+  playerAvatar: string | null;
+  tournamentName: string | null;
+  tournamentWeek: number | null;
+  prize: number;
+  score: string;
+  round: number;
+}
+
 interface LandingData {
   male: DivisionData;
   female: DivisionData;
@@ -104,6 +116,8 @@ interface LandingData {
   clubs: ClubData[];
   bannerMaleUrl: string | null;
   bannerFemaleUrl: string | null;
+  maleChampion: ChampionData | null;
+  femaleChampion: ChampionData | null;
   recentMatches: MatchResult[];
   liveMatches: MatchResult[];
   liveMatchCount: number;
@@ -1559,6 +1573,337 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 /* ════════════════════════════════════════════
+   Champion Carousel Banner — Full-width auto-rotating
+   Shows Male & Female division champions alternately
+   ════════════════════════════════════════════ */
+
+function ChampionCarouselBanner({ data }: { data: LandingData }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const slides: {
+    division: 'male' | 'female';
+    champion: ChampionData | null;
+    bannerUrl: string | null;
+    accent: string;
+    accentHex: string;
+    accentHex2: string;
+    label: string;
+  }[] = [
+    {
+      division: 'male',
+      champion: data.maleChampion,
+      bannerUrl: data.bannerMaleUrl,
+      accent: '115,255,0',
+      accentHex: '#73FF00',
+      accentHex2: '#5FD400',
+      label: 'MALE DIVISION',
+    },
+    {
+      division: 'female',
+      champion: data.femaleChampion,
+      bannerUrl: data.bannerFemaleUrl,
+      accent: '56,189,248',
+      accentHex: '#38BDF8',
+      accentHex2: '#0EA5E9',
+      label: 'FEMALE DIVISION',
+    },
+  ];
+
+  const hasAnyContent = slides.some(s => s.bannerUrl || s.champion);
+
+  // Auto-rotate every 5 seconds
+  useEffect(() => {
+    if (isPaused || !hasAnyContent) return;
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % slides.length);
+    }, 5000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isPaused, hasAnyContent, slides.length]);
+
+  const currentSlide = slides[currentIndex];
+
+  if (!hasAnyContent) {
+    // Show a minimal placeholder banner
+    return (
+      <motion.div
+        variants={itemVariants}
+        className="w-full max-w-7xl mt-8 md:mt-10 mb-8 md:mb-10"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full overflow-hidden"
+          style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
+        >
+          <div className="relative w-full aspect-[16/7] sm:aspect-[16/6] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
+            <div className="text-center">
+              <motion.img
+                src={IDM_LOGO_URL}
+                alt="IDM"
+                className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain opacity-50 mx-auto"
+                animate={{ filter: ['brightness(1) saturate(1)', 'brightness(1.2) saturate(1.1)', 'brightness(1) saturate(1)'] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">Champion Banner</p>
+              <p className="text-[10px] sm:text-[11px] text-white/20 mt-1 tracking-[0.2em] uppercase">Upload banner via admin panel</p>
+            </div>
+          </div>
+          {/* Neon border */}
+          <svg className="absolute pointer-events-none" style={{ inset: '-4px', width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', zIndex: 10 }} viewBox="0 0 1200 500" preserveAspectRatio="none" fill="none">
+            <defs>
+              <linearGradient id="emptyNeonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#73FF00" stopOpacity="0" />
+                <stop offset="50%" stopColor="#FFD700" />
+                <stop offset="100%" stopColor="#38BDF8" stopOpacity="0" />
+              </linearGradient>
+              <filter id="emptyNeonGlow"><feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+            </defs>
+            <rect x="2" y="2" width="1196" height="496" rx="20" ry="20" stroke="url(#emptyNeonGrad)" strokeWidth="1.5" filter="url(#emptyNeonGlow)" />
+          </svg>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="w-full max-w-7xl mt-8 md:mt-10 mb-8 md:mb-10"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full overflow-visible"
+        style={{ borderRadius: '20px' }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => { setIsPaused(false); }}
+      >
+        {/* ── Neon running border (SVG) ── */}
+        <svg
+          className="absolute pointer-events-none"
+          style={{ inset: '-4px', width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', zIndex: 10 }}
+          viewBox="0 0 1200 500"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <defs>
+            <linearGradient id={`champNeonGrad${currentIndex}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={currentSlide.accentHex} stopOpacity="0" />
+              <stop offset="25%" stopColor={currentSlide.accentHex} />
+              <stop offset="50%" stopColor="#FFD700" />
+              <stop offset="75%" stopColor={currentSlide.accentHex} />
+              <stop offset="100%" stopColor={currentSlide.accentHex} stopOpacity="0" />
+            </linearGradient>
+            <filter id="champNeonGlow">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur1" />
+              <feMerge><feMergeNode in="blur1" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          <rect x="2" y="2" width="1196" height="496" rx="20" ry="20" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+          <rect x="2" y="2" width="1196" height="496" rx="20" ry="20" stroke={`url(#champNeonGrad${currentIndex})`} strokeWidth="1.5" filter="url(#champNeonGlow)" />
+        </svg>
+
+        {/* ── Inner content ── */}
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
+        >
+          <div className="relative w-full aspect-[16/8] sm:aspect-[16/7] md:aspect-[16/6.5]">
+            {/* Slide Content with AnimatePresence */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0"
+              >
+                {currentSlide.bannerUrl ? (
+                  <>
+                    {/* Banner image */}
+                    <img
+                      src={currentSlide.bannerUrl}
+                      alt={`${currentSlide.division} Champion`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    {/* Gradient overlays */}
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.90) 0%, rgba(5,5,7,0.30) 40%, rgba(5,5,7,0.20) 60%, rgba(5,5,7,0.40) 100%)' }} />
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 80%, rgba(${currentSlide.accent},0.08) 0%, transparent 100%)` }} />
+                  </>
+                ) : (
+                  <>
+                    {/* No banner image - themed gradient background */}
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 70% 50% at 50% 40%, rgba(${currentSlide.accent},0.06) 0%, transparent 100%), linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)` }} />
+                    {/* Decorative rings */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: '200px', height: '200px', borderRadius: '50%', border: `1px solid rgba(${currentSlide.accent},0.06)`, boxShadow: `0 0 60px rgba(${currentSlide.accent},0.03), inset 0 0 60px rgba(${currentSlide.accent},0.02)` }} />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: '140px', height: '140px', borderRadius: '50%', border: `1px solid rgba(${currentSlide.accent},0.04)` }} />
+                  </>
+                )}
+
+                {/* Champion Info Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-6 sm:pb-8 md:pb-10 px-4">
+                  {currentSlide.champion ? (
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex flex-col items-center text-center"
+                    >
+                      {/* Division Label */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="px-3 py-1 rounded-full" style={{ background: `rgba(${currentSlide.accent},0.10)`, border: `1px solid rgba(${currentSlide.accent},0.20)`, backdropFilter: 'blur(8px)' }}>
+                          <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase" style={{ color: currentSlide.accentHex }}>{currentSlide.label}</span>
+                        </div>
+                        {currentSlide.champion.tournamentWeek && (
+                          <div className="px-2 py-1 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)' }}>
+                            <span className="text-[10px] font-bold text-yellow-400/70">Week {currentSlide.champion.tournamentWeek}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Crown Icon */}
+                      <motion.div
+                        animate={{ y: [0, -4, 0], rotate: [0, -3, 3, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 3 }}
+                      >
+                        <Crown className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
+                      </motion.div>
+
+                      {/* Champion Avatar */}
+                      <div className="relative mt-2">
+                        <div
+                          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center overflow-hidden"
+                          style={{
+                            background: currentSlide.champion.playerAvatar
+                              ? 'none'
+                              : `linear-gradient(135deg, rgba(${currentSlide.accent},0.30), rgba(${currentSlide.accent},0.08))`,
+                            border: '3px solid rgba(255,215,0,0.6)',
+                            boxShadow: '0 0 24px rgba(255,215,0,0.20), 0 0 48px rgba(255,215,0,0.08)',
+                          }}
+                        >
+                          {currentSlide.champion.playerAvatar ? (
+                            <img src={currentSlide.champion.playerAvatar} alt={currentSlide.champion.playerName || ''} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xl sm:text-2xl md:text-3xl font-black" style={{ color: currentSlide.accentHex }}>
+                              {(currentSlide.champion.playerName || currentSlide.champion.teamName || '?').charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        {/* Gold ring around avatar */}
+                        <div className="absolute inset-[-3px] rounded-full pointer-events-none" style={{ border: '1px solid rgba(255,215,0,0.15)', boxShadow: `0 0 16px rgba(${currentSlide.accent},0.10)` }} />
+                      </div>
+
+                      {/* Champion Name */}
+                      <h2 className="text-[22px] sm:text-[28px] md:text-[36px] font-black text-white mt-3 tracking-tight" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
+                        {currentSlide.champion.playerName || currentSlide.champion.teamName || 'Champion'}
+                      </h2>
+
+                      {/* Champion Badge Row */}
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.20)', color: '#FFD700' }}>
+                          <Trophy className="w-3 h-3" />
+                          CHAMPION
+                        </span>
+                        {currentSlide.champion.prize > 0 && (
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)', color: '#FFD700' }}>
+                            <Coins className="w-3 h-3" />
+                            {formatRupiah(currentSlide.champion.prize)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Tournament Name */}
+                      {currentSlide.champion.tournamentName && (
+                        <p className="text-[11px] sm:text-[12px] text-white/35 mt-2 tracking-wide">{currentSlide.champion.tournamentName}</p>
+                      )}
+                    </motion.div>
+                  ) : currentSlide.bannerUrl ? (
+                    /* Banner image only, no champion data */
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="flex flex-col items-center text-center"
+                    >
+                      <div className="px-3 py-1 rounded-full mb-3" style={{ background: `rgba(${currentSlide.accent},0.10)`, border: `1px solid rgba(${currentSlide.accent},0.20)`, backdropFilter: 'blur(8px)' }}>
+                        <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase" style={{ color: currentSlide.accentHex }}>{currentSlide.label}</span>
+                      </div>
+                      <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400/50" />
+                      <p className="text-[16px] sm:text-[20px] md:text-[24px] font-bold text-white/70 mt-2 tracking-tight">
+                        {currentSlide.division === 'male' ? 'Male' : 'Female'} Division
+                      </p>
+                      <p className="text-[12px] sm:text-[14px] text-white/30 mt-1">Champion Banner</p>
+                    </motion.div>
+                  ) : null}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* ── Bottom glow line ── */}
+            <div className="absolute bottom-0 left-[10%] right-[10%] h-px pointer-events-none z-20" style={{ background: `linear-gradient(90deg, transparent, rgba(${currentSlide.accent},0.30), rgba(255,215,0,0.20), rgba(${currentSlide.accent},0.30), transparent)` }} />
+            {/* Top subtle glow line */}
+            <div className="absolute top-0 left-[15%] right-[15%] h-px pointer-events-none z-20" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.12) 50%, transparent)' }} />
+            {/* Inner border */}
+            <div className="absolute inset-0 pointer-events-none z-20" style={{ borderRadius: '20px', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)' }} />
+          </div>
+        </div>
+
+        {/* ── Dot Indicators ── */}
+        <div className="flex items-center justify-center gap-2 mt-4">
+          {slides.map((slide, idx) => (
+            <button
+              key={slide.division}
+              onClick={() => setCurrentIndex(idx)}
+              className="cursor-pointer transition-all duration-300 outline-none"
+              aria-label={`View ${slide.label} champion`}
+            >
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300"
+                style={{
+                  background: idx === currentIndex
+                    ? `rgba(${slide.accent},0.15)`
+                    : 'rgba(255,255,255,0.03)',
+                  border: idx === currentIndex
+                    ? `1px solid rgba(${slide.accent},0.30)`
+                    : '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                <div
+                  className="rounded-full transition-all duration-300"
+                  style={{
+                    width: idx === currentIndex ? '8px' : '6px',
+                    height: idx === currentIndex ? '8px' : '6px',
+                    background: idx === currentIndex
+                      ? slide.accentHex
+                      : 'rgba(255,255,255,0.20)',
+                    boxShadow: idx === currentIndex ? `0 0 8px rgba(${slide.accent},0.40)` : 'none',
+                  }}
+                />
+                <span
+                  className="text-[10px] font-semibold tracking-wider uppercase transition-colors duration-300"
+                  style={{ color: idx === currentIndex ? slide.accentHex : 'rgba(255,255,255,0.25)' }}
+                >
+                  {slide.division === 'male' ? 'MALE' : 'FEMALE'}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ════════════════════════════════════════════
    LandingPage — Main Component
    ════════════════════════════════════════════ */
 
@@ -1581,6 +1926,8 @@ const FALLBACK_DATA: LandingData = {
   clubs: [],
   bannerMaleUrl: null,
   bannerFemaleUrl: null,
+  maleChampion: null,
+  femaleChampion: null,
   recentMatches: [],
   liveMatches: [],
   liveMatchCount: 0,
@@ -1667,355 +2014,8 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         animate="visible"
         className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-8 pt-3 pb-8 md:pt-4 md:pb-12 min-h-screen"
       >
-        {/* ═══ HERO BANNER — Dual MVP ═══ */}
-        {(() => {
-          const maleMvpPlayer = activeData.male.topPlayers.find(p => p.isMVP);
-          const femaleMvpPlayer = activeData.female.topPlayers.find(p => p.isMVP);
-          const hasBannerImage = activeData.bannerMaleUrl || activeData.bannerFemaleUrl;
-          const hasMvpPlayer = maleMvpPlayer || femaleMvpPlayer;
-          const hasAnyMvp = hasBannerImage || hasMvpPlayer;
-
-          return (
-          <motion.div
-            variants={itemVariants}
-            className="w-full max-w-7xl mt-8 md:mt-10 mb-8 md:mb-10"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full overflow-visible"
-              style={{
-                borderRadius: '20px',
-              }}
-            >
-              {/* ── Neon running border (SVG trace around outer perimeter) ── */}
-              <svg
-                className="absolute pointer-events-none"
-                style={{ inset: '-4px', width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', zIndex: 10 }}
-                viewBox="0 0 1200 500"
-                preserveAspectRatio="none"
-                fill="none"
-              >
-                <defs>
-                  <linearGradient id="neonGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#73FF00" stopOpacity="0" />
-                    <stop offset="20%" stopColor="#73FF00" />
-                    <stop offset="50%" stopColor="#38BDF8" />
-                    <stop offset="80%" stopColor="#FFD700" />
-                    <stop offset="100%" stopColor="#FFD700" stopOpacity="0" />
-                  </linearGradient>
-                  <filter id="neonGlow1">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur1" />
-                    <feMerge>
-                      <feMergeNode in="blur1" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-                {/* Subtle background track */}
-                <rect x="2" y="2" width="1196" height="496" rx="20" ry="20"
-                  stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
-                {/* Static neon glow border */}
-                <rect x="2" y="2" width="1196" height="496" rx="20" ry="20"
-                  stroke="url(#neonGrad1)" strokeWidth="1.5"
-                  filter="url(#neonGlow1)"
-                />
-              </svg>
-
-              {/* ── Inner content (dark bg covers center) ── */}
-              <div
-                className="relative w-full overflow-hidden"
-                style={{
-                  borderRadius: '20px',
-                  boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
-                }}
-              >
-              <div className="relative w-full aspect-[4/3] sm:aspect-[16/7] md:aspect-[16/7.5]">
-                <div className="w-full h-full grid grid-cols-2">
-                  {/* Male MVP — Left */}
-                  <div className="relative w-full h-full flex flex-col items-center justify-end gap-2 sm:gap-3 overflow-hidden">
-                    {activeData.bannerMaleUrl ? (
-                      <>
-                        {/* Banner image background */}
-                        <img
-                          src={activeData.bannerMaleUrl}
-                          alt="Male MVP"
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                        {/* Gradient overlay */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.40) 50%, rgba(5,5,7,0.50) 100%)',
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        {/* Subtle green radial glow */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background: `
-                              radial-gradient(ellipse 60% 50% at 50% 40%, rgba(115,255,0,0.04) 0%, transparent 100%),
-                              linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)
-                            `,
-                          }}
-                        />
-                        {/* Decorative ring */}
-                        <div
-                          className="absolute pointer-events-none"
-                          style={{
-                            width: '120px', height: '120px',
-                            borderRadius: '50%',
-                            border: '1px solid rgba(115,255,0,0.08)',
-                            boxShadow: '0 0 40px rgba(115,255,0,0.03), inset 0 0 40px rgba(115,255,0,0.02)',
-                          }}
-                        />
-                      </>
-                    )}
-                    {/* MVP Player Info or Empty State */}
-                    {maleMvpPlayer ? (
-                      <motion.div
-                        initial={{ y: 12, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute bottom-0 left-0 right-0 z-10 px-3 sm:px-4 pb-2.5 sm:pb-3"
-                      >
-                        <div className="flex items-center gap-2 sm:gap-3 mx-auto max-w-[180px] sm:max-w-[240px] md:max-w-[260px] p-1.5 sm:p-2 md:p-2.5 rounded-lg sm:rounded-xl" style={{ background: 'rgba(5,5,7,0.55)', border: '1px solid rgba(115,255,0,0.10)', backdropFilter: 'blur(12px)' }}>
-                          {/* MVP Avatar — compact */}
-                          <div className="relative flex-shrink-0">
-                            <div
-                              className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center overflow-hidden"
-                              style={{
-                                background: maleMvpPlayer.avatar
-                                  ? 'none'
-                                  : 'linear-gradient(135deg, rgba(115,255,0,0.30), rgba(115,255,0,0.08))',
-                                border: '2px solid rgba(255,215,0,0.5)',
-                                boxShadow: '0 0 16px rgba(255,215,0,0.12)',
-                              }}
-                            >
-                              {maleMvpPlayer.avatar ? (
-                                <img src={maleMvpPlayer.avatar} alt={maleMvpPlayer.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="text-sm sm:text-lg md:text-xl font-black text-[#73FF00]">{maleMvpPlayer.name.charAt(0).toUpperCase()}</span>
-                              )}
-                            </div>
-                            {/* Crown badge */}
-                            <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 1px 6px rgba(255,215,0,0.4)' }}>
-                              <Crown className="w-2 h-2 sm:w-3 sm:h-3 text-black" strokeWidth={2.5} />
-                            </div>
-                          </div>
-                          {/* MVP Name & Division */}
-                          <div className="min-w-0">
-                            <p className="text-[12px] sm:text-[13px] md:text-[15px] font-bold text-white/90 tracking-tight truncate">{maleMvpPlayer.name}</p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <p className="text-[9px] sm:text-[10px] md:text-[11px] text-[#73FF00]/70 font-semibold tracking-wider uppercase">Male MVP</p>
-                              {maleMvpPlayer.mvpScore != null && maleMvpPlayer.mvpScore > 0 && (
-                                <span className="flex-shrink-0 text-[9px] sm:text-[10px] md:text-[11px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}>Skor {maleMvpPlayer.mvpScore.toLocaleString('id-ID')}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <>
-                        {/* Empty state */}
-                        <motion.img
-                          src={IDM_LOGO_URL}
-                          alt="IDM"
-                          className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain opacity-60"
-                          animate={{
-                            filter: [
-                              'brightness(1) saturate(1)',
-                              'brightness(1.2) saturate(1.1)',
-                              'brightness(1) saturate(1)',
-                            ],
-                          }}
-                          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-                        <div className="relative z-10 text-center">
-                          <p className="text-[12px] sm:text-[14px] tracking-[0.25em] uppercase text-[#73FF00]/50 font-semibold">
-                            Male Division
-                          </p>
-                          <p className="text-[18px] sm:text-[22px] md:text-[26px] font-bold text-white/80 mt-0.5 tracking-tight">
-                            MVP Banner
-                          </p>
-                        </div>
-                        <div className="relative z-10 mt-1">
-                          <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#73FF00]/20" />
-                        </div>
-                      </>
-                    )}
-                    {/* Bottom left badge — only when no MVP player set */}
-                    {!maleMvpPlayer && (
-                      <div className="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 flex items-center gap-1.5 px-2 py-0.5 rounded-md z-10" style={{ background: 'rgba(115,255,0,0.08)', border: '1px solid rgba(115,255,0,0.12)', backdropFilter: 'blur(8px)' }}>
-                        <span className="text-[11px] font-bold text-[#73FF00]/60 tracking-wider uppercase">Male MVP</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Female MVP — Right */}
-                  <div className="relative w-full h-full flex flex-col items-center justify-end gap-2 sm:gap-3 overflow-hidden">
-                    {activeData.bannerFemaleUrl ? (
-                      <>
-                        {/* Banner image background */}
-                        <img
-                          src={activeData.bannerFemaleUrl}
-                          alt="Female MVP"
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                        {/* Gradient overlay */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.40) 50%, rgba(5,5,7,0.50) 100%)',
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        {/* Subtle blue radial glow */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background: `
-                              radial-gradient(ellipse 60% 50% at 50% 40%, rgba(56,189,248,0.04) 0%, transparent 100%),
-                              linear-gradient(225deg, rgba(5,5,7,0.95) 0%, rgba(8,10,15,0.90) 50%, rgba(5,5,7,0.95) 100%)
-                            `,
-                          }}
-                        />
-                        {/* Decorative ring */}
-                        <div
-                          className="absolute pointer-events-none"
-                          style={{
-                            width: '120px', height: '120px',
-                            borderRadius: '50%',
-                            border: '1px solid rgba(56,189,248,0.08)',
-                            boxShadow: '0 0 40px rgba(56,189,248,0.03), inset 0 0 40px rgba(56,189,248,0.02)',
-                          }}
-                        />
-                      </>
-                    )}
-                    {/* MVP Player Info or Empty State */}
-                    {femaleMvpPlayer ? (
-                      <motion.div
-                        initial={{ y: 12, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute bottom-0 left-0 right-0 z-10 px-3 sm:px-4 pb-2.5 sm:pb-3"
-                      >
-                        <div className="flex items-center gap-2 sm:gap-3 mx-auto max-w-[180px] sm:max-w-[240px] md:max-w-[260px] p-1.5 sm:p-2 md:p-2.5 rounded-lg sm:rounded-xl" style={{ background: 'rgba(5,5,7,0.55)', border: '1px solid rgba(56,189,248,0.10)', backdropFilter: 'blur(12px)' }}>
-                          {/* MVP Avatar — compact */}
-                          <div className="relative flex-shrink-0">
-                            <div
-                              className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center overflow-hidden"
-                              style={{
-                                background: femaleMvpPlayer.avatar
-                                  ? 'none'
-                                  : 'linear-gradient(135deg, rgba(56,189,248,0.30), rgba(56,189,248,0.08))',
-                                border: '2px solid rgba(255,215,0,0.5)',
-                                boxShadow: '0 0 16px rgba(255,215,0,0.12)',
-                              }}
-                            >
-                              {femaleMvpPlayer.avatar ? (
-                                <img src={femaleMvpPlayer.avatar} alt={femaleMvpPlayer.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="text-sm sm:text-lg md:text-xl font-black text-[#38BDF8]">{femaleMvpPlayer.name.charAt(0).toUpperCase()}</span>
-                              )}
-                            </div>
-                            {/* Crown badge */}
-                            <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 1px 6px rgba(255,215,0,0.4)' }}>
-                              <Crown className="w-2 h-2 sm:w-3 sm:h-3 text-black" strokeWidth={2.5} />
-                            </div>
-                          </div>
-                          {/* MVP Name & Division */}
-                          <div className="min-w-0">
-                            <p className="text-[12px] sm:text-[13px] md:text-[15px] font-bold text-white/90 tracking-tight truncate">{femaleMvpPlayer.name}</p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <p className="text-[9px] sm:text-[10px] md:text-[11px] text-[#38BDF8]/70 font-semibold tracking-wider uppercase">Female MVP</p>
-                              {femaleMvpPlayer.mvpScore != null && femaleMvpPlayer.mvpScore > 0 && (
-                                <span className="flex-shrink-0 text-[9px] sm:text-[10px] md:text-[11px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}>Skor {femaleMvpPlayer.mvpScore.toLocaleString('id-ID')}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <>
-                        {/* Empty state */}
-                        <motion.img
-                          src={IDM_LOGO_URL}
-                          alt="IDM"
-                          className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain opacity-60"
-                          animate={{
-                            filter: [
-                              'brightness(1) saturate(1)',
-                              'brightness(1.2) saturate(1.1)',
-                              'brightness(1) saturate(1)',
-                            ],
-                          }}
-                          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-                        />
-                        <div className="relative z-10 text-center">
-                          <p className="text-[12px] sm:text-[14px] tracking-[0.25em] uppercase text-[#38BDF8]/50 font-semibold">
-                            Female Division
-                          </p>
-                          <p className="text-[18px] sm:text-[22px] md:text-[26px] font-bold text-white/80 mt-0.5 tracking-tight">
-                            MVP Banner
-                          </p>
-                        </div>
-                        <div className="relative z-10 mt-1">
-                          <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#38BDF8]/20" />
-                        </div>
-                      </>
-                    )}
-                    {/* Bottom right badge — only when no MVP player set */}
-                    {!femaleMvpPlayer && (
-                      <div className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 flex items-center gap-1.5 px-2 py-0.5 rounded-md z-10" style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.12)', backdropFilter: 'blur(8px)' }}>
-                        <span className="text-[11px] font-bold text-[#38BDF8]/60 tracking-wider uppercase">Female MVP</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Center divider line */}
-                <div
-                  className="absolute top-[10%] bottom-[10%] left-1/2 -translate-x-1/2 w-px pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(to bottom, transparent, rgba(255,215,0,0.25) 30%, rgba(255,215,0,0.35) 50%, rgba(255,215,0,0.25) 70%, transparent)',
-                  }}
-                />
-
-                {/* ── Thin accent border ── */}
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    borderRadius: '20px',
-                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)',
-                  }}
-                />
-                {/* Bottom glow line */}
-                <div
-                  className="absolute bottom-0 left-[10%] right-[10%] h-px pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(90deg, rgba(115,255,0,0.20), rgba(255,215,0,0.15) 50%, rgba(56,189,248,0.20))',
-                  }}
-                />
-                {/* Top subtle gold glow line */}
-                <div
-                  className="absolute top-0 left-[15%] right-[15%] h-px pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.12) 50%, transparent)',
-                  }}
-                />
-              </div>
-              </div>
-            </motion.div>
-          </motion.div>
-          );
-        })()}
+        {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
+        <ChampionCarouselBanner data={activeData} />
 
         {/* ═══ STATS BAR ═══ */}
         <motion.div

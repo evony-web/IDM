@@ -262,6 +262,62 @@ export async function GET() {
     // Process banner settings
     const bannerMap = Object.fromEntries(bannerSettings.map(s => [s.key, s.value]));
 
+    // Fetch champion data for each division (winner of final match in latest completed tournament)
+    const [maleChampionMatch, femaleChampionMatch] = await Promise.all([
+      // Male champion: find the final match (highest round) with a winner in a completed tournament
+      db.match.findFirst({
+        where: {
+          status: 'completed',
+          winnerId: { not: null },
+          tournament: { division: 'male' },
+        },
+        include: {
+          winner: { select: { id: true, name: true } },
+          mvp: { select: { id: true, name: true, avatar: true } },
+          tournament: { select: { id: true, name: true, division: true, prizeChampion: true, week: true } },
+        },
+        orderBy: [{ round: 'desc' }, { completedAt: 'desc' }],
+      }),
+      // Female champion
+      db.match.findFirst({
+        where: {
+          status: 'completed',
+          winnerId: { not: null },
+          tournament: { division: 'female' },
+        },
+        include: {
+          winner: { select: { id: true, name: true } },
+          mvp: { select: { id: true, name: true, avatar: true } },
+          tournament: { select: { id: true, name: true, division: true, prizeChampion: true, week: true } },
+        },
+        orderBy: [{ round: 'desc' }, { completedAt: 'desc' }],
+      }),
+    ]);
+
+    const maleChampion = maleChampionMatch ? {
+      teamName: maleChampionMatch.winner?.name || null,
+      playerId: maleChampionMatch.mvp?.id || null,
+      playerName: maleChampionMatch.mvp?.name || maleChampionMatch.winner?.name || null,
+      playerAvatar: maleChampionMatch.mvp?.avatar || null,
+      tournamentName: maleChampionMatch.tournament?.name || null,
+      tournamentWeek: maleChampionMatch.tournament?.week || null,
+      prize: maleChampionMatch.tournament?.prizeChampion || 0,
+      score: `${maleChampionMatch.scoreA}-${maleChampionMatch.scoreB}`,
+      round: maleChampionMatch.round,
+    } : null;
+
+    const femaleChampion = femaleChampionMatch ? {
+      teamName: femaleChampionMatch.winner?.name || null,
+      playerId: femaleChampionMatch.mvp?.id || null,
+      playerName: femaleChampionMatch.mvp?.name || femaleChampionMatch.winner?.name || null,
+      playerAvatar: femaleChampionMatch.mvp?.avatar || null,
+      tournamentName: femaleChampionMatch.tournament?.name || null,
+      tournamentWeek: femaleChampionMatch.tournament?.week || null,
+      prize: femaleChampionMatch.tournament?.prizeChampion || 0,
+      score: `${femaleChampionMatch.scoreA}-${femaleChampionMatch.scoreB}`,
+      round: femaleChampionMatch.round,
+    } : null;
+
     const responseData = {
       male: maleData,
       female: femaleData,
@@ -270,6 +326,8 @@ export async function GET() {
       clubs: clubsData,
       bannerMaleUrl: bannerMap['banner_male_url'] || null,
       bannerFemaleUrl: bannerMap['banner_female_url'] || null,
+      maleChampion,
+      femaleChampion,
       liveMatchCount: Array.isArray(liveMatches) ? liveMatches.length : 0,
       recentMatches: Array.isArray(recentCompletedMatches) ? recentCompletedMatches.map((m: any) => ({
         id: m.id,

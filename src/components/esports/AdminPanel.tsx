@@ -2775,8 +2775,8 @@ export function AdminPanel({
                           <ImageIconLucide className="w-4 h-4 text-amber-400" />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Kelola Banner</p>
-                          <p className="text-[10px] text-white/30">Upload gambar MVP Male & Female</p>
+                          <p className="text-[13px] font-bold text-white/90">Kelola Banner Champion</p>
+                          <p className="text-[10px] text-white/30">Upload gambar juara Male & Female division</p>
                         </div>
                       </div>
                       <motion.button
@@ -2808,21 +2808,21 @@ export function AdminPanel({
                       <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/10">
                         <Info className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
                         <div className="text-[11px] text-white/50 leading-relaxed">
-                          <p className="text-amber-400/80 font-semibold mb-1">Panduan Upload Banner</p>
-                          <p>Upload gambar untuk banner MVP di halaman utama. Male MVP tampil di sebelah kiri, Female MVP di sebelah kanan. Ukuran yang disarankan: <span className="text-white/70">800x400px</span> (rasio 2:1). Maksimal <span className="text-white/70">5MB</span>. Format: JPG, PNG, WebP.</p>
+                          <p className="text-amber-400/80 font-semibold mb-1">Panduan Upload Banner Champion</p>
+                          <p>Upload gambar untuk banner juara di halaman utama. Banner akan ditampilkan sebagai carousel bergantian antara juara Male & Female division. Ukuran yang disarankan: <span className="text-white/70">1600x800px</span> (rasio 2:1). Maksimal <span className="text-white/70">5MB</span>. Format: JPG, PNG, WebP.</p>
                         </div>
                       </div>
 
                       {/* Dual Banner Upload Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Male Banner Upload */}
+                        {/* Male Champion Banner Upload */}
                         <div className="space-y-2.5">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 rounded-md bg-[#73FF00]/10 flex items-center justify-center">
                               <span className="text-[9px] font-bold text-[#73FF00]">M</span>
                             </div>
                             <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
-                              Banner Male MVP
+                              Banner Juara Male
                             </label>
                           </div>
                           <div className="relative aspect-[2/1] rounded-xl overflow-hidden border border-white/[0.06]">
@@ -2830,7 +2830,7 @@ export function AdminPanel({
                               value={bannerMaleUrl}
                               onChange={(url) => { setBannerMaleUrl(url); setBannerSaved(false); }}
                               className="w-full h-full"
-                              maxWidth={1200}
+                              maxWidth={1600}
                               quality={0.75}
                               maxBase64Size={400 * 1024}
                             />
@@ -2848,14 +2848,14 @@ export function AdminPanel({
                           )}
                         </div>
 
-                        {/* Female Banner Upload */}
+                        {/* Female Champion Banner Upload */}
                         <div className="space-y-2.5">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 rounded-md bg-[#38BDF8]/10 flex items-center justify-center">
                               <span className="text-[9px] font-bold text-[#38BDF8]">F</span>
                             </div>
                             <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
-                              Banner Female MVP
+                              Banner Juara Female
                             </label>
                           </div>
                           <div className="relative aspect-[2/1] rounded-xl overflow-hidden border border-white/[0.06]">
@@ -2863,7 +2863,7 @@ export function AdminPanel({
                               value={bannerFemaleUrl}
                               onChange={(url) => { setBannerFemaleUrl(url); setBannerSaved(false); }}
                               className="w-full h-full"
-                              maxWidth={1200}
+                              maxWidth={1600}
                               quality={0.75}
                               maxBase64Size={400 * 1024}
                             />
@@ -2882,12 +2882,12 @@ export function AdminPanel({
                         </div>
                       </div>
 
-                      {/* Live Preview */}
+                      {/* Live Preview - Full-width Carousel Style */}
                       <div className="space-y-2.5">
                         <div className="flex items-center gap-2">
                           <Eye className="w-4 h-4 text-white/30" />
                           <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
-                            Preview Banner
+                            Preview Banner (Carousel Bergantian)
                           </label>
                         </div>
                         <div
@@ -2896,14 +2896,15 @@ export function AdminPanel({
                             boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
                           }}
                         >
+                          {/* Male Champion Preview */}
                           <div className="relative w-full aspect-[16/7]">
-                            <div className="w-full h-full grid grid-cols-2">
-                              {/* Male Preview */}
+                            <div className="w-full h-full">
+                              {/* Male side */}
                               <div className="relative w-full h-full overflow-hidden bg-white/[0.03]">
                                 {bannerMaleUrl ? (
                                   <img
                                     src={bannerMaleUrl}
-                                    alt="Male MVP Preview"
+                                    alt="Male Champion Preview"
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
@@ -2911,19 +2912,33 @@ export function AdminPanel({
                                     <div className="w-10 h-10 rounded-xl bg-[#73FF00]/5 flex items-center justify-center">
                                       <ImageIcon className="w-5 h-5 text-[#73FF00]/30" />
                                     </div>
-                                    <p className="text-[10px] text-white/20">Male MVP</p>
+                                    <p className="text-[10px] text-white/20">Male Champion</p>
                                   </div>
                                 )}
+                                {/* Gradient overlay */}
+                                {bannerMaleUrl && (
+                                  <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.20) 50%)' }} />
+                                )}
                                 <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md" style={{ background: 'rgba(115,255,0,0.12)', border: '1px solid rgba(115,255,0,0.2)', backdropFilter: 'blur(8px)' }}>
-                                  <span className="text-[9px] font-bold text-[#73FF00] tracking-wider">MALE MVP</span>
+                                  <span className="text-[9px] font-bold text-[#73FF00] tracking-wider">MALE CHAMPION</span>
                                 </div>
                               </div>
-                              {/* Female Preview */}
+                            </div>
+                            {/* Center divider line */}
+                            {bannerMaleUrl && bannerFemaleUrl && (
+                              <div className="absolute top-[10%] bottom-[10%] left-1/2 -translate-x-1/2 w-px pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,215,0,0.3) 30%, rgba(255,215,0,0.4) 50%, rgba(255,215,0,0.3) 70%, transparent)' }} />
+                            )}
+                          </div>
+                          {/* Divider between male and female preview */}
+                          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.15) 50%, transparent)' }} />
+                          {/* Female Champion Preview */}
+                          <div className="relative w-full aspect-[16/7]">
+                            <div className="w-full h-full">
                               <div className="relative w-full h-full overflow-hidden bg-white/[0.03]">
                                 {bannerFemaleUrl ? (
                                   <img
                                     src={bannerFemaleUrl}
-                                    alt="Female MVP Preview"
+                                    alt="Female Champion Preview"
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
@@ -2931,23 +2946,20 @@ export function AdminPanel({
                                     <div className="w-10 h-10 rounded-xl bg-[#38BDF8]/5 flex items-center justify-center">
                                       <ImageIcon className="w-5 h-5 text-[#38BDF8]/30" />
                                     </div>
-                                    <p className="text-[10px] text-white/20">Female MVP</p>
+                                    <p className="text-[10px] text-white/20">Female Champion</p>
                                   </div>
                                 )}
+                                {bannerFemaleUrl && (
+                                  <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.20) 50%)' }} />
+                                )}
                                 <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md" style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', backdropFilter: 'blur(8px)' }}>
-                                  <span className="text-[9px] font-bold text-[#38BDF8] tracking-wider">FEMALE MVP</span>
+                                  <span className="text-[9px] font-bold text-[#38BDF8] tracking-wider">FEMALE CHAMPION</span>
                                 </div>
                               </div>
                             </div>
-                            {/* Center divider */}
-                            <div
-                              className="absolute top-[10%] bottom-[10%] left-1/2 -translate-x-1/2 w-px pointer-events-none"
-                              style={{
-                                background: 'linear-gradient(to bottom, transparent, rgba(255,215,0,0.3) 30%, rgba(255,215,0,0.4) 50%, rgba(255,215,0,0.3) 70%, transparent)',
-                              }}
-                            />
                           </div>
                         </div>
+                        <p className="text-[10px] text-white/25 text-center">Di halaman utama, kedua banner akan bergantian ditampilkan sebagai carousel setiap 5 detik</p>
                       </div>
                     </div>
                   </div>
