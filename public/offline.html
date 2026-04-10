@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#050507">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>IDOL META — Offline</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    @keyframes pulseWifiOff {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    @keyframes breatheGlow {
+      0%, 100% { 
+        box-shadow: 0 0 30px rgba(115, 255, 0, 0.15), 0 0 60px rgba(255, 215, 0, 0.08), 0 0 90px rgba(56, 189, 248, 0.05);
+        border-color: rgba(115, 255, 0, 0.1);
+      }
+      50% { 
+        box-shadow: 0 0 50px rgba(115, 255, 0, 0.25), 0 0 100px rgba(255, 215, 0, 0.15), 0 0 140px rgba(56, 189, 248, 0.1);
+        border-color: rgba(115, 255, 0, 0.2);
+      }
+    }
+
+    @keyframes subtleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+      background-color: #050507;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(115, 255, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(115, 255, 0, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    /* Radial glow */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(
+        circle,
+        rgba(115, 255, 0, 0.04) 0%,
+        rgba(255, 215, 0, 0.02) 30%,
+        rgba(56, 189, 248, 0.01) 60%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Logo container with breathing glow */
+    .logo-wrapper {
+      display: inline-block;
+      padding: 20px;
+      border-radius: 24px;
+      border: 1px solid rgba(115, 255, 0, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      animation: breatheGlow 4s ease-in-out infinite, subtleFloat 6s ease-in-out infinite;
+      margin-bottom: 2rem;
+      animation: breatheGlow 4s ease-in-out infinite;
+    }
+
+    .logo-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      object-fit: contain;
+    }
+
+    /* WiFi-off icon (SVG based) */
+    .wifi-off-icon {
+      animation: pulseWifiOff 3s ease-in-out infinite;
+      margin-bottom: 1.5rem;
+    }
+
+    .wifi-off-icon svg {
+      width: 56px;
+      height: 56px;
+      color: rgba(239, 68, 68, 0.7);
+      filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.3));
+    }
+
+    /* Title with gradient */
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #73FF00 0%, #FFD700 50%, #38BDF8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+      animation: fadeInUp 0.8s ease-out both;
+    }
+
+    /* Subtitle */
+    .subtitle {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: rgba(239, 68, 68, 0.9);
+      margin-bottom: 0.75rem;
+      animation: fadeInUp 0.8s ease-out 0.15s both;
+    }
+
+    /* Description */
+    .description {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.45);
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+
+    /* Retry button */
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #050507;
+      background: linear-gradient(135deg, #FFD700 0%, #FFC107 50%, #FFB300 100%);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.8s ease-out 0.45s both;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2), 0 0 0 1px rgba(255, 215, 0, 0.1);
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 215, 0, 0.35), 0 0 0 1px rgba(255, 215, 0, 0.2);
+    }
+
+    .retry-btn:active {
+      transform: translateY(0);
+    }
+
+    .retry-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Subtle shimmer line */
+    .shimmer-line {
+      width: 120px;
+      height: 1px;
+      margin: 2rem auto 0;
+      background: linear-gradient(90deg, transparent, rgba(115, 255, 0, 0.3), rgba(255, 215, 0, 0.3), rgba(56, 189, 248, 0.3), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 4s linear infinite;
+      animation: fadeInUp 0.8s ease-out 0.6s both, shimmer 4s linear infinite 1.4s;
+      opacity: 0;
+    }
+
+    /* Footer text */
+    .footer-text {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.2);
+      animation: fadeInUp 0.8s ease-out 0.75s both;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem 1rem;
+      }
+      .title {
+        font-size: 1.5rem;
+      }
+      .logo-img {
+        width: 80px;
+        height: 80px;
+      }
+      .wifi-off-icon svg {
+        width: 44px;
+        height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo-wrapper">
+      <img 
+        class="logo-img" 
+        src="https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png" 
+        alt="IDOL META Logo"
+      >
+    </div>
+
+    <!-- WiFi Off Icon -->
+    <div class="wifi-off-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.56 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+    </div>
+
+    <!-- Title -->
+    <h1 class="title">IDOL META</h1>
+
+    <!-- Subtitle -->
+    <p class="subtitle">Anda Sedang Offline</p>
+
+    <!-- Description -->
+    <p class="description">Periksa koneksi internet Anda dan coba lagi</p>
+
+    <!-- Retry Button -->
+    <button class="retry-btn" onclick="window.location.reload()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      Coba Lagi
+    </button>
+
+    <!-- Shimmer line -->
+    <div class="shimmer-line"></div>
+
+    <!-- Footer -->
+    <p class="footer-text">TARKAM Fan Made Edition</p>
+  </div>
+</body>
+</html>

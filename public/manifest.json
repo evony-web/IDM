@@ -1,0 +1,63 @@
+{
+  "name": "IDOL META - TARKAM Fan Made Edition",
+  "short_name": "IDOL META",
+  "description": "Premium esports tournament platform — Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050507",
+  "theme_color": "#0B0B0F",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["games", "entertainment", "sports"],
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp,w_192/idm/static/idm-logo.png",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "IDOL META Tournament Platform"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/",
+      "description": "Lihat dashboard turnamen",
+      "icons": [
+        {
+          "src": "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp,w_96/idm/static/idm-logo.png",
+          "sizes": "96x96",
+          "type": "image/webp"
+        }
+      ]
+    },
+    {
+      "name": "Leaderboard",
+      "url": "/",
+      "description": "Lihat leaderboard pemain",
+      "icons": [
+        {
+          "src": "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp,w_96/idm/static/idm-logo.png",
+          "sizes": "96x96",
+          "type": "image/webp"
+        }
+      ]
+    }
+  ]
+}

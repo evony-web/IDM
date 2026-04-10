@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Shield Background -->
+  <path
+    d="M32 2L58 14V36C58 48.15 46.84 59.28 32 62C17.16 59.28 6 48.15 6 36V14L32 2Z"
+    fill="#0a0f0d"
+    stroke="#73FF00"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+  <!-- Inner shield highlight -->
+  <path
+    d="M32 7L53 17V36C53 45.88 43.75 55.16 32 57.5C20.25 55.16 11 45.88 11 36V17L32 7Z"
+    fill="none"
+    stroke="#73FF00"
+    stroke-width="0.5"
+    opacity="0.25"
+  />
+  <!-- IM Text -->
+  <text
+    x="32"
+    y="40"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-weight="900"
+    font-size="26"
+    fill="#73FF00"
+    letter-spacing="-1"
+  >IM</text>
+  <!-- Subtle bottom accent line -->
+  <line x1="20" y1="47" x2="44" y2="47" stroke="#73FF00" stroke-width="1" opacity="0.4" stroke-linecap="round"/>
+</svg>
