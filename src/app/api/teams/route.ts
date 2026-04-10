@@ -110,11 +110,13 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < numTeams; i++) {
       const teamId = uuidv4();
       teamIds.push(teamId);
-      const captainName = shuffledS[i]?.user?.name || `Tim ${i + 1}`;
+      // Team name based on Tier S player with "Tim" prefix and capitalized name
+      const captainName = shuffledS[i]?.user?.name || `${i + 1}`;
+      const formattedName = captainName.charAt(0).toUpperCase() + captainName.slice(1);
       teamData.push({
         id: teamId,
         tournamentId,
-        name: `Team ${captainName}`,
+        name: `Tim ${formattedName}`,
         seed: i + 1,
       });
 

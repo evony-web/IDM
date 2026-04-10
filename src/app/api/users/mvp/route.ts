@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-guard';
 
-const MVP_BONUS_POINTS = 25; // Fixed MVP bonus, regardless of in-game score
+const MVP_BONUS_POINTS = 0; // MVP gets no standalone bonus — points only from tournament finalization
 
 // GET - Get current MVP info (one per gender)
 export async function GET() {
@@ -72,55 +72,41 @@ export async function POST(request: NextRequest) {
       where: { isMVP: true, gender: user.gender, id: { not: userId } },
     });
 
-    // Remove previous same-gender MVP flags & deduct their bonus
+    // Remove previous same-gender MVP flags (no point deduction since MVP bonus is 0)
     for (const existingMvp of existingGenderMvps) {
       await db.user.update({
         where: { id: existingMvp.id },
         data: {
           isMVP: false,
           mvpScore: 0,
-          points: { decrement: MVP_BONUS_POINTS },
         },
-      });
-      await db.ranking.upsert({
-        where: { userId: existingMvp.id },
-        create: { userId: existingMvp.id, points: 0 },
-        update: { points: { decrement: MVP_BONUS_POINTS } },
       });
     }
 
-    // Set new MVP — fixed +25 points bonus
+    // Set new MVP — no point bonus, MVP points only from tournament finalization
     await db.user.update({
       where: { id: userId },
       data: {
         isMVP: true,
         mvpScore: score,
-        points: { increment: MVP_BONUS_POINTS },
       },
-    });
-
-    // Update ranking
-    await db.ranking.upsert({
-      where: { userId },
-      create: { userId, points: MVP_BONUS_POINTS },
-      update: { points: { increment: MVP_BONUS_POINTS } },
     });
 
     const genderLabel = user.gender === 'male' ? 'Male' : 'Female';
 
     if (existingGenderMvps.length > 0) {
       console.log(
-        `[MVP] ${existingGenderMvps.length} ${genderLabel} MVP(s) removed, ${user.name} set as new ${genderLabel} MVP | Skor: ${score.toLocaleString('id-ID')} | +${MVP_BONUS_POINTS} pts`
+        `[MVP] ${existingGenderMvps.length} ${genderLabel} MVP(s) removed, ${user.name} set as new ${genderLabel} MVP | Skor: ${score.toLocaleString('id-ID')} | (points from finalization only)`
       );
     } else {
       console.log(
-        `[MVP] ${user.name} set as ${genderLabel} MVP | Skor: ${score.toLocaleString('id-ID')} | +${MVP_BONUS_POINTS} pts`
+        `[MVP] ${user.name} set as ${genderLabel} MVP | Skor: ${score.toLocaleString('id-ID')} | (points from finalization only)`
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: `${user.name} ditetapkan sebagai ${genderLabel} MVP! Skor: ${score.toLocaleString('id-ID')} | +${MVP_BONUS_POINTS} pts`,
+      message: `${user.name} ditetapkan sebagai ${genderLabel} MVP! Skor: ${score.toLocaleString('id-ID')} (poin MVP dari finalisasi turnamen)`,
     });
   } catch (error) {
     console.error('Error setting MVP:', error);
@@ -162,24 +148,18 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Remove MVP flag, deduct the fixed bonus
+    // Remove MVP flag (no point deduction since MVP bonus is 0)
     await db.user.update({
       where: { id: userId },
       data: {
         isMVP: false,
         mvpScore: 0,
-        points: { decrement: MVP_BONUS_POINTS },
       },
-    });
-    await db.ranking.upsert({
-      where: { userId },
-      create: { userId, points: 0 },
-      update: { points: { decrement: MVP_BONUS_POINTS } },
     });
 
     return NextResponse.json({
       success: true,
-      message: `${user.name} dikeluarkan dari MVP (-${MVP_BONUS_POINTS} pts)`,
+      message: `${user.name} dikeluarkan dari MVP`,
     });
   } catch (error) {
     console.error('Error removing MVP:', error);

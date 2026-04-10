@@ -272,7 +272,15 @@ export async function GET() {
           tournament: { division: 'male' },
         },
         include: {
-          winner: { select: { id: true, name: true } },
+          winner: {
+            select: {
+              id: true,
+              name: true,
+              TeamMember: {
+                select: { user: { select: { id: true, name: true, tier: true } } },
+              },
+            },
+          },
           mvp: { select: { id: true, name: true, avatar: true } },
           tournament: { select: { id: true, name: true, division: true, prizeChampion: true, week: true } },
         },
@@ -286,7 +294,15 @@ export async function GET() {
           tournament: { division: 'female' },
         },
         include: {
-          winner: { select: { id: true, name: true } },
+          winner: {
+            select: {
+              id: true,
+              name: true,
+              TeamMember: {
+                select: { user: { select: { id: true, name: true, tier: true } } },
+              },
+            },
+          },
           mvp: { select: { id: true, name: true, avatar: true } },
           tournament: { select: { id: true, name: true, division: true, prizeChampion: true, week: true } },
         },
@@ -294,8 +310,16 @@ export async function GET() {
       }),
     ]);
 
+    // Helper: extract Tier S player name from team members
+    const getTierSPlayerName = (team: { TeamMember?: Array<{ user: { id: string; name: string; tier: string } }> } | null): string | null => {
+      if (!team?.TeamMember) return null;
+      const tierSMember = team.TeamMember.find(m => m.user.tier === 'S');
+      return tierSMember?.name || null;
+    };
+
     const maleChampion = maleChampionMatch ? {
       teamName: maleChampionMatch.winner?.name || null,
+      tierSPlayerName: getTierSPlayerName(maleChampionMatch.winner),
       playerId: maleChampionMatch.mvp?.id || null,
       playerName: maleChampionMatch.mvp?.name || maleChampionMatch.winner?.name || null,
       playerAvatar: maleChampionMatch.mvp?.avatar || null,
@@ -308,6 +332,7 @@ export async function GET() {
 
     const femaleChampion = femaleChampionMatch ? {
       teamName: femaleChampionMatch.winner?.name || null,
+      tierSPlayerName: getTierSPlayerName(femaleChampionMatch.winner),
       playerId: femaleChampionMatch.mvp?.id || null,
       playerName: femaleChampionMatch.mvp?.name || femaleChampionMatch.winner?.name || null,
       playerAvatar: femaleChampionMatch.mvp?.avatar || null,

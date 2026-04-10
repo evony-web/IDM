@@ -5,10 +5,13 @@ import pusher, { tournamentChannel, globalChannel } from '@/lib/pusher';
 import { checkAndAwardAchievements } from '@/lib/achievement-checker';
 
 // Point Configuration
+// Participation (approved by admin): +1 point
+// Winning: +2 points
+// MVP: no match bonus — MVP points only from tournament finalization
 const POINTS_CONFIG = {
-  win: 100,
-  mvpBonus: 25,
-  loss: 25,
+  participation: 1,
+  win: 2,
+  mvpBonus: 0,
 };
 
 // GET - Get matches
@@ -316,52 +319,70 @@ async function awardMatchPoints(
       })
     : [];
 
+  // Collect all participant user IDs for participation points
+  // MVP is EXCLUDED from match points (participation & win) — MVP points only from tournament finalization
+  const allParticipantIds = [
+    ...winnerMembers.map(m => m.userId),
+    ...loserMembers.map(m => m.userId),
+  ].filter(id => id !== mvpUserId);
+
+  // Win member IDs (excluding MVP)
+  const winnerMemberIdsNoMvp = winnerMembers
+    .map(m => m.userId)
+    .filter(id => id !== mvpUserId);
+
   await db.$transaction(async (tx) => {
-    // Award WIN points to winning team members
-    for (const member of winnerMembers) {
+    // Award PARTICIPATION points to ALL match participants (+1) EXCEPT MVP
+    for (const userId of allParticipantIds) {
       await tx.user.update({
-        where: { id: member.userId },
+        where: { id: userId },
+        data: { points: { increment: POINTS_CONFIG.participation } },
+      });
+      await tx.ranking.upsert({
+        where: { userId },
+        create: { userId, points: POINTS_CONFIG.participation },
+        update: { points: { increment: POINTS_CONFIG.participation } },
+      });
+    }
+
+    // Award WIN points to winning team members (additional +2) EXCEPT MVP
+    for (const userId of winnerMemberIdsNoMvp) {
+      await tx.user.update({
+        where: { id: userId },
         data: { points: { increment: POINTS_CONFIG.win } },
       });
       await tx.ranking.upsert({
-        where: { userId: member.userId },
-        create: { userId: member.userId, points: POINTS_CONFIG.win, wins: 1 },
+        where: { userId },
+        create: { userId, points: POINTS_CONFIG.win, wins: 1 },
         update: { points: { increment: POINTS_CONFIG.win }, wins: { increment: 1 } },
       });
     }
 
-    // Award LOSS points to losing team members
+    // Award LOSS count to losing team members (no points, just tracking) EXCEPT MVP
     for (const member of loserMembers) {
-      await tx.user.update({
-        where: { id: member.userId },
-        data: { points: { increment: POINTS_CONFIG.loss } },
-      });
+      if (member.userId === mvpUserId) continue; // Skip MVP
       await tx.ranking.upsert({
         where: { userId: member.userId },
-        create: { userId: member.userId, points: POINTS_CONFIG.loss, losses: 1 },
-        update: { points: { increment: POINTS_CONFIG.loss }, losses: { increment: 1 } },
+        create: { userId: member.userId, points: 0, losses: 1 },
+        update: { losses: { increment: 1 } },
       });
     }
 
-    // Award MVP bonus
+    // MVP: set isMVP flag only (no bonus points — MVP points only from finalization)
     if (mvpUserId && winnerMembers.some(m => m.userId === mvpUserId)) {
       await tx.user.update({
         where: { id: mvpUserId },
         data: {
-          points: { increment: POINTS_CONFIG.mvpBonus },
           isMVP: true,
         },
-      });
-      await tx.ranking.upsert({
-        where: { userId: mvpUserId },
-        create: { userId: mvpUserId, points: POINTS_CONFIG.mvpBonus },
-        update: { points: { increment: POINTS_CONFIG.mvpBonus } },
       });
     }
   });
 }
 
 // Award MVP Only (for completed matches where admin adds/changes MVP)
+// MVP gets no match points — only toggles isMVP flag
+// MVP points only come from tournament finalization
 async function awardMVPOnly(newMvpId: string, oldMvpId: string | null) {
   await db.$transaction(async (tx) => {
     if (oldMvpId && oldMvpId !== newMvpId) {
@@ -369,13 +390,7 @@ async function awardMVPOnly(newMvpId: string, oldMvpId: string | null) {
         where: { id: oldMvpId },
         data: {
           isMVP: false,
-          points: { decrement: POINTS_CONFIG.mvpBonus },
         },
-      });
-      await tx.ranking.upsert({
-        where: { userId: oldMvpId },
-        create: { userId: oldMvpId, points: 0 },
-        update: { points: { decrement: POINTS_CONFIG.mvpBonus } },
       });
     }
 
@@ -385,13 +400,7 @@ async function awardMVPOnly(newMvpId: string, oldMvpId: string | null) {
         where: { id: newMvpId },
         data: {
           isMVP: true,
-          points: { increment: POINTS_CONFIG.mvpBonus },
         },
-      });
-      await tx.ranking.upsert({
-        where: { userId: newMvpId },
-        create: { userId: newMvpId, points: POINTS_CONFIG.mvpBonus },
-        update: { points: { increment: POINTS_CONFIG.mvpBonus } },
       });
     }
   });

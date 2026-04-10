@@ -104,6 +104,7 @@ interface AchievementItem {
 
 interface ChampionData {
   teamName: string | null;
+  tierSPlayerName: string | null;
   playerId: string | null;
   playerName: string | null;
   playerAvatar: string | null;
@@ -2187,7 +2188,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                 animate={{ filter: ['brightness(1) saturate(1)', 'brightness(1.2) saturate(1.1)', 'brightness(1) saturate(1)'] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">Champion Banner</p>
+              <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">IDM Banner</p>
 
             </div>
           </div>
@@ -2296,14 +2297,14 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                       transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       className="flex flex-col items-center text-center"
                     >
-                      {/* Division Label */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="px-3 py-1 rounded-full" style={{ background: `rgba(${currentSlide.accent},0.10)`, border: `1px solid rgba(${currentSlide.accent},0.20)`, backdropFilter: 'blur(8px)' }}>
-                          <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase" style={{ color: currentSlide.accentHex }}>{currentSlide.label}</span>
+                      {/* Division Label — smaller on mobile, center-bottom like desktop */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
+                        <div className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full" style={{ background: `rgba(${currentSlide.accent},0.10)`, border: `1px solid rgba(${currentSlide.accent},0.20)`, backdropFilter: 'blur(8px)' }}>
+                          <span className="text-[8px] sm:text-[10px] md:text-[11px] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase" style={{ color: currentSlide.accentHex }}>{currentSlide.label}</span>
                         </div>
                         {currentSlide.champion.tournamentWeek && (
-                          <div className="px-2 py-1 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)' }}>
-                            <span className="text-[10px] font-bold text-yellow-400/70">Week {currentSlide.champion.tournamentWeek}</span>
+                          <div className="px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)' }}>
+                            <span className="text-[8px] sm:text-[10px] font-bold text-yellow-400/70">Week {currentSlide.champion.tournamentWeek}</span>
                           </div>
                         )}
                       </div>
@@ -2313,13 +2314,13 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                         animate={{ y: [0, -4, 0], rotate: [0, -3, 3, 0] }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 3 }}
                       >
-                        <Crown className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
+                        <Crown className="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
                       </motion.div>
 
                       {/* Champion Avatar */}
                       <div className="relative mt-2">
                         <div
-                          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center overflow-hidden"
+                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 rounded-full flex items-center justify-center overflow-hidden"
                           style={{
                             background: currentSlide.champion.playerAvatar
                               ? 'none'
@@ -2331,8 +2332,8 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                           {currentSlide.champion.playerAvatar ? (
                             <img src={currentSlide.champion.playerAvatar} alt={currentSlide.champion.playerName || ''} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-xl sm:text-2xl md:text-3xl font-black" style={{ color: currentSlide.accentHex }}>
-                              {(currentSlide.champion.playerName || currentSlide.champion.teamName || '?').charAt(0).toUpperCase()}
+                            <span className="text-lg sm:text-xl md:text-3xl font-black" style={{ color: currentSlide.accentHex }}>
+                              {(currentSlide.champion.tierSPlayerName || currentSlide.champion.playerName || currentSlide.champion.teamName || '?').charAt(0).toUpperCase()}
                             </span>
                           )}
                         </div>
@@ -2340,19 +2341,36 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                         <div className="absolute inset-[-3px] rounded-full pointer-events-none" style={{ border: '1px solid rgba(255,215,0,0.15)', boxShadow: `0 0 16px rgba(${currentSlide.accent},0.10)` }} />
                       </div>
 
-                      {/* Champion Name */}
-                      <h2 className="text-[22px] sm:text-[28px] md:text-[36px] font-black text-white mt-3 tracking-tight" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
-                        {currentSlide.champion.playerName || currentSlide.champion.teamName || 'Champion'}
+                      {/* Team Name — "Tim {Tier S player name}" format */}
+                      <h2 className="text-[16px] sm:text-[22px] md:text-[36px] font-black text-white mt-3 tracking-tight" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
+                        {(() => {
+                          const tierSName = currentSlide.champion.tierSPlayerName;
+                          if (tierSName) {
+                            const formatted = tierSName.charAt(0).toUpperCase() + tierSName.slice(1);
+                            return `Tim ${formatted}`;
+                          }
+                          // Fallback: use teamName if available, ensure "Tim" prefix
+                          const tn = currentSlide.champion.teamName;
+                          if (tn) {
+                            // If already has "Tim" or "Team" prefix, just capitalize
+                            if (tn.toLowerCase().startsWith('tim ') || tn.toLowerCase().startsWith('team ')) {
+                              return tn.charAt(0).toUpperCase() + tn.slice(1);
+                            }
+                            return `Tim ${tn.charAt(0).toUpperCase() + tn.slice(1)}`;
+                          }
+                          // Last fallback: use MVP/player name
+                          const pName = currentSlide.champion.playerName;
+                          if (pName) {
+                            return `Tim ${pName.charAt(0).toUpperCase() + pName.slice(1)}`;
+                          }
+                          return '';
+                        })()}
                       </h2>
 
-                      {/* Champion Badge Row */}
+                      {/* Prize Row — removed CHAMPION badge */}
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.20)', color: '#FFD700' }}>
-                          <Trophy className="w-3 h-3" />
-                          CHAMPION
-                        </span>
                         {currentSlide.champion.prize > 0 && (
-                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)', color: '#FFD700' }}>
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.20)', color: '#FFD700' }}>
                             <Coins className="w-3 h-3" />
                             {formatRupiah(currentSlide.champion.prize)}
                           </span>
@@ -2361,19 +2379,19 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
 
                       {/* Tournament Name */}
                       {currentSlide.champion.tournamentName && (
-                        <p className="text-[11px] sm:text-[12px] text-white/35 mt-2 tracking-wide">{currentSlide.champion.tournamentName}</p>
+                        <p className="text-[10px] sm:text-[11px] md:text-[12px] text-white/35 mt-2 tracking-wide">{currentSlide.champion.tournamentName}</p>
                       )}
                     </motion.div>
                   ) : currentSlide.bannerUrl ? (
-                    /* Banner image only, no champion data */
+                    {/* Banner image only, no champion data */}
                     <motion.div
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
                       className="flex flex-col items-center text-center"
                     >
-                      <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400/50" />
-                      <p className="text-[13px] sm:text-[20px] md:text-[24px] font-bold text-white/70 mt-2 tracking-tight">
+                      <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400/50" />
+                      <p className="text-[11px] sm:text-[20px] md:text-[24px] font-bold text-white/70 mt-2 tracking-tight">
                         {currentSlide.division === 'male' ? 'Male' : 'Female'} Division
                       </p>
                     </motion.div>
