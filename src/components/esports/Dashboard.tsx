@@ -127,6 +127,7 @@ interface DashboardProps {
     rank: number;
   }>;
   theme?: ThemeMode;
+  onPlayerClick?: (playerId: string) => void;
 }
 
 /* ─────────────────────────────────────────────
@@ -296,6 +297,7 @@ export function Dashboard({
   onLeaderboardTabChange,
   topClubs,
   theme = 'dark',
+  onPlayerClick,
 }: DashboardProps) {
   const isMale = division === 'male';
   const isLight = theme === 'light';
@@ -749,7 +751,10 @@ export function Dashboard({
                           variants={staggeredItem}
                           initial="hidden"
                           animate="show"
-                          className="flex items-center gap-3"
+                          className={`flex items-center gap-3 ${onPlayerClick ? 'cursor-pointer hover:bg-white/[0.03] rounded-lg px-1 py-0.5 -mx-1 -my-0.5 transition-colors' : ''}`}
+                          onClick={onPlayerClick ? () => onPlayerClick(member.userId) : undefined}
+                          whileHover={onPlayerClick ? { scale: 1.01 } : undefined}
+                          whileTap={onPlayerClick ? { scale: 0.99 } : undefined}
                         >
                           <div className={avatarRingClass}>
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
@@ -785,13 +790,16 @@ export function Dashboard({
                     initial={{ opacity: 0, y: 16, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.3, ease: [0.32, 0.72, 0, 1] }}
-                    className="hero-result-card lg:flex-1 lg:min-w-0"
+                    className={`hero-result-card lg:flex-1 lg:min-w-0 ${onPlayerClick ? 'cursor-pointer' : ''}`}
                     style={{
                       background: isLight
                         ? 'linear-gradient(145deg, rgba(251,146,60,0.10) 0%, rgba(255,255,255,0.85) 50%, rgba(251,146,60,0.05) 100%)'
                         : 'linear-gradient(145deg, rgba(255,159,10,0.06) 0%, rgba(28,28,30,0.45) 50%, rgba(255,214,10,0.02) 100%)',
                       borderColor: isLight ? 'rgba(251,146,60,0.15)' : 'rgba(255,159,10,0.08)',
                     }}
+                    onClick={onPlayerClick ? () => onPlayerClick(mvp.userId) : undefined}
+                    whileHover={onPlayerClick ? { scale: 1.02 } : undefined}
+                    whileTap={onPlayerClick ? { scale: 0.98 } : undefined}
                   >
                     {/* Subtle glow line at top */}
                     <div
@@ -1382,11 +1390,12 @@ export function Dashboard({
                 {displayedPlayers.map((player, index) => (
                   <motion.div
                     key={player.id}
-                    className={`${statsCardClass} rounded-xl px-3 py-2.5 flex items-center gap-3 group cursor-default`}
+                    className={`${statsCardClass} rounded-xl px-3 py-2.5 flex items-center gap-3 group ${onPlayerClick && player.id ? 'cursor-pointer' : 'cursor-default'}`}
                     variants={item}
                     whileHover={{ scale: 1.01, x: 2 }}
                     whileTap={{ scale: 0.99 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    onClick={onPlayerClick && player.id ? () => onPlayerClick(player.id) : undefined}
                   >
                     {/* Rank badge */}
                     <div

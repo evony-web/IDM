@@ -1294,6 +1294,7 @@ export default function IDOLMETAApp() {
                     onLeaderboardTabChange={setLeaderboardTab}
                     topClubs={topClubs}
                     theme={division === 'male' ? 'dark' : 'light'}
+                    onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}
 

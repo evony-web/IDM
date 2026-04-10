@@ -14,7 +14,6 @@ import {
   Swords,
   MapPin,
   CalendarDays,
-  Hash,
   Activity,
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -169,7 +168,7 @@ function LoadingSkeleton() {
 
       {/* Avatar + name skeleton */}
       <div className="flex flex-col items-center py-8 px-4">
-        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-white/[0.04] animate-pulse mb-4" />
+        <div className="w-52 h-52 sm:w-64 sm:h-64 rounded-full bg-white/[0.04] animate-pulse mb-4" />
         <div className="w-40 h-7 rounded-lg bg-white/[0.05] animate-pulse mb-2" />
         <div className="w-24 h-4 rounded bg-white/[0.04] animate-pulse" />
       </div>
@@ -449,22 +448,22 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                 <div className="relative mb-5">
                   {/* Outer glow ring */}
                   <div
-                    className="absolute -inset-4 rounded-full blur-xl"
+                    className="absolute -inset-6 rounded-full blur-xl"
                     style={{
-                      background: `radial-gradient(circle, rgba(${accentColorRGB}, 0.20) 0%, rgba(${accentColorRGB}, 0.04) 50%, transparent 75%)`,
+                      background: `radial-gradient(circle, rgba(${accentColorRGB}, 0.22) 0%, rgba(${accentColorRGB}, 0.05) 50%, transparent 75%)`,
                     }}
                   />
                   {/* Outer decorative ring */}
                   <div
-                    className="absolute -inset-2.5 rounded-full"
+                    className="absolute -inset-3.5 rounded-full"
                     style={{
-                      border: `3px solid rgba(${accentColorRGB},0.25)`,
-                      boxShadow: `0 0 20px rgba(${accentColorRGB},0.08)`,
+                      border: `3px solid rgba(${accentColorRGB},0.30)`,
+                      boxShadow: `0 0 28px rgba(${accentColorRGB},0.10)`,
                     }}
                   />
                   {/* Inner avatar circle */}
                   <div
-                    className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full p-[3px]"
+                    className="relative w-52 h-52 sm:w-64 sm:h-64 rounded-full p-[3px]"
                     style={{
                       background: `linear-gradient(135deg, ${accentColor} 0%, rgba(${accentColorRGB}, 0.3) 50%, ${accentColor} 100%)`,
                     }}
@@ -480,7 +479,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-5xl sm:text-6xl font-black" style={{ color: `${accentColor}88` }}>
+                        <span className="text-7xl sm:text-8xl font-black" style={{ color: `${accentColor}88` }}>
                           {profile.name[0]?.toUpperCase()}
                         </span>
                       )}
@@ -489,7 +488,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
 
                   {/* Tier badge — bottom-right corner */}
                   <div
-                    className="absolute -bottom-1 -right-1 w-11 h-11 rounded-full flex items-center justify-center text-[15px] font-black shadow-lg"
+                    className="absolute -bottom-1 -right-1 w-12 h-12 rounded-full flex items-center justify-center text-[17px] font-black shadow-lg"
                     style={{
                       background: tier.badgeBg,
                       boxShadow: `0 2px 12px ${tier.glowColor}`,
@@ -503,7 +502,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   {/* MVP flame — top-right corner */}
                   {profile.isMVP && (
                     <div
-                      className="absolute -top-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
+                      className="absolute -top-1 -right-1 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                       style={{
                         background: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 100%)',
                         boxShadow: '0 2px 10px rgba(255, 215, 0, 0.40)',
@@ -523,26 +522,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   {profile.name}
                 </h2>
 
-                {/* Tier label + Points row */}
-                <div className="flex items-center gap-2.5 mt-2.5">
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide"
-                    style={{
-                      background: `${accentColor}18`,
-                      color: accentColor,
-                      border: `1px solid ${accentColor}25`,
-                    }}
-                  >
-                    <Star className="w-3 h-3" />
-                    {tier.label}
-                  </span>
-                  <span
-                    className="text-[13px] font-bold"
-                    style={{ color: `${accentColor}99` }}
-                  >
-                    {profile.points.toLocaleString()} pts
-                  </span>
-                </div>
+                {/* Tier label + Points row — REMOVED to make avatar bigger */}
 
                 {/* Club row */}
                 {profile.club && (
@@ -621,9 +601,6 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                         >
                           {profile.tier}
                         </span>
-                        <span className="font-medium" style={{ color: tier.textColor }}>
-                          {tier.label}
-                        </span>
                       </span>
                     }
                   />
@@ -678,6 +655,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   <InfoRow
                     label="Joined"
                     accentColor={accentColor}
+                    isLast
                     value={
                       <span className="flex items-center gap-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
                         <CalendarDays className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.25)' }} />
@@ -689,20 +667,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                       </span>
                     }
                   />
-                  {/* Total Points */}
-                  <InfoRow
-                    label="Total Points"
-                    accentColor={accentColor}
-                    isLast
-                    value={
-                      <span className="flex items-center gap-1.5">
-                        <Hash className="w-3.5 h-3.5" style={{ color: accentColor }} />
-                        <span className="font-bold" style={{ color: accentColor }}>
-                          {profile.points.toLocaleString()}
-                        </span>
-                      </span>
-                    }
-                  />
+
                 </div>
               </motion.section>
 
