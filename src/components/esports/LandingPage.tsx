@@ -11,6 +11,7 @@ import {
   Coins,
   Swords,
   Shield,
+  Settings,
   ChevronRight,
   ChevronLeft,
   Crown,
@@ -2570,9 +2571,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
             color="115,255,0"
           />
           <StatCard
-            icon={Trophy}
-            label="Turnamen Aktif"
-            value={`${totalTournaments} / 2`}
+            icon={Swords}
+            label="Club Peserta"
+            value={`${activeData.clubs.length}`}
             color="56,189,248"
           />
           <StatCard
@@ -2691,7 +2692,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         }}
         transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <Shield
+      <Settings
         className="w-5 h-5 relative z-10"
         style={{ color: '#FFD700' }}
         strokeWidth={2}
