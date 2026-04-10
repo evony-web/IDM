@@ -206,7 +206,7 @@ export default function PlayerProfileModal() {
           >
             <div className="min-h-full flex items-start justify-center p-4 pt-8 sm:pt-16">
               <div
-                className="w-full max-w-md rounded-3xl overflow-hidden"
+                className="w-full max-w-lg rounded-3xl overflow-hidden"
                 style={{
                   background: 'linear-gradient(180deg, rgba(20,20,24,0.98) 0%, rgba(10,10,14,0.99) 100%)',
                   border: `1px solid rgba(${accentRGB},0.15)`,
@@ -273,7 +273,9 @@ export default function PlayerProfileModal() {
                       <div
                         className="relative w-full overflow-hidden"
                         style={{
-                          height: '220px',
+                          height: '45dvh',
+                          minHeight: '280px',
+                          maxHeight: '400px',
                           background: profile.avatar
                             ? 'none'
                             : `linear-gradient(135deg, rgba(${accentRGB},0.15) 0%, rgba(10,10,14,0.95) 50%, rgba(${accentRGB},0.08) 100%)`,
@@ -296,7 +298,7 @@ export default function PlayerProfileModal() {
                         {!profile.avatar && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span
-                              className="text-6xl font-black"
+                              className="text-8xl font-black"
                               style={{ color: `rgba(${accentRGB},0.25)` }}
                             >
                               {profile.name.charAt(0).toUpperCase()}
