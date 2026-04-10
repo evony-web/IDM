@@ -2372,14 +2372,10 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                       transition={{ duration: 0.5, delay: 0.2 }}
                       className="flex flex-col items-center text-center"
                     >
-                      <div className="px-3 py-1 rounded-full mb-3" style={{ background: `rgba(${currentSlide.accent},0.10)`, border: `1px solid rgba(${currentSlide.accent},0.20)`, backdropFilter: 'blur(8px)' }}>
-                        <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase" style={{ color: currentSlide.accentHex }}>{currentSlide.label}</span>
-                      </div>
                       <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400/50" />
-                      <p className="text-[16px] sm:text-[20px] md:text-[24px] font-bold text-white/70 mt-2 tracking-tight">
+                      <p className="text-[13px] sm:text-[20px] md:text-[24px] font-bold text-white/70 mt-2 tracking-tight">
                         {currentSlide.division === 'male' ? 'Male' : 'Female'} Division
                       </p>
-                      <p className="text-[12px] sm:text-[14px] text-white/30 mt-1">Champion Banner</p>
                     </motion.div>
                   ) : null}
                 </div>

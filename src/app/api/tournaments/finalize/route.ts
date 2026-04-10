@@ -60,13 +60,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Point system
+    // ── Prize-based point system ──
+    // Points = prize_per_team / team_members_count
+    // Example: prizeChampion = 150000, team has 3 members → each member gets 50000 pts (+50)
+    // Falls back to fixed points if prize pool is 0 or not set
+    const FALLBACK_POINTS = { champion: 100, runnerUp: 70, third: 50, mvp: 30, participation: 10 };
+
+    const calculatePointsPerMember = (prizeAmount: number, memberCount: number, fallbackKey: keyof typeof FALLBACK_POINTS): number => {
+      if (prizeAmount > 0 && memberCount > 0) {
+        // prize divided by team members, then convert to whole number points
+        // e.g. 150000 / 3 = 50000 → we use 50 as points (prize / 1000 per point)
+        return Math.round(prizeAmount / memberCount / 1000);
+      }
+      return FALLBACK_POINTS[fallbackKey];
+    };
+
+    const championMemberCount = champion?.TeamMember?.length || 0;
+    const runnerUpMemberCount = runnerUp?.TeamMember?.length || 0;
+    const thirdMemberCount = thirdPlace?.TeamMember?.length || 0;
+    const mvpMemberCount = 1; // MVP is always 1 person
+
     const pointSystem = {
-      champion: 100,
-      runnerUp: 70,
-      third: 50,
-      mvp: 30,
-      participation: 10,
+      champion: calculatePointsPerMember(tournament.prizeChampion, championMemberCount, 'champion'),
+      runnerUp: calculatePointsPerMember(tournament.prizeRunnerUp, runnerUpMemberCount, 'runnerUp'),
+      third: calculatePointsPerMember(tournament.prizeThird, thirdMemberCount, 'third'),
+      mvp: calculatePointsPerMember(tournament.prizeMvp, mvpMemberCount, 'mvp'),
+      participation: FALLBACK_POINTS.participation,
     };
 
     // Collect all unique user IDs who receive special points
@@ -231,6 +250,7 @@ export async function POST(request: NextRequest) {
       runnerUp: runnerUp ? { id: runnerUp.id, name: runnerUp.name } : null,
       thirdPlace: thirdPlace ? { id: thirdPlace.id, name: thirdPlace.name } : null,
       mvp: finalMatch.mvp ? { id: finalMatch.mvp.id, name: finalMatch.mvp.name } : null,
+      pointSystem,
       results,
     });
   } catch (error) {
