@@ -2116,6 +2116,27 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
    Shows Male & Female division champions alternately
    ════════════════════════════════════════════ */
 
+// Helper: format team name as "Tim {Tier S player name}"
+function getChampionTeamName(champion: ChampionData): string {
+  const tierSName = champion.tierSPlayerName;
+  if (tierSName) {
+    const formatted = tierSName.charAt(0).toUpperCase() + tierSName.slice(1);
+    return `Tim ${formatted}`;
+  }
+  const tn = champion.teamName;
+  if (tn) {
+    if (tn.toLowerCase().startsWith('tim ') || tn.toLowerCase().startsWith('team ')) {
+      return tn.charAt(0).toUpperCase() + tn.slice(1);
+    }
+    return `Tim ${tn.charAt(0).toUpperCase() + tn.slice(1)}`;
+  }
+  const pName = champion.playerName;
+  if (pName) {
+    return `Tim ${pName.charAt(0).toUpperCase() + pName.slice(1)}`;
+  }
+  return '';
+}
+
 function ChampionCarouselBanner({ data }: { data: LandingData }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -2343,31 +2364,10 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
 
                       {/* Team Name — "Tim {Tier S player name}" format */}
                       <h2 className="text-[16px] sm:text-[22px] md:text-[36px] font-black text-white mt-3 tracking-tight" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
-                        {(() => {
-                          const tierSName = currentSlide.champion.tierSPlayerName;
-                          if (tierSName) {
-                            const formatted = tierSName.charAt(0).toUpperCase() + tierSName.slice(1);
-                            return `Tim ${formatted}`;
-                          }
-                          // Fallback: use teamName if available, ensure "Tim" prefix
-                          const tn = currentSlide.champion.teamName;
-                          if (tn) {
-                            // If already has "Tim" or "Team" prefix, just capitalize
-                            if (tn.toLowerCase().startsWith('tim ') || tn.toLowerCase().startsWith('team ')) {
-                              return tn.charAt(0).toUpperCase() + tn.slice(1);
-                            }
-                            return `Tim ${tn.charAt(0).toUpperCase() + tn.slice(1)}`;
-                          }
-                          // Last fallback: use MVP/player name
-                          const pName = currentSlide.champion.playerName;
-                          if (pName) {
-                            return `Tim ${pName.charAt(0).toUpperCase() + pName.slice(1)}`;
-                          }
-                          return '';
-                        })()}
+                        {getChampionTeamName(currentSlide.champion)}
                       </h2>
 
-                      {/* Prize Row — removed CHAMPION badge */}
+                      {/* Prize Row */}
                       <div className="flex items-center gap-2 mt-2">
                         {currentSlide.champion.prize > 0 && (
                           <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.20)', color: '#FFD700' }}>
@@ -2383,7 +2383,6 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                       )}
                     </motion.div>
                   ) : currentSlide.bannerUrl ? (
-                    {/* Banner image only, no champion data */}
                     <motion.div
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
