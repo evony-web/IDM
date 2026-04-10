@@ -15,6 +15,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Crown,
+  Plus,
+  Trophy,
 } from 'lucide-react';
 import { ImageUploader } from '@/components/esports/ImageUploader';
 import { adminFetch } from '@/lib/admin-fetch';
@@ -83,6 +85,14 @@ export function PesertaManagementTab({
   const [mvpScoreInput, setMvpScoreInput] = useState('0');
   const [mvpSaving, setMvpSaving] = useState(false);
 
+  // Season points state
+  const [seasonPoints, setSeasonPoints] = useState<Array<{ id: string; season: number; points: number }>>([]);
+  const [seasonPointsLoading, setSeasonPointsLoading] = useState(false);
+  const [newSeason, setNewSeason] = useState('');
+  const [newSeasonPoints, setNewSeasonPoints] = useState('');
+  const [seasonSaving, setSeasonSaving] = useState(false);
+  const [showSeasonPanel, setShowSeasonPanel] = useState(false);
+
   const isMale = division === 'male';
 
   // Fetch users
@@ -118,6 +128,24 @@ export function PesertaManagementTab({
     );
   }, [users, search]);
 
+  // Fetch season points for a user
+  const fetchSeasonPoints = useCallback(async (userId: string) => {
+    setSeasonPointsLoading(true);
+    try {
+      const res = await adminFetch(`/api/admin/player-seasons?userId=${userId}`);
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.data)) {
+        setSeasonPoints(data.data);
+      } else {
+        setSeasonPoints([]);
+      }
+    } catch {
+      setSeasonPoints([]);
+    } finally {
+      setSeasonPointsLoading(false);
+    }
+  }, []);
+
   // Start editing a user
   const startEdit = (user: User) => {
     console.log('[PesertaManagement] startEdit called for user:', user.name, 'avatar size:', user.avatar?.length || 0);
@@ -131,6 +159,10 @@ export function PesertaManagementTab({
       points: user.points,
     });
     setAvatarChanged(false);
+    setShowSeasonPanel(false);
+    setNewSeason('');
+    setNewSeasonPoints('');
+    fetchSeasonPoints(user.id);
   };
 
   // Cancel editing
@@ -529,6 +561,131 @@ export function PesertaManagementTab({
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/90 text-[13px] focus:outline-none focus:border-white/25"
                       />
                     </div>
+                  </div>
+
+                  {/* Season Points Section */}
+                  <div className="border border-white/[0.06] rounded-xl overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setShowSeasonPanel(!showSeasonPanel)}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 bg-white/[0.03] hover:bg-white/[0.05] transition-colors"
+                    >
+                      <Trophy className="w-3.5 h-3.5" style={{ color: '#FFD700' }} />
+                      <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider flex-1 text-left">Points Per Season</span>
+                      {seasonPoints.length > 0 && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/15">{seasonPoints.length} season</span>
+                      )}
+                      <motion.div animate={{ rotate: showSeasonPanel ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                        <ChevronDown className="w-3 h-3 text-white/30" />
+                      </motion.div>
+                    </button>
+                    <AnimatePresence>
+                      {showSeasonPanel && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-3 space-y-2.5 bg-white/[0.01]">
+                            {/* Add new season form */}
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                placeholder="Season #"
+                                value={newSeason}
+                                onChange={(e) => setNewSeason(e.target.value)}
+                                className="w-20 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/90 text-[12px] focus:outline-none focus:border-amber-500/30"
+                                min={1}
+                              />
+                              <input
+                                type="number"
+                                placeholder="Points"
+                                value={newSeasonPoints}
+                                onChange={(e) => setNewSeasonPoints(e.target.value)}
+                                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/90 text-[12px] focus:outline-none focus:border-amber-500/30"
+                                min={0}
+                              />
+                              <button
+                                onClick={async () => {
+                                  if (!editingUser || !newSeason || !newSeasonPoints) return;
+                                  setSeasonSaving(true);
+                                  try {
+                                    const res = await adminFetch('/api/admin/player-seasons', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        userId: editingUser.id,
+                                        season: parseInt(newSeason),
+                                        points: parseInt(newSeasonPoints) || 0,
+                                      }),
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                      addToast(`Season ${newSeason} berhasil disimpan!`, 'success');
+                                      setNewSeason('');
+                                      setNewSeasonPoints('');
+                                      fetchSeasonPoints(editingUser.id);
+                                    } else {
+                                      addToast(data.error || 'Gagal menyimpan season', 'error');
+                                    }
+                                  } catch {
+                                    addToast('Gagal menyimpan season', 'error');
+                                  } finally {
+                                    setSeasonSaving(false);
+                                  }
+                                }}
+                                disabled={seasonSaving || !newSeason || !newSeasonPoints}
+                                className="px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all disabled:opacity-30"
+                                style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.18)', color: '#FFD700' }}
+                              >
+                                <Plus className="w-3 h-3" />
+                                Add
+                              </button>
+                            </div>
+
+                            {/* Existing season points list */}
+                            {seasonPointsLoading ? (
+                              <div className="flex justify-center py-3">
+                                <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+                              </div>
+                            ) : seasonPoints.length === 0 ? (
+                              <p className="text-[11px] text-white/20 text-center py-2">Belum ada data season</p>
+                            ) : (
+                              <div className="space-y-1">
+                                {seasonPoints.map((sp) => (
+                                  <div key={sp.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.04]">
+                                    <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(255,215,0,0.10)', color: '#FFD700' }}>
+                                      S{sp.season}
+                                    </div>
+                                    <span className="text-[12px] font-semibold text-white/80 flex-1">{sp.points.toLocaleString()} pts</span>
+                                    <button
+                                      onClick={async () => {
+                                        if (!editingUser) return;
+                                        try {
+                                          const res = await adminFetch(`/api/admin/player-seasons?id=${sp.id}`, { method: 'DELETE' });
+                                          const data = await res.json();
+                                          if (data.success) {
+                                            addToast('Season berhasil dihapus', 'success');
+                                            fetchSeasonPoints(editingUser.id);
+                                          }
+                                        } catch {
+                                          addToast('Gagal menghapus season', 'error');
+                                        }
+                                      }}
+                                      className="w-6 h-6 rounded-md flex items-center justify-center text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Action Buttons */}

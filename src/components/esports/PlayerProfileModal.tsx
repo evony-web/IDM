@@ -98,6 +98,7 @@ export default function PlayerProfileModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [seasonPoints, setSeasonPoints] = useState<Array<{ id: string; season: number; points: number }>>([]);
 
   // Subscribe to module-level store
   useEffect(() => {
@@ -138,6 +139,16 @@ export default function PlayerProfileModal() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+
+    // Fetch season points
+    fetch(`/api/player-seasons?userId=${playerId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled && data?.success && Array.isArray(data.data)) {
+          setSeasonPoints(data.data);
+        }
+      })
+      .catch(() => {});
 
     return () => { cancelled = true; };
   }, [playerId]);
@@ -450,6 +461,48 @@ export default function PlayerProfileModal() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Season Points Section - compact horizontal badges */}
+                    {seasonPoints.length > 0 && (
+                      <div className="mx-5 mb-4">
+                        <div
+                          className="flex items-center gap-2 px-3 py-2 rounded-t-xl"
+                          style={{
+                            background: 'rgba(255,215,0,0.08)',
+                            borderBottom: '1px solid rgba(255,215,0,0.15)',
+                          }}
+                        >
+                          <Trophy className="w-3.5 h-3.5" style={{ color: '#FFD700' }} />
+                          <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: '#FFD700' }}>
+                            Points Per Season
+                          </span>
+                        </div>
+                        <div
+                          className="rounded-b-xl p-3"
+                          style={{
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            borderTop: 'none',
+                          }}
+                        >
+                          <div className="flex flex-wrap gap-1.5">
+                            {seasonPoints.map((sp) => (
+                              <div
+                                key={sp.id}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg"
+                                style={{
+                                  background: 'rgba(255,215,0,0.06)',
+                                  border: '1px solid rgba(255,215,0,0.10)',
+                                }}
+                              >
+                                <span className="text-[9px] font-black tracking-wider" style={{ color: '#FFD700' }}>S{sp.season}</span>
+                                <span className="text-[11px] font-bold text-white/70">{sp.points.toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Stats Section */}
                     <div

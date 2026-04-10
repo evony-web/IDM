@@ -190,3 +190,50 @@ Stage Summary:
 - Leaderboard: Shows top 7 players, "Lihat Semua" opens full leaderboard modal with podium + all players
 - Informasi Terbaru: Shows 4 items visible, scrollable up to 7 items max, oldest removed when new items arrive
 - Both changes pushed to GitHub for Vercel deployment
+
+---
+Task ID: 7
+Agent: Sub Agent
+Task: Add X button to leaderboard modal
+
+Work Log:
+- Read worklog.md for previous context
+- Located the leaderboard modal header section in LandingPage.tsx (around line 1107-1129)
+- Added a close (X) button as a `motion.button` after the title div inside the header flex container
+- Button uses: `onClick={() => setShowModal(false)}`, 32x32px size, rounded-xl, subtle background/border, hover/tap animations via framer-motion
+- Uses existing `X` icon import from lucide-react (line 23) and existing `setShowModal` state setter (line 997)
+- No new imports or state variables needed
+
+Stage Summary:
+- Added close X button to the leaderboard modal header ("Semua Peringkat") in LandingPage.tsx
+- Button positioned at the right side of the header, same flex row as the Crown icon and title
+- Clicking the X button closes the modal via `setShowModal(false)`
+
+---
+Task ID: 2
+Agent: Sub Agent
+Task: Add PlayerSeason model to Prisma schema and create API route for season points CRUD
+
+Work Log:
+- Added PlayerSeason model to prisma/schema.prisma (after WhatsAppSettings model):
+  - Fields: id (cuid), userId, season (Int), points (Int default 0), createdAt, updatedAt
+  - Relation: user -> User (onDelete: Cascade)
+  - Unique constraint: @@unique([userId, season])
+- Added `seasonPoints PlayerSeason[]` relation to User model (after activityLogs field)
+- Created /src/app/api/admin/player-seasons/route.ts with full CRUD:
+  - GET: fetch season points by userId or all users (with user info included), admin-protected
+  - POST: upsert season points (create or update by userId+season unique), admin-protected
+  - DELETE: remove season record by id, admin-protected
+  - All endpoints use requireAdmin guard from @/lib/admin-guard
+- Created /src/app/api/player-seasons/route.ts for public access:
+  - GET: fetch season points for a specific userId (required query param)
+  - No admin auth required
+- Did NOT run prisma db push (per instructions - schema push happens on Vercel build)
+- Lint errors are all pre-existing (not from this task)
+
+Stage Summary:
+- PlayerSeason model added to Prisma schema with userId+season unique constraint
+- User model updated with seasonPoints relation
+- Admin CRUD API: /api/admin/player-seasons (GET/POST/DELETE)
+- Public read API: /api/player-seasons (GET by userId)
+- Database table will be created on next Vercel deployment (prisma db push in build script)

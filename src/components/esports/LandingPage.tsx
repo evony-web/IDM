@@ -1125,6 +1125,18 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <h2 className="text-lg font-bold text-white/90 tracking-tight">Semua Peringkat</h2>
                     <p className="text-[12px] text-white/45 mt-0.5">{allPlayers.length} pemain terdaftar</p>
                   </div>
+                  <motion.button
+                    onClick={() => setShowModal(false)}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                    whileHover={{ background: 'rgba(255,255,255,0.10)' }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X className="w-4 h-4 text-white/50" />
+                  </motion.button>
                 </div>
               </div>
 
