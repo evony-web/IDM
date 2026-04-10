@@ -890,7 +890,7 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
   const hasMore = hiddenPlayers.length > 0;
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-full">
+    <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Crown className="w-4 h-4" style={{ color: '#FFD700' }} />
@@ -901,14 +901,14 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
 
       {/* Leaderboard Card */}
       <div
-        className="rounded-2xl overflow-hidden"
+        className="rounded-2xl overflow-hidden md:flex-1 md:flex md:flex-col"
         style={{
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid rgba(255,215,0,0.08)',
         }}
       >
         {/* Player Rows - Top 11 */}
-        <div className="px-2 py-2">
+        <div className="px-2 py-2 md:flex-1">
           {allPlayers.length > 0 ? (
             <PlayerList players={visiblePlayers} startDelay={0} onPlayerClick={onPlayerClick} />
           ) : (
@@ -1519,7 +1519,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   const displayed = newsItems.slice(0, 15);
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-full">
+    <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="w-4 h-4" style={{ color: '#FFD700' }} />
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi Terbaru</h2>
@@ -1530,7 +1530,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
 
       {displayed.length > 0 ? (
         <div
-          className="rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-hidden md:flex-1 md:flex md:flex-col"
           style={{
             background: 'rgba(255,255,255,0.02)',
             border: '1px solid rgba(255,215,0,0.06)',
@@ -1539,7 +1539,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
           {/* Top gradient accent */}
           <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.3), rgba(115,255,0,0.2), transparent)' }} />
 
-          <div className="p-2 max-h-[520px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
+          <div className="p-2 max-h-[520px] md:max-h-none md:flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
             {displayed.map((item, idx) => {
               const isMale = item.playerGender === 'male';
               const genderAccent = isMale ? '115,255,0' : '56,189,248';
@@ -1637,7 +1637,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
       ) : (
         <motion.div
           variants={cardVariants}
-          className="rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-hidden md:flex-1 md:flex md:flex-col"
           style={{
             background: 'rgba(255,255,255,0.02)',
             border: '1px solid rgba(255,255,255,0.06)',
@@ -2611,7 +2611,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         </div>
 
         {/* ═══ TOP PLAYERS + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div id="leaderboard-section" className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-14">
+        <div id="leaderboard-section" className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-14 md:items-stretch">
           <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
