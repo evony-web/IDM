@@ -20,6 +20,12 @@ import {
   Heart,
   ArrowRight,
   X,
+  Menu,
+  Flame,
+  Gamepad2,
+  ScrollText,
+  TrendingUp,
+  Bell,
 } from 'lucide-react';
 
 /* ────────────────────────────────────────────
@@ -174,6 +180,260 @@ interface LandingData {
 }
 
 /* ────────────────────────────────────────────
+   Top Navigation Bar (Desktop & Tablet)
+   ──────────────────────────────────────────── */
+
+function TopNavBar({
+  onEnterDivision,
+  onAdminLogin,
+  activeData,
+}: {
+  onEnterDivision: (division: 'male' | 'female') => void;
+  onAdminLogin: () => void;
+  activeData: LandingData;
+}) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const liveCount = activeData.liveMatchCount || 0;
+  const totalPlayers = activeData.male.totalPlayers + activeData.female.totalPlayers;
+
+  const navLinks = [
+    { label: 'Male Division', icon: Swords, division: 'male' as const, color: '#73FF00' },
+    { label: 'Female Division', icon: Shield, division: 'female' as const, color: '#38BDF8' },
+  ];
+
+  return (
+    <>
+      {/* Desktop/Tablet NavBar */}
+      <motion.nav
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        className="sticky top-0 z-40 w-full hidden md:block"
+        style={{
+          background: scrolled
+            ? 'rgba(5,5,7,0.85)'
+            : 'rgba(5,5,7,0.50)',
+          backdropFilter: 'blur(24px) saturate(1.6)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+          borderBottom: `1px solid rgba(255,255,255,${scrolled ? '0.06' : '0.03'})`,
+        }}
+      >
+        {/* Top accent line */}
+        <div
+          className="h-[1px] w-full"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(115,255,0,0.3) 25%, rgba(255,215,0,0.25) 50%, rgba(56,189,248,0.3) 75%, transparent 100%)',
+          }}
+        />
+
+        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 xl:px-16 h-14">
+          {/* ── Left: Logo + Brand ── */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
+              <img
+                src={IDM_LOGO_URL}
+                alt="IDM"
+                className="w-8 h-8 rounded-lg"
+              />
+              <div>
+                <h1
+                  className="text-[15px] font-black tracking-tight leading-none"
+                  style={{
+                    background: 'linear-gradient(135deg, #73FF00, #FFD700, #38BDF8)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  IDOL META
+                </h1>
+                <p className="text-[8px] font-semibold tracking-[0.18em] uppercase text-white/25 leading-none mt-0.5">
+                  TARKAM Fan Made
+                </p>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-7 bg-white/[0.08] mx-2" />
+
+            {/* Live indicator */}
+            {liveCount > 0 && (
+              <motion.div
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                style={{
+                  background: 'rgba(239,68,68,0.10)',
+                  border: '1px solid rgba(239,68,68,0.20)',
+                }}
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500" style={{ boxShadow: '0 0 6px rgba(239,68,68,0.5)' }} />
+                <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">LIVE</span>
+              </motion.div>
+            )}
+          </div>
+
+          {/* ── Center: Nav Links ── */}
+          <div className="flex items-center gap-1">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <motion.button
+                  key={link.division}
+                  onClick={() => onEnterDivision(link.division)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200"
+                  style={{
+                    color: link.color,
+                    background: 'transparent',
+                    border: '1px solid transparent',
+                  }}
+                  whileHover={{
+                    background: `${link.color}12`,
+                    borderColor: `${link.color}25`,
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <Icon className="w-4 h-4" />
+                  {link.label}
+                </motion.button>
+              );
+            })}
+
+            {/* Leaderboard shortcut */}
+            <motion.button
+              onClick={() => {
+                document.getElementById('leaderboard-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200 text-white/50"
+              style={{
+                background: 'transparent',
+                border: '1px solid transparent',
+              }}
+              whileHover={{
+                color: '#FFD700',
+                background: 'rgba(255,215,0,0.06)',
+                borderColor: 'rgba(255,215,0,0.15)',
+              }}
+              whileTap={{ scale: 0.96 }}
+            >
+              <TrendingUp className="w-4 h-4" />
+              Leaderboard
+            </motion.button>
+
+            {/* Info shortcut */}
+            <motion.button
+              onClick={() => {
+                document.getElementById('info-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200 text-white/50"
+              style={{
+                background: 'transparent',
+                border: '1px solid transparent',
+              }}
+              whileHover={{
+                color: '#FFD700',
+                background: 'rgba(255,215,0,0.06)',
+                borderColor: 'rgba(255,215,0,0.15)',
+              }}
+              whileTap={{ scale: 0.96 }}
+            >
+              <ScrollText className="w-4 h-4" />
+              Info
+            </motion.button>
+          </div>
+
+          {/* ── Right: Stats + Actions ── */}
+          <div className="flex items-center gap-3">
+            {/* Player count mini */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+              style={{ background: 'rgba(115,255,0,0.06)', border: '1px solid rgba(115,255,0,0.10)' }}
+            >
+              <Users className="w-3.5 h-3.5" style={{ color: '#73FF00' }} />
+              <span className="text-[11px] font-bold text-white/70">{totalPlayers}</span>
+              <span className="text-[9px] text-white/30">pemain</span>
+            </div>
+
+            {/* Admin button */}
+            <motion.button
+              onClick={onAdminLogin}
+              className="flex items-center justify-center w-9 h-9 rounded-xl cursor-pointer"
+              style={{
+                background: 'rgba(255,215,0,0.06)',
+                border: '1px solid rgba(255,215,0,0.10)',
+              }}
+              whileHover={{
+                background: 'rgba(255,215,0,0.12)',
+                borderColor: 'rgba(255,215,0,0.20)',
+              }}
+              whileTap={{ scale: 0.92 }}
+            >
+              <Shield className="w-4 h-4" style={{ color: '#FFD700' }} />
+            </motion.button>
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* ── Mobile Bottom Bar (shows on mobile only) ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40"
+        style={{
+          background: 'rgba(5,5,7,0.90)',
+          backdropFilter: 'blur(20px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="flex items-center justify-around py-2 px-2 safe-area-bottom">
+          <motion.button
+            onClick={() => onEnterDivision('male')}
+            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
+            whileTap={{ scale: 0.9 }}
+          >
+            <Swords className="w-5 h-5" style={{ color: '#73FF00' }} />
+            <span className="text-[9px] font-bold text-white/50 uppercase">Male</span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => onEnterDivision('female')}
+            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
+            whileTap={{ scale: 0.9 }}
+          >
+            <Shield className="w-5 h-5" style={{ color: '#38BDF8' }} />
+            <span className="text-[9px] font-bold text-white/50 uppercase">Female</span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => {
+              document.getElementById('leaderboard-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
+            whileTap={{ scale: 0.9 }}
+          >
+            <TrendingUp className="w-5 h-5" style={{ color: '#FFD700' }} />
+            <span className="text-[9px] font-bold text-white/50 uppercase">Board</span>
+          </motion.button>
+
+          <motion.button
+            onClick={onAdminLogin}
+            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
+            whileTap={{ scale: 0.9 }}
+          >
+            <Shield className="w-5 h-5 text-white/30" />
+            <span className="text-[9px] font-bold text-white/30 uppercase">Admin</span>
+          </motion.button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ────────────────────────────────────────────
    Animation Variants
    ──────────────────────────────────────────── */
 
@@ -244,7 +504,7 @@ function timeAgo(dateStr: string): string {
 
 function LandingSkeleton() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start px-4 py-12 md:py-16">
+    <div className="min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 lg:px-12 xl:px-16 py-12 md:py-16">
       {/* Hero skeleton */}
       <div className="flex flex-col items-center mb-12">
         <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl bg-white/5 animate-pulse" />
@@ -253,13 +513,13 @@ function LandingSkeleton() {
         <div className="w-64 h-3 mt-2 rounded bg-white/5 animate-pulse" />
       </div>
       {/* Stats skeleton */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-7xl mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-full mb-12">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="h-20 rounded-2xl bg-white/5 animate-pulse" />
         ))}
       </div>
       {/* Cards skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 w-full max-w-7xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 w-full max-w-full">
         {[...Array(2)].map((_, i) => (
           <div key={i} className="h-[480px] rounded-3xl bg-white/5 animate-pulse" />
         ))}
@@ -628,7 +888,7 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
   const hasMore = hiddenPlayers.length > 0;
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-7xl">
+    <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Crown className="w-4 h-4" style={{ color: '#FFD700' }} />
@@ -872,7 +1132,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
   if (clubs.length === 0) return null;
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-7xl">
+    <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Users className="w-4 h-4" style={{ color: '#38BDF8' }} />
@@ -1068,7 +1328,7 @@ function QuickInfoSection() {
   ];
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-7xl">
+    <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="flex items-center gap-2 mb-4">
         <Info className="w-4 h-4" style={{ color: '#FFD700' }} />
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi</h2>
@@ -1227,7 +1487,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   const displayed = newsItems.slice(0, 15);
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-7xl">
+    <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="w-4 h-4" style={{ color: '#FFD700' }} />
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi Terbaru</h2>
@@ -1530,7 +1790,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
   const hasAny = hasSawer || hasDonasi;
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-7xl">
+    <motion.div variants={itemVariants} className="w-full max-w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -1908,7 +2168,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
     return (
       <motion.div
         variants={itemVariants}
-        className="w-full max-w-7xl mt-8 md:mt-10 mb-8 md:mb-10"
+        className="w-full max-w-full mt-8 md:mt-10 mb-8 md:mb-10"
       >
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -1950,7 +2210,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
   return (
     <motion.div
       variants={itemVariants}
-      className="w-full max-w-7xl mt-8 md:mt-10 mb-8 md:mb-10"
+      className="w-full max-w-full mt-8 md:mt-10 mb-8 md:mb-10"
     >
       <motion.div
         initial={{ opacity: 0, y: -6 }}
@@ -2252,7 +2512,8 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
   return (
     <>
     <style>{playerRowKeyframes}</style>
-    <div className="h-full relative overflow-y-auto overflow-x-hidden">
+    <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} activeData={activeData} />
+    <div className="h-full relative overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
       {/* ── Background ── */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0" style={{ background: '#050507' }} />
@@ -2292,7 +2553,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-8 pt-3 pb-8 md:pt-4 md:pb-12 min-h-screen"
+        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-12 xl:px-16 pt-3 pb-8 md:pt-4 md:pb-12 min-h-screen"
       >
         {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
         <ChampionCarouselBanner data={activeData} />
@@ -2300,7 +2561,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ STATS BAR ═══ */}
         <motion.div
           variants={itemVariants}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-7xl mb-10 md:mb-14"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-full mb-10 md:mb-14"
         >
           <StatCard
             icon={Users}
@@ -2331,7 +2592,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 w-full max-w-7xl mb-10 md:mb-14"
+          className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 w-full max-w-full mb-10 md:mb-14"
         >
           <DivisionCard
             division="male"
@@ -2348,25 +2609,27 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         </motion.div>
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full max-w-7xl mb-10 md:mb-14">
+        <div className="w-full max-w-full mb-10 md:mb-14">
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
         {/* ═══ DONASI & SAWER SECTION ═══ */}
-        <div className="w-full max-w-7xl mb-10 md:mb-14">
+        <div className="w-full max-w-full mb-10 md:mb-14">
           <DonasiSawerSection data={activeData} />
         </div>
 
         {/* ═══ TOP PLAYERS SECTION ═══ */}
-        <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
+        <div id="leaderboard-section" className="w-full">
+          <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
+        </div>
 
         {/* ═══ INFORMASI TERBARU SECTION ═══ */}
-        <div className="w-full max-w-7xl mt-10 md:mt-14 mb-10 md:mb-14">
+        <div className="w-full max-w-full mt-10 md:mt-14 mb-10 md:mb-14">
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ QUICK INFO SECTION ═══ */}
-        <div className="w-full max-w-7xl mt-10 md:mt-14 mb-10 md:mb-14">
+        <div id="info-section" className="w-full max-w-full mt-10 md:mt-14 mb-10 md:mb-14">
           <QuickInfoSection />
         </div>
 
@@ -2391,10 +2654,10 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
       </motion.div>
     </div>
 
-    {/* ═══ ADMIN FAB — Floating Action Button ═══ */}
+    {/* ═══ ADMIN FAB — Floating Action Button (mobile only) ═══ */}
     <motion.button
       onClick={onAdminLogin}
-      className="fixed z-50 flex items-center justify-center cursor-pointer outline-none"
+      className="fixed z-50 flex items-center justify-center cursor-pointer outline-none md:hidden"
       style={{
         right: 16,
         bottom: 24,
