@@ -2429,11 +2429,6 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
-        {/* ═══ RECENT MATCHES SECTION ═══ */}
-        <div className="w-full max-w-7xl mb-10 md:mb-14">
-          <RecentMatchesSection data={activeData} />
-        </div>
-
         {/* ═══ DONASI & SAWER SECTION ═══ */}
         <div className="w-full max-w-7xl mb-10 md:mb-14">
           <DonasiSawerSection data={activeData} />
@@ -2441,6 +2436,11 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
 
         {/* ═══ TOP PLAYERS SECTION ═══ */}
         <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
+
+        {/* ═══ RECENT MATCHES SECTION ═══ */}
+        <div className="w-full max-w-7xl mb-10 md:mb-14">
+          <RecentMatchesSection data={activeData} />
+        </div>
 
         {/* ═══ ACHIEVEMENT SHOWCASE SECTION ═══ */}
         <div className="w-full max-w-7xl mt-10 md:mt-14 mb-10 md:mb-14">
