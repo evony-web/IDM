@@ -2346,7 +2346,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/9] sm:aspect-[16/6] md:aspect-[16/4.5] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
+          <div className="relative w-full aspect-[16/9] sm:aspect-[16/6] md:aspect-[16/5.2] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
             <div className="text-center">
               <motion.img
                 src={IDM_LOGO_URL}
@@ -2422,7 +2422,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/10] sm:aspect-[16/7] md:aspect-[16/5]">
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/7] md:aspect-[16/5.8]">
             {/* Slide Content with AnimatePresence */}
             <AnimatePresence mode="wait">
               <motion.div
@@ -2439,7 +2439,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                     <img
                       src={currentSlide.bannerUrl}
                       alt={`${currentSlide.division} Champion`}
-                      className="absolute inset-0 w-full h-full object-cover object-top"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                     {/* Gradient overlays */}
                     <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.90) 0%, rgba(5,5,7,0.30) 40%, rgba(5,5,7,0.20) 60%, rgba(5,5,7,0.40) 100%)' }} />
@@ -2456,7 +2456,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                 )}
 
                 {/* Champion Info Overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-end pb-4 sm:pb-6 md:pb-6 px-4">
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-5 sm:pb-7 md:pb-7 px-4">
                   {currentSlide.champion ? (
                     <motion.div
                       initial={{ y: 20, opacity: 0 }}
@@ -2469,13 +2469,13 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                         animate={{ y: [0, -4, 0], rotate: [0, -3, 3, 0] }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 3 }}
                       >
-                        <Crown className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
+                        <Crown className="w-6 h-6 sm:w-8 sm:h-8 md:w-11 md:h-11 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
                       </motion.div>
 
                       {/* Champion Avatar */}
                       <div className="relative mt-2">
                         <div
-                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center overflow-hidden"
+                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-22 md:h-22 rounded-full flex items-center justify-center overflow-hidden"
                           style={{
                             background: currentSlide.champion.playerAvatar
                               ? 'none'
@@ -2497,7 +2497,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                       </div>
 
                       {/* Team Name — "Tim {Tier S player name}" format */}
-                      <h2 className="text-[16px] sm:text-[22px] md:text-[28px] font-black text-white mt-2 tracking-tight" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
+                      <h2 className="text-[16px] sm:text-[22px] md:text-[32px] font-black text-white mt-2.5 tracking-tight" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
                         {getChampionTeamName(currentSlide.champion)}
                       </h2>
 
