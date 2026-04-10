@@ -193,118 +193,6 @@ const DEFAULT_PAYMENT_SETTINGS: PaymentSettingsForm = {
   activeMethods: ['qris', 'bank_transfer', 'ewallet'],
 };
 
-/* ═══════════════════════════════════════════════════════
-   Admin Guidance Card — Shows "what to do next" based on status
-   ═══════════════════════════════════════════════════════ */
-
-function AdminGuidanceCard({
-  tournamentStatus,
-  pendingCount,
-  approvedCount,
-  teamsCount,
-  accentClass,
-  accentBgSubtle,
-  onTabChange,
-}: {
-  tournamentStatus: string;
-  pendingCount: number;
-  approvedCount: number;
-  teamsCount: number;
-  accentClass: string;
-  accentBgSubtle: string;
-  onTabChange: (tab: 'tournament' | 'payment' | 'rbac' | 'clubs') => void;
-}) {
-  // Determine the next step based on current state
-  const steps: Array<{ done: boolean; text: string }> = [];
-
-  if (tournamentStatus === 'setup') {
-    steps.push({ done: false, text: 'Tetapkan hadiah & atur turnamen' });
-  } else {
-    steps.push({ done: true, text: 'Setup turnamen' });
-  }
-
-  if (tournamentStatus === 'setup' || tournamentStatus === 'registration') {
-    steps.push({ done: pendingCount === 0, text: pendingCount > 0 ? `Approve ${pendingCount} pendaftaran pending` : 'Semua pendaftaran sudah diproses' });
-  } else {
-    steps.push({ done: true, text: 'Pendaftaran ditutup' });
-  }
-
-  if (approvedCount >= 6 && teamsCount === 0) {
-    steps.push({ done: false, text: 'Generate tim dari peserta yang disetujui' });
-  } else if (teamsCount > 0) {
-    steps.push({ done: true, text: `${teamsCount} tim sudah terbentuk` });
-  } else if (approvedCount < 6) {
-    steps.push({ done: false, text: `Tunggu minimal 6 peserta approved (${approvedCount}/6)` });
-  } else {
-    steps.push({ done: false, text: 'Generate tim untuk memulai bracket' });
-  }
-
-  if (tournamentStatus === 'ongoing') {
-    steps.push({ done: false, text: 'Kelola skor di tab Bracket' });
-  } else if (tournamentStatus === 'completed') {
-    steps.push({ done: true, text: 'Turnamen selesai' });
-  }
-
-  const nextStep = steps.find(s => !s.done);
-  const allDone = steps.every(s => s.done);
-
-  if (allDone && tournamentStatus === 'completed') return null;
-
-  return (
-    <div
-      className="rounded-2xl p-4 mb-2"
-      style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '0.5px solid rgba(255,255,255,0.06)',
-      }}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <div className={`w-7 h-7 rounded-lg ${accentBgSubtle} flex items-center justify-center`}>
-          <span className="text-[12px]">{allDone ? '✅' : '📋'}</span>
-        </div>
-        <div>
-          <p className="text-[12px] font-bold text-white/80">
-            {allDone ? 'Semua langkah selesai!' : 'Langkah Selanjutnya'}
-          </p>
-          <p className="text-[10px] text-white/30">
-            {allDone ? 'Turnamen sudah berjalan dengan baik' : 'Ikuti langkah berikut untuk turnamen'}
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-1.5">
-        {steps.map((step, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 ${
-              step.done
-                ? 'bg-emerald-500/15'
-                : 'bg-white/5'
-            }`}>
-              {step.done ? (
-                <Check className="w-3 h-3 text-emerald-400" />
-              ) : (
-                <span className={`text-[9px] font-bold ${accentClass}`}>{i + 1}</span>
-              )}
-            </div>
-            <p className={`text-[11px] ${step.done ? 'text-white/30 line-through' : 'text-white/70 font-medium'}`}>
-              {step.text}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {nextStep && pendingCount > 0 && (
-        <button
-          onClick={() => {}}
-          className="mt-3 w-full py-2 rounded-xl text-[11px] font-semibold text-white/60 bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.07] transition-colors"
-        >
-          {pendingCount} pendaftaran menunggu approval
-        </button>
-      )}
-    </div>
-  );
-}
-
 export function AdminPanel({
   division,
   tournament,
@@ -430,6 +318,7 @@ export function AdminPanel({
   const [newTournamentLokasi, setNewTournamentLokasi] = useState('PUB 1');
   const [creatingTournament, setCreatingTournament] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [showPrizeDropdown, setShowPrizeDropdown] = useState(false);
 
   // ── Edit & Delete Tournament state ──
   const [showEditModal, setShowEditModal] = useState(false);
@@ -507,8 +396,8 @@ export function AdminPanel({
     }
   }, [tournament]);
 
-  const btnClass = isMale ? 'btn-gold' : 'btn-pink';
-  const avatarRingClass = isMale ? 'avatar-ring-gold' : 'avatar-ring-pink';
+  const btnClass = isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15';
+  const avatarRingClass = isMale ? 'ring-[#73FF00]/30' : 'ring-[#38BDF8]/30';
 
   const showPanel = isOpen !== undefined ? isOpen : internalOpen;
   const setShowPanel = onOpenChange
@@ -810,8 +699,8 @@ export function AdminPanel({
       {showTrigger && !isPageMode && (
         <motion.button
           onClick={() => setShowPanel(true)}
-          className="fixed top-20 right-4 z-40 glass rounded-2xl p-3"
-          whileHover={{ scale: 1.08 }}
+          className="fixed top-20 right-4 z-40 bg-white/[0.04] border border-white/[0.06] rounded-2xl p-3"
+          whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.92 }}
         >
           <Shield className={`w-5 h-5 ${accentClass}`} />
@@ -847,9 +736,9 @@ export function AdminPanel({
                 background: 'linear-gradient(180deg, #0B0B0F 0%, #0d0f12 100%)',
               } : {
                 borderRadius: '1.5rem 1.5rem 0 0',
-                background: `linear-gradient(180deg, rgba(28,28,30,0.98) 0%, rgba(18,20,22,0.95) 100%)`,
-                backdropFilter: 'blur(80px) saturate(180%)',
-                boxShadow: `0 -1px 0 rgba(${glowRGB},0.08), 0 -8px 32px rgba(0,0,0,0.4)`,
+                background: `linear-gradient(180deg, rgba(22,22,24,0.98) 0%, rgba(16,17,19,0.96) 100%)`,
+                backdropFilter: 'blur(40px) saturate(150%)',
+                boxShadow: `0 -1px 0 rgba(255,255,255,0.04), 0 -4px 16px rgba(0,0,0,0.3)`,
               }}
               initial={isPageMode ? { opacity: 0, y: 8 } : { y: '100%' }}
               animate={isPageMode ? { opacity: 1, y: 0 } : { y: 0 }}
@@ -857,31 +746,26 @@ export function AdminPanel({
               transition={isPageMode ? { duration: 0.2 } : { type: 'spring', damping: 30, stiffness: 320 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* 🐉 Dragon Eye Glow Effect - positioned in header area to avoid overlap */}
+              {/* Subtle accent glow */}
               <div
-                className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] pointer-events-none opacity-50"
-                style={{ background: `radial-gradient(circle, rgba(${glowRGB},0.06) 0%, transparent 60%)`, transform: 'translate(30%, -30%)' }}
+                className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-30"
+                style={{ background: `radial-gradient(circle, rgba(${glowRGB},0.04) 0%, transparent 60%)`, transform: 'translate(30%, -30%)' }}
               />
 
               {!isPageMode && (
                 <div className="flex justify-center pt-2.5 pb-0.5">
-                  <div className="w-9 h-[5px] rounded-full bg-white/25" />
+                  <div className="w-9 h-[5px] rounded-full bg-white/20" />
                 </div>
               )}
 
-              {/* iOS Premium Header with Dragon Glow */}
+              {/* iOS Clean Header */}
               <div className={`relative px-5 pb-3 md:px-6 ${isPageMode ? 'pt-4' : 'pt-0.5'} ${isPageMode ? 'w-full' : ''}`}>
-                {/* Accent line below header */}
-                <div
-                  className="absolute bottom-0 left-6 right-6 h-[1px]"
-                  style={{ background: `linear-gradient(90deg, transparent, rgba(${glowRGB},0.15), transparent)` }}
-                />
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {isPageMode && (
                       <motion.button
                         onClick={() => setShowPanel(false)}
-                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/[0.04] text-white/40 hover:text-white/60 hover:bg-white/[0.08] transition-colors"
+                        className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.04] text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
                         whileTap={{ scale: 0.92 }}
                         aria-label="Kembali"
                       >
@@ -890,23 +774,20 @@ export function AdminPanel({
                         </svg>
                       </motion.button>
                     )}
-                    {/* 🐉 Dragon Shield Icon with Glow */}
-                    <motion.div
-                      className={`relative rounded-xl flex items-center justify-center ${isPageMode ? 'w-10 h-10' : 'w-9 h-9'}`}
+                    {/* Shield Icon — Clean iOS style */}
+                    <div
+                      className={`rounded-xl flex items-center justify-center ${isPageMode ? 'w-9 h-9' : 'w-8 h-8'}`}
                       style={{
-                        background: `linear-gradient(135deg, rgba(${glowRGB},0.20) 0%, rgba(${glowRGB},0.08) 100%)`,
-                        boxShadow: `0 0 16px rgba(${glowRGB},0.15), inset 0 1px 0 rgba(255,255,255,0.06)`,
+                        background: `rgba(${glowRGB},0.12)`,
                       }}
-                      animate={{ boxShadow: [`0 0 16px rgba(${glowRGB},0.15)`, `0 0 24px rgba(${glowRGB},0.25)`, `0 0 16px rgba(${glowRGB},0.15)`] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                     >
-                      <Shield className={`w-4.5 h-4.5 ${accentClass}`} />
-                    </motion.div>
+                      <Shield className={`w-4 h-4 ${accentClass}`} />
+                    </div>
                     <div>
-                      <h2 className="text-[15px] font-bold text-white/90 tracking-tight">
+                      <h2 className="text-[14px] font-bold text-white/85 tracking-tight">
                         KONTROL TURNAMEN
                       </h2>
-                      <p className="text-[11px] text-white/25 mt-0.5 leading-tight">
+                      <p className="text-[10px] text-white/30 mt-0.5 leading-tight">
                         {tournament?.name || 'Belum ada turnamen'}
                       </p>
                     </div>
@@ -968,9 +849,9 @@ export function AdminPanel({
                 </div>
               </div>
 
-              <div className={`flex-1 overflow-y-auto px-4 ${isPageMode ? 'pb-8 pt-2' : 'pb-28 pt-0'} md:px-6 lg:pb-8 space-y-5 lg:space-y-6 ${isPageMode ? 'w-full' : ''}`}>
-                {/* iOS Segmented Control Tab Switcher */}
-                <div className="flex bg-white/[0.06] rounded-2xl p-1 overflow-x-auto">
+              <div className={`flex-1 overflow-y-auto px-4 ${isPageMode ? 'pb-8 pt-2' : 'pb-28 pt-0'} md:px-5 lg:pb-8 space-y-4 lg:space-y-5 ${isPageMode ? 'w-full' : ''}`}>
+                {/* iOS Segmented Control Tab Switcher — Compact Pill Style */}
+                <div className="flex bg-white/[0.05] rounded-xl p-[3px] gap-[2px]">
                   {([
                     { id: 'tournament' as const, label: 'Turnamen', icon: Shield },
                     { id: 'peserta' as const, label: 'Peserta', icon: Users },
@@ -982,21 +863,19 @@ export function AdminPanel({
                     <motion.button
                       key={tab.id}
                       onClick={() => setAdminTab(tab.id)}
-                      className="relative flex-1 min-w-0 py-2.5 rounded-xl text-[11px] font-semibold flex flex-col items-center justify-center gap-1 z-10"
+                      className="relative flex-1 min-w-0 py-1.5 rounded-[9px] text-[10px] font-semibold flex items-center justify-center gap-1 z-10"
                       whileTap={{ scale: 0.97 }}
                     >
                       {adminTab === tab.id && (
                         <motion.div
-                          className="absolute inset-0 rounded-xl pointer-events-none"
-                          style={{ background: 'rgba(255,255,255,0.08)', boxShadow: '0 1px 4px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)' }}
+                          className="absolute inset-0 rounded-[9px] pointer-events-none"
+                          style={{ background: 'rgba(255,255,255,0.08)', boxShadow: '0 0.5px 2px rgba(0,0,0,0.15)' }}
                           layoutId="adminPanelTab"
-                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                         />
                       )}
-                      <span className={`relative z-10 ${adminTab === tab.id ? accentClass : 'text-white/30'}`}>
-                        <tab.icon className="w-4 h-4" />
-                      </span>
-                      <span className={`relative z-10 whitespace-nowrap ${adminTab === tab.id ? 'text-white/90' : 'text-white/30'}`}>
+                      <tab.icon className={`w-3.5 h-3.5 relative z-10 ${adminTab === tab.id ? accentClass : 'text-white/25'}`} />
+                      <span className={`relative z-10 whitespace-nowrap hidden sm:inline ${adminTab === tab.id ? 'text-white/90' : 'text-white/25'}`}>
                         {tab.label}
                       </span>
                     </motion.button>
@@ -1031,7 +910,7 @@ export function AdminPanel({
                         </div>
                       </div>
 
-                      <div className="glass-subtle rounded-2xl p-4 lg:p-6 space-y-4">
+                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 lg:p-6 space-y-4">
                         {/* Tournament Name */}
                         <div>
                           <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
@@ -1042,7 +921,7 @@ export function AdminPanel({
                             value={newTournamentName}
                             onChange={(e) => setNewTournamentName(e.target.value)}
                             placeholder={isMale ? 'Contoh: IDOL META Weekly Male' : 'Contoh: IDOL META Weekly Female'}
-                            className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
 
@@ -1087,7 +966,7 @@ export function AdminPanel({
                             max={99}
                             value={newTournamentWeek}
                             onChange={(e) => setNewTournamentWeek(parseInt(e.target.value) || 1)}
-                            className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
 
@@ -1101,7 +980,7 @@ export function AdminPanel({
                               type="date"
                               value={newTournamentDate}
                               onChange={(e) => setNewTournamentDate(e.target.value)}
-                              className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors [color-scheme:dark]"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                             />
                           </div>
                           <div>
@@ -1112,7 +991,7 @@ export function AdminPanel({
                               type="time"
                               value={newTournamentTime}
                               onChange={(e) => setNewTournamentTime(e.target.value)}
-                              className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors [color-scheme:dark]"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                             />
                           </div>
                         </div>
@@ -1183,7 +1062,7 @@ export function AdminPanel({
                                       value={newTournamentMode}
                                       onChange={(e) => setNewTournamentMode(e.target.value)}
                                       placeholder="GR Arena 3vs3"
-                                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                     />
                                   </div>
                                   <div>
@@ -1195,7 +1074,7 @@ export function AdminPanel({
                                       value={newTournamentBpm}
                                       onChange={(e) => setNewTournamentBpm(e.target.value)}
                                       placeholder="Random 120-140"
-                                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                     />
                                   </div>
                                   <div>
@@ -1207,7 +1086,7 @@ export function AdminPanel({
                                       value={newTournamentLokasi}
                                       onChange={(e) => setNewTournamentLokasi(e.target.value)}
                                       placeholder="PUB 1"
-                                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                     />
                                   </div>
                                 </div>
@@ -1251,8 +1130,8 @@ export function AdminPanel({
                             creatingTournament
                               ? 'opacity-50 pointer-events-none'
                               : isMale
-                                ? 'btn-gold'
-                                : 'btn-pink'
+                                ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/20'
+                                : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/20'
                           }`}
                           whileHover={{ scale: creatingTournament ? 1 : 1.01 }}
                           whileTap={{ scale: creatingTournament ? 1 : 0.97 }}
@@ -1270,27 +1149,13 @@ export function AdminPanel({
                     <>
 
                     {/* ═════════════════════════════════════════
-                        WIZARD STEPPER — Premium Tournament Status
+                        iOS-style Compact Stepper — Tournament Status
                         ═══════════════════════════════════════════ */}
-                <div className="relative">
-                  {/* Glass card container */}
-                  <div className="glass-subtle rounded-2xl p-4 relative overflow-hidden">
-                    {/* Animated gradient background for active state */}
-                    <div 
-                      className={`absolute inset-0 opacity-20 ${isMale ? 'bg-gradient-to-r from-[#73FF00]/10 via-[#8CFF33]/5 to-[#73FF00]/10' : 'bg-gradient-to-r from-[#38BDF8]/10 via-[#7DD3FC]/5 to-[#0EA5E9]/10'}`}
-                      style={{ 
-                        backgroundSize: '200% 100%',
-                        animation: 'shimmer 3s ease-in-out infinite'
-                      }}
-                    />
-                    
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                     {/* Header */}
-                    <div className="flex items-center gap-2 mb-4 relative">
-                      <div className={`w-6 h-6 rounded-lg ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#38BDF8]/15'} flex items-center justify-center`}>
-                        <span className="text-[11px]">🎯</span>
-                      </div>
-                      <p className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-bold">
-                        Status Turnamen
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-[11px] tracking-[0.08em] uppercase text-white/35 font-semibold">
+                        Status
                       </p>
                       <div className="ml-auto flex items-center gap-1.5">
                         <div className={`w-1.5 h-1.5 rounded-full ${isMale ? 'bg-[#73FF00]' : 'bg-[#38BDF8]'} animate-pulse`} />
@@ -1300,95 +1165,53 @@ export function AdminPanel({
                       </div>
                     </div>
 
-                    {/* Steps Row */}
-                    <div className="flex items-center justify-between relative">
+                    {/* Compact Steps Row — iOS Pills */}
+                    <div className="flex items-center gap-1">
                       {STEPS.map((step, index) => {
                         const isCompleted = index < currentStepIndex;
                         const isActive = index === currentStepIndex;
-                        const isLast = index === STEPS.length - 1;
 
                         return (
-                          <div key={step.key} className="flex items-center flex-1 relative">
-                            {/* Connector line */}
-                            {!isLast && (
-                              <div 
-                                className={`absolute top-4 left-1/2 right-0 h-[2px] -z-0 transition-all duration-500 ${
-                                  index < currentStepIndex
-                                    ? isMale 
-                                      ? 'bg-gradient-to-r from-[#73FF00]/60 to-[#73FF00]/20'
-                                      : 'bg-gradient-to-r from-[#38BDF8]/60 to-[#7DD3FC]/20'
-                                    : 'bg-white/8'
-                                }`}
-                                style={{ transform: 'translateX(16px)', width: 'calc(100% - 32px)' }}
-                              />
-                            )}
-
-                            {/* Step button */}
+                          <div key={step.key} className="flex items-center flex-1">
                             <motion.button
                               onClick={() => onUpdateStatus(step.key)}
-                              className="flex flex-col items-center gap-2 relative z-10 cursor-pointer mx-auto"
-                              whileTap={{ scale: 0.9 }}
-                              whileHover={{ scale: 1.05 }}
+                              className="flex items-center gap-1.5 cursor-pointer"
+                              whileTap={{ scale: 0.95 }}
                             >
-                              {/* Icon container */}
-                              <div className="relative">
-                                {/* Glow effect for active */}
-                                {isActive && (
-                                  <div 
-                                    className={`absolute inset-0 rounded-xl blur-md ${isMale ? 'bg-[#73FF00]/30' : 'bg-[#38BDF8]/30'}`}
-                                    style={{ animation: 'pulse 2s ease-in-out infinite' }}
-                                  />
-                                )}
-                                
-                                <div
-                                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center text-[16px] font-bold transition-all duration-300 ${
-                                    isCompleted
-                                      ? isMale
-                                        ? 'bg-gradient-to-br from-[#73FF00] to-[#5FD400] text-black shadow-lg shadow-[#73FF00]/20'
-                                        : 'bg-gradient-to-br from-[#38BDF8] to-[#0EA5E9] text-white shadow-lg shadow-[#38BDF8]/20'
-                                      : isActive
-                                        ? `${isMale ? 'bg-gradient-to-br from-[#73FF00]/20 to-[#5FD400]/30 ring-2 ring-[#73FF00]/50' : 'bg-gradient-to-br from-[#38BDF8]/20 to-[#0EA5E9]/30 ring-2 ring-[#38BDF8]/50'}`
-                                        : 'bg-white/5 border border-white/10'
-                                  }`}
-                                >
-                                  {isCompleted ? (
-                                    <Check className="w-5 h-5" />
-                                  ) : (
-                                    <span className={isActive ? '' : 'opacity-40'}>{step.icon}</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Label */}
-                              <span
-                                className={`text-[9px] font-semibold tracking-wide whitespace-nowrap transition-all ${
-                                  isActive 
-                                    ? isMale ? 'text-[#73FF00]' : 'text-[#38BDF8]'
-                                    : isCompleted 
-                                      ? 'text-white/60' 
-                                      : 'text-white/20'
+                              {/* Step Dot */}
+                              <div
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+                                  isCompleted
+                                    ? isMale
+                                      ? 'bg-[#73FF00]/20 text-[#73FF00]'
+                                      : 'bg-[#38BDF8]/20 text-[#38BDF8]'
+                                    : isActive
+                                      ? `${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] ring-1 ring-[#73FF00]/30' : 'bg-[#38BDF8]/15 text-[#38BDF8] ring-1 ring-[#38BDF8]/30'}`
+                                      : 'bg-white/[0.06] text-white/20'
                                 }`}
                               >
-                                {step.label}
-                              </span>
+                                {isCompleted ? (
+                                  <Check className="w-3 h-3" />
+                                ) : (
+                                  <span className="text-[9px]">{step.icon}</span>
+                                )}
+                              </div>
                             </motion.button>
+                            {/* Connector line */}
+                            {index < STEPS.length - 1 && (
+                              <div
+                                className={`flex-1 h-[1px] mx-1 transition-all duration-500 ${
+                                  index < currentStepIndex
+                                    ? isMale ? 'bg-[#73FF00]/30' : 'bg-[#38BDF8]/30'
+                                    : 'bg-white/[0.06]'
+                                }`}
+                              />
+                            )}
                           </div>
                         );
                       })}
                     </div>
-                  </div>
                 </div>
-
-                    {/* NEXT STEPS Guidance */}
-                    <AdminGuidanceCard
-                      tournamentStatus={tournament.status}
-                      pendingCount={pendingRegistrations.length}
-                      approvedCount={approvedRegistrations.length}
-                      teamsCount={teamsCount}
-                      accentClass={accentClass}
-                      accentBgSubtle={accentBgSubtle}
-                      onTabChange={setAdminTab}
-                    />
 
                 {/* ═══════════════════════════════════════════════════════
                     KELOLA PESERTA — Available in steps 0 through 3
@@ -1408,8 +1231,8 @@ export function AdminPanel({
                   </div>
                   <motion.button
                     onClick={() => setShowPlayerManagement(true)}
-                    className="w-full glass-subtle rounded-2xl p-4 text-left"
-                    whileHover={{ scale: 1.01 }}
+                    className="w-full bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 text-left"
+                    whileHover={{ scale: 1.005 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <div className="flex items-center gap-3">
@@ -1473,76 +1296,101 @@ export function AdminPanel({
                     <ChevronDown className="w-4 h-4 text-white/20 flex-shrink-0" />
                   </motion.button>
 
-                {/* Prize Pool Input */}
-                <div className="space-y-3" id="prize-pool-section">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
-                      Hadiah Minggu Ini
-                    </p>
-                    <span className="text-[10px] text-white/20 font-medium">
-                      Total: Rp {(tournament?.prizePool || 0).toLocaleString('id-ID')}
-                    </span>
-                  </div>
-                  <div className="glass-subtle rounded-2xl p-4 lg:p-6 space-y-3">
-                    {([
-                      { key: 'champion' as const, label: 'Juara 1', icon: '🥇', color: 'text-amber-400', placeholder: 'Contoh: 500000' },
-                      { key: 'runnerUp' as const, label: 'Juara 2', icon: '🥈', color: 'text-gray-300', placeholder: 'Contoh: 250000' },
-                      { key: 'third' as const, label: 'Juara 3', icon: '🥉', color: 'text-orange-400', placeholder: 'Contoh: 150000' },
-                      { key: 'mvp' as const, label: 'MVP', icon: '⭐', color: 'text-purple-400', placeholder: 'Contoh: 100000' },
-                    ]).map((field) => (
-                      <div key={field.key} className="flex items-center gap-3">
-                        <span className="text-base w-6 text-center">{field.icon}</span>
-                        <span className={`text-[12px] font-semibold w-14 shrink-0 ${field.color}`}>
-                          {field.label}
-                        </span>
-                        <div className="relative flex-1">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 pointer-events-none">
-                            Rp
-                          </span>
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            value={prizeInput[field.key]}
-                            onChange={(e) => {
-                              const val = e.target.value.replace(/[^0-9]/g, '');
-                              setPrizeInput((prev) => ({ ...prev, [field.key]: val }));
+                {/* Prize Pool Input — Collapsible */}
+                <div className="space-y-2" id="prize-pool-section">
+                  <button
+                    onClick={() => setShowPrizeDropdown(!showPrizeDropdown)}
+                    className="w-full flex items-center justify-between bg-white/[0.04] border border-white/[0.06] rounded-2xl px-4 py-3 transition-colors hover:bg-white/[0.06]"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[13px]">🏆</span>
+                      <span className="text-[12px] font-semibold text-white/70">
+                        Hadiah Minggu Ini
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[11px] font-medium text-white/30">
+                        Rp {(tournament?.prizePool || 0).toLocaleString('id-ID')}
+                      </span>
+                      <motion.div
+                        animate={{ rotate: showPrizeDropdown ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                      </motion.div>
+                    </div>
+                  </button>
+                  <AnimatePresence>
+                    {showPrizeDropdown && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3">
+                          {([
+                            { key: 'champion' as const, label: 'Juara 1', icon: '🥇', color: 'text-amber-400', placeholder: 'Contoh: 500000' },
+                            { key: 'runnerUp' as const, label: 'Juara 2', icon: '🥈', color: 'text-gray-300', placeholder: 'Contoh: 250000' },
+                            { key: 'third' as const, label: 'Juara 3', icon: '🥉', color: 'text-orange-400', placeholder: 'Contoh: 150000' },
+                            { key: 'mvp' as const, label: 'MVP', icon: '⭐', color: 'text-purple-400', placeholder: 'Contoh: 100000' },
+                          ]).map((field) => (
+                            <div key={field.key} className="flex items-center gap-3">
+                              <span className="text-base w-6 text-center">{field.icon}</span>
+                              <span className={`text-[12px] font-semibold w-14 shrink-0 ${field.color}`}>
+                                {field.label}
+                              </span>
+                              <div className="relative flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 pointer-events-none">
+                                  Rp
+                                </span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={prizeInput[field.key]}
+                                  onChange={(e) => {
+                                    const val = e.target.value.replace(/[^0-9]/g, '');
+                                    setPrizeInput((prev) => ({ ...prev, [field.key]: val }));
+                                  }}
+                                  placeholder={field.placeholder}
+                                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl pl-9 pr-3 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                          <motion.button
+                            onClick={() => {
+                              const c = parseInt(prizeInput.champion) || 0;
+                              const r = parseInt(prizeInput.runnerUp) || 0;
+                              const t = parseInt(prizeInput.third) || 0;
+                              const m = parseInt(prizeInput.mvp) || 0;
+                              const total = c + r + t + m;
+                              if (total === 0) return;
+                              setPrizeSaving(true);
+                              onUpdatePrizePool({ champion: c, runnerUp: r, third: t, mvp: m });
+                              setPrizeSaving(false);
                             }}
-                            placeholder={field.placeholder}
-                            className="w-full bg-white/5 border border-white/8 rounded-xl pl-9 pr-3 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
-                          />
+                            className={`w-full py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
+                              prizeSaving
+                                ? 'opacity-50 pointer-events-none'
+                                : isMale
+                                  ? 'bg-amber-400/12 text-amber-400 border border-amber-400/15 hover:bg-amber-400/20'
+                                  : 'bg-violet-400/12 text-violet-400 border border-violet-400/15 hover:bg-violet-400/20'
+                            }`}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            {prizeSaving ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Save className="w-4 h-4" />
+                            )}
+                            Simpan Hadiah
+                          </motion.button>
                         </div>
-                      </div>
-                    ))}
-                    <motion.button
-                      onClick={() => {
-                        const c = parseInt(prizeInput.champion) || 0;
-                        const r = parseInt(prizeInput.runnerUp) || 0;
-                        const t = parseInt(prizeInput.third) || 0;
-                        const m = parseInt(prizeInput.mvp) || 0;
-                        const total = c + r + t + m;
-                        if (total === 0) return;
-                        setPrizeSaving(true);
-                        onUpdatePrizePool({ champion: c, runnerUp: r, third: t, mvp: m });
-                        setPrizeSaving(false);
-                      }}
-                      className={`w-full py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
-                        prizeSaving
-                          ? 'opacity-50 pointer-events-none'
-                          : isMale
-                            ? 'bg-amber-400/15 text-amber-400 border border-amber-400/20 hover:bg-amber-400/25'
-                            : 'bg-violet-400/15 text-violet-400 border border-violet-400/20 hover:bg-violet-400/25'
-                      }`}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      {prizeSaving ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Save className="w-4 h-4" />
-                      )}
-                      Simpan Hadiah
-                    </motion.button>
-                  </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                   {/* ─── LANJUT KE PEMBUATAN TIM ─── */}
@@ -1550,13 +1398,12 @@ export function AdminPanel({
                   {approvedRegistrations.length >= 6 && teamsCount === 0 && (
                     <motion.button
                       onClick={() => onUpdateStatus('team_generation')}
-                      className="w-full glass-subtle rounded-2xl p-4 text-left border border-[#73FF00]/20"
-                      whileHover={{ scale: 1.01 }}
+                      className={`w-full bg-white/[0.03] border ${isMale ? 'border-[#73FF00]/20' : 'border-[#38BDF8]/20'} rounded-2xl p-4 text-left`}
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#73FF00]/15 flex items-center justify-center flex-shrink-0">
-                          <ChevronRight className="w-5 h-5 text-[#73FF00]" />
+                        <div className={`w-10 h-10 rounded-xl ${accentBgSubtle} flex items-center justify-center flex-shrink-0`}>
+                          <ChevronRight className={`w-5 h-5 ${accentClass}`} />
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-white/90">Lanjut ke Pembuatan Tim</p>
@@ -1564,8 +1411,8 @@ export function AdminPanel({
                             {approvedRegistrations.length} peserta siap
                           </p>
                         </div>
-                        <div className="w-8 h-8 rounded-lg bg-[#73FF00]/15 flex items-center justify-center">
-                          <Users className="w-4 h-4 text-[#73FF00]" />
+                        <div className={`w-8 h-8 rounded-lg ${accentBgSubtle} flex items-center justify-center`}>
+                          <Users className={`w-4 h-4 ${accentClass}`} />
                         </div>
                       </div>
                     </motion.button>
@@ -1579,8 +1426,8 @@ export function AdminPanel({
                 {currentStepIndex === 2 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-8 h-8 rounded-xl bg-[#73FF00]/12 flex items-center justify-center">
-                      <Users className="w-4 h-4 text-[#73FF00]" />
+                    <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                      <Users className={`w-4 h-4 ${accentClass}`} />
                     </div>
                     <div>
                       <p className="text-[13px] font-bold text-white/90">Pembuatan Tim</p>
@@ -1593,8 +1440,7 @@ export function AdminPanel({
                       /* Reset Tim — muncul jika tim sudah ada */
                       <motion.button
                         onClick={onResetTeams}
-                        className="glass-subtle rounded-2xl p-4 lg:p-6 text-left border border-orange-500/15"
-                        whileHover={{ scale: 1.02 }}
+                        className="bg-white/[0.03] border border-orange-500/15 rounded-2xl p-4 lg:p-6 text-left"
                         whileTap={{ scale: 0.97 }}
                       >
                         <div className="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center mb-2.5">
@@ -1609,12 +1455,11 @@ export function AdminPanel({
                       /* Buat Tim — muncul jika belum ada tim */
                       <motion.button
                         onClick={onGenerateTeams}
-                        className="glass-subtle rounded-2xl p-4 lg:p-6 text-left"
-                        whileHover={{ scale: 1.02 }}
+                        className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 lg:p-6 text-left"
                         whileTap={{ scale: 0.97 }}
                       >
-                        <div className="w-9 h-9 rounded-xl bg-[#73FF00]/10 flex items-center justify-center mb-2.5">
-                          <Users className="w-4.5 h-4.5 text-[#73FF00]" />
+                        <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center mb-2.5`}>
+                          <Users className={`w-4.5 h-4.5 ${accentClass}`} />
                         </div>
                         <p className="text-sm font-semibold text-white/90">Buat Tim</p>
                         <p className="text-[10px] text-white/25 mt-0.5">
@@ -1685,23 +1530,22 @@ export function AdminPanel({
                           </p>
                           <div className="grid grid-cols-2 gap-2">
                             {([
-                              { key: 'single', label: 'Single Elimination', desc: 'Langsung', icon: '🏆' },
-                              { key: 'double', label: 'Double Elimination', desc: 'Winner & Loser', icon: '🔄' },
+                              { key: 'single', label: 'Single Elim', desc: 'Langsung', icon: '🏆' },
+                              { key: 'double', label: 'Double Elim', desc: 'Winner & Loser', icon: '🔄' },
                               { key: 'group', label: 'Group + Playoff', desc: 'Fase Grup', icon: '📊' },
                               { key: 'round_robin', label: 'Round Robin', desc: 'Semua vs Semua', icon: '🔁' },
                             ]).map((b) => (
                               <motion.button
                                 key={b.key}
                                 onClick={() => onGenerateBracket(b.key, bracketStrategy)}
-                                className="p-3 rounded-xl text-left bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 hover:border-purple-500/30 transition-all"
-                                whileHover={{ scale: 1.02 }}
+                                className="p-3 rounded-xl text-left bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.10] transition-all"
                                 whileTap={{ scale: 0.97 }}
                               >
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className="text-base">{b.icon}</span>
-                                  <p className="text-[11px] font-semibold text-white/90">{b.label}</p>
+                                  <p className="text-[11px] font-semibold text-white/80">{b.label}</p>
                                 </div>
-                                <p className="text-[9px] text-white/30 ml-6">{b.desc}</p>
+                                <p className="text-[9px] text-white/25 ml-6">{b.desc}</p>
                               </motion.button>
                             ))}
                           </div>
@@ -1713,13 +1557,12 @@ export function AdminPanel({
                         /* Mulai Turnamen — muncul jika bracket sudah ada */
                         <motion.button
                           onClick={() => onUpdateStatus('ongoing')}
-                          className="w-full glass-subtle rounded-2xl p-4 text-left border border-green-500/20"
-                          whileHover={{ scale: 1.01 }}
+                          className={`w-full bg-white/[0.03] border ${isMale ? 'border-[#73FF00]/20' : 'border-[#38BDF8]/20'} rounded-2xl p-4 text-left`}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center flex-shrink-0">
-                              <Play className="w-5 h-5 text-green-400" />
+                            <div className={`w-10 h-10 rounded-xl ${accentBgSubtle} flex items-center justify-center flex-shrink-0`}>
+                              <Play className={`w-5 h-5 ${accentClass}`} />
                             </div>
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-white/90">Mulai Turnamen</p>
@@ -1727,8 +1570,8 @@ export function AdminPanel({
                                 {matchesCount} pertandingan siap
                               </p>
                             </div>
-                            <div className="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center">
-                              <Play className="w-4 h-4 text-green-400" />
+                            <div className={`w-8 h-8 rounded-lg ${accentBgSubtle} flex items-center justify-center`}>
+                              <Play className={`w-4 h-4 ${accentClass}`} />
                             </div>
                           </div>
                         </motion.button>
@@ -1760,7 +1603,7 @@ export function AdminPanel({
                                   initial={{ opacity: 0, scale: 0.95 }}
                                   animate={{ opacity: 1, scale: 1 }}
                                   transition={{ delay: idx * 0.03 }}
-                                  className="glass-subtle rounded-xl p-3"
+                                  className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3"
                                 >
                                   <div className="flex items-center gap-2 mb-2">
                                     <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${accentBgSubtle}`}>
@@ -1774,7 +1617,7 @@ export function AdminPanel({
                                         key={member.user?.id || mIdx}
                                         className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/[0.03]"
                                       >
-                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                                        <div className="w-5 h-5 rounded-full bg-white/[0.06] flex items-center justify-center overflow-hidden">
                                           {member.user?.avatar ? (
                                             <img src={member.user.avatar} alt="" loading="lazy" className="w-full h-full object-cover" />
                                           ) : (
@@ -1808,8 +1651,8 @@ export function AdminPanel({
                 {currentStepIndex === 3 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/12 flex items-center justify-center">
-                      <GitBranch className="w-4 h-4 text-purple-400" />
+                    <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                      <GitBranch className={`w-4 h-4 ${accentClass}`} />
                     </div>
                     <div>
                       <p className="text-[13px] font-bold text-white/90">Bracket Siap</p>
@@ -1817,15 +1660,15 @@ export function AdminPanel({
                     </div>
                   </div>
 
-                  <div className="glass-subtle rounded-2xl p-4 text-center border border-green-500/15">
-                    <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center mx-auto mb-2">
-                      <CheckCircle className="w-5 h-5 text-green-400" />
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 text-center">
+                    <div className={`w-10 h-10 rounded-xl ${accentBgSubtle} flex items-center justify-center mx-auto mb-2`}>
+                      <CheckCircle className={`w-5 h-5 ${accentClass}`} />
                     </div>
-                    <p className="text-[12px] font-semibold text-green-400">Bracket Sudah Dibuat</p>
+                    <p className={`text-[12px] font-semibold ${accentClass}`}>Bracket Sudah Dibuat</p>
                     <p className="text-[10px] text-white/30 mt-1">{matchesCount} pertandingan siap</p>
                     <motion.button
                       onClick={() => onUpdateStatus('ongoing')}
-                      className="mt-3 px-4 py-2 rounded-xl text-[11px] font-semibold bg-green-500/15 text-green-400 border border-green-500/20 hover:bg-green-500/25 transition-all"
+                      className={`mt-3 px-4 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15 hover:bg-[#73FF00]/18' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15 hover:bg-[#38BDF8]/18'} transition-all`}
                       whileTap={{ scale: 0.95 }}
                     >
                       Mulai Turnamen →
@@ -1841,8 +1684,8 @@ export function AdminPanel({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-green-500/12 flex items-center justify-center">
-                        <Play className="w-4 h-4 text-green-400" />
+                      <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                        <Play className={`w-4 h-4 ${accentClass}`} />
                       </div>
                       <div>
                         <p className="text-[13px] font-bold text-white/90">Turnamen Berlangsung</p>
@@ -1852,7 +1695,7 @@ export function AdminPanel({
                     {completedMatches === matchesCount && matchesCount > 0 && (
                       <motion.button
                         onClick={() => onUpdateStatus('completed')}
-                        className="px-3 py-1.5 rounded-xl text-[10px] font-semibold bg-green-500/15 text-green-400 border border-green-500/20"
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
                         whileTap={{ scale: 0.95 }}
                       >
                         Selesai ✓
@@ -1898,7 +1741,7 @@ export function AdminPanel({
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.02 }}
-                                    className={`glass-subtle rounded-xl p-3 ${isCompleted ? 'opacity-60' : ''}`}
+                                    className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 ${isCompleted ? 'opacity-60' : ''}`}
                                   >
                                     <div className="flex items-center justify-between mb-2">
                                       <span className="text-[9px] font-semibold text-white/30 uppercase tracking-wider">
@@ -1931,7 +1774,7 @@ export function AdminPanel({
                                               value={editScoreA}
                                               onChange={(e) => setEditScoreA(e.target.value)}
                                               placeholder="0"
-                                              className="w-10 h-9 rounded-lg bg-white/5 border border-white/10 text-center text-white/90 text-[13px] font-bold focus:outline-none focus:border-white/25"
+                                              className="w-10 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] text-center text-white/90 text-[13px] font-bold focus:outline-none focus:border-white/[0.15]"
                                             />
                                             <span className="text-white/30 text-[11px]">-</span>
                                             <input
@@ -1940,7 +1783,7 @@ export function AdminPanel({
                                               value={editScoreB}
                                               onChange={(e) => setEditScoreB(e.target.value)}
                                               placeholder="0"
-                                              className="w-10 h-9 rounded-lg bg-white/5 border border-white/10 text-center text-white/90 text-[13px] font-bold focus:outline-none focus:border-white/25"
+                                              className="w-10 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] text-center text-white/90 text-[13px] font-bold focus:outline-none focus:border-white/[0.15]"
                                             />
                                             <motion.button
                                               onClick={() => {
@@ -1966,13 +1809,13 @@ export function AdminPanel({
                                         ) : (
                                           <>
                                             <span className={`w-8 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold ${
-                                              teamAWinner && isCompleted ? 'bg-green-500/15 text-green-400' : 'bg-white/5 text-white/70'
+                                              teamAWinner && isCompleted ? 'bg-green-500/15 text-green-400' : 'bg-white/[0.05] text-white/70'
                                             }`}>
                                               {match.scoreA ?? '-'}
                                             </span>
                                             <span className="text-white/20 text-[10px]">vs</span>
                                             <span className={`w-8 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold ${
-                                              teamBWinner && isCompleted ? 'bg-green-500/15 text-green-400' : 'bg-white/5 text-white/70'
+                                              teamBWinner && isCompleted ? 'bg-green-500/15 text-green-400' : 'bg-white/[0.05] text-white/70'
                                             }`}>
                                               {match.scoreB ?? '-'}
                                             </span>
@@ -2037,8 +1880,8 @@ export function AdminPanel({
                 <div className="space-y-3">
                   <motion.button
                     onClick={onFinalize}
-                    className="w-full glass-subtle rounded-2xl p-4 lg:p-6 text-left"
-                    whileHover={{ scale: 1.02 }}
+                    className="w-full bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 lg:p-6 text-left"
+                    whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.97 }}
                   >
                     <div className="flex items-center gap-3">
@@ -2063,8 +1906,8 @@ export function AdminPanel({
                   </div>
                   <motion.button
                     onClick={() => setShowPlayerManagement(true)}
-                    className="w-full glass-subtle rounded-2xl p-4 text-left"
-                    whileHover={{ scale: 1.01 }}
+                    className="w-full bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 text-left"
+                    whileHover={{ scale: 1.005 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <div className="flex items-center gap-3">
@@ -2087,8 +1930,8 @@ export function AdminPanel({
                 <div className="space-y-3">
                   <motion.button
                     onClick={() => setShowResetConfirm(true)}
-                    className="w-full glass-subtle rounded-2xl p-4 text-left border border-amber-500/10"
-                    whileHover={{ scale: 1.01 }}
+                    className="w-full bg-white/[0.03] border border-amber-500/10 rounded-2xl p-4 text-left"
+                    whileHover={{ scale: 1.005 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <div className="flex items-center gap-3">
@@ -2125,7 +1968,7 @@ export function AdminPanel({
                             <motion.button
                               key={method.id}
                               onClick={() => toggleActiveMethod(method.id)}
-                              className={`flex-1 glass-subtle rounded-2xl p-3.5 text-center transition-all ${
+                              className={`flex-1 bg-white/[0.03] border border-white/[0.06] rounded-2xl p-3.5 text-center transition-all ${
                                 isActive ? 'ring-1 ' + (isMale ? 'ring-[#73FF00]/25' : 'ring-[#38BDF8]/25') : 'opacity-40'
                               }`}
                               whileTap={{ scale: 0.95 }}
@@ -2133,7 +1976,7 @@ export function AdminPanel({
                               <div className={`w-9 h-9 rounded-xl mx-auto mb-2 flex items-center justify-center ${
                                 isActive
                                   ? (isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15')
-                                  : 'bg-white/5'
+                                  : 'bg-white/[0.05]'
                               }`}>
                                 <method.icon className={`w-4.5 h-4.5 ${isActive ? accentClass : 'text-white/25'}`} />
                               </div>
@@ -2158,7 +2001,7 @@ export function AdminPanel({
                             QRIS
                           </p>
                         </div>
-                        <div className="glass-subtle rounded-2xl p-4 space-y-4">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-4">
                           {/* QRIS Image Upload */}
                           <div>
                             <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
@@ -2185,7 +2028,7 @@ export function AdminPanel({
                               value={paySettings.qrisLabel}
                               onChange={(e) => updatePayField('qrisLabel', e.target.value)}
                               placeholder="IDOL META - QRIS"
-                              className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
                             <p className="text-[10px] text-white/20 mt-1.5">
                               Jika tidak ada gambar, akan auto-generate QR dari label ini
@@ -2218,7 +2061,7 @@ export function AdminPanel({
                             Bank Transfer
                           </p>
                         </div>
-                        <div className="glass-subtle rounded-2xl p-4 space-y-3">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3">
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
@@ -2229,7 +2072,7 @@ export function AdminPanel({
                                 value={paySettings.bankName}
                                 onChange={(e) => updatePayField('bankName', e.target.value)}
                                 placeholder="Bank BCA"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                             <div>
@@ -2241,7 +2084,7 @@ export function AdminPanel({
                                 value={paySettings.bankCode}
                                 onChange={(e) => updatePayField('bankCode', e.target.value)}
                                 placeholder="BCA"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                           </div>
@@ -2254,7 +2097,7 @@ export function AdminPanel({
                               value={paySettings.bankNumber}
                               onChange={(e) => updatePayField('bankNumber', e.target.value)}
                               placeholder="1234567890"
-                              className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
                           </div>
                           <div>
@@ -2266,7 +2109,7 @@ export function AdminPanel({
                               value={paySettings.bankHolder}
                               onChange={(e) => updatePayField('bankHolder', e.target.value)}
                               placeholder="IDOL META"
-                              className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
                           </div>
                         </div>
@@ -2284,9 +2127,9 @@ export function AdminPanel({
                         </div>
 
                         {/* GoPay */}
-                        <div className="glass-subtle rounded-2xl p-4">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-400/15 flex items-center justify-center">
                               <Wallet className="w-3.5 h-3.5 text-white/90" />
                             </div>
                             <p className="text-[12px] font-semibold text-white/90">GoPay</p>
@@ -2299,7 +2142,7 @@ export function AdminPanel({
                                 value={paySettings.gopayNumber}
                                 onChange={(e) => updatePayField('gopayNumber', e.target.value)}
                                 placeholder="081234567890"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                             <div>
@@ -2309,16 +2152,16 @@ export function AdminPanel({
                                 value={paySettings.gopayHolder}
                                 onChange={(e) => updatePayField('gopayHolder', e.target.value)}
                                 placeholder="IDOL META"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                           </div>
                         </div>
 
                         {/* OVO */}
-                        <div className="glass-subtle rounded-2xl p-4">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-lg bg-purple-400/15 flex items-center justify-center">
                               <Wallet className="w-3.5 h-3.5 text-white/90" />
                             </div>
                             <p className="text-[12px] font-semibold text-white/90">OVO</p>
@@ -2331,7 +2174,7 @@ export function AdminPanel({
                                 value={paySettings.ovoNumber}
                                 onChange={(e) => updatePayField('ovoNumber', e.target.value)}
                                 placeholder="081234567890"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                             <div>
@@ -2341,16 +2184,16 @@ export function AdminPanel({
                                 value={paySettings.ovoHolder}
                                 onChange={(e) => updatePayField('ovoHolder', e.target.value)}
                                 placeholder="IDOL META"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                           </div>
                         </div>
 
                         {/* DANA */}
-                        <div className="glass-subtle rounded-2xl p-4">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#73FF00] to-[#5FD400] flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-lg bg-[#73FF00]/15 flex items-center justify-center">
                               <Wallet className="w-3.5 h-3.5 text-white/90" />
                             </div>
                             <p className="text-[12px] font-semibold text-white/90">DANA</p>
@@ -2363,7 +2206,7 @@ export function AdminPanel({
                                 value={paySettings.danaNumber}
                                 onChange={(e) => updatePayField('danaNumber', e.target.value)}
                                 placeholder="081234567890"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                             <div>
@@ -2373,7 +2216,7 @@ export function AdminPanel({
                                 value={paySettings.danaHolder}
                                 onChange={(e) => updatePayField('danaHolder', e.target.value)}
                                 placeholder="IDOL META"
-                                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
                           </div>
@@ -2385,8 +2228,8 @@ export function AdminPanel({
                     <motion.button
                       onClick={handleSavePaymentSettings}
                       disabled={paySettingsSaving}
-                      className={`${btnClass} btn-ios w-full py-3.5 rounded-2xl text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50`}
-                      whileHover={{ scale: 1.01 }}
+                      className={`${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'} w-full py-3 rounded-2xl text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50`}
+                      whileHover={{ scale: 1.005 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       {paySettingsSaving ? (
@@ -2429,7 +2272,7 @@ export function AdminPanel({
                           <Loader2 className={`w-5 h-5 animate-spin ${accentClass}`} />
                         </div>
                       ) : pendingPayments.length === 0 ? (
-                        <div className="glass-subtle rounded-2xl p-6 text-center">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                           <CheckCircle className="w-7 h-7 text-[--ios-green]/40 mx-auto mb-2" />
                           <p className="text-[13px] text-white/30 font-medium">Semua pembayaran telah diverifikasi</p>
                           <p className="text-[11px] text-white/15 mt-0.5">Tidak ada pembayaran tertunda</p>
@@ -2452,7 +2295,7 @@ export function AdminPanel({
                             return (
                               <motion.div
                                 key={payment.id}
-                                className="glass-subtle rounded-2xl p-3.5"
+                                className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-3.5"
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                               >
@@ -2473,11 +2316,11 @@ export function AdminPanel({
                                 <div className="flex items-center gap-2 mb-2.5">
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     {payment.fromAvatar ? (
-                                      <div className="w-7 h-7 rounded-full overflow-hidden bg-white/5 shrink-0">
+                                      <div className="w-7 h-7 rounded-full overflow-hidden bg-white/[0.05] shrink-0">
                                         <img src={payment.fromAvatar} alt={payment.from} loading="lazy" className="w-full h-full object-cover" />
                                       </div>
                                     ) : (
-                                      <div className="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center shrink-0">
+                                      <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0">
                                         <span className="text-[10px] font-bold text-white/50">{payment.from[0]}</span>
                                       </div>
                                     )}
@@ -2494,10 +2337,10 @@ export function AdminPanel({
                                 {/* Proof thumbnail */}
                                 {payment.proofImageUrl ? (
                                   <div
-                                    className="flex items-center gap-2 mb-2.5 p-2 rounded-xl bg-white/5 cursor-pointer hover:bg-white/8 transition-colors"
+                                    className="flex items-center gap-2 mb-2.5 p-2 rounded-xl bg-white/[0.05] cursor-pointer hover:bg-white/[0.08] transition-colors"
                                     onClick={() => handleViewProof(payment.proofImageUrl!)}
                                   >
-                                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/5 shrink-0">
+                                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/[0.05] shrink-0">
                                       <img src={payment.proofImageUrl} alt="Bukti" loading="lazy" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -2519,7 +2362,7 @@ export function AdminPanel({
                                     onClick={() => handleVerifyPayment(payment.id, payment.type, 'confirmed')}
                                     disabled={verifyingId === payment.id}
                                     className="flex-1 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 bg-emerald-500/12 text-emerald-400 border border-emerald-500/15 disabled:opacity-40"
-                                    whileHover={{ scale: 1.02 }}
+                                    whileHover={{ scale: 1.01 }}
                                     whileTap={{ scale: 0.97 }}
                                   >
                                     {verifyingId === payment.id ? (
@@ -2533,7 +2376,7 @@ export function AdminPanel({
                                     onClick={() => handleVerifyPayment(payment.id, payment.type, 'rejected')}
                                     disabled={verifyingId === payment.id}
                                     className="flex-1 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 bg-red-500/10 text-red-400 border border-red-500/15 disabled:opacity-40"
-                                    whileHover={{ scale: 1.02 }}
+                                    whileHover={{ scale: 1.01 }}
                                     whileTap={{ scale: 0.97 }}
                                   >
                                     {verifyingId === payment.id ? (
@@ -2572,7 +2415,7 @@ export function AdminPanel({
                         <motion.button
                           onClick={() => setShowCreateClub(true)}
                           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
-                          whileHover={{ scale: 1.04 }}
+                          whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.95 }}
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -2585,7 +2428,7 @@ export function AdminPanel({
                     <AnimatePresence>
                       {showCreateClub && (
                         <motion.div
-                          className="glass-subtle rounded-2xl p-4 space-y-3"
+                          className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3"
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -8 }}
@@ -2608,7 +2451,7 @@ export function AdminPanel({
                               value={newClubName}
                               onChange={(e) => setNewClubName(e.target.value)}
                               placeholder="Nama club..."
-                              className="flex-1 bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                              className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter' && newClubName.trim().length >= 2) {
                                   setCreatingClub(true);
@@ -2660,7 +2503,7 @@ export function AdminPanel({
                                   .finally(() => setCreatingClub(false));
                               }}
                               disabled={creatingClub || newClubName.trim().length < 2}
-                              className={`px-4 py-2.5 rounded-xl text-[12px] font-semibold flex items-center gap-1.5 transition-all ${creatingClub || newClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : btnClass}`}
+                              className={`px-4 py-2.5 rounded-xl text-[12px] font-semibold flex items-center gap-1.5 transition-all ${creatingClub || newClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`}
                               whileTap={{ scale: 0.97 }}
                             >
                               {creatingClub ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
@@ -2668,7 +2511,7 @@ export function AdminPanel({
                             </motion.button>
                             <motion.button
                               onClick={() => { setShowCreateClub(false); setNewClubName(''); setNewClubLogo(null); }}
-                              className="px-3 py-2.5 rounded-xl text-[12px] glass-subtle text-white/50"
+                              className="px-3 py-2.5 rounded-xl text-[12px] bg-white/[0.03] border border-white/[0.06] text-white/50"
                               whileTap={{ scale: 0.97 }}
                             >
                               <XCircle className="w-4 h-4" />
@@ -2684,7 +2527,7 @@ export function AdminPanel({
                         <Loader2 className={`w-5 h-5 animate-spin ${accentClass}`} />
                       </div>
                     ) : clubs.length === 0 ? (
-                      <div className="glass-subtle rounded-2xl p-6 text-center">
+                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                         <Building2 className="w-7 h-7 text-white/20 mx-auto mb-2" />
                         <p className="text-[13px] text-white/30 font-medium">Belum ada club</p>
                         <p className="text-[11px] text-white/20 mt-1">Buat club pertama untuk memulai</p>
@@ -2694,7 +2537,7 @@ export function AdminPanel({
                         {clubs.map((club, index) => (
                           <motion.div
                             key={club.id}
-                            className="glass-subtle rounded-2xl p-4 transition-all"
+                            className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 transition-all"
                             initial={{ opacity: 0, y: 6 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.03 }}
@@ -2712,7 +2555,7 @@ export function AdminPanel({
                                 <div className="flex gap-2">
                                   <motion.button
                                     onClick={() => setShowDeleteClubConfirm(null)}
-                                    className="flex-1 py-2 rounded-xl text-[11px] font-semibold glass-subtle text-white/60"
+                                    className="flex-1 py-2 rounded-xl text-[11px] font-semibold bg-white/[0.03] border border-white/[0.06] text-white/60"
                                     whileTap={{ scale: 0.97 }}
                                   >
                                     Batal
@@ -2755,11 +2598,11 @@ export function AdminPanel({
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).style.display = 'none';
-                                        (e.target as HTMLImageElement).parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-gradient-to-br from-[#73FF00]/30 to-[#5FD400]/30' : 'bg-gradient-to-br from-[#0EA5E9]/30 to-[#0EA5E9]/30'}">${club.name.slice(0, 2).toUpperCase()}</div>`;
+                                        (e.target as HTMLImageElement).parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}">${club.name.slice(0, 2).toUpperCase()}</div>`;
                                       }}
                                     />
                                   ) : (
-                                    <div className={`w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-gradient-to-br from-[#73FF00]/30 to-[#5FD400]/30' : 'bg-gradient-to-br from-[#0EA5E9]/30 to-[#0EA5E9]/30'}`}>
+                                    <div className={`w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}`}>
                                       {club.name.slice(0, 2).toUpperCase()}
                                     </div>
                                   )}
@@ -2791,14 +2634,14 @@ export function AdminPanel({
                                       setEditClubName(club.name);
                                       setEditClubLogo(club.logoUrl || '');
                                     }}
-                                    className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center ${accentClass} hover:bg-white/10 transition-colors`}
+                                    className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center ${accentClass} hover:bg-white/[0.08] transition-colors`}
                                     whileTap={{ scale: 0.9 }}
                                   >
                                     <Pencil className="w-3.5 h-3.5" />
                                   </motion.button>
                                   <motion.button
                                     onClick={() => setShowDeleteClubConfirm(club.id)}
-                                    className="w-8 h-8 rounded-xl bg-red-500/8 flex items-center justify-center text-red-400/50 hover:bg-red-500/15 hover:text-red-400 transition-colors"
+                                    className="w-8 h-8 rounded-xl bg-red-500/[0.06] flex items-center justify-center text-red-400/50 hover:bg-red-500/15 hover:text-red-400 transition-colors"
                                     whileTap={{ scale: 0.9 }}
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -2834,10 +2677,10 @@ export function AdminPanel({
                           bannerSaved
                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
                             : isMale
-                              ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/25'
-                              : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/25'
+                              ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/20'
+                              : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/20'
                         }`}
-                        whileHover={{ scale: 1.04 }}
+                        whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         {bannerSaving ? (
@@ -2852,7 +2695,7 @@ export function AdminPanel({
                     </div>
 
                     {/* Banner Preview & Upload Info */}
-                    <div className="glass-subtle rounded-2xl p-4 lg:p-6 space-y-5">
+                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 lg:p-6 space-y-5">
                       <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/10">
                         <Info className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
                         <div className="text-[11px] text-white/50 leading-relaxed">
@@ -2866,7 +2709,7 @@ export function AdminPanel({
                         {/* Male Champion Banner Upload */}
                         <div className="space-y-2.5">
                           <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-md bg-[#73FF00]/10 flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-md bg-[#73FF00]/12 flex items-center justify-center">
                               <span className="text-[9px] font-bold text-[#73FF00]">M</span>
                             </div>
                             <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
@@ -3078,7 +2921,7 @@ export function AdminPanel({
                             <motion.button
                               onClick={() => setShowAddAdmin(true)}
                               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
-                              whileHover={{ scale: 1.04 }}
+                              whileHover={{ scale: 1.01 }}
                               whileTap={{ scale: 0.95 }}
                             >
                               <UserPlus className="w-3.5 h-3.5" />
@@ -3093,7 +2936,7 @@ export function AdminPanel({
                             <Loader2 className={`w-5 h-5 animate-spin ${accentClass}`} />
                           </div>
                         ) : adminList.length === 0 ? (
-                          <div className="glass-subtle rounded-2xl p-6 text-center">
+                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                             <Users className="w-7 h-7 text-white/20 mx-auto mb-2" />
                             <p className="text-[13px] text-white/30 font-medium">Belum ada admin</p>
                           </div>
@@ -3105,7 +2948,7 @@ export function AdminPanel({
                               return (
                             <motion.div
                               key={admin.id}
-                              className={`glass-subtle rounded-2xl p-4 transition-all ${isSuperAdmin ? 'ring-1 ring-amber-400/20' : ''}`}
+                              className={`bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 transition-all ${isSuperAdmin ? 'ring-1 ring-amber-400/20' : ''}`}
                               initial={{ opacity: 0, y: 6 }}
                               animate={{ opacity: 1, y: 0 }}
                             >
@@ -3116,7 +2959,7 @@ export function AdminPanel({
                                   {admin.avatar ? (
                                     <img src={admin.avatar} alt={admin.name} loading="lazy" className="w-full h-full object-cover" />
                                   ) : (
-                                    <div className={`w-full h-full flex items-center justify-center ${isSuperAdmin ? 'bg-amber-500/15' : 'bg-white/5'}`}>
+                                    <div className={`w-full h-full flex items-center justify-center ${isSuperAdmin ? 'bg-amber-500/15' : 'bg-white/[0.05]'}`}>
                                       {isSuperAdmin ? <Crown className="w-5 h-5 text-amber-400" /> : <span className="text-sm font-bold text-white/50">{admin.name[0]}</span>}
                                     </div>
                                   )}
@@ -3137,7 +2980,7 @@ export function AdminPanel({
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <p className="text-[11px] text-white/35 truncate">{admin.email || 'No email'}</p>
                                     <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                                      isSuperAdmin ? 'bg-amber-400/15 text-amber-400' : 'bg-white/8 text-white/50'
+                                      isSuperAdmin ? 'bg-amber-400/15 text-amber-400' : 'bg-white/[0.06] text-white/50'
                                     }`}>
                                       {isSuperAdmin ? 'Super Admin' : 'Admin'}
                                     </span>
@@ -3147,7 +2990,7 @@ export function AdminPanel({
                                 {!isSuperAdmin && adminUser?.role === 'super_admin' && (
                                   <motion.button
                                     onClick={() => setShowDeleteConfirm(admin.id)}
-                                    className="w-8 h-8 rounded-xl bg-red-500/8 flex items-center justify-center text-red-400/50 hover:bg-red-500/15 hover:text-red-400 transition-colors"
+                                    className="w-8 h-8 rounded-xl bg-red-500/[0.06] flex items-center justify-center text-red-400/50 hover:bg-red-500/15 hover:text-red-400 transition-colors"
                                     whileTap={{ scale: 0.9 }}
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -3212,7 +3055,7 @@ export function AdminPanel({
                                               setAdminList((prev) => prev.map((a) => a.id === admin.id ? { ...a, permissions: updated } : a));
                                             } : undefined}
                                           >
-                                            <div className={`w-3 h-3 rounded-full bg-white/80 shadow-sm transition-transform ${hasPerm ? 'translate-x-0' : '-translate-x-1'}`} />
+                                            <div className={`w-3 h-3 rounded-full bg-white/[0.06]0 shadow-sm transition-transform ${hasPerm ? 'translate-x-0' : '-translate-x-1'}`} />
                                           </div>
                                         </div>
                                       );
@@ -3233,8 +3076,8 @@ export function AdminPanel({
                                         setRbacLoading(false);
                                       }}
                                       disabled={rbacLoading}
-                                      className={`w-full py-2 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 ${isMale ? 'btn-gold' : 'btn-pink'} disabled:opacity-50`}
-                                      whileHover={{ scale: 1.01 }}
+                                      className={`w-full py-2 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'} disabled:opacity-50`}
+                                      whileHover={{ scale: 1.005 }}
                                       whileTap={{ scale: 0.97 }}
                                     >
                                       {rbacLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
@@ -3282,8 +3125,8 @@ export function AdminPanel({
                               addToast('Terjadi kesalahan saat menyemai database', 'error');
                             }
                           }}
-                          className="w-full glass-subtle rounded-2xl p-4 text-left border border-emerald-500/15"
-                          whileHover={{ scale: 1.01 }}
+                          className="w-full bg-white/[0.03] border border-emerald-500/15 rounded-2xl p-4 text-left"
+                          whileHover={{ scale: 1.005 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className="flex items-center gap-3">
@@ -3301,8 +3144,8 @@ export function AdminPanel({
                         
                         <motion.button
                           onClick={() => setShowFullResetConfirm(true)}
-                          className="w-full glass-subtle rounded-2xl p-4 text-left border border-red-500/15"
-                          whileHover={{ scale: 1.01 }}
+                          className="w-full bg-white/[0.03] border border-red-500/15 rounded-2xl p-4 text-left"
+                          whileHover={{ scale: 1.005 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className="flex items-center gap-3">
@@ -3366,10 +3209,10 @@ export function AdminPanel({
                               quickInfoSaved
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
                                 : isMale
-                                  ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/25'
-                                  : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/25'
+                                  ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/20'
+                                  : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/20'
                             }`}
-                            whileHover={{ scale: 1.04 }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.95 }}
                           >
                             {quickInfoSaving ? (
@@ -3388,7 +3231,7 @@ export function AdminPanel({
                           {quickInfoItems.map((item, idx) => (
                             <div
                               key={idx}
-                              className="glass-subtle rounded-2xl p-4 space-y-3"
+                              className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3"
                               style={{ borderLeft: `3px solid rgb(${item.color || '115,255,0'})` }}
                             >
                               <div className="flex items-center justify-between">
@@ -3423,7 +3266,7 @@ export function AdminPanel({
                                       setQuickInfoItems(updated);
                                       setQuickInfoSaved(false);
                                     }}
-                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
+                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                                   >
                                     <option value="Info">ℹ️ Info</option>
                                     <option value="Calendar">📅 Calendar</option>
@@ -3482,7 +3325,7 @@ export function AdminPanel({
                                     setQuickInfoItems(updated);
                                     setQuickInfoSaved(false);
                                   }}
-                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
+                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                                   placeholder="Judul kartu..."
                                 />
                               </div>
@@ -3499,7 +3342,7 @@ export function AdminPanel({
                                     setQuickInfoSaved(false);
                                   }}
                                   rows={3}
-                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors resize-none"
+                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors resize-none"
                                   placeholder="Deskripsi kartu..."
                                 />
                               </div>
@@ -3527,7 +3370,7 @@ export function AdminPanel({
                         </motion.button>
 
                         {/* Preview */}
-                        <div className="glass-subtle rounded-2xl p-4 space-y-3">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3">
                           <div className="flex items-center gap-2 mb-2">
                             <Eye className="w-3.5 h-3.5 text-white/40" />
                             <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Preview</span>
@@ -3566,7 +3409,7 @@ export function AdminPanel({
                   >
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
                     <motion.div
-                      className="relative w-full glass rounded-2xl p-6"
+                      className="relative w-full bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6"
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.9, opacity: 0 }}
@@ -3610,7 +3453,7 @@ export function AdminPanel({
                         <div className="flex gap-3 mt-5 w-full">
                           <motion.button
                             onClick={() => setShowResetConfirm(false)}
-                            className="flex-1 py-3 rounded-xl text-sm font-semibold glass-subtle text-white/70"
+                            className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white/[0.03] border border-white/[0.06] text-white/70"
                             whileTap={{ scale: 0.97 }}
                           >
                             Batal
@@ -3622,7 +3465,7 @@ export function AdminPanel({
                               onResetSeason();
                             }}
                             className="flex-1 py-3 rounded-xl text-sm font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/20"
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.97 }}
                           >
                             Ya, Reset
@@ -3656,7 +3499,7 @@ export function AdminPanel({
                       transition={{ type: 'spring', damping: 25, stiffness: 350 }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="glass rounded-2xl overflow-hidden">
+                      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl overflow-hidden">
                         <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
                           <div className="flex items-center gap-2">
                             <ImageIcon className={`w-4 h-4 ${accentClass}`} />
@@ -3667,13 +3510,13 @@ export function AdminPanel({
                               setShowProofModal(null);
                               setProofModalUrl(null);
                             }}
-                            className="w-7 h-7 rounded-lg bg-white/8 flex items-center justify-center text-white/40 hover:bg-white/12 transition-colors"
+                            className="w-7 h-7 rounded-lg bg-white/[0.06] flex items-center justify-center text-white/40 hover:bg-white/[0.10] transition-colors"
                           >
                             <XCircle className="w-4 h-4" />
                           </button>
                         </div>
                         <div className="p-4">
-                          <div className="rounded-xl overflow-hidden bg-white/5">
+                          <div className="rounded-xl overflow-hidden bg-white/[0.05]">
                             <img
                               src={proofModalUrl}
                               alt="Bukti pembayaran"
@@ -3699,7 +3542,7 @@ export function AdminPanel({
                   >
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
                     <motion.div
-                      className="relative w-full max-w-sm glass rounded-2xl p-6"
+                      className="relative w-full max-w-sm bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6"
                       initial={{ scale: 0.9, opacity: 0, y: 20 }}
                       animate={{ scale: 1, opacity: 1, y: 0 }}
                       exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -3724,7 +3567,7 @@ export function AdminPanel({
                             value={newAdminName}
                             onChange={(e) => setNewAdminName(e.target.value)}
                             placeholder="Nama admin"
-                            className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
                         <div>
@@ -3734,7 +3577,7 @@ export function AdminPanel({
                             value={newAdminEmail}
                             onChange={(e) => setNewAdminEmail(e.target.value)}
                             placeholder="email@example.com"
-                            className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
                         <div>
@@ -3744,7 +3587,7 @@ export function AdminPanel({
                             value={newAdminPass}
                             onChange={(e) => setNewAdminPass(e.target.value)}
                             placeholder="Password admin"
-                            className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/15 transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
 
@@ -3776,7 +3619,7 @@ export function AdminPanel({
                                     {perm.label}
                                   </span>
                                   <div className={`w-8 h-[18px] rounded-full flex items-center transition-colors ${hasPerm ? 'bg-emerald-500/40 justify-end' : 'bg-white/10 justify-start'}`}>
-                                    <div className={`w-[14px] h-[14px] rounded-full bg-white/80 shadow-sm transition-transform ${hasPerm ? 'translate-x-0' : '-translate-x-1'}`} />
+                                    <div className={`w-[14px] h-[14px] rounded-full bg-white/[0.06]0 shadow-sm transition-transform ${hasPerm ? 'translate-x-0' : '-translate-x-1'}`} />
                                   </div>
                                 </div>
                               );
@@ -3794,7 +3637,7 @@ export function AdminPanel({
                             setNewAdminPass('');
                             setNewAdminPerms({ tournament: true, players: true, bracket: true, scores: true, prize: true, donations: true, full_reset: false, manage_admins: false });
                           }}
-                          className="flex-1 py-3 rounded-xl text-sm font-semibold glass-subtle text-white/70"
+                          className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white/[0.03] border border-white/[0.06] text-white/70"
                           whileTap={{ scale: 0.97 }}
                         >
                           Batal
@@ -3831,8 +3674,8 @@ export function AdminPanel({
                             setRbacLoading(false);
                           }}
                           disabled={rbacLoading || !newAdminName.trim() || !newAdminEmail.trim() || !newAdminPass.trim()}
-                          className={`flex-1 py-3 rounded-xl text-sm font-semibold ${isMale ? 'btn-gold' : 'btn-pink'} disabled:opacity-40`}
-                          whileHover={{ scale: 1.02 }}
+                          className={`flex-1 py-3 rounded-xl text-sm font-semibold ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'} disabled:opacity-40`}
+                          whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.97 }}
                         >
                           {rbacLoading ? (
@@ -3859,7 +3702,7 @@ export function AdminPanel({
                   >
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
                     <motion.div
-                      className="relative w-full glass rounded-2xl p-6"
+                      className="relative w-full bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6"
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.9, opacity: 0 }}
@@ -3877,7 +3720,7 @@ export function AdminPanel({
                         <div className="flex gap-3 mt-5 w-full">
                           <motion.button
                             onClick={() => setShowDeleteConfirm(null)}
-                            className="flex-1 py-3 rounded-xl text-sm font-semibold glass-subtle text-white/70"
+                            className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white/[0.03] border border-white/[0.06] text-white/70"
                             whileTap={{ scale: 0.97 }}
                           >
                             Batal
@@ -3894,7 +3737,7 @@ export function AdminPanel({
                             }}
                             disabled={rbacLoading}
                             className="flex-1 py-3 rounded-xl text-sm font-semibold bg-red-500/20 text-red-400 border border-red-500/20 disabled:opacity-50"
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.97 }}
                           >
                             {rbacLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Hapus'}
@@ -3918,7 +3761,7 @@ export function AdminPanel({
                   >
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
                     <motion.div
-                      className="relative w-full glass rounded-2xl p-6"
+                      className="relative w-full bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6"
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.9, opacity: 0 }}
@@ -3950,13 +3793,13 @@ export function AdminPanel({
                             value={fullResetConfirmText}
                             onChange={(e) => setFullResetConfirmText(e.target.value)}
                             placeholder="RESET SEMUA DATA"
-                            className="w-full bg-white/5 border border-red-500/15 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-red-500/30 transition-colors"
+                            className="w-full bg-white/[0.05] border border-red-500/15 rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-red-500/30 focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
                         <div className="flex gap-3 mt-5 w-full">
                           <motion.button
                             onClick={() => { setShowFullResetConfirm(false); setFullResetConfirmText(''); }}
-                            className="flex-1 py-3 rounded-xl text-sm font-semibold glass-subtle text-white/70"
+                            className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white/[0.03] border border-white/[0.06] text-white/70"
                             whileTap={{ scale: 0.97 }}
                           >
                             Batal
@@ -3986,7 +3829,7 @@ export function AdminPanel({
                             }}
                             disabled={fullResetLoading || fullResetConfirmText !== 'RESET SEMUA DATA'}
                             className="flex-1 py-3 rounded-xl text-sm font-semibold bg-red-500/20 text-red-400 border border-red-500/20 disabled:opacity-40"
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.97 }}
                           >
                             {fullResetLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Reset Semua'}
@@ -4014,7 +3857,7 @@ export function AdminPanel({
           >
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
             <motion.div
-              className="relative w-full sm:max-w-md glass rounded-t-[28px] sm:rounded-2xl p-5"
+              className="relative w-full sm:max-w-md bg-[#1c1c1e] border border-white/[0.08] rounded-t-[28px] sm:rounded-2xl p-5"
               initial={{ y: '100%', scale: 0.95 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: '100%', scale: 0.95 }}
@@ -4047,7 +3890,7 @@ export function AdminPanel({
                     value={editClubName}
                     onChange={(e) => setEditClubName(e.target.value)}
                     placeholder="Nama club..."
-                    className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                   />
                 </div>
 
@@ -4064,7 +3907,7 @@ export function AdminPanel({
                 <div className="flex gap-2 pt-1">
                   <motion.button
                     onClick={() => setEditingClub(null)}
-                    className="flex-1 py-3 rounded-xl text-[13px] font-semibold glass-subtle text-white/60"
+                    className="flex-1 py-3 rounded-xl text-[13px] font-semibold bg-white/[0.03] border border-white/[0.06] text-white/60"
                     whileTap={{ scale: 0.97 }}
                   >
                     Batal
@@ -4095,7 +3938,7 @@ export function AdminPanel({
                         .finally(() => setEditClubSaving(false));
                     }}
                     disabled={editClubSaving || editClubName.trim().length < 2}
-                    className={`flex-1 py-3 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${editClubSaving || editClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : btnClass}`}
+                    className={`flex-1 py-3 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${editClubSaving || editClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`}
                     whileTap={{ scale: 0.97 }}
                   >
                     {editClubSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -4120,7 +3963,7 @@ export function AdminPanel({
           >
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
             <motion.div
-              className="relative w-full sm:max-w-lg glass rounded-t-[28px] sm:rounded-2xl max-h-[90vh] overflow-hidden"
+              className="relative w-full sm:max-w-lg bg-[#1c1c1e] border border-white/[0.08] rounded-t-[28px] sm:rounded-2xl max-h-[90vh] overflow-hidden"
               initial={{ y: '100%', scale: 0.95 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: '100%', scale: 0.95 }}
@@ -4140,7 +3983,7 @@ export function AdminPanel({
                 </div>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="w-8 h-8 rounded-xl bg-white/8 flex items-center justify-center text-white/40 hover:bg-white/12 transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center text-white/40 hover:bg-white/[0.10] transition-colors"
                 >
                   <XCircle className="w-4 h-4" />
                 </button>
@@ -4157,7 +4000,7 @@ export function AdminPanel({
                     type="text"
                     value={editForm.name}
                     onChange={(e) => setEditForm(p => ({ ...p, name: e.target.value }))}
-                    className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                   />
                 </div>
 
@@ -4168,7 +4011,7 @@ export function AdminPanel({
                     <select
                       value={editForm.type}
                       onChange={(e) => setEditForm(p => ({ ...p, type: e.target.value as 'weekly' | 'grand_final' }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/20 transition-colors appearance-none"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
                     >
                       <option value="weekly" className="bg-neutral-900">Weekly</option>
                       <option value="grand_final" className="bg-neutral-900">Grand Final</option>
@@ -4179,7 +4022,7 @@ export function AdminPanel({
                     <select
                       value={editForm.bracketType}
                       onChange={(e) => setEditForm(p => ({ ...p, bracketType: e.target.value as 'single' | 'double' | 'group' }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/20 transition-colors appearance-none"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
                     >
                       <option value="single" className="bg-neutral-900">Single Elim</option>
                       <option value="double" className="bg-neutral-900">Double Elim</option>
@@ -4198,7 +4041,7 @@ export function AdminPanel({
                     max={99}
                     value={editForm.week}
                     onChange={(e) => setEditForm(p => ({ ...p, week: parseInt(e.target.value) || 1 }))}
-                    className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                   />
                 </div>
 
@@ -4212,7 +4055,7 @@ export function AdminPanel({
                       type="date"
                       value={editForm.startDate}
                       onChange={(e) => setEditForm(p => ({ ...p, startDate: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/20 transition-colors [color-scheme:dark]"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                     />
                   </div>
                   <div>
@@ -4223,7 +4066,7 @@ export function AdminPanel({
                       type="time"
                       value={editForm.startTime}
                       onChange={(e) => setEditForm(p => ({ ...p, startTime: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/20 transition-colors [color-scheme:dark]"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                     />
                   </div>
                 </div>
@@ -4238,7 +4081,7 @@ export function AdminPanel({
                       type="text"
                       value={editForm.mode}
                       onChange={(e) => setEditForm(p => ({ ...p, mode: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/20 transition-colors"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                     />
                   </div>
                   <div>
@@ -4249,7 +4092,7 @@ export function AdminPanel({
                       type="text"
                       value={editForm.bpm}
                       onChange={(e) => setEditForm(p => ({ ...p, bpm: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/20 transition-colors"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                     />
                   </div>
                   <div>
@@ -4260,7 +4103,7 @@ export function AdminPanel({
                       type="text"
                       value={editForm.lokasi}
                       onChange={(e) => setEditForm(p => ({ ...p, lokasi: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/20 transition-colors"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                     />
                   </div>
                 </div>
@@ -4328,7 +4171,7 @@ export function AdminPanel({
                   }}
                   disabled={editSaving}
                   className={`w-full py-3 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
-                    editSaving ? 'opacity-50 pointer-events-none' : `${btnClass}`
+                    editSaving ? 'opacity-50 pointer-events-none' : `${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`
                   }`}
                   whileHover={{ scale: editSaving ? 1 : 1.01 }}
                   whileTap={{ scale: editSaving ? 1 : 0.97 }}
@@ -4351,7 +4194,7 @@ export function AdminPanel({
                 >
                   <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
                   <motion.div
-                    className="relative w-full glass rounded-2xl p-6"
+                    className="relative w-full bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6"
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
@@ -4372,7 +4215,7 @@ export function AdminPanel({
                       <div className="flex gap-3 mt-5 w-full">
                         <motion.button
                           onClick={() => setShowDeleteTournamentConfirm(false)}
-                          className="flex-1 py-3 rounded-xl text-sm font-semibold glass-subtle text-white/70"
+                          className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white/[0.03] border border-white/[0.06] text-white/70"
                           whileTap={{ scale: 0.97 }}
                         >
                           Batal
