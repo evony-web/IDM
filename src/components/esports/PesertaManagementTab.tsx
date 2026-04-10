@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   Crown,
 } from 'lucide-react';
-import { ImageUpload } from '@/components/ui/ImageUpload';
+import { ImageUploader } from '@/components/esports/ImageUploader';
 import { adminFetch } from '@/lib/admin-fetch';
 
 interface User {
@@ -161,13 +161,6 @@ export function PesertaManagementTab({
       
       const bodyStr = JSON.stringify(payload);
       console.log('[PesertaManagement] PUT payload size:', bodyStr.length, 'bytes, avatarChanged:', avatarChanged);
-      
-      // Safety: if payload is too large (>1MB), reject early
-      if (bodyStr.length > 1 * 1024 * 1024) {
-        addToast('Data terlalu besar. Coba upload gambar yang lebih kecil atau jangan ubah avatar.', 'error');
-        setSaving(false);
-        return;
-      }
       
       const res = await adminFetch('/api/users', {
         method: 'PUT',
@@ -451,14 +444,14 @@ export function PesertaManagementTab({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-white/40 mb-1">Upload Avatar Baru</p>
-                      <ImageUpload
-                        value={editForm.avatar}
-                        onChange={(url) => {
-                          console.log('[PesertaManagement] ImageUpload onChange, avatarChanged -> true');
+                      <ImageUploader
+                        division={editForm.gender === 'female' ? 'female' : 'male'}
+                        onUpload={(url) => {
+                          console.log('[PesertaManagement] ImageUploader onUpload, avatarChanged -> true, url:', url);
                           setEditForm((prev) => ({ ...prev, avatar: url || '' }));
                           setAvatarChanged(true);
                         }}
+                        currentImage={editForm.avatar}
                         className="w-full"
                       />
                     </div>

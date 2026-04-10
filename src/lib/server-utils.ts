@@ -23,13 +23,13 @@ export const CDN = {
 // Initialize Cloudinary
 try {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'demo',
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dagoryri5',
     api_key: process.env.CLOUDINARY_API_KEY || '',
     api_secret: process.env.CLOUDINARY_API_SECRET || '',
     secure: true,
   });
-} catch {
-  // Not configured, that's fine
+} catch (error) {
+  console.warn('[Cloudinary] Config failed:', error instanceof Error ? error.message : error);
 }
 
 /**
@@ -72,7 +72,8 @@ export async function uploadBase64ToCloudinary(
     });
 
     return { url: cdnUrl, publicId: result.public_id };
-  } catch {
+  } catch (error) {
+    console.error('[Cloudinary] uploadBase64ToCloudinary failed:', error instanceof Error ? error.message : error);
     return null;
   }
 }

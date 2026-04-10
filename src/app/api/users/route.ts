@@ -13,7 +13,10 @@ async function processAvatar(avatar: string | null | undefined): Promise<string 
       maxHeight: 512,
       quality: 'auto:good',
     });
-    return result ? result.url : null; // silently fail, don't store base64
+    if (result) return result.url;
+    // Upload failed — return undefined sentinel so caller knows NOT to overwrite
+    // We use a special marker to distinguish "don't update" from "clear avatar"
+    return '__UPLOAD_FAILED__' as unknown as null;
   }
   return null; // unknown format
 }
@@ -351,7 +354,20 @@ export async function PUT(request: NextRequest) {
     if (points !== undefined) updateData.points = points;
     if (isMVP !== undefined) updateData.isMVP = isMVP;
     if (name) updateData.name = name;
-    if (avatar !== undefined) updateData.avatar = await processAvatar(avatar);
+    if (avatar !== undefined) {
+      const processedAvatar = await processAvatar(avatar);
+      // If upload failed, don't overwrite the existing avatar
+      if (processedAvatar !== '__UPLOAD_FAILED__' as unknown as null) {
+        updateData.avatar = processedAvatar;
+      }
+      // If upload failed and avatar was a base64 data URL, return error
+      if (processedAvatar === '__UPLOAD_FAILED__' as unknown as null) {
+        return NextResponse.json(
+          { success: false, error: 'Gagal mengupload avatar ke Cloudinary. Coba lagi.' },
+          { status: 500 }
+        );
+      }
+    }
     if (clearAvatar) updateData.avatar = null;
     if (city !== undefined) updateData.city = city || null;
     if (phone) updateData.phone = phone;
