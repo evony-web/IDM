@@ -994,8 +994,8 @@ function DivisionCard({
    ──────────────────────────────────────────── */
 
 function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
-  const [showAll, setShowAll] = useState(false);
-  const VISIBLE_COUNT = 11;
+  const [showModal, setShowModal] = useState(false);
+  const VISIBLE_COUNT = 7;
 
   // Merge both divisions, sort by points descending, re-rank
   const allPlayers = [...data.male.topPlayers, ...data.female.topPlayers]
@@ -1003,8 +1003,7 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
     .map((p, i) => ({ ...p, rank: i + 1 }));
 
   const visiblePlayers = allPlayers.slice(0, VISIBLE_COUNT);
-  const hiddenPlayers = allPlayers.slice(VISIBLE_COUNT);
-  const hasMore = hiddenPlayers.length > 0;
+  const hasMore = allPlayers.length > VISIBLE_COUNT;
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
@@ -1024,7 +1023,7 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
           border: '1px solid rgba(255,215,0,0.08)',
         }}
       >
-        {/* Player Rows - Top 11 */}
+        {/* Player Rows - Top 7 */}
         <div className="px-2 py-2 md:flex-1">
           {allPlayers.length > 0 ? (
             <PlayerList players={visiblePlayers} startDelay={0} onPlayerClick={onPlayerClick} />
@@ -1036,11 +1035,11 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
           )}
         </div>
 
-        {/* CTA Lihat Semua */}
+        {/* CTA Lihat Semua - Opens Modal */}
         {hasMore && (
           <div className="px-4 pb-2">
             <motion.button
-              onClick={() => setShowAll(prev => !prev)}
+              onClick={() => setShowModal(true)}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer transition-colors"
               style={{
                 background: 'rgba(255,215,0,0.06)',
@@ -1053,38 +1052,192 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
               }}
               whileTap={{ scale: 0.98 }}
             >
-              {showAll ? (
-                <>
-                  <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg]" />
-                  Sembunyikan
-                </>
-              ) : (
-                <>
-                  Lihat Semua Pemain
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
-              )}
+              Lihat Semua Pemain
+              <ArrowRight className="w-3.5 h-3.5" />
             </motion.button>
           </div>
         )}
+      </div>
 
-        {/* Expanded Rows - Remaining players */}
-        <AnimatePresence>
-          {showAll && hasMore && (
+      {/* ═══ Full Leaderboard Modal ═══ */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowModal(false)}
+            />
+
+            {/* Modal content */}
+            <motion.div
+              className="relative w-full max-w-md max-h-[75vh] sm:max-h-[80vh] mx-2 sm:mx-4 mb-20 sm:mb-4 rounded-t-3xl sm:rounded-3xl overflow-hidden"
+              style={{
+                background: 'linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(18,18,22,0.99) 100%)',
+                boxShadow: '0 0 60px rgba(255,215,0,0.08), 0 25px 50px -12px rgba(0,0,0,0.5)',
+              }}
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setShowModal(false);
+                }
+              }}
             >
-              <div className="px-2 pb-2">
-                <PlayerList players={hiddenPlayers} startDelay={VISIBLE_COUNT * 0.03} onPlayerClick={onPlayerClick} />
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+                <div className="w-10 h-1 rounded-full bg-white/20" />
+              </div>
+
+              {/* Header */}
+              <div className="relative px-5 pt-3 pb-4 border-b border-white/[0.06]">
+                <div
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent)',
+                    boxShadow: '0 0 16px rgba(255,215,0,0.4)',
+                  }}
+                />
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255,215,0,0.16), rgba(255,215,0,0.06))',
+                    }}
+                  >
+                    <Crown className="w-6 h-6" style={{ color: '#FFD700' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-white/90 tracking-tight">Semua Peringkat</h2>
+                    <p className="text-[12px] text-white/45 mt-0.5">{allPlayers.length} pemain terdaftar</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top 3 Podium */}
+              {allPlayers.length >= 3 && (
+                <div className="flex items-end justify-center gap-2 px-4 pt-5 pb-3">
+                  {/* 2nd Place */}
+                  <div className="flex flex-col items-center flex-1 max-w-[80px]">
+                    <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #C0C0C0, #8E8E93)' }}>
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                        {allPlayers[1].avatar ? (
+                          <img src={allPlayers[1].avatar} alt={allPlayers[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                        ) : (
+                          <span className="text-sm font-bold text-white/70">{allPlayers[1].name.charAt(0)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-2 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'linear-gradient(135deg, #C7C7CC, #8E8E93)', color: '#1C1C1E' }}>2</div>
+                    <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[1].name}</p>
+                    <p className="text-[10px] font-bold" style={{ color: allPlayers[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[1].points.toLocaleString()} pts</p>
+                  </div>
+
+                  {/* 1st Place */}
+                  <div className="flex flex-col items-center flex-1 max-w-[90px]">
+                    <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                      <Crown className="w-5 h-5 mb-1" style={{ color: '#FFD700' }} />
+                    </motion.div>
+                    <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 0 12px rgba(255,215,0,0.3)' }}>
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                        {allPlayers[0].avatar ? (
+                          <img src={allPlayers[0].avatar} alt={allPlayers[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                        ) : (
+                          <span className="text-base font-bold text-white/70">{allPlayers[0].name.charAt(0)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-2 w-11 h-11 rounded-lg flex items-center justify-center text-sm font-black" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000', boxShadow: '0 0 12px rgba(255,215,0,0.3)' }}>1</div>
+                    <p className="text-[12px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{allPlayers[0].name}</p>
+                    <p className="text-[11px] font-bold" style={{ color: allPlayers[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[0].points.toLocaleString()} pts</p>
+                  </div>
+
+                  {/* 3rd Place */}
+                  <div className="flex flex-col items-center flex-1 max-w-[80px]">
+                    <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)' }}>
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                        {allPlayers[2].avatar ? (
+                          <img src={allPlayers[2].avatar} alt={allPlayers[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                        ) : (
+                          <span className="text-sm font-bold text-white/70">{allPlayers[2].name.charAt(0)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-2 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }}>3</div>
+                    <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[2].name}</p>
+                    <p className="text-[10px] font-bold" style={{ color: allPlayers[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[2].points.toLocaleString()} pts</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Divider */}
+              {allPlayers.length > 3 && (
+                <div className="flex items-center gap-3 px-5 my-2">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+                  <span className="text-[9px] font-semibold text-white/30 uppercase tracking-wider">Pemain Lainnya</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+                </div>
+              )}
+
+              {/* Remaining players */}
+              <div className="overflow-y-auto max-h-[calc(75vh-280px)] sm:max-h-[calc(80vh-280px)] p-4 pt-1 space-y-1.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
+                {allPlayers.slice(3).map((player, index) => {
+                  const isMale = player.gender === 'male';
+                  return (
+                    <motion.div
+                      key={`${player.gender}-${player.rank}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className={`rounded-xl px-3.5 py-2.5 flex items-center gap-3 ${player.id ? 'cursor-pointer hover:bg-white/[0.04]' : ''}`}
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
+                      onClick={player.id && onPlayerClick ? () => { onPlayerClick(player.id, player.gender); setShowModal(false); } : undefined}
+                    >
+                      {/* Rank */}
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[11px] shrink-0" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}>
+                        {player.rank}
+                      </div>
+                      {/* Avatar */}
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden" style={{ border: `1.5px solid ${isMale ? 'rgba(115,255,0,0.20)' : 'rgba(56,189,248,0.20)'}` }>
+                        {player.avatar ? (
+                          <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
+                        ) : (
+                          <span className="text-xs font-bold" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[13px] font-semibold truncate" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name}</p>
+                          <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)', color: isMale ? '#73FF00' : '#38BDF8', border: `1px solid ${isMale ? 'rgba(115,255,0,0.18)' : 'rgba(56,189,248,0.18)'}` }}>{isMale ? 'M' : 'F'}</span>
+                          {player.isMVP && <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}>MVP</span>}
+                        </div>
+                        <p className="text-[10px] text-white/35">Tier {player.tier}</p>
+                      </div>
+                      {/* Points */}
+                      <span className="text-[12px] font-bold shrink-0" style={{ color: '#FFD700' }}>{player.points.toLocaleString()}</span>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -1829,15 +1982,19 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   // Sort all by timestamp descending
   newsItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-  const displayed = newsItems.slice(0, 15);
+  // Only keep the 7 newest items — oldest are dropped when new ones come in
+  const maxItems = 7;
+  const displayed = newsItems.slice(0, maxItems);
+  // Show 4 initially visible, rest accessible via scroll
+  const initialVisibleCount = 4;
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="w-4 h-4" style={{ color: '#FFD700' }} />
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi Terbaru</h2>
-        {newsItems.length > 0 && (
-          <span className="text-[11px] text-white/25 ml-1">{newsItems.length} update</span>
+        {displayed.length > 0 && (
+          <span className="text-[11px] text-white/25 ml-1">{displayed.length} update</span>
         )}
       </div>
 
@@ -1852,7 +2009,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
           {/* Top gradient accent */}
           <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.3), rgba(115,255,0,0.2), transparent)' }} />
 
-          <div className="p-2 max-h-[520px] md:max-h-none md:flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
+          <div className="p-2 max-h-[304px] md:max-h-none md:flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
             {displayed.map((item, idx) => {
               const isMale = item.playerGender === 'male';
               const genderAccent = isMale ? '115,255,0' : '56,189,248';
