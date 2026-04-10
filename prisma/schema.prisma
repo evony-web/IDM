@@ -1,11 +1,11 @@
-// IDM Tournament App - SQLite Schema
+// IDM Tournament App - PostgreSQL Schema
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

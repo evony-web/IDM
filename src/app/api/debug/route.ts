@@ -25,7 +25,7 @@ export async function GET() {
     environment: {
       NODE_ENV: process.env.NODE_ENV || 'not set',
       hasDatabaseUrl: !!databaseUrl,
-      databaseUrlFormat: databaseUrl.startsWith('file:') ? 'SQLite file' : databaseUrl ? 'Unknown' : 'not set',
+      databaseUrlFormat: databaseUrl.startsWith('file:') ? 'SQLite file' : databaseUrl.startsWith('postgres') ? 'PostgreSQL' : databaseUrl ? 'Unknown' : 'not set',
       databaseUrlMasked: maskUrl(databaseUrl),
     },
     timestamp: new Date().toISOString(),

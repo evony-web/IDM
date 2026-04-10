@@ -5,11 +5,11 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 /**
- * Prisma client singleton — SQLite for development.
+ * Prisma client singleton — PostgreSQL for production (Vercel) & development.
  */
 
 function createPrismaClient(): PrismaClient {
-  console.log('[DB] Creating SQLite Prisma client');
+  console.log('[DB] Creating PostgreSQL Prisma client');
 
   return new PrismaClient({
     log: ['error', 'warn'],

@@ -32,10 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
-
 
 # typescript
 *.tsbuildinfo
@@ -50,5 +50,23 @@ test
 prompt
 
 server.log
+
 # Skills directory
 /skills/
+
+# Database
+/db/
+*.db
+*.db-journal
+
+# Upload folder (local only)
+/upload/
+
+# Mini services (local dev only)
+/mini-services/
+
+# Prisma migrations (optional - uncomment if not using migrations)
+# /prisma/migrations/
+
+# AI SDK config
+z-ai-config.json
