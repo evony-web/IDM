@@ -242,7 +242,7 @@ export function AdminPanel({
 
   // ── Payment settings state ──
   const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner'>('tournament');
-  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore' | 'info'>('rbac');
+  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore' | 'info' | 'video'>('rbac');
 
   // ── Banner management state ──
   const [bannerMaleUrl, setBannerMaleUrl] = useState<string | null>(null);
@@ -298,6 +298,15 @@ export function AdminPanel({
   const [quickInfoLoaded, setQuickInfoLoaded] = useState(false);
   const [quickInfoSaving, setQuickInfoSaving] = useState(false);
   const [quickInfoSaved, setQuickInfoSaved] = useState(false);
+
+  // ── Video Highlights state ──
+  const [videoHighlights, setVideoHighlights] = useState<Array<{ id: string; title: string; youtubeUrl: string; division: string; sortOrder: number; isActive: boolean }>>([]);
+  const [videoHighlightsLoaded, setVideoHighlightsLoaded] = useState(false);
+  const [videoHighlightsLoading, setVideoHighlightsLoading] = useState(false);
+  const [newVideoTitle, setNewVideoTitle] = useState('');
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [newVideoDivision, setNewVideoDivision] = useState('all');
+  const [addingVideo, setAddingVideo] = useState(false);
 
   // ── Refresh trigger for syncing data between components ──
   const [dataRefreshTrigger, setDataRefreshTrigger] = useState(0);
@@ -641,6 +650,29 @@ export function AdminPanel({
       fetchQuickInfo();
     }
   }, [showPanel, adminTab, adminSubTab, fetchQuickInfo]);
+
+  // ── Fetch Video Highlights ──
+  const fetchVideoHighlights = useCallback(() => {
+    setVideoHighlightsLoading(true);
+    adminFetch('/api/admin/video-highlights')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.data)) {
+          setVideoHighlights(data.data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        setVideoHighlightsLoaded(true);
+        setVideoHighlightsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (showPanel && adminTab === 'rbac' && adminSubTab === 'video') {
+      fetchVideoHighlights();
+    }
+  }, [showPanel, adminTab, adminSubTab, fetchVideoHighlights]);
 
   // ── Save QuickInfo items ──
   const saveQuickInfo = useCallback(async () => {
@@ -2883,6 +2915,7 @@ export function AdminPanel({
                         { id: 'bot' as const, label: 'Bot Management', icon: Bot, superAdminOnly: true },
                         { id: 'restore' as const, label: 'Restore', icon: Database },
                         { id: 'info' as const, label: 'Info', icon: Info },
+                        { id: 'video' as const, label: 'Video', icon: Play },
                       ]).filter(sub => !sub.superAdminOnly || adminUser?.role === 'super_admin').map((sub) => (
                         <motion.button
                           key={sub.id}
@@ -3391,6 +3424,235 @@ export function AdminPanel({
                             ))}
                           </div>
                         </div>
+                      </div>
+                    )}
+
+                    {/* ═══ VIDEO HIGHLIGHTS SUB-TAB ═══ */}
+                    {adminSubTab === 'video' && (
+                      <div className="space-y-5">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,107,53,0.12)' }}>
+                              <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-bold text-white/90">Video Highlight</p>
+                              <p className="text-[10px] text-white/30">Kelola video highlight pertandingan di landing page</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Add New Video Form */}
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3" style={{ borderLeft: '3px solid #FF6B35' }}>
+                          <div className="flex items-center gap-2">
+                            <Plus className="w-3.5 h-3.5" style={{ color: '#FF6B35' }} />
+                            <span className="text-[11px] text-white/50 font-semibold uppercase tracking-wider">Tambah Video Baru</span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {/* Title input */}
+                            <div className="sm:col-span-1">
+                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                              <input
+                                type="text"
+                                value={newVideoTitle}
+                                onChange={(e) => setNewVideoTitle(e.target.value)}
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                placeholder="Contoh: Final Male Week 5"
+                              />
+                            </div>
+                            {/* YouTube URL input */}
+                            <div className="sm:col-span-1">
+                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">URL YouTube</label>
+                              <input
+                                type="url"
+                                value={newVideoUrl}
+                                onChange={(e) => setNewVideoUrl(e.target.value)}
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                placeholder="https://youtube.com/watch?v=..."
+                              />
+                            </div>
+                            {/* Division selector */}
+                            <div className="sm:col-span-1">
+                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Divisi</label>
+                              <select
+                                value={newVideoDivision}
+                                onChange={(e) => setNewVideoDivision(e.target.value)}
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                              >
+                                <option value="all">Semua Divisi</option>
+                                <option value="male">Male Division</option>
+                                <option value="female">Female Division</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <motion.button
+                            onClick={async () => {
+                              if (!newVideoTitle.trim() || !newVideoUrl.trim()) {
+                                addToast('Judul dan URL YouTube wajib diisi', 'error');
+                                return;
+                              }
+                              setAddingVideo(true);
+                              try {
+                                const res = await adminFetch('/api/admin/video-highlights', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    title: newVideoTitle.trim(),
+                                    youtubeUrl: newVideoUrl.trim(),
+                                    division: newVideoDivision,
+                                    sortOrder: videoHighlights.length,
+                                  }),
+                                });
+                                if (res.ok) {
+                                  addToast('Video highlight berhasil ditambahkan!', 'success');
+                                  setNewVideoTitle('');
+                                  setNewVideoUrl('');
+                                  setNewVideoDivision('all');
+                                  fetchVideoHighlights();
+                                } else {
+                                  const data = await res.json();
+                                  addToast(data.error || 'Gagal menambahkan video', 'error');
+                                }
+                              } catch {
+                                addToast('Gagal menambahkan video', 'error');
+                              } finally {
+                                setAddingVideo(false);
+                              }
+                            }}
+                            disabled={addingVideo}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all"
+                            style={{
+                              background: addingVideo ? 'rgba(255,107,53,0.08)' : 'rgba(255,107,53,0.15)',
+                              border: '1px solid rgba(255,107,53,0.20)',
+                              color: '#FF6B35',
+                            }}
+                            whileHover={{ scale: addingVideo ? 1 : 1.01 }}
+                            whileTap={{ scale: addingVideo ? 1 : 0.95 }}
+                          >
+                            {addingVideo ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Plus className="w-3.5 h-3.5" />
+                            )}
+                            {addingVideo ? 'Menambahkan...' : 'Tambah Video'}
+                          </motion.button>
+                        </div>
+
+                        {/* Existing video highlights list */}
+                        {videoHighlightsLoading ? (
+                          <div className="flex justify-center py-8">
+                            <Loader2 className={`w-5 h-5 animate-spin ${accentClass}`} />
+                          </div>
+                        ) : videoHighlights.length === 0 ? (
+                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
+                            <Play className="w-7 h-7 text-white/20 mx-auto mb-2" />
+                            <p className="text-[13px] text-white/30 font-medium">Belum ada video highlight</p>
+                            <p className="text-[10px] text-white/20 mt-1">Tambahkan video YouTube di atas</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+                            {videoHighlights.map((vh, idx) => {
+                              const ytId = vh.youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/)?.[1];
+                              return (
+                                <motion.div
+                                  key={vh.id}
+                                  className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4"
+                                  style={{ borderLeft: `3px solid ${vh.isActive ? '#FF6B35' : 'rgba(255,255,255,0.08)'}` }}
+                                  initial={{ opacity: 0, y: 6 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    {/* Thumbnail preview */}
+                                    {ytId && (
+                                      <div className="w-20 h-[45px] rounded-lg overflow-hidden flex-shrink-0 relative">
+                                        <img
+                                          src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`}
+                                          alt={vh.title}
+                                          className="w-full h-full object-cover"
+                                          loading="lazy"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                          <Play className="w-3 h-3 text-white" fill="white" strokeWidth={0} />
+                                        </div>
+                                      </div>
+                                    )}
+                                    {/* Info */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <p className="text-[12px] font-semibold text-white/80 truncate">{vh.title}</p>
+                                        {!vh.isActive && (
+                                          <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-white/30 font-bold">OFF</span>
+                                        )}
+                                      </div>
+                                      <p className="text-[10px] text-white/25 truncate mt-0.5">{vh.youtubeUrl}</p>
+                                      <div className="flex items-center gap-1.5 mt-1">
+                                        <span
+                                          className="text-[7px] font-bold px-1.5 py-0.5 rounded-full"
+                                          style={{
+                                            background: vh.division === 'male' ? 'rgba(115,255,0,0.08)' : vh.division === 'female' ? 'rgba(56,189,248,0.08)' : 'rgba(255,107,53,0.08)',
+                                            color: vh.division === 'male' ? '#73FF00' : vh.division === 'female' ? '#38BDF8' : '#FF6B35',
+                                            border: `1px solid ${vh.division === 'male' ? 'rgba(115,255,0,0.15)' : vh.division === 'female' ? 'rgba(56,189,248,0.15)' : 'rgba(255,107,53,0.15)'}`,
+                                          }}
+                                        >
+                                          {vh.division === 'male' ? 'MALE' : vh.division === 'female' ? 'FEMALE' : 'ALL'}
+                                        </span>
+                                        <span className="text-[8px] text-white/20">#{idx + 1}</span>
+                                      </div>
+                                    </div>
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                      {/* Toggle active */}
+                                      <motion.button
+                                        onClick={async () => {
+                                          try {
+                                            const res = await adminFetch('/api/admin/video-highlights', {
+                                              method: 'PUT',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ id: vh.id, isActive: !vh.isActive }),
+                                            });
+                                            if (res.ok) {
+                                              addToast(vh.isActive ? 'Video dinonaktifkan' : 'Video diaktifkan', 'success');
+                                              fetchVideoHighlights();
+                                            }
+                                          } catch {
+                                            addToast('Gagal mengubah status', 'error');
+                                          }
+                                        }}
+                                        className={`p-1.5 rounded-lg transition-colors ${vh.isActive ? 'text-emerald-400/60 hover:text-emerald-400 hover:bg-emerald-400/10' : 'text-white/20 hover:text-white/40 hover:bg-white/[0.04]'}`}
+                                        whileTap={{ scale: 0.9 }}
+                                        title={vh.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                                      >
+                                        {vh.isActive ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                                      </motion.button>
+                                      {/* Delete */}
+                                      <motion.button
+                                        onClick={async () => {
+                                          try {
+                                            const res = await adminFetch(`/api/admin/video-highlights?id=${vh.id}`, { method: 'DELETE' });
+                                            if (res.ok) {
+                                              addToast('Video highlight dihapus', 'success');
+                                              fetchVideoHighlights();
+                                            }
+                                          } catch {
+                                            addToast('Gagal menghapus video', 'error');
+                                          }
+                                        }}
+                                        className="p-1.5 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                        whileTap={{ scale: 0.9 }}
+                                        title="Hapus"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </motion.button>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
 

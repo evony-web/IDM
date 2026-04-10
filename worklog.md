@@ -112,3 +112,41 @@ Stage Summary:
 - Banner team name shows "Tim {Tier S player name}" format, no "Champion" fallback
 - Fixed JSX parsing error in LandingPage.tsx
 - Successfully pushed all changes to GitHub for Vercel deployment
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Implement YouTube video highlight card on landing page + Admin panel video management
+
+Work Log:
+- Discovered VideoHighlightSection component already existed in LandingPage.tsx but was not rendered
+- Discovered VideoHighlight Prisma model already existed in schema
+- Discovered API routes already existed: /api/video-highlights (GET public) and /api/admin/video-highlights (CRUD admin)
+- Modified LandingPage.tsx layout: Changed leaderboard+informasi section from 2-column to 3-column grid (md:grid-cols-3)
+- Added VideoHighlightSection between TopPlayersSection (leaderboard) and InformasiTerbaruSection
+- Updated VideoHighlightSection component:
+  - Changed division prop type from 'male' | 'female' to 'male' | 'female' | 'all'
+  - Changed grid layout to single-column list (suitable for narrow middle panel)
+  - Added scrollable container with max-height for desktop (md:max-h-[520px])
+  - Reduced play button and padding sizes for compact cards
+  - Changed "ALL DIVISION" badge to just "ALL"
+  - Added placeholder state when no highlights exist (keeps 3-column layout intact)
+  - Added inline scrollbar styling with orange accent
+- Modified AdminPanel.tsx:
+  - Added 'video' to adminSubTab type union: 'rbac' | 'bot' | 'restore' | 'info' | 'video'
+  - Added "Video" sub-tab button with Play icon in Admin panel sub-tab navigation
+  - Added state variables: videoHighlights, videoHighlightsLoaded, videoHighlightsLoading, newVideoTitle, newVideoUrl, newVideoDivision, addingVideo
+  - Added fetchVideoHighlights callback and useEffect to load data when video sub-tab is active
+  - Added full video highlight management UI:
+    - Add new video form with title, YouTube URL, and division selector
+    - Existing highlights list with thumbnail preview, title, URL, division badge
+    - Toggle active/inactive button for each highlight
+    - Delete button for each highlight
+    - Loading and empty states
+
+Stage Summary:
+- Landing page: 3-column desktop layout with Leaderboard | Video Highlight | Informasi Terbaru
+- Video highlight shows YouTube thumbnails with play button overlay, clicking plays embedded YouTube video
+- Admin panel: New "Video" sub-tab under Admin panel for managing video highlights (add, toggle, delete)
+- Prisma schema, API routes were already in place - no database changes needed
+- No new TypeScript errors introduced (all pre-existing)

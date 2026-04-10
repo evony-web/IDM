@@ -27,6 +27,7 @@ import {
   ScrollText,
   TrendingUp,
   Bell,
+  Play,
 } from 'lucide-react';
 
 /* ────────────────────────────────────────────
@@ -1462,6 +1463,193 @@ const DEFAULT_QUICK_INFO: QuickInfoItem[] = [
   { icon: 'Calendar', title: 'Jadwal Turnamen', description: 'Turnamen diadakan setiap minggu. Jadwal dan detail mode akan diumumkan melalui dashboard masing-masing divisi.', color: '56,189,248' },
   { icon: 'Heart', title: 'Donasi & Sawer', description: 'Dukung turnamen dengan donasi atau sawer ke pemain favoritmu! Semua donasi akan masuk ke prize pool.', color: '244,114,182' },
 ];
+
+/* ────────────────────────────────────────────
+   Video Highlight Section (YouTube Embed Cards)
+   ──────────────────────────────────────────── */
+
+interface VideoHighlightItem {
+  id: string;
+  title: string;
+  youtubeUrl: string;
+  division: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+function VideoHighlightSection({ division }: { division: 'male' | 'female' | 'all' }) {
+  const [highlights, setHighlights] = useState<VideoHighlightItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/video-highlights?division=${division}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!cancelled && data?.success && Array.isArray(data.data)) {
+          setHighlights(data.data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, [division]);
+
+  if (!loaded) return null;
+
+  // Show placeholder when no highlights available (keep the 3-column layout intact)
+  if (highlights.length === 0) {
+    return (
+      <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
+        <div className="flex items-center gap-2 mb-4">
+          <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
+          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Highlight</h2>
+        </div>
+        <div
+          className="rounded-2xl flex-1 flex flex-col items-center justify-center py-12 px-4"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,107,53,0.06)',
+          }}
+        >
+          <Play className="w-8 h-8 text-white/10 mb-3" />
+          <p className="text-[12px] text-white/25 text-center">Belum ada video highlight</p>
+          <p className="text-[10px] text-white/15 mt-1 text-center">Tambahkan dari panel admin</p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
+        <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Highlight</h2>
+        <span className="text-[9px] text-white/20 ml-0.5">({highlights.length})</span>
+      </div>
+
+      {/* Video Cards — single column for the middle panel */}
+      <div className="space-y-3 md:flex-1 md:overflow-y-auto md:max-h-[520px] pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,107,53,0.15) transparent' }}>
+        {highlights.slice(0, 5).map((highlight, idx) => {
+          const videoId = extractYouTubeId(highlight.youtubeUrl);
+          if (!videoId) return null;
+
+          const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+          const isPlaying = activeVideo === highlight.id;
+
+          return (
+            <motion.div
+              key={highlight.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.06 }}
+              className="rounded-2xl overflow-hidden relative group"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,107,53,0.06) 0%, rgba(244,114,182,0.04) 50%, rgba(255,215,0,0.03) 100%)',
+                border: '1px solid rgba(255,107,53,0.10)',
+              }}
+            >
+              {/* Video area */}
+              <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+                {isPlaying ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+                    title={highlight.title}
+                    className="absolute inset-0 w-full h-full"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    style={{ border: 'none' }}
+                  />
+                ) : (
+                  <>
+                    {/* Thumbnail */}
+                    <img
+                      src={thumbnailUrl}
+                      alt={highlight.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    {/* Dark overlay */}
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-300" />
+                    {/* Play button */}
+                    <motion.button
+                      className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                      onClick={() => setActiveVideo(highlight.id)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,107,53,0.90), rgba(255,69,0,0.85))',
+                          boxShadow: '0 0 16px rgba(255,107,53,0.4), 0 4px 12px rgba(0,0,0,0.3)',
+                        }}
+                      >
+                        <Play className="w-4 h-4 text-white ml-0.5" fill="white" strokeWidth={0} />
+                      </div>
+                    </motion.button>
+                    {/* YouTube badge */}
+                    <div
+                      className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold text-white"
+                      style={{ background: 'rgba(0,0,0,0.75)' }}
+                    >
+                      ▶ YouTube
+                    </div>
+                  </>
+                )}
+              </div>
+              {/* Title */}
+              <div className="p-2.5">
+                <p className="text-[11px] font-semibold text-white/80 truncate">{highlight.title}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  {highlight.division !== 'all' && (
+                    <span
+                      className="text-[7px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: highlight.division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                        color: highlight.division === 'male' ? '#73FF00' : '#38BDF8',
+                        border: `1px solid ${highlight.division === 'male' ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
+                      }}
+                    >
+                      {highlight.division === 'male' ? 'MALE' : 'FEMALE'}
+                    </span>
+                  )}
+                  {highlight.division === 'all' && (
+                    <span
+                      className="text-[7px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: 'rgba(255,107,53,0.08)',
+                        color: '#FF6B35',
+                        border: '1px solid rgba(255,107,53,0.15)',
+                      }}
+                    >
+                      ALL
+                    </span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
 
 function QuickInfoSection() {
   const [infoItems, setInfoItems] = useState<QuickInfoItem[]>(DEFAULT_QUICK_INFO);
@@ -3041,9 +3229,10 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           <DonasiSawerSection data={activeData} />
         </div>
 
-        {/* ═══ TOP PLAYERS + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div id="leaderboard-section" className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-14 md:items-stretch">
+        {/* ═══ TOP PLAYERS + VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
+        <div id="leaderboard-section" className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-6 mb-10 md:mb-14 md:items-stretch">
           <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
+          <VideoHighlightSection division="all" />
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
