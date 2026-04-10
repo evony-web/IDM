@@ -2395,47 +2395,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           </div>
         </div>
 
-        {/* ── Dot Indicators ── */}
-        <div className="flex items-center justify-center gap-2 mt-4">
-          {slides.map((slide, idx) => (
-            <button
-              key={slide.division}
-              onClick={() => setCurrentIndex(idx)}
-              className="cursor-pointer transition-all duration-300 outline-none"
-              aria-label={`View ${slide.label} champion`}
-            >
-              <div
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300"
-                style={{
-                  background: idx === currentIndex
-                    ? `rgba(${slide.accent},0.15)`
-                    : 'rgba(255,255,255,0.03)',
-                  border: idx === currentIndex
-                    ? `1px solid rgba(${slide.accent},0.30)`
-                    : '1px solid rgba(255,255,255,0.06)',
-                }}
-              >
-                <div
-                  className="rounded-full transition-all duration-300"
-                  style={{
-                    width: idx === currentIndex ? '8px' : '6px',
-                    height: idx === currentIndex ? '8px' : '6px',
-                    background: idx === currentIndex
-                      ? slide.accentHex
-                      : 'rgba(255,255,255,0.20)',
-                    boxShadow: idx === currentIndex ? `0 0 8px rgba(${slide.accent},0.40)` : 'none',
-                  }}
-                />
-                <span
-                  className="text-[10px] font-semibold tracking-wider uppercase transition-colors duration-300"
-                  style={{ color: idx === currentIndex ? slide.accentHex : 'rgba(255,255,255,0.25)' }}
-                >
-                  {slide.division === 'male' ? 'MALE' : 'FEMALE'}
-                </span>
-              </div>
-            </button>
-          ))}
-        </div>
+
       </motion.div>
     </motion.div>
   );
