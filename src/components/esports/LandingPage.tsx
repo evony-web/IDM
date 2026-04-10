@@ -1979,10 +1979,101 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
           {/* Top gradient accent */}
           <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.4), rgba(255,215,0,0.3), transparent)' }} />
 
-          <div className="p-3 max-h-96 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(244,114,182,0.15) transparent' }}>
-            {/* ── Sawer List ── */}
+          <div className="p-3 md:flex md:gap-3 max-h-[600px] md:max-h-96 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(244,114,182,0.15) transparent' }}>
+            {/* ── Donasi List (kiri di desktop, atas di mobile) ── */}
+            {hasDonasi && (
+              <div className="md:flex-1 md:min-w-0 mb-3 md:mb-0">
+                <div className="flex items-center gap-1.5 mb-2 px-1">
+                  <Heart className="w-3 h-3" style={{ color: '#FFD700' }} />
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-yellow-400/70">Donasi</span>
+                  <span className="text-[9px] text-white/20 ml-0.5">({data.recentDonations.length})</span>
+                </div>
+                <div className="space-y-1.5">
+                  {data.recentDonations.map((donation, idx) => (
+                    <motion.div
+                      key={donation.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.04 }}
+                      className="flex items-start gap-3 p-2.5 rounded-xl transition-all hover:bg-white/[0.03]"
+                      style={{
+                        background: 'rgba(255,255,255,0.01)',
+                        border: '1px solid rgba(255,215,0,0.06)',
+                      }}
+                    >
+                      {/* Avatar */}
+                      <div
+                        className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                        style={{
+                          background: donation.anonymous
+                            ? 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05))'
+                            : donation.donorAvatar
+                              ? `url(${donation.donorAvatar}) center/cover`
+                              : 'linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,215,0,0.08))',
+                          border: donation.anonymous
+                            ? '1.5px solid rgba(255,215,0,0.15)'
+                            : '1.5px solid rgba(255,215,0,0.20)',
+                        }}
+                      >
+                        {donation.anonymous ? (
+                          <Heart className="w-3 h-3 text-yellow-400/50" />
+                        ) : !donation.donorAvatar ? (
+                          <span className="text-[10px] font-bold text-yellow-400">
+                            {donation.donorName.charAt(0).toUpperCase()}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[11px] font-semibold text-white/85 truncate">
+                            {donation.anonymous ? '🤲 Hamba Allah' : donation.donorName}
+                          </p>
+                          {donation.anonymous && (
+                            <span className="text-[7px] font-bold px-1 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
+                              ANONIM
+                            </span>
+                          )}
+                        </div>
+                        {donation.message && (
+                          <p className="text-[10px] text-white/30 mt-0.5 truncate">&quot;{donation.message}&quot;</p>
+                        )}
+                        <p className="text-[8px] text-white/15 mt-0.5">{timeAgo(donation.createdAt)}</p>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="flex-shrink-0 text-right">
+                        <p
+                          className="text-[12px] font-bold"
+                          style={{
+                            background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}
+                        >
+                          {formatRupiah(donation.amount)}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Vertical divider (desktop only) ── */}
+            {hasSawer && hasDonasi && (
+              <div className="hidden md:block w-px self-stretch flex-shrink-0" style={{ background: 'linear-gradient(180deg, transparent, rgba(244,114,182,0.12), rgba(255,215,0,0.10), transparent)' }} />
+            )}
+
+            {/* ── Horizontal divider (mobile only) ── */}
+            {hasSawer && hasDonasi && (
+              <div className="md:hidden mx-2 my-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.12), rgba(255,215,0,0.10), transparent)' }} />
+            )}
+
+            {/* ── Sawer List (kanan di desktop, bawah di mobile) ── */}
             {hasSawer && (
-              <div className="mb-3">
+              <div className="md:flex-1 md:min-w-0">
                 <div className="flex items-center gap-1.5 mb-2 px-1">
                   <Zap className="w-3 h-3" style={{ color: '#F472B6' }} />
                   <span className="text-[10px] font-bold tracking-wider uppercase text-[#F472B6]/70">Sawer</span>
@@ -2060,92 +2151,6 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                           }}
                         >
                           {formatRupiah(sawer.amount)}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ── Divider between sections ── */}
-            {hasSawer && hasDonasi && (
-              <div className="mx-2 my-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.12), rgba(255,215,0,0.10), transparent)' }} />
-            )}
-
-            {/* ── Donasi List ── */}
-            {hasDonasi && (
-              <div className={hasSawer ? 'mt-2' : ''}>
-                <div className="flex items-center gap-1.5 mb-2 px-1">
-                  <Heart className="w-3 h-3" style={{ color: '#FFD700' }} />
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-yellow-400/70">Donasi</span>
-                  <span className="text-[9px] text-white/20 ml-0.5">({data.recentDonations.length})</span>
-                </div>
-                <div className="space-y-1.5">
-                  {data.recentDonations.map((donation, idx) => (
-                    <motion.div
-                      key={donation.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: idx * 0.04 }}
-                      className="flex items-start gap-3 p-2.5 rounded-xl transition-all hover:bg-white/[0.03]"
-                      style={{
-                        background: 'rgba(255,255,255,0.01)',
-                        border: '1px solid rgba(255,215,0,0.06)',
-                      }}
-                    >
-                      {/* Avatar */}
-                      <div
-                        className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
-                        style={{
-                          background: donation.anonymous
-                            ? 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05))'
-                            : donation.donorAvatar
-                              ? `url(${donation.donorAvatar}) center/cover`
-                              : 'linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,215,0,0.08))',
-                          border: donation.anonymous
-                            ? '1.5px solid rgba(255,215,0,0.15)'
-                            : '1.5px solid rgba(255,215,0,0.20)',
-                        }}
-                      >
-                        {donation.anonymous ? (
-                          <Heart className="w-3 h-3 text-yellow-400/50" />
-                        ) : !donation.donorAvatar ? (
-                          <span className="text-[10px] font-bold text-yellow-400">
-                            {donation.donorName.charAt(0).toUpperCase()}
-                          </span>
-                        ) : null}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-[11px] font-semibold text-white/85 truncate">
-                            {donation.anonymous ? '🤲 Hamba Allah' : donation.donorName}
-                          </p>
-                          {donation.anonymous && (
-                            <span className="text-[7px] font-bold px-1 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
-                              ANONIM
-                            </span>
-                          )}
-                        </div>
-                        {donation.message && (
-                          <p className="text-[10px] text-white/30 mt-0.5 truncate">&quot;{donation.message}&quot;</p>
-                        )}
-                        <p className="text-[8px] text-white/15 mt-0.5">{timeAgo(donation.createdAt)}</p>
-                      </div>
-
-                      {/* Amount */}
-                      <div className="flex-shrink-0 text-right">
-                        <p
-                          className="text-[12px] font-bold"
-                          style={{
-                            background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
-                          }}
-                        >
-                          {formatRupiah(donation.amount)}
                         </p>
                       </div>
                     </motion.div>
