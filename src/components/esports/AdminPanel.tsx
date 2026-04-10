@@ -352,7 +352,7 @@ export function AdminPanel({
   const [prizeSaving, setPrizeSaving] = useState(false);
 
   // ── Payment settings state ──
-  const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner' | 'cloudinary'>('tournament');
+  const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner' | 'cloudinary' | 'info'>('tournament');
 
   // ── Banner management state ──
   const [bannerMaleUrl, setBannerMaleUrl] = useState<string | null>(null);
@@ -402,6 +402,12 @@ export function AdminPanel({
   const [showFullResetConfirm, setShowFullResetConfirm] = useState(false);
   const [fullResetConfirmText, setFullResetConfirmText] = useState('');
   const [fullResetLoading, setFullResetLoading] = useState(false);
+
+  // ── QuickInfo CRUD state ──
+  const [quickInfoItems, setQuickInfoItems] = useState<Array<{ icon: string; title: string; description: string; color: string }>>([]);
+  const [quickInfoLoaded, setQuickInfoLoaded] = useState(false);
+  const [quickInfoSaving, setQuickInfoSaving] = useState(false);
+  const [quickInfoSaved, setQuickInfoSaved] = useState(false);
 
   // ── Refresh trigger for syncing data between components ──
   const [dataRefreshTrigger, setDataRefreshTrigger] = useState(0);
@@ -726,6 +732,47 @@ export function AdminPanel({
     }
   }, [bannerMaleUrl, bannerFemaleUrl, addToast]);
 
+  // ── Fetch QuickInfo items ──
+  const fetchQuickInfo = useCallback(() => {
+    adminFetch('/api/admin/quick-info')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.items)) {
+          setQuickInfoItems(data.items);
+          setQuickInfoLoaded(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (showPanel && adminTab === 'info') {
+      fetchQuickInfo();
+    }
+  }, [showPanel, adminTab, fetchQuickInfo]);
+
+  // ── Save QuickInfo items ──
+  const saveQuickInfo = useCallback(async () => {
+    setQuickInfoSaving(true);
+    setQuickInfoSaved(false);
+    try {
+      const res = await adminFetch('/api/admin/quick-info', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: quickInfoItems }),
+      });
+      if (res.ok) {
+        setQuickInfoSaved(true);
+        addToast('Informasi berhasil disimpan!', 'success');
+        setTimeout(() => setQuickInfoSaved(false), 3000);
+      }
+    } catch {
+      addToast('Gagal menyimpan informasi', 'error');
+    } finally {
+      setQuickInfoSaving(false);
+    }
+  }, [quickInfoItems, addToast]);
+
   const handleVerifyPayment = async (id: string, type: 'donation' | 'sawer', status: 'confirmed' | 'rejected') => {
     setVerifyingId(id);
     try {
@@ -930,6 +977,7 @@ export function AdminPanel({
                     { id: 'clubs' as const, label: 'Club', icon: Building2 },
                     { id: 'banner' as const, label: 'Banner', icon: ImageIconLucide },
                     { id: 'cloudinary' as const, label: 'Restore', icon: Database },
+                    { id: 'info' as const, label: 'Info', icon: Info },
                   ]).map((tab) => (
                     <motion.button
                       key={tab.id}
@@ -2973,6 +3021,212 @@ export function AdminPanel({
                     accentColor={accentColor}
                     addToast={addToast}
                   />
+                )}
+
+                {/* ═══ QUICK INFO CRUD TAB ═══ */}
+                {adminTab === 'info' && (
+                  <div className="space-y-5">
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-amber-500/12 flex items-center justify-center">
+                          <Info className="w-4 h-4 text-amber-400" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-bold text-white/90">Kelola Informasi Landing</p>
+                          <p className="text-[10px] text-white/30">Edit kartu informasi di bagian bawah halaman utama</p>
+                        </div>
+                      </div>
+                      <motion.button
+                        onClick={saveQuickInfo}
+                        disabled={quickInfoSaving}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                          quickInfoSaved
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                            : isMale
+                              ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/25'
+                              : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/25'
+                        }`}
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {quickInfoSaving ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : quickInfoSaved ? (
+                          <Check className="w-3.5 h-3.5" />
+                        ) : (
+                          <Save className="w-3.5 h-3.5" />
+                        )}
+                        {quickInfoSaved ? 'Tersimpan!' : 'Simpan'}
+                      </motion.button>
+                    </div>
+
+                    {/* Items list */}
+                    <div className="space-y-3">
+                      {quickInfoItems.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="glass-subtle rounded-2xl p-4 space-y-3"
+                          style={{ borderLeft: `3px solid rgb(${item.color || '115,255,0'})` }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] text-white/40 font-semibold">Kartu {idx + 1}</span>
+                            <div className="flex items-center gap-2">
+                              {quickInfoItems.length > 1 && (
+                                <motion.button
+                                  onClick={() => {
+                                    const updated = [...quickInfoItems];
+                                    updated.splice(idx, 1);
+                                    setQuickInfoItems(updated);
+                                    setQuickInfoSaved(false);
+                                  }}
+                                  className="p-1.5 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                  whileTap={{ scale: 0.9 }}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </motion.button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {/* Icon selector */}
+                            <div>
+                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Ikon</label>
+                              <select
+                                value={item.icon}
+                                onChange={(e) => {
+                                  const updated = [...quickInfoItems];
+                                  updated[idx] = { ...updated[idx], icon: e.target.value };
+                                  setQuickInfoItems(updated);
+                                  setQuickInfoSaved(false);
+                                }}
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
+                              >
+                                <option value="Info">ℹ️ Info</option>
+                                <option value="Calendar">📅 Calendar</option>
+                                <option value="Heart">❤️ Heart</option>
+                                <option value="Trophy">🏆 Trophy</option>
+                                <option value="Users">👥 Users</option>
+                                <option value="Coins">💰 Coins</option>
+                                <option value="Swords">⚔️ Swords</option>
+                                <option value="Shield">🛡️ Shield</option>
+                                <option value="Star">⭐ Star</option>
+                                <option value="Zap">⚡ Zap</option>
+                                <option value="Bell">🔔 Bell</option>
+                                <option value="Gamepad2">🎮 Gamepad</option>
+                                <option value="ScrollText">📜 Scroll</option>
+                                <option value="TrendingUp">📈 Trending</option>
+                              </select>
+                            </div>
+                            {/* Color selector */}
+                            <div>
+                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Warna</label>
+                              <div className="flex items-center gap-2">
+                                {[
+                                  { label: 'Hijau', value: '115,255,0' },
+                                  { label: 'Biru', value: '56,189,248' },
+                                  { label: 'Pink', value: '244,114,182' },
+                                  { label: 'Emas', value: '255,215,0' },
+                                  { label: 'Ungu', value: '168,85,247' },
+                                  { label: 'Merah', value: '239,68,68' },
+                                ].map((c) => (
+                                  <button
+                                    key={c.value}
+                                    onClick={() => {
+                                      const updated = [...quickInfoItems];
+                                      updated[idx] = { ...updated[idx], color: c.value };
+                                      setQuickInfoItems(updated);
+                                      setQuickInfoSaved(false);
+                                    }}
+                                    className={`w-6 h-6 rounded-full border-2 transition-all ${item.color === c.value ? 'border-white/60 scale-110' : 'border-transparent hover:border-white/20'}`}
+                                    style={{ background: `rgb(${c.value})` }}
+                                    title={c.label}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Title */}
+                          <div>
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                            <input
+                              type="text"
+                              value={item.title}
+                              onChange={(e) => {
+                                const updated = [...quickInfoItems];
+                                updated[idx] = { ...updated[idx], title: e.target.value };
+                                setQuickInfoItems(updated);
+                                setQuickInfoSaved(false);
+                              }}
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
+                              placeholder="Judul kartu..."
+                            />
+                          </div>
+
+                          {/* Description */}
+                          <div>
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
+                            <textarea
+                              value={item.description}
+                              onChange={(e) => {
+                                const updated = [...quickInfoItems];
+                                updated[idx] = { ...updated[idx], description: e.target.value };
+                                setQuickInfoItems(updated);
+                                setQuickInfoSaved(false);
+                              }}
+                              rows={3}
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors resize-none"
+                              placeholder="Deskripsi kartu..."
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add new item button */}
+                    <motion.button
+                      onClick={() => {
+                        setQuickInfoItems([...quickInfoItems, { icon: 'Info', title: '', description: '', color: '115,255,0' }]);
+                        setQuickInfoSaved(false);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer transition-colors"
+                      style={{
+                        background: 'rgba(255,215,0,0.06)',
+                        border: '1px solid rgba(255,215,0,0.12)',
+                        color: '#FFD700',
+                      }}
+                      whileHover={{ background: 'rgba(255,215,0,0.10)', borderColor: 'rgba(255,215,0,0.20)' }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Tambah Kartu Informasi
+                    </motion.button>
+
+                    {/* Preview */}
+                    <div className="glass-subtle rounded-2xl p-4 space-y-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Eye className="w-3.5 h-3.5 text-white/40" />
+                        <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Preview</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {quickInfoItems.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-xl p-3"
+                            style={{
+                              background: `linear-gradient(135deg, rgba(${item.color || '115,255,0'},0.05) 0%, rgba(${item.color || '115,255,0'},0.01) 100%)`,
+                              border: `1px solid rgba(${item.color || '115,255,0'},0.08)`,
+                            }}
+                          >
+                            <h4 className="text-[11px] font-bold text-white/70 mb-1">{item.title || 'Judul...'}</h4>
+                            <p className="text-[9px] text-white/30 leading-relaxed line-clamp-2">{item.description || 'Deskripsi...'}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* ═══ RBAC TAB ═══ */}

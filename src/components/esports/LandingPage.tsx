@@ -1307,27 +1307,54 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
    Quick Info Section
    ──────────────────────────────────────────── */
 
+// Icon map for QuickInfo — maps icon name string to Lucide component
+const QUICK_INFO_ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }>> = {
+  Info,
+  Calendar,
+  Heart,
+  Trophy,
+  Users,
+  Coins,
+  Swords,
+  Shield,
+  Star,
+  Zap,
+  Bell,
+  Gamepad2,
+  ScrollText,
+  TrendingUp,
+};
+
+interface QuickInfoItem {
+  icon: string;
+  title: string;
+  description: string;
+  color: string;
+}
+
+const DEFAULT_QUICK_INFO: QuickInfoItem[] = [
+  { icon: 'Info', title: 'Cara Daftar', description: 'Pergi ke halaman Tournament di divisi pilihanmu, isi formulir pendaftaran dengan data diri yang valid. Tunggu approval dari admin.', color: '115,255,0' },
+  { icon: 'Calendar', title: 'Jadwal Turnamen', description: 'Turnamen diadakan setiap minggu. Jadwal dan detail mode akan diumumkan melalui dashboard masing-masing divisi.', color: '56,189,248' },
+  { icon: 'Heart', title: 'Donasi & Sawer', description: 'Dukung turnamen dengan donasi atau sawer ke pemain favoritmu! Semua donasi akan masuk ke prize pool.', color: '244,114,182' },
+];
+
 function QuickInfoSection() {
-  const infoItems = [
-    {
-      icon: Info,
-      title: 'Cara Daftar',
-      description: 'Pergi ke halaman Tournament di divisi pilihanmu, isi formulir pendaftaran dengan data diri yang valid. Tunggu approval dari admin.',
-      color: '115,255,0',
-    },
-    {
-      icon: Calendar,
-      title: 'Jadwal Turnamen',
-      description: 'Turnamen diadakan setiap minggu. Jadwal dan detail mode akan diumumkan melalui dashboard masing-masing divisi.',
-      color: '56,189,248',
-    },
-    {
-      icon: Heart,
-      title: 'Donasi & Sawer',
-      description: 'Dukung turnamen dengan donasi atau sawer ke pemain favoritmu! Semua donasi akan masuk ke prize pool.',
-      color: '244,114,182',
-    },
-  ];
+  const [infoItems, setInfoItems] = useState<QuickInfoItem[]>(DEFAULT_QUICK_INFO);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/quick-info')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!cancelled && data?.success && Array.isArray(data.items) && data.items.length > 0) {
+          setInfoItems(data.items);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
@@ -1337,32 +1364,35 @@ function QuickInfoSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {infoItems.map((item, idx) => (
-          <motion.div
-            key={idx}
-            className="rounded-2xl p-4"
-            style={{
-              background: `linear-gradient(135deg, rgba(${item.color},0.05) 0%, rgba(${item.color},0.01) 100%)`,
-              border: `1px solid rgba(${item.color},0.08)`,
-            }}
-            whileHover={{
-              borderColor: `rgba(${item.color},0.15)`,
-              y: -2,
-            }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+        {infoItems.map((item, idx) => {
+          const IconComponent = QUICK_INFO_ICON_MAP[item.icon] || Info;
+          return (
+            <motion.div
+              key={idx}
+              className="rounded-2xl p-4"
               style={{
-                background: `linear-gradient(135deg, rgba(${item.color},0.15) 0%, rgba(${item.color},0.05) 100%)`,
+                background: `linear-gradient(135deg, rgba(${item.color},0.05) 0%, rgba(${item.color},0.01) 100%)`,
+                border: `1px solid rgba(${item.color},0.08)`,
               }}
+              whileHover={{
+                borderColor: `rgba(${item.color},0.15)`,
+                y: -2,
+              }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
-              <item.icon className="w-4 h-4" style={{ color: `rgb(${item.color})` }} strokeWidth={2} />
-            </div>
-            <h3 className="text-[13px] font-bold text-white/80 mb-1.5">{item.title}</h3>
-            <p className="text-[11px] text-white/35 leading-relaxed">{item.description}</p>
-          </motion.div>
-        ))}
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${item.color},0.15) 0%, rgba(${item.color},0.05) 100%)`,
+                }}
+              >
+                <IconComponent className="w-4 h-4" style={{ color: `rgb(${item.color})` }} strokeWidth={2} />
+              </div>
+              <h3 className="text-[13px] font-bold text-white/80 mb-1.5">{item.title}</h3>
+              <p className="text-[11px] text-white/35 leading-relaxed">{item.description}</p>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
@@ -2580,13 +2610,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           <DonasiSawerSection data={activeData} />
         </div>
 
-        {/* ═══ TOP PLAYERS SECTION ═══ */}
-        <div id="leaderboard-section" className="w-full">
+        {/* ═══ TOP PLAYERS + INFORMASI TERBARU — side by side on md+ ═══ */}
+        <div id="leaderboard-section" className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-14">
           <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
-        </div>
-
-        {/* ═══ INFORMASI TERBARU SECTION ═══ */}
-        <div className="w-full max-w-full mt-10 md:mt-14 mb-10 md:mb-14">
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
