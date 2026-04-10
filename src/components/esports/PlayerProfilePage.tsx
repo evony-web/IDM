@@ -169,7 +169,7 @@ function LoadingSkeleton() {
 
       {/* Avatar + name skeleton */}
       <div className="flex flex-col items-center py-8 px-4">
-        <div className="w-28 h-28 rounded-2xl bg-white/[0.04] animate-pulse mb-4" />
+        <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white/[0.04] animate-pulse mb-4" />
         <div className="w-40 h-7 rounded-lg bg-white/[0.05] animate-pulse mb-2" />
         <div className="w-24 h-4 rounded bg-white/[0.04] animate-pulse" />
       </div>
@@ -445,24 +445,32 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   }}
                 />
 
-                {/* Avatar — Large rounded rectangle with accent border glow */}
+                {/* Avatar — Large circle with double accent border */}
                 <div className="relative mb-5">
-                  {/* Glow behind avatar */}
+                  {/* Outer glow ring */}
                   <div
-                    className="absolute -inset-3 rounded-2xl blur-2xl"
+                    className="absolute -inset-4 rounded-full blur-xl"
                     style={{
-                      background: `radial-gradient(circle, rgba(${accentColorRGB}, 0.25) 0%, rgba(${accentColorRGB}, 0.05) 50%, transparent 75%)`,
+                      background: `radial-gradient(circle, rgba(${accentColorRGB}, 0.20) 0%, rgba(${accentColorRGB}, 0.04) 50%, transparent 75%)`,
                     }}
                   />
-                  {/* Avatar border */}
+                  {/* Outer decorative ring */}
                   <div
-                    className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl p-[3px]"
+                    className="absolute -inset-2.5 rounded-full"
+                    style={{
+                      border: `3px solid rgba(${accentColorRGB},0.25)`,
+                      boxShadow: `0 0 20px rgba(${accentColorRGB},0.08)`,
+                    }}
+                  />
+                  {/* Inner avatar circle */}
+                  <div
+                    className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full p-[3px]"
                     style={{
                       background: `linear-gradient(135deg, ${accentColor} 0%, rgba(${accentColorRGB}, 0.3) 50%, ${accentColor} 100%)`,
                     }}
                   >
                     <div
-                      className="w-full h-full rounded-[13px] overflow-hidden flex items-center justify-center"
+                      className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
                       style={{ background: '#0f1117', border: '2px solid rgba(0,0,0,0.4)' }}
                     >
                       {profile.avatar ? (
@@ -472,7 +480,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-4xl sm:text-5xl font-black" style={{ color: `${accentColor}88` }}>
+                        <span className="text-5xl sm:text-6xl font-black" style={{ color: `${accentColor}88` }}>
                           {profile.name[0]?.toUpperCase()}
                         </span>
                       )}
@@ -481,11 +489,11 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
 
                   {/* Tier badge — bottom-right corner */}
                   <div
-                    className="absolute -bottom-2 -right-2 w-10 h-10 rounded-lg flex items-center justify-center text-[14px] font-black shadow-lg"
+                    className="absolute -bottom-1 -right-1 w-11 h-11 rounded-full flex items-center justify-center text-[15px] font-black shadow-lg"
                     style={{
                       background: tier.badgeBg,
                       boxShadow: `0 2px 12px ${tier.glowColor}`,
-                      border: '2px solid rgba(0,0,0,0.3)',
+                      border: '2.5px solid rgba(0,0,0,0.3)',
                       color: '#fff',
                     }}
                   >
@@ -495,14 +503,14 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   {/* MVP flame — top-right corner */}
                   {profile.isMVP && (
                     <div
-                      className="absolute -top-2 -right-2 w-9 h-9 rounded-lg flex items-center justify-center shadow-lg"
+                      className="absolute -top-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
                       style={{
                         background: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 100%)',
                         boxShadow: '0 2px 10px rgba(255, 215, 0, 0.40)',
-                        border: '2px solid rgba(0,0,0,0.25)',
+                        border: '2.5px solid rgba(0,0,0,0.25)',
                       }}
                     >
-                      <Flame className="w-4 h-4 text-white" />
+                      <Flame className="w-5 h-5 text-white" />
                     </div>
                   )}
                 </div>
