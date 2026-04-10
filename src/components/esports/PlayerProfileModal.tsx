@@ -267,136 +267,148 @@ export default function PlayerProfileModal() {
 
                 {profile && !loading && !error && (
                   <div>
-                    {/* Header Section */}
-                    <div className="relative px-5 pt-6 pb-5">
-                      {/* Accent glow */}
+                    {/* Header Section — Large Photo */}
+                    <div className="relative">
+                      {/* Full-width Photo Frame */}
                       <div
-                        className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full opacity-20 blur-3xl pointer-events-none"
-                        style={{ background: accent }}
-                      />
-
-                      {/* Avatar + Info */}
-                      <div className="flex items-center gap-4">
-                        {/* Avatar */}
-                        <div className="relative flex-shrink-0">
-                          <div
-                            className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center overflow-hidden"
-                            style={{
-                              background: profile.avatar
-                                ? 'none'
-                                : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
-                              border: profile.isMVP
-                                ? `2px solid #FFD700`
-                                : `2px solid rgba(${accentRGB},0.20)`,
-                              boxShadow: profile.isMVP
-                                ? '0 0 20px rgba(255,215,0,0.15)'
-                                : 'none',
+                        className="relative w-full overflow-hidden"
+                        style={{
+                          height: '220px',
+                          background: profile.avatar
+                            ? 'none'
+                            : `linear-gradient(135deg, rgba(${accentRGB},0.15) 0%, rgba(10,10,14,0.95) 50%, rgba(${accentRGB},0.08) 100%)`,
+                        }}
+                      >
+                        {profile.avatar ? (
+                          <img
+                            src={profile.avatar}
+                            alt={profile.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              if ((e.target as HTMLImageElement).nextElementSibling) {
+                                ((e.target as HTMLImageElement).nextElementSibling as HTMLElement).classList.remove('hidden');
+                              }
                             }}
-                          >
-                            {profile.avatar ? (
-                              <img
-                                src={profile.avatar}
-                                alt={profile.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                  (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                }}
-                              />
-                            ) : null}
+                          />
+                        ) : null}
+                        {/* Fallback initial when no avatar */}
+                        {!profile.avatar && (
+                          <div className="absolute inset-0 flex items-center justify-center">
                             <span
-                              className={`text-2xl sm:text-3xl font-black ${profile.avatar ? 'hidden' : ''}`}
-                              style={{ color: accent }}
+                              className="text-6xl font-black"
+                              style={{ color: `rgba(${accentRGB},0.25)` }}
                             >
                               {profile.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
+                        )}
+                        {/* Bottom gradient overlay for text readability */}
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            background: 'linear-gradient(to top, rgba(20,20,24,1) 0%, rgba(20,20,24,0.7) 35%, rgba(20,20,24,0.2) 60%, transparent 100%)',
+                          }}
+                        />
+                        {/* Accent glow at bottom */}
+                        <div
+                          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-20 rounded-full opacity-30 blur-2xl pointer-events-none"
+                          style={{ background: accent }}
+                        />
+                        {/* Photo border accent line at top */}
+                        <div
+                          className="absolute top-0 left-0 right-0 h-[2px]"
+                          style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+                        />
+                      </div>
+
+                      {/* Player Info overlaid at bottom of photo */}
+                      <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 pt-8">
+                        {/* Name + Badges */}
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-xl font-black text-white truncate drop-shadow-lg">
+                            {profile.name}
+                          </h2>
                           {profile.isMVP && (
-                            <div
-                              className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-[10px]"
+                            <span
+                              className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                               style={{
-                                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                                boxShadow: '0 2px 8px rgba(255,215,0,0.3)',
+                                background: 'rgba(255,215,0,0.20)',
+                                color: '#FFD700',
+                                border: '1px solid rgba(255,215,0,0.30)',
                               }}
                             >
-                              <Crown className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
-                            </div>
+                              MVP
+                            </span>
                           )}
                         </div>
-
-                        {/* Name + Tier */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-bold text-white/90 truncate">
-                              {profile.name}
-                            </h2>
-                            {profile.isMVP && (
-                              <span
-                                className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                                style={{
-                                  background: 'rgba(255,215,0,0.15)',
-                                  color: '#FFD700',
-                                  border: '1px solid rgba(255,215,0,0.25)',
-                                }}
-                              >
-                                MVP
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1.5">
-                            {/* Tier Badge */}
-                            <span
-                              className="text-[11px] font-bold px-2 py-0.5 rounded-md"
-                              style={{
-                                color: tier.color,
-                                background: tier.bg,
-                                border: `1px solid ${tier.color}33`,
-                              }}
-                            >
-                              TIER {tier.label}
-                            </span>
-                            {/* Gender */}
-                            <span className="text-[10px] text-white/30">
-                              {profile.gender === 'male' ? '♂' : '♀'} {profile.gender === 'male' ? 'Male' : 'Female'}
-                            </span>
-                          </div>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          {/* Tier Badge */}
+                          <span
+                            className="text-[11px] font-bold px-2 py-0.5 rounded-md"
+                            style={{
+                              color: tier.color,
+                              background: tier.bg,
+                              border: `1px solid ${tier.color}33`,
+                            }}
+                          >
+                            TIER {tier.label}
+                          </span>
+                          {/* Gender */}
+                          <span className="text-[10px] text-white/50">
+                            {profile.gender === 'male' ? '♂' : '♀'} {profile.gender === 'male' ? 'Male' : 'Female'}
+                          </span>
+                          {/* City */}
                           {profile.city && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <MapPin className="w-3 h-3 text-white/25" />
-                              <span className="text-[11px] text-white/30">{profile.city}</span>
-                            </div>
+                            <span className="text-[10px] text-white/40 flex items-center gap-0.5">
+                              <MapPin className="w-3 h-3" />
+                              {profile.city}
+                            </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Club */}
-                      {profile.club && (
+                      {/* MVP Crown floating badge */}
+                      {profile.isMVP && (
                         <div
-                          className="mt-4 flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+                          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
                           style={{
-                            background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                            boxShadow: '0 2px 12px rgba(255,215,0,0.35)',
                           }}
                         >
-                          <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
-                            style={{
-                              background: 'rgba(255,255,255,0.05)',
-                            }}
-                          >
-                            {profile.club.logoUrl ? (
-                              <img src={profile.club.logoUrl} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <Building2 className="w-4 h-4 text-white/30" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-[12px] font-semibold text-white/70">{profile.club.name}</p>
-                            <p className="text-[10px] text-white/30">Club</p>
-                          </div>
+                          <Crown className="w-4.5 h-4.5 text-black" strokeWidth={2.5} />
                         </div>
                       )}
                     </div>
+
+                    {/* Club */}
+                    {profile.club && (
+                      <div
+                        className="mx-5 mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                        }}
+                      >
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                          }}
+                        >
+                          {profile.club.logoUrl ? (
+                            <img src={profile.club.logoUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <Building2 className="w-4 h-4 text-white/30" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-[12px] font-semibold text-white/70">{profile.club.name}</p>
+                          <p className="text-[10px] text-white/30">Club</p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Stats Section */}
                     <div
