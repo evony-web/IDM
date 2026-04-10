@@ -1930,8 +1930,6 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
    ════════════════════════════════════════════ */
 
 function DonasiSawerSection({ data }: { data: LandingData }) {
-  const [activeTab, setActiveTab] = useState<'sawer' | 'donasi'>('sawer');
-
   const totalDana = data.totalDonation + data.totalSawer;
   const hasSawer = data.recentSawers.length > 0;
   const hasDonasi = data.recentDonations.length > 0;
@@ -1981,65 +1979,31 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
           {/* Top gradient accent */}
           <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.4), rgba(255,215,0,0.3), transparent)' }} />
 
-          {/* Tab Switcher */}
-          <div className="flex items-center gap-1 p-2 mx-3 mt-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
-            <button
-              onClick={() => setActiveTab('sawer')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
-                activeTab === 'sawer' ? 'text-white' : 'text-white/30 hover:text-white/50'
-              }`}
-              style={activeTab === 'sawer' ? {
-                background: 'linear-gradient(135deg, rgba(244,114,182,0.15) 0%, rgba(244,114,182,0.05) 100%)',
-                border: '1px solid rgba(244,114,182,0.20)',
-                boxShadow: '0 0 12px rgba(244,114,182,0.08)',
-              } : {}}
-            >
-              <Zap className="w-3.5 h-3.5" style={{ color: activeTab === 'sawer' ? '#F472B6' : 'currentColor' }} />
-              Sawer ({data.recentSawers.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('donasi')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
-                activeTab === 'donasi' ? 'text-white' : 'text-white/30 hover:text-white/50'
-              }`}
-              style={activeTab === 'donasi' ? {
-                background: 'linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.04) 100%)',
-                border: '1px solid rgba(255,215,0,0.18)',
-                boxShadow: '0 0 12px rgba(255,215,0,0.06)',
-              } : {}}
-            >
-              <Heart className="w-3.5 h-3.5" style={{ color: activeTab === 'donasi' ? '#FFD700' : 'currentColor' }} />
-              Donasi ({data.recentDonations.length})
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-3 pt-2 max-h-96 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(244,114,182,0.15) transparent' }}>
-            <AnimatePresence mode="wait">
-              {activeTab === 'sawer' ? (
-                <motion.div
-                  key="sawer"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-2"
-                >
+          <div className="p-3 max-h-96 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(244,114,182,0.15) transparent' }}>
+            {/* ── Sawer List ── */}
+            {hasSawer && (
+              <div className="mb-3">
+                <div className="flex items-center gap-1.5 mb-2 px-1">
+                  <Zap className="w-3 h-3" style={{ color: '#F472B6' }} />
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-[#F472B6]/70">Sawer</span>
+                  <span className="text-[9px] text-white/20 ml-0.5">({data.recentSawers.length})</span>
+                </div>
+                <div className="space-y-1.5">
                   {data.recentSawers.map((sawer, idx) => (
                     <motion.div
                       key={sawer.id}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: idx * 0.04 }}
-                      className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03]"
+                      className="flex items-start gap-3 p-2.5 rounded-xl transition-all hover:bg-white/[0.03]"
                       style={{
                         background: 'rgba(255,255,255,0.01)',
-                        border: '1px solid rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(244,114,182,0.06)',
                       }}
                     >
                       {/* Avatar */}
                       <div
-                        className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                        className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
                         style={{
                           background: sawer.senderAvatar
                             ? `url(${sawer.senderAvatar}) center/cover`
@@ -2048,7 +2012,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         }}
                       >
                         {!sawer.senderAvatar && (
-                          <span className="text-[11px] font-bold text-[#F472B6]">
+                          <span className="text-[10px] font-bold text-[#F472B6]">
                             {sawer.senderName.charAt(0).toUpperCase()}
                           </span>
                         )}
@@ -2056,18 +2020,18 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-[12px] font-semibold text-white/85 truncate">{sawer.senderName}</p>
+                          <p className="text-[11px] font-semibold text-white/85 truncate">{sawer.senderName}</p>
                           {sawer.targetPlayerName && (
                             <>
-                              <span className="text-[10px] text-white/20">→</span>
-                              <p className="text-[11px] font-medium truncate" style={{ color: sawer.division === 'male' ? '#73FF00' : '#38BDF8' }}>
+                              <span className="text-[9px] text-white/20">→</span>
+                              <p className="text-[10px] font-medium truncate" style={{ color: sawer.division === 'male' ? '#73FF00' : '#38BDF8' }}>
                                 {sawer.targetPlayerName}
                               </p>
                             </>
                           )}
                           {sawer.division && (
                             <span
-                              className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                              className="text-[7px] font-bold px-1 py-0.5 rounded-full flex-shrink-0"
                               style={{
                                 background: sawer.division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
                                 color: sawer.division === 'male' ? '#73FF00' : '#38BDF8',
@@ -2079,15 +2043,15 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                           )}
                         </div>
                         {sawer.message && (
-                          <p className="text-[11px] text-white/30 mt-0.5 truncate">&quot;{sawer.message}&quot;</p>
+                          <p className="text-[10px] text-white/30 mt-0.5 truncate">&quot;{sawer.message}&quot;</p>
                         )}
-                        <p className="text-[9px] text-white/15 mt-0.5">{timeAgo(sawer.createdAt)}</p>
+                        <p className="text-[8px] text-white/15 mt-0.5">{timeAgo(sawer.createdAt)}</p>
                       </div>
 
                       {/* Amount */}
                       <div className="flex-shrink-0 text-right">
                         <p
-                          className="text-[13px] font-bold"
+                          className="text-[12px] font-bold"
                           style={{
                             background: 'linear-gradient(135deg, #F472B6, #FFD700)',
                             WebkitBackgroundClip: 'text',
@@ -2097,38 +2061,42 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         >
                           {formatRupiah(sawer.amount)}
                         </p>
-                        <div className="flex items-center justify-end gap-0.5 mt-0.5">
-                          <Zap className="w-2.5 h-2.5 text-[#F472B6]/40" />
-                          <span className="text-[8px] text-[#F472B6]/40 font-semibold">SAWER</span>
-                        </div>
                       </div>
                     </motion.div>
                   ))}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="donasi"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-2"
-                >
+                </div>
+              </div>
+            )}
+
+            {/* ── Divider between sections ── */}
+            {hasSawer && hasDonasi && (
+              <div className="mx-2 my-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(244,114,182,0.12), rgba(255,215,0,0.10), transparent)' }} />
+            )}
+
+            {/* ── Donasi List ── */}
+            {hasDonasi && (
+              <div className={hasSawer ? 'mt-2' : ''}>
+                <div className="flex items-center gap-1.5 mb-2 px-1">
+                  <Heart className="w-3 h-3" style={{ color: '#FFD700' }} />
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-yellow-400/70">Donasi</span>
+                  <span className="text-[9px] text-white/20 ml-0.5">({data.recentDonations.length})</span>
+                </div>
+                <div className="space-y-1.5">
                   {data.recentDonations.map((donation, idx) => (
                     <motion.div
                       key={donation.id}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: idx * 0.04 }}
-                      className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03]"
+                      className="flex items-start gap-3 p-2.5 rounded-xl transition-all hover:bg-white/[0.03]"
                       style={{
                         background: 'rgba(255,255,255,0.01)',
-                        border: '1px solid rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,215,0,0.06)',
                       }}
                     >
                       {/* Avatar */}
                       <div
-                        className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                        className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
                         style={{
                           background: donation.anonymous
                             ? 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05))'
@@ -2141,9 +2109,9 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         }}
                       >
                         {donation.anonymous ? (
-                          <Heart className="w-3.5 h-3.5 text-yellow-400/50" />
+                          <Heart className="w-3 h-3 text-yellow-400/50" />
                         ) : !donation.donorAvatar ? (
-                          <span className="text-[11px] font-bold text-yellow-400">
+                          <span className="text-[10px] font-bold text-yellow-400">
                             {donation.donorName.charAt(0).toUpperCase()}
                           </span>
                         ) : null}
@@ -2151,25 +2119,25 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-[12px] font-semibold text-white/85 truncate">
+                          <p className="text-[11px] font-semibold text-white/85 truncate">
                             {donation.anonymous ? '🤲 Hamba Allah' : donation.donorName}
                           </p>
                           {donation.anonymous && (
-                            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
+                            <span className="text-[7px] font-bold px-1 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
                               ANONIM
                             </span>
                           )}
                         </div>
                         {donation.message && (
-                          <p className="text-[11px] text-white/30 mt-0.5 truncate">&quot;{donation.message}&quot;</p>
+                          <p className="text-[10px] text-white/30 mt-0.5 truncate">&quot;{donation.message}&quot;</p>
                         )}
-                        <p className="text-[9px] text-white/15 mt-0.5">{timeAgo(donation.createdAt)}</p>
+                        <p className="text-[8px] text-white/15 mt-0.5">{timeAgo(donation.createdAt)}</p>
                       </div>
 
                       {/* Amount */}
                       <div className="flex-shrink-0 text-right">
                         <p
-                          className="text-[13px] font-bold"
+                          className="text-[12px] font-bold"
                           style={{
                             background: 'linear-gradient(135deg, #FFD700, #FFA500)',
                             WebkitBackgroundClip: 'text',
@@ -2179,16 +2147,12 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         >
                           {formatRupiah(donation.amount)}
                         </p>
-                        <div className="flex items-center justify-end gap-0.5 mt-0.5">
-                          <Heart className="w-2.5 h-2.5 text-yellow-400/40" />
-                          <span className="text-[8px] text-yellow-400/40 font-semibold">DONASI</span>
-                        </div>
                       </div>
                     </motion.div>
                   ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Motivational CTA Footer */}
