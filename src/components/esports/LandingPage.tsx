@@ -212,7 +212,117 @@ function TopNavBar({
 
   return (
     <>
-      {/* Desktop/Tablet NavBar */}
+      {/* ═══════════════════════════════════════════════════════════
+          MOBILE HEADER — Apple iOS Clean Style (shows on mobile only)
+          ═══════════════════════════════════════════════════════════ */}
+      <motion.header
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+        className="md:hidden sticky top-0 z-40 w-full"
+        style={{
+          background: scrolled
+            ? 'rgba(5,5,7,0.92)'
+            : 'rgba(5,5,7,0.60)',
+          backdropFilter: 'blur(28px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
+          borderBottom: `1px solid rgba(255,255,255,${scrolled ? '0.08' : '0.04'})`,
+          transition: 'background 0.3s ease, border-color 0.3s ease',
+        }}
+      >
+        {/* Accent gradient line */}
+        <div
+          className="h-[1.5px] w-full"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(115,255,0,0.35) 20%, rgba(255,215,0,0.30) 50%, rgba(56,189,248,0.35) 80%, transparent 100%)',
+          }}
+        />
+
+        <div className="flex items-center justify-between px-4 h-[52px]">
+          {/* ── Left: Logo + Brand ── */}
+          <div className="flex items-center gap-2.5">
+            <motion.img
+              src={IDM_LOGO_URL}
+              alt="IDM"
+              className="w-8 h-8 rounded-xl"
+              style={{
+                boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
+              }}
+              whileTap={{ scale: 0.92 }}
+            />
+            <div className="flex flex-col">
+              <h1
+                className="text-[14px] font-black tracking-tight leading-none"
+                style={{
+                  background: 'linear-gradient(135deg, #73FF00, #FFD700, #38BDF8)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                IDOL META
+              </h1>
+              <p className="text-[7px] font-semibold tracking-[0.15em] uppercase text-white/20 leading-none mt-0.5">
+                TARKAM Fan Made
+              </p>
+            </div>
+
+            {/* Live indicator — compact for mobile */}
+            {liveCount > 0 && (
+              <motion.div
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full ml-1.5"
+                style={{
+                  background: 'rgba(239,68,68,0.12)',
+                  border: '1px solid rgba(239,68,68,0.25)',
+                }}
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500" style={{ boxShadow: '0 0 6px rgba(239,68,68,0.5)' }} />
+                <span className="text-[8px] font-bold text-red-400 uppercase tracking-wider">LIVE</span>
+              </motion.div>
+            )}
+          </div>
+
+          {/* ── Right: Actions ── */}
+          <div className="flex items-center gap-2">
+            {/* Player count — mini pill */}
+            <div
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{
+                background: 'rgba(115,255,0,0.06)',
+                border: '1px solid rgba(115,255,0,0.12)',
+              }}
+            >
+              <Users className="w-3 h-3" style={{ color: '#73FF00' }} />
+              <span className="text-[10px] font-bold text-white/60">{totalPlayers}</span>
+            </div>
+
+            {/* Share button */}
+            <ShareButton
+              text="IDOL META — TARKAM Fan Made Tournament"
+              compact
+            />
+
+            {/* Admin button */}
+            <motion.button
+              onClick={onAdminLogin}
+              className="flex items-center justify-center w-8 h-8 rounded-xl cursor-pointer"
+              style={{
+                background: 'rgba(255,215,0,0.06)',
+                border: '1px solid rgba(255,215,0,0.12)',
+              }}
+              whileTap={{ scale: 0.88 }}
+            >
+              <Shield className="w-3.5 h-3.5" style={{ color: '#FFD700' }} />
+            </motion.button>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* ═══════════════════════════════════════════════════════════
+          Desktop/Tablet NavBar (hidden on mobile)
+          ═══════════════════════════════════════════════════════════ */}
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -382,52 +492,58 @@ function TopNavBar({
         </div>
       </motion.nav>
 
-      {/* ── Mobile Bottom Bar (shows on mobile only) ── */}
+      {/* ═══════════════════════════════════════════════════════════
+          Mobile Bottom Bar — iOS Tab Bar Style (shows on mobile only)
+          ═══════════════════════════════════════════════════════════ */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40"
         style={{
-          background: 'rgba(5,5,7,0.90)',
-          backdropFilter: 'blur(20px) saturate(1.4)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+          background: 'rgba(5,5,7,0.92)',
+          backdropFilter: 'blur(28px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
           borderTop: '1px solid rgba(255,255,255,0.06)',
         }}
       >
-        <div className="flex items-center justify-around py-2 px-2 safe-area-bottom">
+        <div className="flex items-center justify-around py-1.5 px-2 safe-area-bottom">
+          {/* Home tab */}
+          <motion.button
+            className="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl cursor-pointer"
+            whileTap={{ scale: 0.88 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <Gamepad2 className="w-5 h-5" style={{ color: '#FFD700' }} />
+            <span className="text-[9px] font-bold uppercase" style={{ color: '#FFD700' }}>Home</span>
+          </motion.button>
+
+          {/* Male Division tab */}
           <motion.button
             onClick={() => onEnterDivision('male')}
-            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
-            whileTap={{ scale: 0.9 }}
+            className="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl cursor-pointer"
+            whileTap={{ scale: 0.88 }}
           >
             <Swords className="w-5 h-5" style={{ color: '#73FF00' }} />
-            <span className="text-[9px] font-bold text-white/50 uppercase">Male</span>
+            <span className="text-[9px] font-bold text-white/40 uppercase">Male</span>
           </motion.button>
 
+          {/* Female Division tab */}
           <motion.button
             onClick={() => onEnterDivision('female')}
-            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
-            whileTap={{ scale: 0.9 }}
+            className="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl cursor-pointer"
+            whileTap={{ scale: 0.88 }}
           >
             <Shield className="w-5 h-5" style={{ color: '#38BDF8' }} />
-            <span className="text-[9px] font-bold text-white/50 uppercase">Female</span>
+            <span className="text-[9px] font-bold text-white/40 uppercase">Female</span>
           </motion.button>
 
+          {/* Leaderboard tab */}
           <motion.button
             onClick={() => {
               document.getElementById('leaderboard-section')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
-            whileTap={{ scale: 0.9 }}
+            className="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl cursor-pointer"
+            whileTap={{ scale: 0.88 }}
           >
-            <TrendingUp className="w-5 h-5" style={{ color: '#FFD700' }} />
-            <span className="text-[9px] font-bold text-white/50 uppercase">Board</span>
-          </motion.button>
-
-          <motion.button
-            onClick={onAdminLogin}
-            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg cursor-pointer"
-            whileTap={{ scale: 0.9 }}
-          >
-            <Shield className="w-5 h-5 text-white/30" />
-            <span className="text-[9px] font-bold text-white/30 uppercase">Admin</span>
+            <TrendingUp className="w-5 h-5 text-white/30" />
+            <span className="text-[9px] font-bold text-white/30 uppercase">Board</span>
           </motion.button>
         </div>
       </div>
@@ -2545,7 +2661,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-12 xl:px-16 pt-3 pb-8 md:pt-4 md:pb-12 min-h-screen"
+        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 pb-20 md:pt-4 md:pb-12 min-h-screen"
       >
         {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
         <ChampionCarouselBanner data={activeData} />
