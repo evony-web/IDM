@@ -2177,7 +2177,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/7] sm:aspect-[16/6] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
+          <div className="relative w-full aspect-[16/9] sm:aspect-[16/6] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
             <div className="text-center">
               <motion.img
                 src={IDM_LOGO_URL}
@@ -2253,7 +2253,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/8] sm:aspect-[16/7] md:aspect-[16/6.5]">
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/7] md:aspect-[16/6.5]">
             {/* Slide Content with AnimatePresence */}
             <AnimatePresence mode="wait">
               <motion.div
@@ -2654,10 +2654,10 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
       </motion.div>
     </div>
 
-    {/* ═══ ADMIN FAB — Floating Action Button (mobile only) ═══ */}
+    {/* ═══ ADMIN FAB — Floating Action Button (hidden on mobile, accessible via menu) ═══ */}
     <motion.button
       onClick={onAdminLogin}
-      className="fixed z-50 flex items-center justify-center cursor-pointer outline-none md:hidden"
+      className="hidden"
       style={{
         right: 16,
         bottom: 24,
