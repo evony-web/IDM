@@ -1650,7 +1650,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
               <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">Champion Banner</p>
-              <p className="text-[10px] sm:text-[11px] text-white/20 mt-1 tracking-[0.2em] uppercase">Upload banner via admin panel</p>
+
             </div>
           </div>
           {/* Neon border */}
