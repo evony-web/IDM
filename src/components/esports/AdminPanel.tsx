@@ -44,6 +44,7 @@ import {
   Pencil,
   Database,
   ImageIcon as ImageIconLucide,
+  Bot,
 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { BotManagementTab } from './BotManagementTab';
@@ -352,7 +353,8 @@ export function AdminPanel({
   const [prizeSaving, setPrizeSaving] = useState(false);
 
   // ── Payment settings state ──
-  const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner' | 'cloudinary' | 'info'>('tournament');
+  const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner'>('tournament');
+  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore' | 'info'>('rbac');
 
   // ── Banner management state ──
   const [bannerMaleUrl, setBannerMaleUrl] = useState<string | null>(null);
@@ -746,10 +748,10 @@ export function AdminPanel({
   }, []);
 
   useEffect(() => {
-    if (showPanel && adminTab === 'info') {
+    if (showPanel && adminTab === 'rbac' && adminSubTab === 'info') {
       fetchQuickInfo();
     }
-  }, [showPanel, adminTab, fetchQuickInfo]);
+  }, [showPanel, adminTab, adminSubTab, fetchQuickInfo]);
 
   // ── Save QuickInfo items ──
   const saveQuickInfo = useCallback(async () => {
@@ -976,8 +978,6 @@ export function AdminPanel({
                     { id: 'rbac' as const, label: 'Admin', icon: UserCog },
                     { id: 'clubs' as const, label: 'Club', icon: Building2 },
                     { id: 'banner' as const, label: 'Banner', icon: ImageIconLucide },
-                    { id: 'cloudinary' as const, label: 'Restore', icon: Database },
-                    { id: 'info' as const, label: 'Info', icon: Info },
                   ]).map((tab) => (
                     <motion.button
                       key={tab.id}
@@ -3013,223 +3013,11 @@ export function AdminPanel({
                   </div>
                 )}
 
-                {/* ═══ CLOUDINARY RESTORE TAB ═══ */}
-                {adminTab === 'cloudinary' && (
-                  <CloudinaryRestorePanel
-                    accentClass={accentClass}
-                    accentBgSubtle={accentBgSubtle}
-                    accentColor={accentColor}
-                    addToast={addToast}
-                  />
-                )}
+                {/* ═══ CLOUDINARY RESTORE TAB (moved to Admin sub-tab) ═══ */}
 
-                {/* ═══ QUICK INFO CRUD TAB ═══ */}
-                {adminTab === 'info' && (
-                  <div className="space-y-5">
-                    {/* Section Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-amber-500/12 flex items-center justify-center">
-                          <Info className="w-4 h-4 text-amber-400" />
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-bold text-white/90">Kelola Informasi Landing</p>
-                          <p className="text-[10px] text-white/30">Edit kartu informasi di bagian bawah halaman utama</p>
-                        </div>
-                      </div>
-                      <motion.button
-                        onClick={saveQuickInfo}
-                        disabled={quickInfoSaving}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
-                          quickInfoSaved
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
-                            : isMale
-                              ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/25'
-                              : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/25'
-                        }`}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {quickInfoSaving ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : quickInfoSaved ? (
-                          <Check className="w-3.5 h-3.5" />
-                        ) : (
-                          <Save className="w-3.5 h-3.5" />
-                        )}
-                        {quickInfoSaved ? 'Tersimpan!' : 'Simpan'}
-                      </motion.button>
-                    </div>
+                {/* ═══ QUICK INFO CRUD TAB (moved to Admin sub-tab) ═══ */}
 
-                    {/* Items list */}
-                    <div className="space-y-3">
-                      {quickInfoItems.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="glass-subtle rounded-2xl p-4 space-y-3"
-                          style={{ borderLeft: `3px solid rgb(${item.color || '115,255,0'})` }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] text-white/40 font-semibold">Kartu {idx + 1}</span>
-                            <div className="flex items-center gap-2">
-                              {quickInfoItems.length > 1 && (
-                                <motion.button
-                                  onClick={() => {
-                                    const updated = [...quickInfoItems];
-                                    updated.splice(idx, 1);
-                                    setQuickInfoItems(updated);
-                                    setQuickInfoSaved(false);
-                                  }}
-                                  className="p-1.5 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                                  whileTap={{ scale: 0.9 }}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </motion.button>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            {/* Icon selector */}
-                            <div>
-                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Ikon</label>
-                              <select
-                                value={item.icon}
-                                onChange={(e) => {
-                                  const updated = [...quickInfoItems];
-                                  updated[idx] = { ...updated[idx], icon: e.target.value };
-                                  setQuickInfoItems(updated);
-                                  setQuickInfoSaved(false);
-                                }}
-                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
-                              >
-                                <option value="Info">ℹ️ Info</option>
-                                <option value="Calendar">📅 Calendar</option>
-                                <option value="Heart">❤️ Heart</option>
-                                <option value="Trophy">🏆 Trophy</option>
-                                <option value="Users">👥 Users</option>
-                                <option value="Coins">💰 Coins</option>
-                                <option value="Swords">⚔️ Swords</option>
-                                <option value="Shield">🛡️ Shield</option>
-                                <option value="Star">⭐ Star</option>
-                                <option value="Zap">⚡ Zap</option>
-                                <option value="Bell">🔔 Bell</option>
-                                <option value="Gamepad2">🎮 Gamepad</option>
-                                <option value="ScrollText">📜 Scroll</option>
-                                <option value="TrendingUp">📈 Trending</option>
-                              </select>
-                            </div>
-                            {/* Color selector */}
-                            <div>
-                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Warna</label>
-                              <div className="flex items-center gap-2">
-                                {[
-                                  { label: 'Hijau', value: '115,255,0' },
-                                  { label: 'Biru', value: '56,189,248' },
-                                  { label: 'Pink', value: '244,114,182' },
-                                  { label: 'Emas', value: '255,215,0' },
-                                  { label: 'Ungu', value: '168,85,247' },
-                                  { label: 'Merah', value: '239,68,68' },
-                                ].map((c) => (
-                                  <button
-                                    key={c.value}
-                                    onClick={() => {
-                                      const updated = [...quickInfoItems];
-                                      updated[idx] = { ...updated[idx], color: c.value };
-                                      setQuickInfoItems(updated);
-                                      setQuickInfoSaved(false);
-                                    }}
-                                    className={`w-6 h-6 rounded-full border-2 transition-all ${item.color === c.value ? 'border-white/60 scale-110' : 'border-transparent hover:border-white/20'}`}
-                                    style={{ background: `rgb(${c.value})` }}
-                                    title={c.label}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Title */}
-                          <div>
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
-                            <input
-                              type="text"
-                              value={item.title}
-                              onChange={(e) => {
-                                const updated = [...quickInfoItems];
-                                updated[idx] = { ...updated[idx], title: e.target.value };
-                                setQuickInfoItems(updated);
-                                setQuickInfoSaved(false);
-                              }}
-                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
-                              placeholder="Judul kartu..."
-                            />
-                          </div>
-
-                          {/* Description */}
-                          <div>
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
-                            <textarea
-                              value={item.description}
-                              onChange={(e) => {
-                                const updated = [...quickInfoItems];
-                                updated[idx] = { ...updated[idx], description: e.target.value };
-                                setQuickInfoItems(updated);
-                                setQuickInfoSaved(false);
-                              }}
-                              rows={3}
-                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors resize-none"
-                              placeholder="Deskripsi kartu..."
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Add new item button */}
-                    <motion.button
-                      onClick={() => {
-                        setQuickInfoItems([...quickInfoItems, { icon: 'Info', title: '', description: '', color: '115,255,0' }]);
-                        setQuickInfoSaved(false);
-                      }}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer transition-colors"
-                      style={{
-                        background: 'rgba(255,215,0,0.06)',
-                        border: '1px solid rgba(255,215,0,0.12)',
-                        color: '#FFD700',
-                      }}
-                      whileHover={{ background: 'rgba(255,215,0,0.10)', borderColor: 'rgba(255,215,0,0.20)' }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Tambah Kartu Informasi
-                    </motion.button>
-
-                    {/* Preview */}
-                    <div className="glass-subtle rounded-2xl p-4 space-y-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Eye className="w-3.5 h-3.5 text-white/40" />
-                        <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Preview</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {quickInfoItems.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="rounded-xl p-3"
-                            style={{
-                              background: `linear-gradient(135deg, rgba(${item.color || '115,255,0'},0.05) 0%, rgba(${item.color || '115,255,0'},0.01) 100%)`,
-                              border: `1px solid rgba(${item.color || '115,255,0'},0.08)`,
-                            }}
-                          >
-                            <h4 className="text-[11px] font-bold text-white/70 mb-1">{item.title || 'Judul...'}</h4>
-                            <p className="text-[9px] text-white/30 leading-relaxed line-clamp-2">{item.description || 'Deskripsi...'}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ═══ RBAC TAB ═══ */}
+                {/* ═══ COMBINED ADMIN TAB (RBAC + Bot + Restore + Info) ═══ */}
                 {adminTab === 'rbac' && (
                   <div className="space-y-5">
                     {/* Section Header */}
@@ -3239,39 +3027,82 @@ export function AdminPanel({
                           <ShieldCheck className="w-4 h-4 text-amber-400" />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Admin & RBAC</p>
-                          <p className="text-[10px] text-white/30">Kelola admin & hak akses</p>
+                          <p className="text-[13px] font-bold text-white/90">Admin Panel</p>
+                          <p className="text-[10px] text-white/30">Kelola admin, bot, & pengaturan</p>
                         </div>
                       </div>
-                      {adminUser?.role === 'super_admin' && (
-                        <motion.button
-                          onClick={() => setShowAddAdmin(true)}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
-                          whileHover={{ scale: 1.04 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <UserPlus className="w-3.5 h-3.5" />
-                          Tambah Admin
-                        </motion.button>
-                      )}
                     </div>
 
-                    {/* Admin List */}
-                    {rbacLoading ? (
-                      <div className="flex justify-center py-8">
-                        <Loader2 className={`w-5 h-5 animate-spin ${accentClass}`} />
-                      </div>
-                    ) : adminList.length === 0 ? (
-                      <div className="glass-subtle rounded-2xl p-6 text-center">
-                        <Users className="w-7 h-7 text-white/20 mx-auto mb-2" />
-                        <p className="text-[13px] text-white/30 font-medium">Belum ada admin</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3 max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
-                        {adminList.map((admin) => {
-                          const isSuperAdmin = admin.role === 'super_admin';
-                          const isSelf = admin.id === adminUser?.id;
-                          return (
+                    {/* ── Sub-tab navigation ── */}
+                    <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1">
+                      {([
+                        { id: 'rbac' as const, label: 'Admin & RBAC', icon: ShieldCheck },
+                        { id: 'bot' as const, label: 'Bot Management', icon: Bot, superAdminOnly: true },
+                        { id: 'restore' as const, label: 'Restore', icon: Database },
+                        { id: 'info' as const, label: 'Info', icon: Info },
+                      ]).filter(sub => !sub.superAdminOnly || adminUser?.role === 'super_admin').map((sub) => (
+                        <motion.button
+                          key={sub.id}
+                          onClick={() => setAdminSubTab(sub.id)}
+                          className="relative flex-1 min-w-0 py-2 px-2 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 z-10 truncate"
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          {adminSubTab === sub.id && (
+                            <motion.div
+                              className="absolute inset-0 rounded-lg pointer-events-none"
+                              style={{ background: 'rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
+                              layoutId="adminSubTab"
+                              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          <sub.icon className={`w-3.5 h-3.5 relative z-10 ${adminSubTab === sub.id ? accentClass : 'text-white/30'}`} />
+                          <span className={`relative z-10 truncate ${adminSubTab === sub.id ? 'text-white/90' : 'text-white/30'}`}>
+                            {sub.label}
+                          </span>
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    {/* ═══ Sub-tab: Admin & RBAC ═══ */}
+                    {adminSubTab === 'rbac' && (
+                      <div className="space-y-5">
+                        {/* RBAC Header with Add Admin button */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-amber-500/12 flex items-center justify-center">
+                              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                            </div>
+                            <p className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">Daftar Admin</p>
+                          </div>
+                          {adminUser?.role === 'super_admin' && (
+                            <motion.button
+                              onClick={() => setShowAddAdmin(true)}
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
+                              whileHover={{ scale: 1.04 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <UserPlus className="w-3.5 h-3.5" />
+                              Tambah Admin
+                            </motion.button>
+                          )}
+                        </div>
+
+                        {/* Admin List */}
+                        {rbacLoading ? (
+                          <div className="flex justify-center py-8">
+                            <Loader2 className={`w-5 h-5 animate-spin ${accentClass}`} />
+                          </div>
+                        ) : adminList.length === 0 ? (
+                          <div className="glass-subtle rounded-2xl p-6 text-center">
+                            <Users className="w-7 h-7 text-white/20 mx-auto mb-2" />
+                            <p className="text-[13px] text-white/30 font-medium">Belum ada admin</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+                            {adminList.map((admin) => {
+                              const isSuperAdmin = admin.role === 'super_admin';
+                              const isSelf = admin.id === adminUser?.id;
+                              return (
                             <motion.div
                               key={admin.id}
                               className={`glass-subtle rounded-2xl p-4 transition-all ${isSuperAdmin ? 'ring-1 ring-amber-400/20' : ''}`}
@@ -3423,18 +3254,7 @@ export function AdminPanel({
                       </div>
                     )}
 
-                    {/* ═══ BOT MANAGEMENT ═══ */}
-                    <div className="pt-4 border-t border-white/[0.04]">
-                      <BotManagementTab
-                        accentClass={accentClass}
-                        accentBgSubtle={accentBgSubtle}
-                        btnClass={btnClass}
-                        isMale={isMale}
-                        isAdminSuperAdmin={adminUser?.role === 'super_admin'}
-                      />
-                    </div>
-
-                    {/* ═══ DANGER ZONE: Full Reset & Seed ═══ */}
+                    {/* ═══ DANGER ZONE: Full Reset & Seed (in RBAC sub-tab) ═══ */}
                     {adminUser?.role === 'super_admin' && (
                       <div className="space-y-3 pt-4 border-t border-white/[0.04]">
                         <div className="flex items-center gap-2">
@@ -3499,6 +3319,238 @@ export function AdminPanel({
                         </motion.button>
                       </div>
                     )}
+                      </div>
+                    )}
+
+                    {/* ═══ BOT MANAGEMENT ═══ */}
+                    {adminSubTab === 'bot' && adminUser?.role === 'super_admin' && (
+                      <div>
+                        <BotManagementTab
+                          accentClass={accentClass}
+                          accentBgSubtle={accentBgSubtle}
+                          btnClass={btnClass}
+                          isMale={isMale}
+                          isAdminSuperAdmin={true}
+                        />
+                      </div>
+                    )}
+
+                    {/* ═══ RESTORE SUB-TAB ═══ */}
+                    {adminSubTab === 'restore' && (
+                      <CloudinaryRestorePanel
+                        accentClass={accentClass}
+                        accentBgSubtle={accentBgSubtle}
+                        accentColor={accentColor}
+                        addToast={addToast}
+                      />
+                    )}
+
+                    {/* ═══ INFO SUB-TAB ═══ */}
+                    {adminSubTab === 'info' && (
+                      <div className="space-y-5">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-xl bg-amber-500/12 flex items-center justify-center">
+                              <Info className="w-4 h-4 text-amber-400" />
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-bold text-white/90">Kelola Informasi Landing</p>
+                              <p className="text-[10px] text-white/30">Edit kartu informasi di bagian bawah halaman utama</p>
+                            </div>
+                          </div>
+                          <motion.button
+                            onClick={saveQuickInfo}
+                            disabled={quickInfoSaving}
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                              quickInfoSaved
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                                : isMale
+                                  ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/25'
+                                  : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/25'
+                            }`}
+                            whileHover={{ scale: 1.04 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {quickInfoSaving ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : quickInfoSaved ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : (
+                              <Save className="w-3.5 h-3.5" />
+                            )}
+                            {quickInfoSaved ? 'Tersimpan!' : 'Simpan'}
+                          </motion.button>
+                        </div>
+
+                        {/* Items list */}
+                        <div className="space-y-3">
+                          {quickInfoItems.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="glass-subtle rounded-2xl p-4 space-y-3"
+                              style={{ borderLeft: `3px solid rgb(${item.color || '115,255,0'})` }}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] text-white/40 font-semibold">Kartu {idx + 1}</span>
+                                <div className="flex items-center gap-2">
+                                  {quickInfoItems.length > 1 && (
+                                    <motion.button
+                                      onClick={() => {
+                                        const updated = [...quickInfoItems];
+                                        updated.splice(idx, 1);
+                                        setQuickInfoItems(updated);
+                                        setQuickInfoSaved(false);
+                                      }}
+                                      className="p-1.5 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                      whileTap={{ scale: 0.9 }}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </motion.button>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                {/* Icon selector */}
+                                <div>
+                                  <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Ikon</label>
+                                  <select
+                                    value={item.icon}
+                                    onChange={(e) => {
+                                      const updated = [...quickInfoItems];
+                                      updated[idx] = { ...updated[idx], icon: e.target.value };
+                                      setQuickInfoItems(updated);
+                                      setQuickInfoSaved(false);
+                                    }}
+                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
+                                  >
+                                    <option value="Info">ℹ️ Info</option>
+                                    <option value="Calendar">📅 Calendar</option>
+                                    <option value="Heart">❤️ Heart</option>
+                                    <option value="Trophy">🏆 Trophy</option>
+                                    <option value="Users">👥 Users</option>
+                                    <option value="Coins">💰 Coins</option>
+                                    <option value="Swords">⚔️ Swords</option>
+                                    <option value="Shield">🛡️ Shield</option>
+                                    <option value="Star">⭐ Star</option>
+                                    <option value="Zap">⚡ Zap</option>
+                                    <option value="Bell">🔔 Bell</option>
+                                    <option value="Gamepad2">🎮 Gamepad</option>
+                                    <option value="ScrollText">📜 Scroll</option>
+                                    <option value="TrendingUp">📈 Trending</option>
+                                  </select>
+                                </div>
+                                {/* Color selector */}
+                                <div>
+                                  <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Warna</label>
+                                  <div className="flex items-center gap-2">
+                                    {[
+                                      { label: 'Hijau', value: '115,255,0' },
+                                      { label: 'Biru', value: '56,189,248' },
+                                      { label: 'Pink', value: '244,114,182' },
+                                      { label: 'Emas', value: '255,215,0' },
+                                      { label: 'Ungu', value: '168,85,247' },
+                                      { label: 'Merah', value: '239,68,68' },
+                                    ].map((c) => (
+                                      <button
+                                        key={c.value}
+                                        onClick={() => {
+                                          const updated = [...quickInfoItems];
+                                          updated[idx] = { ...updated[idx], color: c.value };
+                                          setQuickInfoItems(updated);
+                                          setQuickInfoSaved(false);
+                                        }}
+                                        className={`w-6 h-6 rounded-full border-2 transition-all ${item.color === c.value ? 'border-white/60 scale-110' : 'border-transparent hover:border-white/20'}`}
+                                        style={{ background: `rgb(${c.value})` }}
+                                        title={c.label}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Title */}
+                              <div>
+                                <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                                <input
+                                  type="text"
+                                  value={item.title}
+                                  onChange={(e) => {
+                                    const updated = [...quickInfoItems];
+                                    updated[idx] = { ...updated[idx], title: e.target.value };
+                                    setQuickInfoItems(updated);
+                                    setQuickInfoSaved(false);
+                                  }}
+                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors"
+                                  placeholder="Judul kartu..."
+                                />
+                              </div>
+
+                              {/* Description */}
+                              <div>
+                                <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
+                                <textarea
+                                  value={item.description}
+                                  onChange={(e) => {
+                                    const updated = [...quickInfoItems];
+                                    updated[idx] = { ...updated[idx], description: e.target.value };
+                                    setQuickInfoItems(updated);
+                                    setQuickInfoSaved(false);
+                                  }}
+                                  rows={3}
+                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/20 transition-colors resize-none"
+                                  placeholder="Deskripsi kartu..."
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Add new item button */}
+                        <motion.button
+                          onClick={() => {
+                            setQuickInfoItems([...quickInfoItems, { icon: 'Info', title: '', description: '', color: '115,255,0' }]);
+                            setQuickInfoSaved(false);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer transition-colors"
+                          style={{
+                            background: 'rgba(255,215,0,0.06)',
+                            border: '1px solid rgba(255,215,0,0.12)',
+                            color: '#FFD700',
+                          }}
+                          whileHover={{ background: 'rgba(255,215,0,0.10)', borderColor: 'rgba(255,215,0,0.20)' }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Tambah Kartu Informasi
+                        </motion.button>
+
+                        {/* Preview */}
+                        <div className="glass-subtle rounded-2xl p-4 space-y-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Eye className="w-3.5 h-3.5 text-white/40" />
+                            <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Preview</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {quickInfoItems.map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="rounded-xl p-3"
+                                style={{
+                                  background: `linear-gradient(135deg, rgba(${item.color || '115,255,0'},0.05) 0%, rgba(${item.color || '115,255,0'},0.01) 100%)`,
+                                  border: `1px solid rgba(${item.color || '115,255,0'},0.08)`,
+                                }}
+                              >
+                                <h4 className="text-[11px] font-bold text-white/70 mb-1">{item.title || 'Judul...'}</h4>
+                                <p className="text-[9px] text-white/30 leading-relaxed line-clamp-2">{item.description || 'Deskripsi...'}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
                 )}
               </div>
