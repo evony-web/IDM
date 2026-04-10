@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
           clubId: true,
           rankings: { select: { wins: true, losses: true, points: true } },
           club: { select: { id: true, name: true, slug: true, logoUrl: true } },
+          seasonPoints: { select: { season: true, points: true }, orderBy: { season: 'asc' } },
         },
         orderBy: { points: 'desc' },
         take: 100,

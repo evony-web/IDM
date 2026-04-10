@@ -478,8 +478,8 @@ export default function IDOLMETAApp() {
   const handleEnterDivision = useCallback((div: 'male' | 'female') => {
     setDivision(div);
     setView('app');
-    // Shorter loading when coming from landing page
-    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1500));
+    // Quick spinner when coming from landing page
+    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 600));
  Promise.all([
       fetchData(false, false),
       minLoadingTime
@@ -526,8 +526,8 @@ export default function IDOLMETAApp() {
       // Initial mount - fetch data with loading indicator
       isInitialMount.current = false;
       
-      // Minimum 3 seconds loading screen for better UX
-      const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
+      // Minimum 1 second spinner for data loading
+      const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1000));
       
       Promise.all([
         fetchData(false, false),
@@ -994,8 +994,8 @@ export default function IDOLMETAApp() {
       />
 
       {/* ═════════════════════════════════════════════════════════════════════
-          🐉 iOS APPLE PREMIUM LOADING SCREEN (Optimized for Mid-Range Devices)
-          Lightweight animations, no heavy blur/glow effects
+          Simple Loading Spinner — lightweight indicator for division transition
+          Not a full loading screen, just a subtle centered spinner
           ═════════════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {isInitialLoading && (
@@ -1003,140 +1003,28 @@ export default function IDOLMETAApp() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
-            style={{ background: division === 'male' ? '#000000' : 'linear-gradient(135deg, #FDF8F5 0%, #FEF3EC 25%, #F9EBE5 50%, #F7E5EE 75%, #F5F0F8 100%)' }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+            style={{ background: 'rgba(0,0,0,0.3)' }}
           >
-            {/* Dragon Scale Pattern Background */}
-            <div
-              className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='${division === 'male' ? 'rgba(115,255,0' : 'rgba(220,180,200'},0.12)' stroke-width='0.5'/%3E%3C/svg%3E")`,
-                backgroundSize: '60px 60px',
-              }}
-            />
-
-            {/* Subtle Accent Glow - Static, no animation */}
-            <div
-              className="absolute w-[300px] h-[300px] rounded-full opacity-20"
-              style={{
-                background: division === 'male'
-                  ? 'radial-gradient(circle, rgba(115, 255, 0, 0.15) 0%, transparent 70%)'
-                  : 'radial-gradient(circle, rgba(255, 182, 172, 0.20) 0%, transparent 70%)',
-              }}
-            />
-
-            {/* Card Container - Solid background, no blur */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="relative z-10 flex flex-col items-center px-8 py-10 rounded-3xl"
-              style={{
-                background: division === 'male' ? 'rgba(10, 15, 13, 0.85)' : 'rgba(255, 255, 255, 0.85)',
-                border: `1px solid ${division === 'male' ? 'rgba(115, 255, 0, 0.1)' : 'rgba(220, 180, 200, 0.20)'}`,
-                boxShadow: division === 'male' ? '0 8px 24px rgba(0, 0, 0, 0.5)' : '0 8px 32px rgba(200, 150, 170, 0.15), 0 2px 8px rgba(200, 150, 170, 0.10)',
-              }}
-            >
-              {/* Logo - WebP with lazy loading from Cloudinary CDN */}
-              <motion.img
-                src={IDM_LOGO_URL}
-                alt="IDM Logo"
-                loading="lazy"
-                decoding="async"
-                className="w-32 md:w-44 h-auto"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              />
-
-              {/* Brand Text */}
-              <motion.p
-                className="text-[12px] md:text-[14px] tracking-[0.2em] uppercase font-semibold mt-4"
-                style={{
-                  color: division === 'male' ? '#73FF00' : '#38BDF8',
-                }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative w-10 h-10">
+                <div
+                  className="absolute inset-0 rounded-full animate-spin"
+                  style={{
+                    border: '2.5px solid transparent',
+                    borderTopColor: division === 'male' ? '#73FF00' : '#38BDF8',
+                    borderRightColor: division === 'male' ? 'rgba(115,255,0,0.25)' : 'rgba(56,189,248,0.25)',
+                  }}
+                />
+              </div>
+              <span
+                className="text-[11px] font-medium tracking-wider"
+                style={{ color: division === 'male' ? '#73FF00' : '#38BDF8' }}
               >
-                FAN MADE EDITION
-              </motion.p>
-
-              {/* Cool Loading Spinner - Framer Motion animated */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.5 }}
-                className="mt-8 flex flex-col items-center"
-              >
-                {/* Spinner with Framer Motion */}
-                <div className="relative w-12 h-12">
-                  {/* Outer ring */}
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{
-                      border: '2px solid transparent',
-                      borderTopColor: division === 'male' ? '#73FF00' : '#38BDF8',
-                      borderRightColor: division === 'male' ? 'rgba(115, 255, 0, 0.3)' : 'rgba(56, 189, 248, 0.3)',
-                    }}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                  />
-                  {/* Inner ring - opposite direction */}
-                  <motion.div
-                    className="absolute inset-2 rounded-full"
-                    style={{
-                      border: '1.5px solid transparent',
-                      borderBottomColor: division === 'male' ? '#73FF00' : '#38BDF8',
-                      borderLeftColor: division === 'male' ? 'rgba(115, 255, 0, 0.2)' : 'rgba(56, 189, 248, 0.2)',
-                    }}
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                  />
-                  {/* Center dot */}
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: division === 'male' ? '#73FF00' : '#38BDF8' }}
-                    />
-                  </motion.div>
-                </div>
-                <p
-                  className={`mt-5 text-[11px] tracking-wider ${division === 'male' ? 'text-white/50' : 'text-black/50'}`}
-                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}
-                >
-                  Loading...
-                </p>
-              </motion.div>
-            </motion.div>
-
-            {/* Footer */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.6 }}
-              className="absolute bottom-6 left-0 right-0 z-10 flex flex-col items-center"
-            >
-              <p
-                className="text-[11px] md:text-[13px] font-bold tracking-[0.15em] uppercase"
-                style={{
-                  background: 'linear-gradient(135deg, #ffd700 0%, #ffec8b 50%, #ffd700 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                Borneo Pride
-              </p>
-              <span className={`mt-1 text-[9px] tracking-widest ${division === 'male' ? 'text-white/40' : 'text-black/40'}`}>
-                © 2026
+                Memuat...
               </span>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

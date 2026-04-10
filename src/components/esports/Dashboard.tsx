@@ -1436,18 +1436,36 @@ export function Dashboard({
                       )}
                     </div>
 
-                    {/* Points */}
-                    <span
-                      className="text-[12px] sm:text-[13px] font-bold tabular-nums shrink-0"
-                      style={{
-                        background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                      }}
-                    >
-                      {player.points.toLocaleString()}
-                    </span>
+                    {/* Points + Season Breakdown */}
+                    <div className="text-right shrink-0">
+                      <span
+                        className="text-[12px] sm:text-[13px] font-bold tabular-nums"
+                        style={{
+                          background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text',
+                        }}
+                      >
+                        {player.points.toLocaleString()}
+                      </span>
+                      {player.seasonPoints && player.seasonPoints.length > 0 && (
+                        <div className="flex items-center gap-0.5 justify-end mt-0.5 flex-wrap">
+                          {player.seasonPoints.map((sp: { season: number; points: number }) => (
+                            <span
+                              key={sp.season}
+                              className="text-[6px] font-semibold px-0.5 rounded"
+                              style={{
+                                background: isLight ? 'rgba(56,189,248,0.08)' : 'rgba(115,255,0,0.08)',
+                                color: isLight ? 'rgba(56,189,248,0.5)' : 'rgba(115,255,0,0.5)',
+                              }}
+                            >
+                              S{sp.season}:{sp.points}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
               </motion.div>

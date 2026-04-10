@@ -20,6 +20,11 @@ import { useMemo, useState, useCallback } from 'react';
    Interfaces — preserved from parent component
    ================================================================ */
 
+interface SeasonPoint {
+  season: number;
+  points: number;
+}
+
 interface Player {
   id: string;
   name: string;
@@ -31,6 +36,7 @@ interface Player {
   rank: number;
   wins: number;
   losses: number;
+  seasonPoints?: SeasonPoint[];
 }
 
 interface LeaderboardProps {
@@ -264,6 +270,24 @@ function PodiumCard({
             </div>
           )}
 
+          {/* Season Points Breakdown */}
+          {player?.seasonPoints && player.seasonPoints.length > 0 && (
+            <div className="flex items-center gap-1 justify-center mt-1.5 flex-wrap">
+              {player.seasonPoints.map((sp) => (
+                <span
+                  key={sp.season}
+                  className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                  style={{
+                    background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                    color: division === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)',
+                  }}
+                >
+                  S{sp.season}:{sp.points}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Rank Badge */}
           <div
             className={`mx-auto mt-2.5 w-8 h-8 lg:w-11 lg:h-11 rounded-full flex items-center justify-center font-black text-xs lg:text-sm bg-gradient-to-br ${rankBadgeGradient} ${rankBadgeText}`}
@@ -403,12 +427,28 @@ function PlayerRow({
           </div>
         </div>
 
-        {/* Points — gradient text */}
+        {/* Points — gradient text + season breakdown */}
         <div className="text-right flex-shrink-0">
           <p className={`font-bold text-sm tabular-nums ${accent.gradient}`}>
             {player.points.toLocaleString()}
           </p>
           <p className="text-[10px] text-white/35 font-medium mt-0.5">poin</p>
+          {player.seasonPoints && player.seasonPoints.length > 0 && (
+            <div className="flex items-center gap-1 justify-end mt-1 flex-wrap">
+              {player.seasonPoints.map((sp) => (
+                <span
+                  key={sp.season}
+                  className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                  style={{
+                    background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                    color: division === 'male' ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
+                  }}
+                >
+                  S{sp.season}:{sp.points}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

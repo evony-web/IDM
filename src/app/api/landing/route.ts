@@ -48,6 +48,7 @@ export async function GET() {
           points: true,
           isMVP: true,
           mvpScore: true,
+          seasonPoints: { select: { season: true, points: true }, orderBy: { season: 'asc' } },
         },
         orderBy: { points: 'desc' },
         take: 10,
@@ -88,6 +89,7 @@ export async function GET() {
           points: true,
           isMVP: true,
           mvpScore: true,
+          seasonPoints: { select: { season: true, points: true }, orderBy: { season: 'asc' } },
         },
         orderBy: { points: 'desc' },
         take: 10,
@@ -231,6 +233,7 @@ export async function GET() {
           isMVP: u.isMVP,
           mvpScore: u.mvpScore,
           gender,
+          seasonPoints: u.seasonPoints || [],
         })),
         tournament: currentTournament ? {
           name: currentTournament.name,

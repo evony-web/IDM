@@ -41,6 +41,11 @@ interface LandingPageProps {
   preloadedData?: LandingData | null;
 }
 
+interface SeasonPoint {
+  season: number;
+  points: number;
+}
+
 interface TopPlayer {
   id?: string;
   rank: number;
@@ -51,6 +56,7 @@ interface TopPlayer {
   isMVP?: boolean;
   mvpScore?: number;
   gender: 'male' | 'female';
+  seasonPoints?: SeasonPoint[];
 }
 
 interface TournamentInfo {
@@ -771,7 +777,7 @@ function PlayerRow({
         <p className="text-[10px] text-white/35">Tier {player.tier}</p>
       </div>
 
-      {/* Points */}
+      {/* Points + Season Breakdown */}
       <div className="text-right flex-shrink-0">
         <p
           className="text-[13px] font-bold"
@@ -785,6 +791,22 @@ function PlayerRow({
           {player.points.toLocaleString()}
         </p>
         <p className="text-[9px] text-white/30">pts</p>
+        {player.seasonPoints && player.seasonPoints.length > 0 && (
+          <div className="flex items-center gap-0.5 justify-end mt-0.5 flex-wrap">
+            {player.seasonPoints.map((sp) => (
+              <span
+                key={sp.season}
+                className="text-[6px] font-semibold px-0.5 rounded"
+                style={{
+                  background: `rgba(${accent},0.08)`,
+                  color: `rgba(${accent},0.5)`,
+                }}
+              >
+                S{sp.season}:{sp.points}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1157,6 +1179,13 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <div className="mt-2 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'linear-gradient(135deg, #C7C7CC, #8E8E93)', color: '#1C1C1E' }}>2</div>
                     <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[1].name}</p>
                     <p className="text-[10px] font-bold" style={{ color: allPlayers[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[1].points.toLocaleString()} pts</p>
+                    {allPlayers[1].seasonPoints && allPlayers[1].seasonPoints.length > 0 && (
+                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                        {allPlayers[1].seasonPoints.map(sp => (
+                          <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* 1st Place */}
@@ -1176,6 +1205,13 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <div className="mt-2 w-11 h-11 rounded-lg flex items-center justify-center text-sm font-black" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000', boxShadow: '0 0 12px rgba(255,215,0,0.3)' }}>1</div>
                     <p className="text-[12px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{allPlayers[0].name}</p>
                     <p className="text-[11px] font-bold" style={{ color: allPlayers[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[0].points.toLocaleString()} pts</p>
+                    {allPlayers[0].seasonPoints && allPlayers[0].seasonPoints.length > 0 && (
+                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                        {allPlayers[0].seasonPoints.map(sp => (
+                          <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* 3rd Place */}
@@ -1192,6 +1228,13 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <div className="mt-2 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }}>3</div>
                     <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[2].name}</p>
                     <p className="text-[10px] font-bold" style={{ color: allPlayers[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[2].points.toLocaleString()} pts</p>
+                    {allPlayers[2].seasonPoints && allPlayers[2].seasonPoints.length > 0 && (
+                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                        {allPlayers[2].seasonPoints.map(sp => (
+                          <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1240,8 +1283,26 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                         </div>
                         <p className="text-[10px] text-white/35">Tier {player.tier}</p>
                       </div>
-                      {/* Points */}
-                      <span className="text-[12px] font-bold shrink-0" style={{ color: '#FFD700' }}>{player.points.toLocaleString()}</span>
+                      {/* Points + Season Breakdown */}
+                      <div className="text-right shrink-0">
+                        <span className="text-[12px] font-bold" style={{ color: '#FFD700' }}>{player.points.toLocaleString()}</span>
+                        {player.seasonPoints && player.seasonPoints.length > 0 && (
+                          <div className="flex items-center gap-1 justify-end mt-0.5 flex-wrap">
+                            {player.seasonPoints.map((sp) => (
+                              <span
+                                key={sp.season}
+                                className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                                style={{
+                                  background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                                  color: isMale ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
+                                }}
+                              >
+                                S{sp.season}:{sp.points}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   );
                 })}
@@ -1340,7 +1401,7 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
               <p className="text-[10px] text-white/35">Tier {player.tier}</p>
             </div>
 
-            {/* Points */}
+            {/* Points + Season Breakdown */}
             <div className="text-right flex-shrink-0">
               <p
                 className="text-[13px] font-bold"
@@ -1354,6 +1415,23 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
                 {player.points.toLocaleString()}
               </p>
               <p className="text-[9px] text-white/30">pts</p>
+              {/* Season breakdown */}
+              {player.seasonPoints && player.seasonPoints.length > 0 && (
+                <div className="flex items-center gap-1 justify-end mt-0.5 flex-wrap">
+                  {player.seasonPoints.map((sp) => (
+                    <span
+                      key={sp.season}
+                      className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                      style={{
+                        background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                        color: isMale ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
+                      }}
+                    >
+                      S{sp.season}:{sp.points}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );

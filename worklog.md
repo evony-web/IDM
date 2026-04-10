@@ -299,3 +299,43 @@ Stage Summary:
 - YouTube audio download was not possible due to bot detection - placeholder tone used instead
 - User can replace /public/loading_tone.mp3 with their own audio file (e.g., GFRIEND FINGERTIP chorus)
 - The audio file is looped, so a longer clip would work well for the ~1.8s loading duration
+
+---
+Task ID: 9
+Agent: Main Agent
+Task: Remove division loading screen, replace with simple spinner + Integrate season points with leaderboard
+
+Work Log:
+- Replaced the full "iOS Apple Premium Loading Screen" on division navigation (page.tsx lines 996-1142) with a simple centered loading spinner overlay
+  - Full loading screen had: logo, brand text, spinner animation, footer, pattern background
+  - New simple spinner: just a spinning circle + "Memuat..." text on semi-transparent overlay
+  - Uses `pointer-events-none` so user can still see content behind it
+  - No more full-screen blocking loading screen between landing and division
+- Reduced minimum loading time from 1500ms → 600ms when entering division from landing page
+- Reduced initial mount loading time from 3000ms → 1000ms (no longer needs long splash screen feel)
+- Added SeasonPoint interface and seasonPoints field to all relevant types:
+  - TopPlayer interface in LandingPage.tsx
+  - Player interface in Leaderboard.tsx
+  - User interface in store.ts
+- Updated landing API (/api/landing/route.ts) to include seasonPoints in user queries:
+  - Added `seasonPoints: { select: { season: true, points: true }, orderBy: { season: 'asc' } }` to both male and female user queries
+  - Added `seasonPoints: u.seasonPoints || []` to processDivision output
+- Updated init API (/api/init/route.ts) to include seasonPoints in user query
+- Updated all leaderboard displays to show season points breakdown:
+  - LandingPage: PlayerRow component (DivisionCard top 5 players)
+  - LandingPage: PlayerList component (leaderboard preview top 7)
+  - LandingPage: Top 3 podium in modal (Semua Peringkat)
+  - LandingPage: Remaining players list in modal (rank 4+)
+  - Leaderboard.tsx: PlayerRow component (rank 4+ players)
+  - Leaderboard.tsx: PodiumCard component (top 3 players)
+  - Dashboard.tsx: Mini leaderboard player list
+- Season points display format: compact badges "S1:100 S2:200" under the total points
+- Colors: male = green accent, female = blue accent (matches division theme)
+- Verified lint passes with no new errors
+
+Stage Summary:
+- Division transition: Full loading screen replaced with lightweight spinner overlay
+- Loading times reduced: 1500ms → 600ms (landing→division), 3000ms → 1000ms (initial mount)
+- Season points now visible in ALL leaderboard displays (landing page, modal, app leaderboard, dashboard)
+- Season points format: small badges showing "S{season}:{points}" under the total points column
+- Data flows: Landing API + Init API both now include seasonPoints per user

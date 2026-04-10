@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 
+interface SeasonPoint {
+  season: number;
+  points: number;
+}
+
 interface User {
   id: string;
   name: string;
@@ -12,6 +17,7 @@ interface User {
   mvpScore?: number;
   clubId?: string | null;
   city?: string | null;
+  seasonPoints?: SeasonPoint[];
 }
 
 interface Tournament {
