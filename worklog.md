@@ -79,3 +79,36 @@ Stage Summary:
 - Dashboard: leaderboard players, champion members, and MVP cards are now clickable → opens PlayerProfilePage overlay
 - Registration form: upload menu removed, only name is required to submit
 - PlayerProfilePage shows with large circular avatar, player info, stats, achievements, match history
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Points logic change (MVP no match points, participation +1, win +2) + Banner team name "Tim {Tier S}" + Push to GitHub
+
+Work Log:
+- Modified `awardMatchPoints()` in `src/app/api/matches/route.ts`:
+  - MVP is now EXCLUDED from all match points (participation +1 and win +2)
+  - MVP only gets points from tournament finalization (prize pool / member count)
+  - `allParticipantIds` filters out `mvpUserId`
+  - `winnerMemberIdsNoMvp` array created for win points without MVP
+  - Loss tracking also skips MVP
+- Modified `ChampionCarouselBanner` in `src/components/esports/LandingPage.tsx`:
+  - Extracted IIFE team name logic into standalone `getChampionTeamName()` helper function
+  - Removed "Champion" fallback text (now returns empty string)
+  - Added fallback: uses `playerName` with "Tim" prefix if no tierSPlayerName/teamName
+  - Removed JSX comment between ternary branches that caused parsing error
+  - Fixed JSX parsing error at line 2388 ("Expected '</>', got 'initial'")
+- Verified finalize route (`tournaments/finalize/route.ts`) already correctly:
+  - Uses prize-based point system (prize / team_members / 1000)
+  - MVP gets `prizeMvp` based points at finalization
+  - Champion, runner-up, third place get prize-based points
+- Committed all changes and pushed to GitHub (`https://github.com/evony-web/IDM`)
+  - Used provided GitHub token for authentication
+  - Push successful: `87a0b7d..dd4502c main -> main`
+
+Stage Summary:
+- Match points: participation +1 (non-MVP), win +2 (non-MVP), MVP gets 0 match points
+- MVP points only come from tournament finalization (prize pool / member count logic)
+- Banner team name shows "Tim {Tier S player name}" format, no "Champion" fallback
+- Fixed JSX parsing error in LandingPage.tsx
+- Successfully pushed all changes to GitHub for Vercel deployment
