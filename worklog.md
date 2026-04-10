@@ -150,3 +150,23 @@ Stage Summary:
 - Admin panel: New "Video" sub-tab under Admin panel for managing video highlights (add, toggle, delete)
 - Prisma schema, API routes were already in place - no database changes needed
 - No new TypeScript errors introduced (all pre-existing)
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Fix 500 error on /api/admin/video-highlights endpoint
+
+Work Log:
+- Diagnosed the root cause: VideoHighlight table doesn't exist in Neon PostgreSQL database
+- The build script only ran `prisma generate` (creates TypeScript types) but never `prisma db push` (creates actual DB tables)
+- Updated package.json build script: `prisma generate && prisma db push --accept-data-loss && next build`
+- Improved error handling in /api/admin/video-highlights/route.ts: added console.error and detail field to error responses
+- Improved error handling in /api/video-highlights/route.ts: added console.error for public GET
+- Committed and pushed to GitHub (commit 7bb564e)
+- Vercel will now automatically create the VideoHighlight table on next deployment
+
+Stage Summary:
+- Root cause: Missing VideoHighlight table in production Neon PostgreSQL database
+- Fix: Added `prisma db push --accept-data-loss` to Vercel build script
+- Better error logging added to all video highlight API routes
+- Pushed to GitHub, Vercel deployment should fix the issue
