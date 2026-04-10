@@ -833,8 +833,10 @@ export function TopBar({
                   </button>
                 </div>
 
-                {/* Notification Bell */}
-                <NotificationPanel division={division} />
+                {/* Notification Bell — hidden on mobile, visible on md+ */}
+                <div className="hidden md:block">
+                  <NotificationPanel division={division} />
+                </div>
 
                 {/* Admin Button */}
                 <motion.button
