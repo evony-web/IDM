@@ -56,3 +56,26 @@ Stage Summary:
 - Professional description removed from Tier field
 - Total Points row removed from Player Information section
 - All decorative elements scaled proportionally with the larger avatar
+---
+Task ID: 2
+Agent: Main Agent
+Task: Make Dashboard player cards clickable + Remove upload from registration form
+
+Work Log:
+- Added `onPlayerClick?: (playerId: string) => void` to DashboardProps interface
+- Added `onPlayerClick` to Dashboard function destructured props
+- Made leaderboard player rows clickable: added onClick handler and cursor-pointer class
+- Made champion members clickable: added onClick, whileHover, whileTap, and hover styles
+- Made MVP card clickable: added onClick, whileHover, whileTap, and cursor-pointer
+- Wired up onPlayerClick in page.tsx: `onPlayerClick={(playerId) => setAppProfileId(playerId)}`
+- This reuses the existing PlayerProfilePage overlay (same as Leaderboard tab uses)
+- Removed avatar upload (ImageUploader) from Tournament registration form
+- Removed "Upload avatar untuk melanjutkan pendaftaran" message
+- Updated submit button: disabled only when name is empty (not avatar)
+- Updated handleRegister: no longer requires avatarUrl, sends empty string if no avatar
+- Removed unused imports: Sparkles, ImageUploader from Tournament.tsx
+
+Stage Summary:
+- Dashboard: leaderboard players, champion members, and MVP cards are now clickable → opens PlayerProfilePage overlay
+- Registration form: upload menu removed, only name is required to submit
+- PlayerProfilePage shows with large circular avatar, player info, stats, achievements, match history

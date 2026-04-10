@@ -7,9 +7,7 @@ import {
   Check,
   Users,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react';
-import { ImageUploader } from '@/components/esports/ImageUploader';
 
 interface Registration {
   id: string;
@@ -97,8 +95,8 @@ export function TournamentTab({
   );
 
   const handleRegister = () => {
-    if (registerName.trim() && avatarUrl) {
-      onRegister(registerName.trim(), registerPhone.trim(), avatarUrl, registerCity.trim(), registerClub.trim() || undefined);
+    if (registerName.trim()) {
+      onRegister(registerName.trim(), registerPhone.trim(), avatarUrl || '', registerCity.trim(), registerClub.trim() || undefined);
       setRegisterName('');
       setRegisterPhone('');
       setRegisterCity('');
@@ -249,29 +247,13 @@ export function TournamentTab({
                   </div>
                 </div>
 
-                {/* ── Divider ── */}
-                <div className="divider" />
-
-                {/* ── Step 2: Avatar Upload ── */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-[11px] text-white/40 mb-2 uppercase tracking-wider font-semibold">
-                    <Sparkles className={`w-3 h-3 ${isMale ? 'text-[#73FF00]' : 'text-[#38BDF8]'}`} />
-                    Avatar <span className="text-purple-400/60">*</span>
-                  </label>
-                  <ImageUploader
-                    division={division}
-                    onUpload={(url) => setAvatarUrl(url || null)}
-                    currentImage={avatarUrl}
-                  />
-                </div>
-
                 {/* ── Submit ── */}
                 <motion.button
                   onClick={handleRegister}
                   className={`${btnClass} btn-ios w-full py-3.5 text-[14px] flex items-center justify-center gap-2 disabled:opacity-40 hero-shimmer-btn relative overflow-hidden`}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
-                  disabled={!registerName.trim() || !avatarUrl}
+                  disabled={!registerName.trim()}
                 >
                   <span className="relative z-[2] flex items-center gap-2">
                     <UserPlus className="w-[18px] h-[18px]" />
@@ -279,12 +261,6 @@ export function TournamentTab({
                     <ChevronRight className="w-[16px] h-[16px]" />
                   </span>
                 </motion.button>
-
-                {!avatarUrl && (
-                  <p className="text-[11px] text-white/30 text-center -mt-1">
-                    Upload avatar untuk melanjutkan pendaftaran
-                  </p>
-                )}
               </motion.div>
             )}
 
