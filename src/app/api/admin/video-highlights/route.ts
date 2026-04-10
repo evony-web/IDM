@@ -13,8 +13,9 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ success: true, data: highlights });
-  } catch {
-    return NextResponse.json({ success: false, error: 'Failed to fetch video highlights' }, { status: 500 });
+  } catch (error) {
+    console.error('[VideoHighlights] GET error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch video highlights', detail: String(error) }, { status: 500 });
   }
 }
 
@@ -53,8 +54,9 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: highlight });
-  } catch {
-    return NextResponse.json({ success: false, error: 'Failed to create video highlight' }, { status: 500 });
+  } catch (error) {
+    console.error('[VideoHighlights] POST error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to create video highlight', detail: String(error) }, { status: 500 });
   }
 }
 
@@ -98,8 +100,9 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: highlight });
-  } catch {
-    return NextResponse.json({ success: false, error: 'Failed to update video highlight' }, { status: 500 });
+  } catch (error) {
+    console.error('[VideoHighlights] PUT error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to update video highlight', detail: String(error) }, { status: 500 });
   }
 }
 
@@ -119,8 +122,9 @@ export async function DELETE(request: NextRequest) {
     await db.videoHighlight.delete({ where: { id } });
 
     return NextResponse.json({ success: true, message: 'Video highlight deleted' });
-  } catch {
-    return NextResponse.json({ success: false, error: 'Failed to delete video highlight' }, { status: 500 });
+  } catch (error) {
+    console.error('[VideoHighlights] DELETE error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to delete video highlight', detail: String(error) }, { status: 500 });
   }
 }
 

@@ -17,7 +17,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ success: true, data: highlights });
-  } catch {
+  } catch (error) {
+    console.error('[VideoHighlights] Public GET error:', error);
     return NextResponse.json({ success: false, data: [] });
   }
 }
