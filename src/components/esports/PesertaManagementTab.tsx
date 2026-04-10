@@ -429,7 +429,7 @@ export function PesertaManagementTab({
                     <div className="relative flex-shrink-0">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                         {editForm.avatar ? (
-                          <img src={editForm.avatar} alt="" loading="lazy" className="w-full h-full object-cover" />
+                          <img src={editForm.avatar} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
                         ) : (
                           <span className="text-lg font-bold text-white/70">{editForm.name[0]}</span>
                         )}
@@ -566,7 +566,7 @@ export function PesertaManagementTab({
                   <div className="relative flex-shrink-0">
                     <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                       {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} loading="lazy" className="w-full h-full object-cover" />
+                        <img src={user.avatar} alt={user.name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
                         <span className="text-sm font-bold text-white/70">{user.name[0]}</span>
                       )}
@@ -678,7 +678,7 @@ export function PesertaManagementTab({
                 <div className="flex items-center gap-2 mb-4 p-2.5 rounded-xl bg-white/5">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                     {mvpUser.avatar ? (
-                      <img src={mvpUser.avatar} alt={mvpUser.name} loading="lazy" className="w-full h-full object-cover" />
+                      <img src={mvpUser.avatar} alt={mvpUser.name} loading="lazy" className="w-full h-full object-cover object-top" />
                     ) : (
                       <span className="text-sm font-bold text-white/70">{mvpUser.name[0]}</span>
                     )}

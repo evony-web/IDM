@@ -245,7 +245,7 @@ function TeamCard({
           <div key={member.id} className="flex items-center gap-2.5">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
               {member.user.avatar ? (
-                <img src={member.user.avatar} alt={member.user.name} loading="lazy" className="w-full h-full object-cover" />
+                <img src={member.user.avatar} alt={member.user.name} loading="lazy" className="w-full h-full object-cover object-top" />
               ) : (
                 <span className={`text-xs font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{member.user.name.charAt(0)}</span>
               )}
@@ -431,7 +431,7 @@ function GFMatchCard({
                 <p className={`text-[13px] font-bold truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>{match.mvp.name}</p>
               </div>
               {match.mvp.avatar && (
-                <img src={match.mvp.avatar} alt={match.mvp.name} loading="lazy" className="w-8 h-8 rounded-full object-cover border-2 border-amber-400/30" />
+                <img src={match.mvp.avatar} alt={match.mvp.name} loading="lazy" className="w-8 h-8 rounded-full object-cover object-top border-2 border-amber-400/30" />
               )}
             </div>
           </div>
@@ -1104,7 +1104,7 @@ export function GrandFinal({
                       <div className={accent.ring}>
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                           {player.avatar ? (
-                            <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover" />
+                            <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
                           ) : (
                             <span className={`text-xs font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{player.name.charAt(0)}</span>
                           )}

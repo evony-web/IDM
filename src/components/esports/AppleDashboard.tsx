@@ -324,7 +324,7 @@ export function AppleDashboard({
                 {/* Avatar */}
                 <div className="apple-leaderboard-avatar bg-gradient-to-br from-gray-600 to-gray-800">
                   {player.avatar ? (
-                    <img src={player.avatar} alt={player.name} className="w-full h-full object-cover rounded-xl" />
+                    <img src={player.avatar} alt={player.name} className="w-full h-full object-cover object-top rounded-xl" />
                   ) : (
                     <span className="text-sm font-bold text-white/70">{player.name.charAt(0)}</span>
                   )}

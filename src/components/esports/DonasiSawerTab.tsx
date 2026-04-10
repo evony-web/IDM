@@ -726,7 +726,7 @@ export function DonasiSawerTab({
                         <div className={avatarRingClass}>
                           <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                             {sawer.senderAvatar ? (
-                              <img src={sawer.senderAvatar} alt={sawer.senderName} loading="lazy" className="w-full h-full object-cover" />
+                              <img src={sawer.senderAvatar} alt={sawer.senderName} loading="lazy" className="w-full h-full object-cover object-top" />
                             ) : (
                               <span className="text-sm font-bold text-white/70">{sawer.senderName[0]}</span>
                             )}
@@ -873,7 +873,7 @@ export function DonasiSawerTab({
                       {donation.anonymous || (!donation.user?.avatar && !donation.donorName) ? (
                         <Heart className="w-4 h-4 text-white/40" />
                       ) : donation.user?.avatar ? (
-                        <img src={donation.user.avatar} alt={donation.user.name} loading="lazy" className="w-full h-full object-cover" />
+                        <img src={donation.user.avatar} alt={donation.user.name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
                         <span className="text-sm font-bold text-white/70">{(donation.donorName || 'A')[0]}</span>
                       )}
@@ -1731,7 +1731,7 @@ export function DonasiSawerTab({
                               <img
                                 src={proofPreviewUrl}
                                 alt="Bukti pembayaran"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover object-top"
                               />
                             </div>
                             <div className="flex-1 min-w-0">

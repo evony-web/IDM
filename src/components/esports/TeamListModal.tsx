@@ -211,7 +211,7 @@ export function TeamListModal({
                                   <img
                                     src={member.user.avatar}
                                     alt={member.user.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-top"
                                   />
                                 ) : (
                                   <span className="text-xs font-semibold text-white/70">

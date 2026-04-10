@@ -335,7 +335,7 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
                   <img
                     src={player.avatar}
                     alt={player.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                 ) : (
                   <span className="text-4xl font-bold text-white/70">
@@ -392,7 +392,7 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
                 <img
                   src={player.club.logoUrl}
                   alt={player.club.name}
-                  className="w-5 h-5 rounded-full object-cover"
+                  className="w-5 h-5 rounded-full object-cover object-top"
                 />
               ) : (
                 <Building2 className="w-4 h-4 text-white/40" />

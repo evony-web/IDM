@@ -158,7 +158,7 @@ export function ImageUploader({ division, onUpload, currentImage, className = ''
                   <img
                     src={previewUrl}
                     alt="Avatar preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                   {isUploading && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">

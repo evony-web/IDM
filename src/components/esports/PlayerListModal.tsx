@@ -200,7 +200,7 @@ function PlayerListModal({ isOpen, onOpenChange, players, division }: PlayerList
                         <div className={`${avatarRingClass} flex-shrink-0`}>
                           <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                             {player.avatar ? (
-                              <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover" />
+                              <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
                             ) : (
                               <span className="text-[15px] font-bold text-white/70">{player.name[0]}</span>
                             )}

@@ -302,7 +302,7 @@ export default function PlayerProfileModal() {
                             <img
                               src={profile.avatar}
                               alt={profile.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover object-top"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                                 const fallback = (e.target as HTMLImageElement).nextElementSibling;

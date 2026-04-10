@@ -135,7 +135,7 @@ export function AllRankingsModal({
                         <div className={avatarRingClass}>
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                             {players[1].avatar ? (
-                              <img src={players[1].avatar} alt={players[1].name} loading="lazy" className="w-full h-full object-cover" />
+                              <img src={players[1].avatar} alt={players[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
                             ) : (
                               <span className="text-sm font-bold text-white/70">{players[1].name.charAt(0)}</span>
                             )}
@@ -169,7 +169,7 @@ export function AllRankingsModal({
                         <div className={avatarRingClass}>
                           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                             {players[0].avatar ? (
-                              <img src={players[0].avatar} alt={players[0].name} loading="lazy" className="w-full h-full object-cover" />
+                              <img src={players[0].avatar} alt={players[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
                             ) : (
                               <span className="text-base font-bold text-white/70">{players[0].name.charAt(0)}</span>
                             )}
@@ -202,7 +202,7 @@ export function AllRankingsModal({
                         <div className={avatarRingClass}>
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                             {players[2].avatar ? (
-                              <img src={players[2].avatar} alt={players[2].name} loading="lazy" className="w-full h-full object-cover" />
+                              <img src={players[2].avatar} alt={players[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
                             ) : (
                               <span className="text-sm font-bold text-white/70">{players[2].name.charAt(0)}</span>
                             )}
@@ -259,7 +259,7 @@ export function AllRankingsModal({
                       <div className={avatarRingClass}>
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                           {player.avatar ? (
-                            <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover" />
+                            <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
                           ) : (
                             <span className="text-xs font-bold text-white/70">{player.name.charAt(0)}</span>
                           )}

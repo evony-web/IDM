@@ -534,7 +534,7 @@ export function PlayerManagementScreen({
                                   <img
                                     src={reg.user.avatar}
                                     alt={reg.user.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-top"
                                   />
                                 ) : (
                                   <span className="text-sm font-bold text-white/70">

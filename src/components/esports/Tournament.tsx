@@ -282,7 +282,7 @@ export function TournamentTab({
                       <div className={avatarRingClass}>
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                           {reg.avatar ? (
-                            <img src={reg.avatar} alt={reg.name} loading="lazy" className="w-full h-full object-cover" />
+                            <img src={reg.avatar} alt={reg.name} loading="lazy" className="w-full h-full object-cover object-top" />
                           ) : (
                             <span className="font-semibold text-white/70 text-sm">{reg.name[0]}</span>
                           )}
@@ -336,7 +336,7 @@ export function TournamentTab({
                       <div className={avatarRingClass}>
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                           {reg.avatar ? (
-                            <img src={reg.avatar} alt={reg.name} loading="lazy" className="w-full h-full object-cover" />
+                            <img src={reg.avatar} alt={reg.name} loading="lazy" className="w-full h-full object-cover object-top" />
                           ) : (
                             <span className="font-semibold text-white/70 text-xs">{reg.name[0]}</span>
                           )}

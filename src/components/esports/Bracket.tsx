@@ -1382,7 +1382,7 @@ function MPLChampionSlot({ winnerTeam, division, mvpUser }: {
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
                     {mvpUser.avatar ? (
-                      <img src={mvpUser.avatar} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      <img src={mvpUser.avatar} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
                     ) : (
                       <span className="text-xs font-bold text-white/70">{mvpUser.name.charAt(0)}</span>
                     )}
@@ -1528,7 +1528,7 @@ function GroupStandingsTable({ standings, division, groupName }: {
                     className={`w-6 h-6 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0 ${isQualified ? (division === 'male' ? 'avatar-ring-gold' : 'avatar-ring-pink') : ''}`}
                   >
                     {s.avatar ? (
-                      <img src={s.avatar} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      <img src={s.avatar} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
                     ) : (
                       <span className="text-[9px] font-bold text-white/60">{s.teamName.charAt(0)}</span>
                     )}

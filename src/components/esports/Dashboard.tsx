@@ -759,7 +759,7 @@ export function Dashboard({
                           <div className={avatarRingClass}>
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                               {member.userAvatar ? (
-                                <img src={member.userAvatar} alt={member.userName} loading="lazy" className="w-full h-full object-cover" />
+                                <img src={member.userAvatar} alt={member.userName} loading="lazy" className="w-full h-full object-cover object-top" />
                               ) : (
                                 <span className={`text-sm font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{member.userName.charAt(0)}</span>
                               )}
@@ -831,7 +831,7 @@ export function Dashboard({
                           >
                             <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-orange-100 to-orange-200' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                               {mvp.userAvatar ? (
-                                <img src={mvp.userAvatar} alt={mvp.userName} loading="lazy" className="w-full h-full object-cover" />
+                                <img src={mvp.userAvatar} alt={mvp.userName} loading="lazy" className="w-full h-full object-cover object-top" />
                               ) : (
                                 <span className={`text-base font-bold ${isLight ? 'text-orange-600' : 'text-white/70'}`}>{mvp.userName.charAt(0)}</span>
                               )}
@@ -1048,7 +1048,7 @@ export function Dashboard({
                   <div className={avatarRingClass}>
                     <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                       {topPlayers[1]?.avatar ? (
-                        <img src={topPlayers[1].avatar} alt={topPlayers[1].name} loading="lazy" className="w-full h-full object-cover" />
+                        <img src={topPlayers[1].avatar} alt={topPlayers[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
                         <span className={`text-lg font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[1]?.name?.charAt(0) || '?'}</span>
                       )}
@@ -1102,7 +1102,7 @@ export function Dashboard({
                   <div className={avatarRingClass}>
                     <div className={`w-16 h-16 sm:w-[72px] sm:h-[72px] lg:w-24 lg:h-24 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                       {topPlayers[0]?.avatar ? (
-                        <img src={topPlayers[0].avatar} alt={topPlayers[0].name} loading="lazy" className="w-full h-full object-cover" />
+                        <img src={topPlayers[0].avatar} alt={topPlayers[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
                         <span className={`text-xl font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[0]?.name?.charAt(0) || '?'}</span>
                       )}
@@ -1152,7 +1152,7 @@ export function Dashboard({
                   <div className={avatarRingClass}>
                     <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                       {topPlayers[2]?.avatar ? (
-                        <img src={topPlayers[2].avatar} alt={topPlayers[2].name} loading="lazy" className="w-full h-full object-cover" />
+                        <img src={topPlayers[2].avatar} alt={topPlayers[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
                         <span className={`text-lg font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[2]?.name?.charAt(0) || '?'}</span>
                       )}
@@ -1419,7 +1419,7 @@ export function Dashboard({
                     <div className={avatarRingClass}>
                       <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
                         {player.avatar ? (
-                          <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover" />
+                          <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
                         ) : (
                           <span className="text-[10px] font-semibold text-white/70">{player.name[0]}</span>
                         )}
@@ -1634,7 +1634,7 @@ export function Dashboard({
                                 {/* Member avatar */}
                                 <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden shrink-0 ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                                   {member.avatar ? (
-                                    <img src={member.avatar} alt={member.name} loading="lazy" className="w-full h-full object-cover" />
+                                    <img src={member.avatar} alt={member.name} loading="lazy" className="w-full h-full object-cover object-top" />
                                   ) : (
                                     <span className={`text-[10px] font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{member.name[0]}</span>
                                   )}

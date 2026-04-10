@@ -476,7 +476,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                         <img
                           src={profile.avatar}
                           alt={profile.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-top"
                         />
                       ) : (
                         <span className="text-7xl sm:text-8xl font-black" style={{ color: `${accentColor}88` }}>
@@ -537,7 +537,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                       <img
                         src={profile.club.logoUrl}
                         alt={profile.club.name}
-                        className="w-5 h-5 rounded object-cover"
+                        className="w-5 h-5 rounded object-cover object-top"
                       />
                     ) : (
                       <Building2 className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.40)' }} />

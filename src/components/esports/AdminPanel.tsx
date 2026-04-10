@@ -1619,7 +1619,7 @@ export function AdminPanel({
                                       >
                                         <div className="w-5 h-5 rounded-full bg-white/[0.06] flex items-center justify-center overflow-hidden">
                                           {member.user?.avatar ? (
-                                            <img src={member.user.avatar} alt="" loading="lazy" className="w-full h-full object-cover" />
+                                            <img src={member.user.avatar} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
                                           ) : (
                                             <span className="text-[8px] font-bold text-white/60">{member.user?.name?.[0]}</span>
                                           )}
@@ -2317,7 +2317,7 @@ export function AdminPanel({
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     {payment.fromAvatar ? (
                                       <div className="w-7 h-7 rounded-full overflow-hidden bg-white/[0.05] shrink-0">
-                                        <img src={payment.fromAvatar} alt={payment.from} loading="lazy" className="w-full h-full object-cover" />
+                                        <img src={payment.fromAvatar} alt={payment.from} loading="lazy" className="w-full h-full object-cover object-top" />
                                       </div>
                                     ) : (
                                       <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0">
@@ -2595,7 +2595,7 @@ export function AdminPanel({
                                     <img
                                       src={club.logoUrl}
                                       alt={club.name}
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-full object-cover object-top"
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).style.display = 'none';
                                         (e.target as HTMLImageElement).parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}">${club.name.slice(0, 2).toUpperCase()}</div>`;
@@ -2796,7 +2796,7 @@ export function AdminPanel({
                                   <img
                                     src={bannerMaleUrl}
                                     alt="Male Champion Preview"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-top"
                                   />
                                 ) : (
                                   <div className="w-full h-full flex flex-col items-center justify-center gap-2">
@@ -2830,7 +2830,7 @@ export function AdminPanel({
                                   <img
                                     src={bannerFemaleUrl}
                                     alt="Female Champion Preview"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-top"
                                   />
                                 ) : (
                                   <div className="w-full h-full flex flex-col items-center justify-center gap-2">
@@ -2957,7 +2957,7 @@ export function AdminPanel({
                                 {/* Avatar */}
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${isSuperAdmin ? 'ring-2 ring-amber-400/30' : ''}`}>
                                   {admin.avatar ? (
-                                    <img src={admin.avatar} alt={admin.name} loading="lazy" className="w-full h-full object-cover" />
+                                    <img src={admin.avatar} alt={admin.name} loading="lazy" className="w-full h-full object-cover object-top" />
                                   ) : (
                                     <div className={`w-full h-full flex items-center justify-center ${isSuperAdmin ? 'bg-amber-500/15' : 'bg-white/[0.05]'}`}>
                                       {isSuperAdmin ? <Crown className="w-5 h-5 text-amber-400" /> : <span className="text-sm font-bold text-white/50">{admin.name[0]}</span>}

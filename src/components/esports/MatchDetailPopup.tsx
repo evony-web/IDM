@@ -362,7 +362,7 @@ export function MatchDetailPopup({ match, division, isOpen, onClose, tournamentN
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
                           {mvpPlayer.avatar ? (
-                            <img src={mvpPlayer.avatar} alt={mvpPlayer.userName} className="w-full h-full object-cover" />
+                            <img src={mvpPlayer.avatar} alt={mvpPlayer.userName} className="w-full h-full object-cover object-top" />
                           ) : (
                             <span className="text-[10px] font-bold text-white/70">{mvpPlayer.userName.charAt(0)}</span>
                           )}
@@ -517,7 +517,7 @@ function TeamDetailCard({
             >
               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
                 {player.avatar ? (
-                  <img src={player.avatar} alt={player.userName} className="w-full h-full object-cover" />
+                  <img src={player.avatar} alt={player.userName} className="w-full h-full object-cover object-top" />
                 ) : (
                   <span className="text-[8px] font-bold text-white/70">{player.userName.charAt(0)}</span>
                 )}

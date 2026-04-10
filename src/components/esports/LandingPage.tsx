@@ -1232,7 +1232,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
                 <img
                   src={club.logoUrl}
                   alt={club.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top"
                   loading="lazy"
                 />
               ) : (
@@ -2323,7 +2323,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                     <img
                       src={currentSlide.bannerUrl}
                       alt={`${currentSlide.division} Champion`}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover object-top"
                     />
                     {/* Gradient overlays */}
                     <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.90) 0%, rgba(5,5,7,0.30) 40%, rgba(5,5,7,0.20) 60%, rgba(5,5,7,0.40) 100%)' }} />
@@ -2369,7 +2369,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                           }}
                         >
                           {currentSlide.champion.playerAvatar ? (
-                            <img src={currentSlide.champion.playerAvatar} alt={currentSlide.champion.playerName || ''} className="w-full h-full object-cover" />
+                            <img src={currentSlide.champion.playerAvatar} alt={currentSlide.champion.playerName || ''} className="w-full h-full object-cover object-top" />
                           ) : (
                             <span className="text-lg sm:text-xl md:text-3xl font-black" style={{ color: currentSlide.accentHex }}>
                               {(currentSlide.champion.tierSPlayerName || currentSlide.champion.playerName || currentSlide.champion.teamName || '?').charAt(0).toUpperCase()}

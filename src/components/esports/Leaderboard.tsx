@@ -207,7 +207,7 @@ function PodiumCard({
           className={`rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden ${avatarSizeClass}`}
         >
           {player?.avatar ? (
-            <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover" />
+            <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
           ) : (
             <span
               className={`font-bold text-white/70 ${rank === 1 ? 'text-2xl lg:text-4xl' : rank === 2 ? 'text-xl lg:text-3xl' : 'text-lg lg:text-2xl'}`}
@@ -373,7 +373,7 @@ function PlayerRow({
         <div className={accent.ring}>
           <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-11 lg:h-11 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
             {player.avatar ? (
-              <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover" />
+              <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
             ) : (
               <span className="text-xs font-bold text-white/70">{player.name.charAt(0)}</span>
             )}
