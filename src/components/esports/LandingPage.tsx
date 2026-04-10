@@ -1212,7 +1212,7 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                         {player.rank}
                       </div>
                       {/* Avatar */}
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden" style={{ border: `1.5px solid ${isMale ? 'rgba(115,255,0,0.20)' : 'rgba(56,189,248,0.20)'}` }>
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden" style={{ border: isMale ? '1.5px solid rgba(115,255,0,0.20)' : '1.5px solid rgba(56,189,248,0.20)' }}>
                         {player.avatar ? (
                           <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
                         ) : (
@@ -1223,7 +1223,7 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-[13px] font-semibold truncate" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name}</p>
-                          <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)', color: isMale ? '#73FF00' : '#38BDF8', border: `1px solid ${isMale ? 'rgba(115,255,0,0.18)' : 'rgba(56,189,248,0.18)'}` }}>{isMale ? 'M' : 'F'}</span>
+                          <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)', color: isMale ? '#73FF00' : '#38BDF8', border: isMale ? '1px solid rgba(115,255,0,0.18)' : '1px solid rgba(56,189,248,0.18)' }}>{isMale ? 'M' : 'F'}</span>
                           {player.isMVP && <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}>MVP</span>}
                         </div>
                         <p className="text-[10px] text-white/35">Tier {player.tier}</p>
