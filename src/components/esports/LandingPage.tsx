@@ -2151,12 +2151,12 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
 
   const hasAnyContent = slides.some(s => s.bannerUrl || s.champion);
 
-  // Auto-rotate every 5 seconds
+  // Auto-rotate every 9 seconds
   useEffect(() => {
     if (isPaused || !hasAnyContent) return;
     intervalRef.current = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % slides.length);
-    }, 5000);
+    }, 9000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
