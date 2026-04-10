@@ -427,7 +427,7 @@ export async function GET() {
           createdAt: true,
           tournament: { select: { division: true } },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { amount: 'desc' },
         take: 10,
       }),
       // Activity logs - club transfers and other events
