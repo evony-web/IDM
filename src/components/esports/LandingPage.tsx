@@ -2318,18 +2318,6 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                       transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       className="flex flex-col items-center text-center"
                     >
-                      {/* Division Label — smaller on mobile, center-bottom like desktop */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
-                        <div className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full" style={{ background: `rgba(${currentSlide.accent},0.10)`, border: `1px solid rgba(${currentSlide.accent},0.20)`, backdropFilter: 'blur(8px)' }}>
-                          <span className="text-[8px] sm:text-[10px] md:text-[11px] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase" style={{ color: currentSlide.accentHex }}>{currentSlide.label}</span>
-                        </div>
-                        {currentSlide.champion.tournamentWeek && (
-                          <div className="px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)' }}>
-                            <span className="text-[8px] sm:text-[10px] font-bold text-yellow-400/70">Week {currentSlide.champion.tournamentWeek}</span>
-                          </div>
-                        )}
-                      </div>
-
                       {/* Crown Icon */}
                       <motion.div
                         animate={{ y: [0, -4, 0], rotate: [0, -3, 3, 0] }}
