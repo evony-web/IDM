@@ -237,3 +237,31 @@ Stage Summary:
 - Admin CRUD API: /api/admin/player-seasons (GET/POST/DELETE)
 - Public read API: /api/player-seasons (GET by userId)
 - Database table will be created on next Vercel deployment (prisma db push in build script)
+
+---
+Task ID: 7
+Agent: Main Agent
+Task: Add X button to leaderboard modal + PlayerSeason model + API + UI
+
+Work Log:
+- Added close (X) button to leaderboard modal header in LandingPage.tsx
+- Added PlayerSeason model to Prisma schema with userId, season (Int), points (Int), unique constraint on [userId, season]
+- Added seasonPoints relation to User model
+- Created /api/admin/player-seasons/route.ts with GET (by userId or all), POST (upsert), DELETE
+- Created /api/player-seasons/route.ts (public GET by userId)
+- Added season points management UI in PesertaManagementTab.tsx:
+  - Collapsible "Points Per Season" panel in player edit form
+  - Add new season: input season number + points + Add button
+  - List existing seasons with delete (X) button
+  - Auto-fetches season data when editing a player
+- Added season points display in PlayerProfileModal.tsx:
+  - Compact horizontal badges layout (S1: 200, S2: 150, etc.)
+  - Only shows if season data exists
+  - Fetched from /api/player-seasons public endpoint
+- Committed and pushed to GitHub (commit 4900560)
+
+Stage Summary:
+- Leaderboard modal now has X close button
+- PlayerSeason database model created (table will be auto-created on Vercel deploy via prisma db push)
+- Admin can add/edit/delete season points per player from Peserta tab edit mode
+- Player profile shows season points as compact horizontal badges
