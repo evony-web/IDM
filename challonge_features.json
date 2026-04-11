@@ -1,0 +1,23 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "external": {},
+    "html": "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>\n    <meta content=\"text/html;charset=utf-8\" http-equiv=\"Content-Type\">\n    <title>The page you're looking for isn't here (404) - Challonge</title>\n    <link class=\"challonge_stylesheet\" href=\"https://assets.challonge.com/assets/application.css\" media=\"all\" rel=\"stylesheet\" type=\"text/css\">\n    <meta name=\"xsplit:config-url\" content=\"https://challonge.com/xsplit_plugin_config\">\n  </head>\n  <body>\n    <div class=\"container\">\n      <div class=\"row\">\n        <div class=\"col-sm-14 col-sm-offset-5 text-center\">\n          <br><br>\n          <a href=\"https://challonge.com\">\n            <img src=\"https://assets.challonge.com/assets/logo_challonge_dark.svg\" style=\"width:270px;\">\n          </a>\n          <a href=\"https://youtu.be/NDkuucSWVWw?t=1m6s\" target=\"_blank\">\n            <h3>The page you're looking for isn't here.</h3>\n          </a>\n          <hr>\n          You may have mistyped the address or the page may have moved.\n          If you know the name of the tournament you're looking for, you can <a href=\"/tournaments\">search for it</a>.\n        </div>\n      </div>\n    </div>\n    <script type=\"text/javascript\">\n      if (navigator.userAgent.indexOf(\"XSplit Broadcaster\") > 0) {\n        var head = document.getElementsByTagName('head')[0];\n        var js = document.createElement(\"script\");\n\n        js.type = \"text/javascript\";\n        js.src = \"https://assets.challonge.com/assets/xsplit_plugin_config.js\";\n        head.appendChild(js);\n\n        js = document.createElement(\"script\");\n        js.type = \"text/javascript\";\n        js.src = \"https://assets.challonge.com/assets/xsplit_stream_overlay.js\";\n        head.appendChild(js);\n      }\n    </script>\n  <script defer=\"\" src=\"https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516\" integrity=\"sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==\" data-cf-beacon=\"{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;229c3d3791134c3cb313c6d7841b3f22&quot;,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}\" crossorigin=\"anonymous\"></script>\n<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML=\"window.__CF$cv$params={r:'9ea918152d5e76ec',t:'MTc3NTkwMTEwMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);\";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height=\"1\" width=\"1\" style=\"position: absolute; top: 0px; left: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; visibility: hidden;\"></iframe>\n\n</body></html>",
+    "metadata": {
+      "xsplit:config-url": "https://challonge.com/xsplit_plugin_config"
+    },
+    "title": "The page you're looking for isn't here (404)",
+    "url": "https://challonge.com/features",
+    "usage": {
+      "tokens": 975
+    },
+    "warning": "Target URL returned error 404: Not Found"
+  },
+  "meta": {
+    "usage": {
+      "tokens": 975
+    }
+  },
+  "status": 20000
+}

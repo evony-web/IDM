@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,20 +7,73 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Tournament {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @default("")
+  format      String   @default("single_elimination") // single_elimination, double_elimination, round_robin, swiss
+  status      String   @default("pending") // pending, in_progress, completed
+  gameName    String   @default("")
+  isPublic    Boolean  @default(true)
+  seeded      Boolean  @default(false)
+  thirdPlace  Boolean  @default(false) // include 3rd place match
+  randomize   Boolean  @default(false)
+  maxParticipants Int   @default(64)
+  swissRounds Int      @default(3)
+  groupIdSize Int      @default(4) // for group stage
+  holdThirdPlaceMatch Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participants Participant[]
+  matches      Match[]
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Participant {
+  id           String   @id @default(cuid())
+  tournamentId String
+  name         String
+  seed         Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournament     Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  matchPlayer1   Match[]    @relation("MatchPlayer1")
+  matchPlayer2   Match[]    @relation("MatchPlayer2")
+  matchWinner    Match[]    @relation("MatchWinner")
+
+  @@index([tournamentId])
+}
+
+model Match {
+  id                String   @id @default(cuid())
+  tournamentId      String
+  round             Int      @default(1)
+  position          Int      @default(0) // position within the round
+  bracket           String   @default("winners") // winners, losers, grand_finals
+  player1Id         String?
+  player2Id         String?
+  score1            Int      @default(0)
+  score2            Int      @default(0)
+  winnerId          String?
+  status            String   @default("pending") // pending, in_progress, completed
+  nextMatchId       String?  // match where winner advances to
+  nextMatchPosition String?  // "player1" or "player2" - which slot in next match
+  isThirdPlace      Boolean  @default(false)
+  order             Int      @default(0) // display order
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tournament  Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player1     Participant? @relation("MatchPlayer1", fields: [player1Id], references: [id])
+  player2     Participant? @relation("MatchPlayer2", fields: [player2Id], references: [id])
+  winner      Participant? @relation("MatchWinner", fields: [winnerId], references: [id])
+  nextMatch   Match?       @relation("MatchAdvance", fields: [nextMatchId], references: [id])
+  prevMatches Match[]      @relation("MatchAdvance")
+
+  @@index([tournamentId])
+  @@index([round])
+  @@index([bracket])
 }

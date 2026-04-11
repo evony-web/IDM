@@ -1,0 +1,27 @@
+{
+  "name": "Brackito - Tournament Manager",
+  "short_name": "Brackito",
+  "description": "Create and manage tournaments with ease. Single/Double Elimination, Round Robin, Swiss formats supported.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#10b981",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "entertainment", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Create Tournament",
+      "short_name": "Create",
+      "url": "/?action=create",
+      "icons": [{ "src": "/icon-512.png", "sizes": "512x512" }]
+    }
+  ]
+}
