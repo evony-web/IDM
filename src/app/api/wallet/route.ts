@@ -1,19 +1,22 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
+import { requirePlayerAuth } from '@/lib/session'
 
-// GET /api/wallet?userId=xxx
-// Get user's wallet (auto-create if not exists) with last 50 transactions
+// GET /api/wallet
+// Get authenticated user's wallet (auto-create if not exists) with last 50 transactions
+// Session-based: uses NextAuth httpOnly cookie for authentication
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-
-    if (!userId) {
+    // Verify session — user must be authenticated
+    const session = await requirePlayerAuth()
+    if (!session) {
       return NextResponse.json(
-        { success: false, error: 'userId is required' },
-        { status: 400 }
+        { success: false, error: 'Akses ditolak. Silakan login terlebih dahulu.' },
+        { status: 401 }
       )
     }
+
+    const userId = session.user.id
 
     // Verify user exists
     const user = await db.user.findUnique({ where: { id: userId } })
@@ -68,15 +71,27 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/wallet
-// Top up wallet (admin/system)
+// Top up wallet — requires authentication (session-based)
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { userId, amount, category = 'topup', description } = body
-
-    if (!userId || amount === undefined || amount === null) {
+    // Verify session
+    const session = await requirePlayerAuth()
+    if (!session) {
       return NextResponse.json(
-        { success: false, error: 'userId and amount are required' },
+        { success: false, error: 'Akses ditolak. Silakan login terlebih dahulu.' },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { amount, category = 'topup', description } = body
+
+    // Use session user ID — ignore any userId from the request body for security
+    const userId = session.user.id
+
+    if (amount === undefined || amount === null) {
+      return NextResponse.json(
+        { success: false, error: 'Amount is required' },
         { status: 400 }
       )
     }

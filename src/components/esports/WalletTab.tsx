@@ -181,13 +181,18 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
       return;
     }
     try {
-      const res = await fetch(`/api/wallet?userId=${currentUserId}`);
+      // Session-based: no userId in URL — server reads from httpOnly cookie
+      const res = await fetch('/api/wallet');
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
           setWallet(data.wallet);
           setTransactions(data.transactions || []);
         }
+      } else if (res.status === 401) {
+        // Session expired or invalid — clear local state
+        setWallet(null);
+        setTransactions([]);
       }
     } catch { /* silent */ }
     setIsLoading(false);
@@ -240,11 +245,11 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
     if (!currentUserId || !topupAmount || Number(topupAmount) <= 0) return;
     setIsToppingUp(true);
     try {
+      // Session-based: no userId in body — server reads from httpOnly cookie
       const res = await fetch('/api/wallet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: currentUserId,
           amount: Number(topupAmount),
           category: 'topup',
           description: topupDesc || `Top up ${topupAmount} poin`,
@@ -256,6 +261,8 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         setTopupAmount('');
         setTopupDesc('');
         await fetchWallet();
+      } else if (res.status === 401) {
+        onLogout?.();
       }
     } catch { /* silent */ }
     setIsToppingUp(false);
@@ -265,11 +272,11 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
     if (!currentUserId || !transferTarget || !transferAmount || Number(transferAmount) <= 0) return;
     setIsTransferring(true);
     try {
+      // Session-based: senderId comes from httpOnly cookie, not request body
       const res = await fetch('/api/wallet/transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          senderId: currentUserId,
           receiverId: transferTarget,
           amount: Number(transferAmount),
           reason: transferReason || undefined,
@@ -285,6 +292,8 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         setSelectedUser(null);
         setSearchUsers([]);
         await fetchWallet();
+      } else if (res.status === 401) {
+        onLogout?.();
       }
     } catch { /* silent */ }
     setIsTransferring(false);

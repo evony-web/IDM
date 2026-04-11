@@ -185,21 +185,16 @@ interface AppState {
 let storedAdminAuth = false;
 let storedAdminUser = null;
 let storedPlayer: PlayerAuthUser | null = null;
+// Player auth is now managed by NextAuth (httpOnly cookies)
+// No longer reading from localStorage — session is verified server-side
 if (typeof localStorage !== 'undefined') {
-  // Restore player auth
+  // Clean up old localStorage data if it exists
   try {
     const playerRaw = localStorage.getItem('idm_player_auth');
     if (playerRaw) {
-      const parsed = JSON.parse(playerRaw);
-      if (parsed && parsed.id && parsed.name) {
-        storedPlayer = parsed;
-      } else {
-        localStorage.removeItem('idm_player_auth');
-      }
+      localStorage.removeItem('idm_player_auth');
     }
-  } catch {
-    localStorage.removeItem('idm_player_auth');
-  }
+  } catch { /* silent */ }
   try {
     storedAdminAuth = localStorage.getItem('idm_admin_auth') === 'true';
     const raw = localStorage.getItem('idm_admin_user');
@@ -271,15 +266,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   adminUser: storedAdminUser,
   currentPlayer: storedPlayer,
   loginPlayer: (user) => {
+    // Player session is now managed by NextAuth (httpOnly cookies)
+    // This just updates the Zustand state for UI reactivity
     set({ currentPlayer: user });
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('idm_player_auth', JSON.stringify(user));
-    }
   },
   logoutPlayer: () => {
     set({ currentPlayer: null });
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('idm_player_auth');
+    // Sign out from NextAuth to clear httpOnly cookie
+    if (typeof window !== 'undefined') {
+      import('next-auth/react').then(({ signOut }) => {
+        signOut({ redirect: false });
+      }).catch(() => { /* silent */ });
     }
   },
   currentUser: null,

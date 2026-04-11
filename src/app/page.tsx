@@ -4,6 +4,7 @@
 // Production build for Vercel deployment
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useAppStore } from '@/lib/store';
@@ -174,6 +175,33 @@ export default function IDOLMETAApp() {
   } = useAppStore();
 
   const { settings } = useAppSettings();
+
+  // ── NextAuth Session Sync ──
+  // Keep Zustand's currentPlayer in sync with the NextAuth session
+  const { data: session, status: sessionStatus } = useSession();
+
+  useEffect(() => {
+    if (sessionStatus === 'authenticated' && session?.user) {
+      // If session exists but store doesn't have the player, sync it
+      if (!currentPlayer || currentPlayer.id !== session.user.id) {
+        loginPlayer({
+          id: session.user.id,
+          name: session.user.name,
+          phone: session.user.phone || '',
+          gender: session.user.gender || 'male',
+          tier: session.user.tier || 'B',
+          points: session.user.points ?? 0,
+          avatar: session.user.avatar ?? null,
+          eloRating: session.user.eloRating ?? 1000,
+          eloTier: session.user.eloTier ?? 'Bronze',
+          clubId: session.user.clubId ?? null,
+        });
+      }
+    } else if (sessionStatus === 'unauthenticated' && currentPlayer) {
+      // Session expired but store still has player — clear it
+      logoutPlayer();
+    }
+  }, [sessionStatus, session, currentPlayer, loginPlayer, logoutPlayer]);
 
   // Track which sub-tab to show when donation tab opens
   const [donationDefaultTab, setDonationDefaultTab] = useState<'sawer' | 'donasi'>('sawer');
@@ -1159,7 +1187,10 @@ export default function IDOLMETAApp() {
             onOpenChange={setPlayerAuthOpen}
             onAuthSuccess={(user: PlayerUser) => {
               loginPlayer(user);
-              addToast(`Selamat datang, ${user.name}!`, 'success');
+              addToast(`Selamat datang, ${user.name}! Sesi aman aktif.`, 'success');
+            }}
+            onSessionAuthSuccess={() => {
+              // NextAuth session is now active — UI will sync via useSession hook
             }}
           />
 

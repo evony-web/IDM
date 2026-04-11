@@ -248,7 +248,7 @@ export function Navigation({ activeTab, onTabChange, division, currentPlayer, on
           />
 
           <div className="relative flex items-center justify-around px-2 py-2">
-            {/* ── Left group: Home, Discover ── */}
+            {/* ── Left group: Home, Tournament ── */}
             {mobileNavItems.slice(0, 2).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;

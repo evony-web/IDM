@@ -1,17 +1,30 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
+import { requirePlayerAuth } from '@/lib/session'
 
 // POST /api/wallet/transfer
-// Transfer points between users
+// Transfer points between users — requires authentication
 export async function POST(request: NextRequest) {
   try {
+    // Verify session — sender must be authenticated
+    const session = await requirePlayerAuth()
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Akses ditolak. Silakan login terlebih dahulu.' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
-    const { senderId, receiverId, amount, reason } = body
+    const { receiverId, amount, reason } = body
+
+    // Sender is always the authenticated user — ignore any senderId from request body
+    const senderId = session.user.id
 
     // Validate required fields
-    if (!senderId || !receiverId || amount === undefined || amount === null) {
+    if (!receiverId || amount === undefined || amount === null) {
       return NextResponse.json(
-        { success: false, error: 'senderId, receiverId, and amount are required' },
+        { success: false, error: 'receiverId and amount are required' },
         { status: 400 }
       )
     }
@@ -27,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Cannot transfer to self
     if (senderId === receiverId) {
       return NextResponse.json(
-        { success: false, error: 'Cannot transfer to yourself' },
+        { success: false, error: 'Tidak dapat transfer ke diri sendiri' },
         { status: 400 }
       )
     }
@@ -47,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     if (!receiver) {
       return NextResponse.json(
-        { success: false, error: 'Receiver not found' },
+        { success: false, error: 'Penerima tidak ditemukan' },
         { status: 404 }
       )
     }
@@ -70,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Check sufficient balance
     if (senderWallet.balance < amount) {
       return NextResponse.json(
-        { success: false, error: 'Insufficient balance' },
+        { success: false, error: 'Saldo tidak mencukupi' },
         { status: 400 }
       )
     }
@@ -96,8 +109,8 @@ export async function POST(request: NextRequest) {
           amount,
           category: 'transfer',
           description: reason
-            ? `Transfer to ${receiver.name}: ${reason}`
-            : `Transfer to ${receiver.name}`,
+            ? `Transfer ke ${receiver.name}: ${reason}`
+            : `Transfer ke ${receiver.name}`,
           referenceId: transfer.id,
         },
       })
@@ -110,8 +123,8 @@ export async function POST(request: NextRequest) {
           amount,
           category: 'transfer',
           description: reason
-            ? `Transfer from ${sender.name}: ${reason}`
-            : `Transfer from ${sender.name}`,
+            ? `Transfer dari ${sender.name}: ${reason}`
+            : `Transfer dari ${sender.name}`,
           referenceId: transfer.id,
         },
       })

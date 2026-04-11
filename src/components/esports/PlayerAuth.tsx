@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { signIn } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -14,6 +15,7 @@ import {
   UserPlus,
   X,
   Gamepad2,
+  ShieldCheck,
 } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -38,6 +40,8 @@ interface PlayerAuthProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onAuthSuccess: (user: PlayerUser) => void;
+  /** Called after successful NextAuth sign-in (session is managed by NextAuth) */
+  onSessionAuthSuccess?: () => void;
 }
 
 type AuthMode = 'daftar' | 'masuk';
@@ -106,6 +110,7 @@ export function PlayerAuth({
   isOpen,
   onOpenChange,
   onAuthSuccess,
+  onSessionAuthSuccess,
 }: PlayerAuthProps) {
   /* ── Division accent colors ── */
   const isMale = division === 'male';
@@ -216,6 +221,7 @@ export function PlayerAuth({
     setIsSubmitting(true);
 
     try {
+      // Step 1: Create account via /api/player-auth
       const res = await fetch('/api/player-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -239,14 +245,28 @@ export function PlayerAuth({
 
       /* ── Success messages ── */
       if (data.isNewAccount) {
-        setSuccessMsg('Akun baru berhasil dibuat! Wallet telah disiapkan.');
+        setSuccessMsg('Akun berhasil dibuat! Memverifikasi sesi...');
       } else if (data.isNewLink) {
-        setSuccessMsg('Akun berhasil dikaitkan dengan data yang sudah ada!');
+        setSuccessMsg('Akun berhasil dikaitkan! Memverifikasi sesi...');
       } else {
-        setSuccessMsg('Pendaftaran berhasil!');
+        setSuccessMsg('Pendaftaran berhasil! Memverifikasi sesi...');
       }
 
-      /* ── Build PlayerUser from response ── */
+      // Step 2: Auto-login via NextAuth (sets httpOnly cookie)
+      const result = await signIn('player-credentials', {
+        phone: trimmedPhone,
+        pin,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Sesi gagal dibuat. Silakan login manual.');
+        triggerShake();
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 3: Build PlayerUser from signup response for backward compat
       const user: PlayerUser = {
         id: data.user.id,
         name: data.user.name,
@@ -263,6 +283,7 @@ export function PlayerAuth({
       /* ── Brief delay to show success message, then close ── */
       setTimeout(() => {
         onAuthSuccess(user);
+        onSessionAuthSuccess?.();
         closeModal();
       }, 1200);
     } catch {
@@ -273,7 +294,7 @@ export function PlayerAuth({
     }
   };
 
-  /* ── Login submit ── */
+  /* ── Login submit — uses NextAuth for secure httpOnly session ── */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -301,40 +322,62 @@ export function PlayerAuth({
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/player-auth', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: trimmedPhone, pin: loginPin, division }),
+      // Use NextAuth signIn — validates server-side, sets httpOnly cookie
+      const result = await signIn('player-credentials', {
+        phone: trimmedPhone,
+        pin: loginPin,
+        redirect: false,
       });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Login gagal. Periksa nomor HP dan PIN.');
+      if (result?.error) {
+        // Map NextAuth error to user-friendly messages
+        let errorMsg = 'Login gagal. Periksa nomor HP dan PIN.';
+        if (result.error === 'Nomor HP tidak terdaftar') {
+          errorMsg = 'Nomor HP tidak terdaftar';
+        } else if (result.error === 'PIN salah') {
+          errorMsg = 'PIN salah';
+        } else if (result.error === 'Akun belum memiliki PIN. Silakan daftar terlebih dahulu.') {
+          errorMsg = 'Akun belum memiliki PIN. Silakan daftar terlebih dahulu.';
+        }
+        setError(errorMsg);
         triggerShake();
         setIsSubmitting(false);
         return;
       }
 
-      setSuccessMsg('Login berhasil!');
+      setSuccessMsg('Login berhasil! Sesi aman dibuat.');
 
-      const user: PlayerUser = {
-        id: data.user.id,
-        name: data.user.name,
-        phone: data.user.phone || trimmedPhone,
-        gender: data.user.gender || division,
-        tier: data.user.tier || 'B',
-        points: data.user.points ?? 0,
-        avatar: data.user.avatar ?? null,
-        eloRating: data.user.eloRating ?? 1000,
-        eloTier: data.user.eloTier ?? 'Bronze',
-        clubId: data.user.clubId ?? null,
-      };
+      // Build PlayerUser from NextAuth session data
+      // We need to fetch the session to get user data
+      const sessionRes = await fetch('/api/auth/session');
+      const sessionData = await sessionRes.json();
 
-      setTimeout(() => {
-        onAuthSuccess(user);
-        closeModal();
-      }, 800);
+      if (sessionData?.user) {
+        const user: PlayerUser = {
+          id: sessionData.user.id,
+          name: sessionData.user.name,
+          phone: sessionData.user.phone || trimmedPhone,
+          gender: sessionData.user.gender || division,
+          tier: sessionData.user.tier || 'B',
+          points: sessionData.user.points ?? 0,
+          avatar: sessionData.user.avatar ?? null,
+          eloRating: sessionData.user.eloRating ?? 1000,
+          eloTier: sessionData.user.eloTier ?? 'Bronze',
+          clubId: sessionData.user.clubId ?? null,
+        };
+
+        setTimeout(() => {
+          onAuthSuccess(user);
+          onSessionAuthSuccess?.();
+          closeModal();
+        }, 800);
+      } else {
+        // Fallback: session not available yet, just close
+        setTimeout(() => {
+          onSessionAuthSuccess?.();
+          closeModal();
+        }, 800);
+      }
     } catch {
       setError('Terjadi kesalahan jaringan. Coba lagi.');
       triggerShake();

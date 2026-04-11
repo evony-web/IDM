@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import "./globals.css";
@@ -65,12 +66,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        <AppSettingsProvider>
-          <OfflineIndicator />
-          {children}
-          <ServiceWorkerRegistration />
-          <Toaster />
-        </AppSettingsProvider>
+        <AuthProvider>
+          <AppSettingsProvider>
+            <OfflineIndicator />
+            {children}
+            <ServiceWorkerRegistration />
+            <Toaster />
+          </AppSettingsProvider>
+        </AuthProvider>
       </body>
     </html>
   );
