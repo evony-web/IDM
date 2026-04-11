@@ -111,13 +111,25 @@ export default function PlayerProfileModal() {
     return () => { _listeners.delete(handler); };
   }, []);
 
-  // Fetch profile when playerId changes
+  // Fetch profile when playerId changes, clear when null
   useEffect(() => {
-    if (!playerId) return;
+    if (!playerId) {
+      // Use microtask to avoid synchronous setState in effect
+      queueMicrotask(() => {
+        setProfile(null);
+        setError(null);
+        setLoading(false);
+      });
+      return;
+    }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    // Use microtask to avoid synchronous setState in effect
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setLoading(true);
+      setError(null);
+    });
 
     fetch(`/api/users/profile?userId=${playerId}`)
       .then((r) => {
@@ -151,15 +163,6 @@ export default function PlayerProfileModal() {
       .catch(() => {});
 
     return () => { cancelled = true; };
-  }, [playerId]);
-
-  // Clear profile when modal closes
-  useEffect(() => {
-    if (!playerId) {
-      setProfile(null);
-      setError(null);
-      setLoading(false);
-    }
   }, [playerId]);
 
   // Escape key handler
