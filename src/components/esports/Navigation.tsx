@@ -17,6 +17,7 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { NotificationPanel } from '@/components/esports/NotificationPanel';
+import { CompactThemeToggle } from '@/components/esports/ThemeToggle';
 
 /* ────────────────────────────────────────────
    Types
@@ -382,6 +383,7 @@ export function Sidebar({
 }: TopBarProps) {
   const t = getThemeTokens(division);
   const isMale = division === 'male';
+  const { settings } = useAppSettings();
 
   return (
     <aside 
@@ -431,12 +433,12 @@ export function Sidebar({
           {/* Logo text - hidden on tablet */}
           <div className="hidden lg:flex flex-col leading-tight">
             <span className={`text-[15px] font-bold tracking-tight ${t.titleGradient}`}>
-              {useAppSettings().settings.app_name}
+              {settings.app_name}
             </span>
             <span className="text-[9px] font-medium tracking-wide"
               style={{ color: 'rgba(255,255,255,0.40)' }}
             >
-              {useAppSettings().settings.app_subtitle}
+              {settings.app_subtitle}
             </span>
           </div>
         </div>
@@ -608,6 +610,11 @@ export function Sidebar({
               </motion.span>
             )}
           </motion.button>
+
+          {/* Theme Toggle */}
+          <div className="flex justify-center lg:justify-start px-3">
+            <CompactThemeToggle division={division} />
+          </div>
         </div>
       </div>
     </aside>
@@ -729,6 +736,7 @@ export function TopBar({
 }: TopBarProps) {
   const t = getThemeTokens(division);
   const isMale = division === 'male';
+  const { settings } = useAppSettings();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 md:hidden">
@@ -794,10 +802,10 @@ export function TopBar({
 
                   <div className="flex flex-col leading-tight">
                     <span className={`text-[13px] font-bold tracking-tight ${t.titleGradient}`}>
-                      {useAppSettings().settings.app_name}
+                      {settings.app_name}
                     </span>
                     <span className="text-[8px] font-medium tracking-wide text-white/40">
-                      {useAppSettings().settings.app_subtitle}
+                      {settings.app_subtitle}
                     </span>
                   </div>
                 </div>
@@ -839,6 +847,9 @@ export function TopBar({
                 <div className="hidden md:block">
                   <NotificationPanel division={division} />
                 </div>
+
+                {/* Theme Toggle */}
+                <CompactThemeToggle division={division} />
 
                 {/* Admin Button */}
                 <motion.button

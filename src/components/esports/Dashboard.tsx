@@ -488,7 +488,7 @@ export function Dashboard({
               {onNavigate && (
                 <motion.button
                   onClick={(e) => { e.stopPropagation(); onNavigate('donation'); }}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer min-h-[36px]"
                   style={{
                     background: 'linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(220,38,38,0.06) 100%)',
                     border: '0.5px solid rgba(239,68,68,0.18)',
@@ -558,7 +558,7 @@ export function Dashboard({
                       <span>Seharusnya sudah dimulai</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Clock className={`w-4 h-4 ${accentColor} opacity-60`} />
                       <span className={`text-[11px] font-medium mr-1 ${isLight ? 'text-slate-400' : 'text-white/35'}`}>Dimulai dalam</span>
                       <div className="hero-countdown-block">
@@ -597,25 +597,25 @@ export function Dashboard({
 
               {/* ── Prize Pool + Participants — refined inline info bar ── */}
               {!showResults && (tournament?.prizePool || (registeredCount ?? tournament?.participants) > 0) && (
-                <div className="hero-info-bar mb-4" onClick={(e) => e.stopPropagation()}>
+                <div className="hero-info-bar mb-4 flex-wrap" onClick={(e) => e.stopPropagation()}>
                   {/* Prize Pool */}
-                  <div className="info-block">
+                  <div className="info-block min-w-0">
                     <div className={`info-block-icon ${isMale ? 'icon-gold' : 'icon-pink'}`}>
                       <Trophy className="w-3.5 h-3.5" />
                     </div>
-                    <div className="info-block-content">
-                      <span className={`info-block-value ${accentColor}`}>Rp {compactPrize(countPrize)}</span>
+                    <div className="info-block-content min-w-0">
+                      <span className={`info-block-value ${accentColor} truncate`}>Rp {compactPrize(countPrize)}</span>
                       <span className="info-block-label">Hadiah</span>
                     </div>
                   </div>
                   {/* Divider */}
-                  <div className="info-block-divider" />
+                  <div className="info-block-divider hidden sm:block" />
                   {/* Participants */}
-                  <div className="info-block">
+                  <div className="info-block min-w-0">
                     <div className={`info-block-icon ${isMale ? 'icon-gold' : 'icon-pink'}`}>
                       <Users className="w-3.5 h-3.5" />
                     </div>
-                    <div className="info-block-content">
+                    <div className="info-block-content min-w-0">
                       <span className={`info-block-value ${isLight ? 'text-slate-800' : 'text-white/90'}`}>{countParticipants}</span>
                       <span className="info-block-label">Peserta</span>
                     </div>
@@ -900,11 +900,11 @@ export function Dashboard({
           QUICK STATS — Performance Optimized
           Uses: .card-float .card-accent-line (lightweight for lists)
           ═══════════════════════════════════════════════════════════ */}
-      <motion.div variants={item} className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+      <motion.div variants={item} className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4 min-w-0">
         {/* PESERTA - Clickable card with modal */}
         <motion.button
           onClick={onViewPlayers}
-          className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden`}
+          className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden min-w-0 min-h-[44px]`}
           whileHover={{ scale: 1.04, y: -2 }}
           whileTap={{ scale: 0.96 }}
           transition={springTransition}
@@ -918,11 +918,11 @@ export function Dashboard({
                 : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
             }}
           />
-          <div className="relative z-10">
+          <div className="relative z-10 min-w-0">
             <div className={`w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 rounded-xl mx-auto mb-2 sm:mb-2.5 lg:mb-3 flex items-center justify-center ${accentSubtleBg}`}>
               <Users className={`w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 ${accentColor}`} />
             </div>
-            <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none`}>
+            <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none truncate`}>
               {countParticipants}
             </p>
             <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
@@ -941,7 +941,7 @@ export function Dashboard({
         {/* HADIAH - Clickable card with modal */}
         <motion.button
           onClick={onViewPrize}
-          className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden`}
+          className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden min-w-0 min-h-[44px]`}
           whileHover={{ scale: 1.04, y: -2 }}
           whileTap={{ scale: 0.96 }}
           transition={springTransition}
@@ -955,12 +955,12 @@ export function Dashboard({
                 : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
             }}
           />
-          <div className="relative z-10">
+          <div className="relative z-10 min-w-0">
             <div className={`w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 rounded-xl mx-auto mb-2 sm:mb-2.5 lg:mb-3 flex items-center justify-center ${accentSubtleBg}`}>
               <Trophy className={`w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 ${accentColor}`} />
             </div>
-            <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none`}>
-              Rp {countPrize.toLocaleString('id-ID')}
+            <p className={`text-[15px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none truncate`}>
+              Rp {compactPrize(countPrize)}
             </p>
             <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
               Hadiah
@@ -978,7 +978,7 @@ export function Dashboard({
         {/* TIM */}
         <motion.button
           onClick={onViewTeams}
-          className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden`}
+          className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden min-w-0 min-h-[44px]`}
           whileHover={{ scale: 1.04, y: -2 }}
           whileTap={{ scale: 0.96 }}
           transition={springTransition}
@@ -992,11 +992,11 @@ export function Dashboard({
                 : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
             }}
           />
-          <div className="relative z-10">
+          <div className="relative z-10 min-w-0">
             <div className={`w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 rounded-xl mx-auto mb-2 sm:mb-2.5 lg:mb-3 flex items-center justify-center ${accentSubtleBg}`}>
               <Swords className={`w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 ${accentColor}`} />
             </div>
-            <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none`}>
+            <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none truncate`}>
               {countTeams}
             </p>
             <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
@@ -1041,7 +1041,7 @@ export function Dashboard({
               </div>
 
               {/* Podium - 3 Cards */}
-              <div className="flex items-end justify-center gap-2 sm:gap-3 lg:gap-4">
+              <div className="flex items-end justify-center gap-2 sm:gap-3 lg:gap-4 overflow-x-auto">
                 {/* 2nd Place - Left */}
                 <div className="flex flex-col items-center flex-1 max-w-[90px] sm:max-w-[100px] lg:max-w-[120px]">
                   {/* Avatar */}
@@ -1196,7 +1196,7 @@ export function Dashboard({
               {/* Pulsing "Semua Peringkat" Button */}
               <motion.button
                 onClick={() => setAllRankingsModalOpen(true)}
-                className="w-full mt-5 py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden"
+                className="w-full mt-5 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden min-h-[44px]"
                 style={{
                   background: 'transparent',
                   border: `1px solid ${isMale ? 'rgba(255,214,10,0.1)' : 'rgba(56, 189, 248,0.1)'}`,
@@ -1239,7 +1239,7 @@ export function Dashboard({
           {/* Daftar */}
           <motion.button
             onClick={onRegister}
-            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group`}
+            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group min-h-[44px]`}
             whileHover={{ scale: 1.025, y: -3 }}
             whileTap={{ scale: 0.975 }}
             transition={springTransition}
@@ -1254,14 +1254,14 @@ export function Dashboard({
             >
               <UserPlus className={`w-4 h-4 sm:w-[18px] sm:h-[18px] ${accentColor}`} />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Daftar</p>
-            <p className={`text-[11px] mt-0.5 font-normal ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Gabung turnamen</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Daftar</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Gabung turnamen</p>
           </motion.button>
 
           {/* Bracket */}
           <motion.button
             onClick={() => onNavigate && onNavigate('bracket')}
-            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group`}
+            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group min-h-[44px]`}
             whileHover={{ scale: 1.025, y: -3 }}
             whileTap={{ scale: 0.975 }}
             transition={springTransition}
@@ -1274,14 +1274,14 @@ export function Dashboard({
             >
               <Swords className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-purple-400" />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Bracket</p>
-            <p className={`text-[11px] mt-0.5 font-normal ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Lihat pertandingan</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Bracket</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Lihat pertandingan</p>
           </motion.button>
 
           {/* Leaderboard */}
           <motion.button
             onClick={() => onNavigate && onNavigate('leaderboard')}
-            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group`}
+            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group min-h-[44px]`}
             whileHover={{ scale: 1.025, y: -3 }}
             whileTap={{ scale: 0.975 }}
             transition={springTransition}
@@ -1294,14 +1294,14 @@ export function Dashboard({
             >
               <BarChart3 className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-green-400" />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Leaderboard</p>
-            <p className={`text-[11px] mt-0.5 font-normal ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Pemain terbaik</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Leaderboard</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Pemain terbaik</p>
           </motion.button>
 
           {/* Total Donasi */}
           <motion.button
             onClick={() => onViewDonation && onViewDonation()}
-            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group`}
+            className={`${statsCardClass} rounded-2xl p-3 sm:p-4 text-left group min-h-[44px]`}
             whileHover={{ scale: 1.025, y: -3 }}
             whileTap={{ scale: 0.975 }}
             transition={springTransition}
@@ -1316,8 +1316,8 @@ export function Dashboard({
             >
               <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-purple-400" />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Total Donasi</p>
-            <p className={`text-[11px] mt-0.5 font-normal ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Dukung Season 2</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Total Donasi</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Dukung Season 2</p>
           </motion.button>
         </div>
       </motion.div>
@@ -1329,8 +1329,8 @@ export function Dashboard({
       {(hasPlayers || hasClubs || true) && (
         <motion.div variants={item}>
           {/* Section header with segmented tab */}
-          <div className="flex items-center justify-between px-1 mb-3">
-            <div className="flex items-center gap-1 bg-white/[0.06] rounded-lg p-0.5">
+          <div className="flex items-center justify-between px-1 mb-3 gap-2">
+            <div className="flex items-center gap-1 bg-white/[0.06] rounded-lg p-0.5 min-w-0">
               {([
                 { id: 'players' as const, label: 'PEMAIN TERBAIK', icon: Trophy },
                 { id: 'clubs' as const, label: 'CLUB TERBAIK', icon: Shield },
@@ -1338,7 +1338,7 @@ export function Dashboard({
                 <motion.button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold z-10"
+                  className="relative flex items-center gap-1.5 px-3 py-2 rounded-md text-[11px] font-semibold z-10 min-h-[36px]"
                   whileTap={{ scale: 0.97 }}
                 >
                   {leaderboardTab === tab.id && (
@@ -1382,7 +1382,7 @@ export function Dashboard({
           {leaderboardTab === 'players' && hasPlayers && (
             <>
               <motion.div
-                className="space-y-1.5 max-h-[420px] overflow-y-auto pr-0.5"
+                className="space-y-1.5 max-h-96 sm:max-h-[420px] overflow-y-auto pr-0.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full"
                 style={{ scrollbarWidth: 'thin', scrollbarColor: isMale ? 'rgba(115,255,0,0.12) transparent' : 'rgba(56,189,248,0.12) transparent' }}
                 variants={container}
                 initial="hidden"
@@ -1391,7 +1391,7 @@ export function Dashboard({
                 {displayedPlayers.map((player, index) => (
                   <motion.div
                     key={player.id}
-                    className={`${statsCardClass} rounded-xl px-3 py-2.5 flex items-center gap-3 group ${onPlayerClick && player.id ? 'cursor-pointer' : 'cursor-default'}`}
+                    className={`${statsCardClass} rounded-xl px-3 py-2.5 flex items-center gap-3 group min-h-[44px] ${onPlayerClick && player.id ? 'cursor-pointer' : 'cursor-default'}`}
                     variants={item}
                     whileHover={{ scale: 1.01, x: 2 }}
                     whileTap={{ scale: 0.99 }}
@@ -1475,7 +1475,7 @@ export function Dashboard({
               {topPlayers.length > 5 && (
                 <motion.button
                   onClick={() => setShowAllPlayers(prev => !prev)}
-                  className="w-full mt-3 py-2.5 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer outline-none flex items-center justify-center gap-1.5"
+                  className="w-full mt-3 py-3 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer outline-none flex items-center justify-center gap-1.5 min-h-[44px]"
                   style={{
                     background: showAllPlayers
                       ? `rgba(${themeColors.primaryRGB},0.08)`
@@ -1538,7 +1538,8 @@ export function Dashboard({
               <>
               {/* Club rows */}
               <motion.div
-                className="space-y-1.5"
+                className="space-y-1.5 max-h-96 sm:max-h-[420px] overflow-y-auto pr-0.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full"
+                style={{ scrollbarWidth: 'thin', scrollbarColor: isMale ? 'rgba(115,255,0,0.12) transparent' : 'rgba(56,189,248,0.12) transparent' }}
                 variants={container}
                 initial="hidden"
                 animate="show"
@@ -1552,7 +1553,7 @@ export function Dashboard({
                     <div key={club.id}>
                       {/* Club Row - Clickable to expand */}
                       <motion.div
-                        className={`${statsCardClass} rounded-xl px-3 py-2.5 flex items-center gap-3 group cursor-pointer ${index >= 5 ? 'max-lg:hidden' : ''}`}
+                        className={`${statsCardClass} rounded-xl px-3 py-2.5 flex items-center gap-3 group cursor-pointer min-h-[44px] ${index >= 5 ? 'max-lg:hidden' : ''}`}
                         variants={item}
                         whileHover={{ scale: 1.01, x: 2 }}
                         whileTap={{ scale: 0.99 }}
@@ -1636,7 +1637,7 @@ export function Dashboard({
                         transition={{ duration: 0.25, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className={`pl-10 pr-3 py-2 space-y-1.5 ${isLight ? 'bg-slate-50/50' : 'bg-white/[0.02]'}`}>
+                        <div className={`pl-10 pr-3 py-2 space-y-1.5 max-h-64 overflow-y-auto ${isLight ? 'bg-slate-50/50' : 'bg-white/[0.02]'} [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full`}>
                           {isLoading ? (
                             <div className="flex items-center justify-center py-4">
                               <div className={`w-5 h-5 border-2 border-t-transparent rounded-full animate-spin ${isMale ? 'border-[#73FF00]' : 'border-[#38BDF8]'}`} />

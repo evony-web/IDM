@@ -62,3 +62,46 @@ Stage Summary:
 - All branding comes from /api/settings (database) with env var fallbacks
 - Theme system properly integrated via next-themes + ThemeProvider + AppSettingsProvider
 - Production-ready: all configurable via admin settings panel or environment variables
+
+---
+Task ID: 11
+Agent: general-purpose
+Task: Add ThemeToggle to Navigation component
+
+Work Log:
+- Read Navigation.tsx (~897 lines) to understand TopBar and Sidebar component structure
+- Read ThemeToggle.tsx to confirm CompactThemeToggle component API (accepts `division` prop)
+- Added import for CompactThemeToggle from @/components/esports/ThemeToggle (line 20)
+- In Sidebar component: added `const { settings } = useAppSettings();` (line 386), replaced `useAppSettings().settings.app_name` → `settings.app_name` (line 436), replaced `useAppSettings().settings.app_subtitle` → `settings.app_subtitle` (line 441), added `<CompactThemeToggle division={division} />` in bottom section after admin button (lines 614-617)
+- In TopBar component: added `const { settings } = useAppSettings();` (line 739), replaced `useAppSettings().settings.app_name` → `settings.app_name` (line 805), replaced `useAppSettings().settings.app_subtitle` → `settings.app_subtitle` (line 808), added `<CompactThemeToggle division={division} />` in right-side controls between notification panel and admin button (line 852)
+- Ran TypeScript check (`tsc --noEmit`) — zero errors related to Navigation.tsx
+
+Stage Summary:
+- CompactThemeToggle now visible in both TopBar (mobile header, between division toggle and admin button) and Sidebar (desktop, bottom section after admin button)
+- Inline useAppSettings().settings calls replaced with destructured `settings` variable in both components (cleaner, single hook call per component)
+- Theme toggle uses next-themes internally, only needs `division` prop for accent color
+
+---
+Task ID: 10
+Agent: general-purpose
+Task: Make PWA manifest.json dynamic via API route
+
+Work Log:
+- Read public/manifest.json (hardcoded "IDOL META" strings, static icons, theme_color)
+- Read src/app/layout.tsx (had <head> tag with theme-color meta, no manifest link)
+- Read src/app/api/settings/route.ts to understand DB settings pattern (findMany → settingsMap → merge with defaults)
+- Created /src/app/api/manifest/route.ts: GET handler that reads app_name, app_description, logo_url, default_theme from DB, falls back to env vars (NEXT_PUBLIC_APP_NAME, NEXT_PUBLIC_LOGO_URL), then generic defaults
+- Returns Content-Type: application/manifest+json with Cache-Control: public, max-age=3600 (1 hour)
+- Maps default_theme to theme_color: 'light' → '#ffffff', 'dark' → '#0B0B0F'
+- Uses logo_url for both 192x192 and 512x512 icon entries
+- Derives short_name from first 12 chars of app_name
+- Includes error handler with minimal valid fallback manifest
+- Updated layout.tsx: added <link rel="manifest" href="/api/manifest" /> inside existing <head> tag
+- Verified no TypeScript errors in new route or layout
+- Static public/manifest.json left intact as fallback
+
+Stage Summary:
+- PWA manifest is now fully dynamic — name, description, icons, and theme_color all driven by database settings
+- Fallback chain: DB → env var → generic defaults (works even with empty database)
+- Static manifest.json preserved in public/ as safety net
+- All manifest fields preserved: name, short_name, description, start_url, display, background_color, theme_color, orientation, icons, categories, shortcuts
