@@ -13,7 +13,6 @@ import { Navigation, TopBar, Sidebar } from '@/components/esports/Navigation';
 import { GradientBackground, Premium3DEffects } from '@/components/effects/ParticleField';
 import { Dashboard } from '@/components/esports/Dashboard';
 import { TournamentTab } from '@/components/esports/Tournament';
-import { Bracket } from '@/components/esports/Bracket';
 import { ChallongeBracket } from '@/components/esports/ChallongeBracket';
 import { Leaderboard } from '@/components/esports/Leaderboard';
 import { DonasiSawerTab } from '@/components/esports/DonasiSawerTab';
@@ -194,7 +193,7 @@ export default function IDOLMETAApp() {
   const [prizeModalOpen, setPrizeModalOpen] = useState(false);
   const [teamListOpen, setTeamListOpen] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState<'players' | 'clubs'>('players');
-  const [bracketView, setBracketView] = useState<'classic' | 'challonge'>('challonge');
+
 
   // Live Score Banner state
   const [liveScoreMatch, setLiveScoreMatch] = useState<{
@@ -1247,66 +1246,14 @@ export default function IDOLMETAApp() {
                     {/* Live Match Ticker — shows ongoing matches with real-time scores */}
                     <LiveMatchTicker matches={liveMatches} division={division} />
 
-                    {/* Bracket View Toggle */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-medium">
-                          Bracket View
-                        </span>
-                      </div>
-                      <div
-                        className="flex rounded-lg overflow-hidden"
-                        style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.06)',
-                        }}
-                      >
-                        <button
-                          onClick={() => setBracketView('challonge')}
-                          className={`px-3 py-1.5 text-[10px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer ${
-                            bracketView === 'challonge'
-                              ? division === 'male'
-                                ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/30'
-                                : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30'
-                              : 'text-white/40 hover:text-white/60 border border-transparent'
-                          }`}
-                        >
-                          Challonge
-                        </button>
-                        <button
-                          onClick={() => setBracketView('classic')}
-                          className={`px-3 py-1.5 text-[10px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer ${
-                            bracketView === 'classic'
-                              ? division === 'male'
-                                ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/30'
-                                : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30'
-                              : 'text-white/40 hover:text-white/60 border border-transparent'
-                          }`}
-                        >
-                          Classic
-                        </button>
-                      </div>
-                    </div>
-
-                    {bracketView === 'challonge' ? (
-                      <ChallongeBracket
-                        division={division}
-                        matches={matches}
-                        isAdmin={isAdminAuthenticated}
-                        onUpdateScore={updateMatchScore}
-                        bracketType={currentTournament?.bracketType}
-                        mvpUser={users.find(u => u.isMVP) || null}
-                      />
-                    ) : (
-                      <Bracket
-                        division={division}
-                        matches={matches}
-                        isAdmin={isAdminAuthenticated}
-                        onUpdateScore={updateMatchScore}
-                        bracketType={currentTournament?.bracketType}
-                        mvpUser={users.find(u => u.isMVP) || null}
-                      />
-                    )}
+                    <ChallongeBracket
+                      division={division}
+                      matches={matches}
+                      isAdmin={isAdminAuthenticated}
+                      onUpdateScore={updateMatchScore}
+                      bracketType={currentTournament?.bracketType}
+                      mvpUser={users.find(u => u.isMVP) || null}
+                    />
                   </>
                 )}
 
