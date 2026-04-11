@@ -29,6 +29,7 @@ import {
   TrendingUp,
   Bell,
   Play,
+  ListChecks,
 } from 'lucide-react';
 
 /* ────────────────────────────────────────────
@@ -1523,6 +1524,8 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const userScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoScrollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const updateScrollButtons = () => {
@@ -1532,7 +1535,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
     setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
   };
 
-  // ── Auto-scroll carousel every 7 seconds ──
+  // ── Auto-scroll carousel every 7 seconds (pauses on hover & user scroll) ──
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || clubs.length === 0) return;
@@ -1540,7 +1543,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
     const startAutoScroll = () => {
       if (autoScrollRef.current) clearInterval(autoScrollRef.current);
       autoScrollRef.current = setInterval(() => {
-        if (isHovered || !el) return;
+        if (isHovered || isUserScrolling || !el) return;
         const cardEl = el.querySelector('[data-club-card]') as HTMLElement | null;
         const cardWidth = cardEl?.offsetWidth || 180;
         const gap = 16;
@@ -1559,7 +1562,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
     return () => {
       if (autoScrollRef.current) clearInterval(autoScrollRef.current);
     };
-  }, [clubs, isHovered]);
+  }, [clubs, isHovered, isUserScrolling]);
 
   useEffect(() => {
     updateScrollButtons();
@@ -1639,6 +1642,19 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => {
+          setIsUserScrolling(true);
+          if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
+        }}
+        onTouchEnd={() => {
+          if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
+          userScrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 3000);
+        }}
+        onWheel={() => {
+          setIsUserScrolling(true);
+          if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
+          userScrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 3000);
+        }}
       >
         <style>{`[data-club-scroll]::-webkit-scrollbar{display:none}`}</style>
         {clubs.map((club, idx) => (
@@ -1979,6 +1995,205 @@ function VideoHighlightSection({ division }: { division: 'male' | 'female' | 'al
             </motion.div>
           );
         })}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────
+   Landing Content Section — Rules + Tentang Turnamen
+   2-card layout above footer, managed from admin panel
+   ──────────────────────────────────────────── */
+
+interface RulesData {
+  title: string;
+  items: string[];
+}
+
+interface TournamentInfoData {
+  title: string;
+  description: string;
+  features: Array<{ icon: string; label: string; value: string }>;
+}
+
+const LANDING_ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }>> = {
+  Info, Calendar, Heart, Trophy, Users, Coins, Swords, Shield, Star, Zap, Bell, Gamepad2, ScrollText, TrendingUp,
+};
+
+const DEFAULT_RULES: RulesData = {
+  title: 'Rules',
+  items: [
+    'Wajib menggunakan akun yang terdaftar di platform.',
+    'Peserta wajib hadir 15 menit sebelum turnamen dimulai.',
+    'Penggunaan cheat/exploit akan mengakibatkan diskualifikasi.',
+    'Keputusan admin bersifat final dan tidak dapat diganggu gugat.',
+    'Turnamen menggunakan sistem single elimination.',
+  ],
+};
+
+const DEFAULT_TOURNAMENT_INFO: TournamentInfoData = {
+  title: 'Tentang Turnamen',
+  description: 'IDOL META adalah platform turnamen esports yang mengadakan kompetisi mingguan untuk pemain dari berbagai tingkat kemampuan. Bergabunglah dengan komunitas kami dan buktikan kemampuanmu!',
+  features: [
+    { icon: 'Trophy', label: 'Hadiah Mingguan', value: 'Prize pool dari donasi & sawer' },
+    { icon: 'Users', label: 'Komunitas Aktif', value: 'Bergabung dengan club dan bertanding' },
+    { icon: 'Zap', label: 'ELO Rating', value: 'Sistem ranking berbasis kemampuan' },
+  ],
+};
+
+function LandingContentSection() {
+  const [rules, setRules] = useState<RulesData>(DEFAULT_RULES);
+  const [tournamentInfo, setTournamentInfo] = useState<TournamentInfoData>(DEFAULT_TOURNAMENT_INFO);
+  const [loaded, setLoaded] = useState(false);
+
+  // Fetch data
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/landing-content')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!cancelled && data?.success) {
+          if (data.rules) setRules(data.rules);
+          if (data.tournamentInfo) setTournamentInfo(data.tournamentInfo);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Real-time update from admin panel
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const channel = new BroadcastChannel('idm-landing-content');
+    const handler = () => {
+      fetch('/api/admin/landing-content')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.success) {
+            if (data.rules) setRules(data.rules);
+            if (data.tournamentInfo) setTournamentInfo(data.tournamentInfo);
+          }
+        })
+        .catch(() => {});
+    };
+    channel.addEventListener('message', handler);
+    return () => channel.removeEventListener('message', handler);
+  }, []);
+
+  if (!loaded) return null;
+
+  return (
+    <motion.div variants={itemVariants} className="w-full max-w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
+        {/* ═══ RULES CARD ═══ */}
+        <motion.div
+          className="rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, rgba(255,107,53,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+            border: '1px solid rgba(255,107,53,0.08)',
+          }}
+          whileHover={{ borderColor: 'rgba(255,107,53,0.15)', y: -2 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          {/* Header */}
+          <div className="flex items-center gap-3 p-4 pb-3 border-b border-white/[0.04]">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(255,107,53,0.04) 100%)',
+                border: '1px solid rgba(255,107,53,0.10)',
+              }}
+            >
+              <ListChecks className="w-5 h-5 text-orange-400" />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-white/80 tracking-wide">{rules.title}</h2>
+              <p className="text-[10px] text-white/25 mt-0.5">Peraturan turnamen</p>
+            </div>
+          </div>
+          {/* Rules list */}
+          <div className="p-4 space-y-2.5 max-h-72 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,107,53,0.12) transparent' }}>
+            {rules.items.map((rule, idx) => (
+              <div key={idx} className="flex items-start gap-2.5">
+                <div
+                  className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,107,53,0.06) 100%)',
+                    color: 'rgba(255,107,53,0.7)',
+                  }}
+                >
+                  {idx + 1}
+                </div>
+                <p className="text-[12px] text-white/45 leading-relaxed">{rule}</p>
+              </div>
+            ))}
+            {rules.items.length === 0 && (
+              <p className="text-[12px] text-white/20 text-center py-6">Belum ada rules ditambahkan</p>
+            )}
+          </div>
+        </motion.div>
+
+        {/* ═══ TOURNAMENT INFO CARD ═══ */}
+        <motion.div
+          className="rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, rgba(56,189,248,0.04) 0%, rgba(115,255,0,0.01) 100%)',
+            border: '1px solid rgba(56,189,248,0.08)',
+          }}
+          whileHover={{ borderColor: 'rgba(56,189,248,0.15)', y: -2 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          {/* Header */}
+          <div className="flex items-center gap-3 p-4 pb-3 border-b border-white/[0.04]">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(56,189,248,0.12) 0%, rgba(115,255,0,0.06) 100%)',
+                border: '1px solid rgba(56,189,248,0.10)',
+              }}
+            >
+              <Trophy className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-white/80 tracking-wide">{tournamentInfo.title}</h2>
+              <p className="text-[10px] text-white/25 mt-0.5">Informasi turnamen</p>
+            </div>
+          </div>
+          {/* Description */}
+          <div className="p-4 pb-2">
+            <p className="text-[12px] text-white/40 leading-relaxed">{tournamentInfo.description}</p>
+          </div>
+          {/* Features */}
+          {tournamentInfo.features && tournamentInfo.features.length > 0 && (
+            <div className="px-4 pb-4 space-y-2">
+              {tournamentInfo.features.map((feat, idx) => {
+                const FeatureIcon = LANDING_ICON_MAP[feat.icon] || Info;
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-3 p-2.5 rounded-xl"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                    }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.10) 0%, rgba(115,255,0,0.05) 100%)' }}
+                    >
+                      <FeatureIcon className="w-4 h-4 text-cyan-400" strokeWidth={2} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-white/70">{feat.label}</p>
+                      <p className="text-[10px] text-white/30">{feat.value}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -3587,9 +3802,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
-        {/* ═══ QUICK INFO SECTION ═══ */}
-        <div id="info-section" className="w-full max-w-6xl mx-auto mt-4 md:mt-8 mb-6 md:mb-10">
-          <QuickInfoSection />
+        {/* ═══ RULES + TENTANG TURNAMEN ═══ */}
+        <div id="info-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+          <LandingContentSection />
         </div>
 
         {/* ═══ FOOTER ═══ */}

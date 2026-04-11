@@ -45,6 +45,8 @@ import {
   Database,
   ImageIcon as ImageIconLucide,
   Bot,
+  ListChecks,
+  GripVertical,
 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { BotManagementTab } from './BotManagementTab';
@@ -244,7 +246,7 @@ export function AdminPanel({
 
   // ── Payment settings state ──
   const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner'>('tournament');
-  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore' | 'info' | 'video'>('rbac');
+  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore' | 'info' | 'video' | 'content'>('rbac');
 
   // ── Banner management state ──
   const [bannerMaleUrl, setBannerMaleUrl] = useState<string | null>(null);
@@ -300,6 +302,13 @@ export function AdminPanel({
   const [quickInfoLoaded, setQuickInfoLoaded] = useState(false);
   const [quickInfoSaving, setQuickInfoSaving] = useState(false);
   const [quickInfoSaved, setQuickInfoSaved] = useState(false);
+
+  // ── Landing Content CRUD state (Rules + Tournament Info) ──
+  const [landingRules, setLandingRules] = useState<{ title: string; items: string[] }>({ title: 'Rules', items: [] });
+  const [landingTournamentInfo, setLandingTournamentInfo] = useState<{ title: string; description: string; features: Array<{ icon: string; label: string; value: string }> }>({ title: 'Tentang Turnamen', description: '', features: [] });
+  const [landingContentLoaded, setLandingContentLoaded] = useState(false);
+  const [landingContentSaving, setLandingContentSaving] = useState(false);
+  const [landingContentSaved, setLandingContentSaved] = useState(false);
 
   // ── Video Highlights state ──
   const [videoHighlights, setVideoHighlights] = useState<Array<{ id: string; title: string; youtubeUrl: string; division: string; sortOrder: number; isActive: boolean }>>([]);
@@ -697,6 +706,50 @@ export function AdminPanel({
       setQuickInfoSaving(false);
     }
   }, [quickInfoItems, addToast]);
+
+  // ── Fetch Landing Content (Rules + Tournament Info) ──
+  const fetchLandingContent = useCallback(() => {
+    adminFetch('/api/admin/landing-content')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success) {
+          if (data.rules) setLandingRules(data.rules);
+          if (data.tournamentInfo) setLandingTournamentInfo(data.tournamentInfo);
+          setLandingContentLoaded(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (showPanel && adminTab === 'rbac' && adminSubTab === 'content') {
+      fetchLandingContent();
+    }
+  }, [showPanel, adminTab, adminSubTab, fetchLandingContent]);
+
+  // ── Save Landing Content ──
+  const saveLandingContent = useCallback(async () => {
+    setLandingContentSaving(true);
+    setLandingContentSaved(false);
+    try {
+      const res = await adminFetch('/api/admin/landing-content', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rules: landingRules, tournamentInfo: landingTournamentInfo }),
+      });
+      if (res.ok) {
+        setLandingContentSaved(true);
+        addToast('Konten landing berhasil disimpan!', 'success');
+        setTimeout(() => setLandingContentSaved(false), 3000);
+        // Notify other tabs
+        try { const bc = new BroadcastChannel('idm-landing-content'); bc.postMessage('updated'); bc.close(); } catch {}
+      }
+    } catch {
+      addToast('Gagal menyimpan konten landing', 'error');
+    } finally {
+      setLandingContentSaving(false);
+    }
+  }, [landingRules, landingTournamentInfo, addToast]);
 
   const handleVerifyPayment = async (id: string, type: 'donation' | 'sawer', status: 'confirmed' | 'rejected') => {
     setVerifyingId(id);
@@ -2919,6 +2972,7 @@ export function AdminPanel({
                         { id: 'rbac' as const, label: 'Admin & RBAC', icon: ShieldCheck },
                         { id: 'bot' as const, label: 'Bot Management', icon: Bot, superAdminOnly: true },
                         { id: 'restore' as const, label: 'Restore', icon: Database },
+                        { id: 'content' as const, label: 'Konten', icon: ListChecks },
                         { id: 'info' as const, label: 'Info', icon: Info },
                         { id: 'video' as const, label: 'Video', icon: Play },
                       ]).filter(sub => !sub.superAdminOnly || adminUser?.role === 'super_admin').map((sub) => (
@@ -3224,6 +3278,251 @@ export function AdminPanel({
                         accentColor={accentColor}
                         addToast={addToast}
                       />
+                    )}
+
+                    {/* ═══ CONTENT SUB-TAB (Rules + Tournament Info) ═══ */}
+                    {adminSubTab === 'content' && (
+                      <div className="space-y-5">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,107,53,0.12)' }}>
+                              <ListChecks className="w-4 h-4 text-orange-400" />
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-bold text-white/90">Konten Landing Page</p>
+                              <p className="text-[10px] text-white/30">Edit Rules & Tentang Turnamen di atas footer</p>
+                            </div>
+                          </div>
+                          <motion.button
+                            onClick={saveLandingContent}
+                            disabled={landingContentSaving}
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                              landingContentSaved
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                                : isMale
+                                  ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/20'
+                                  : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/20'
+                            }`}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {landingContentSaving ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : landingContentSaved ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : (
+                              <Save className="w-3.5 h-3.5" />
+                            )}
+                            {landingContentSaved ? 'Tersimpan!' : 'Simpan'}
+                          </motion.button>
+                        </div>
+
+                        {/* ── Rules Card ── */}
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3" style={{ borderLeft: '3px solid #FF6B35' }}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <ListChecks className="w-4 h-4 text-orange-400" />
+                              <span className="text-[12px] font-bold text-white/70">Rules</span>
+                            </div>
+                          </div>
+
+                          {/* Title */}
+                          <div>
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                            <input
+                              type="text"
+                              value={landingRules.title}
+                              onChange={(e) => {
+                                setLandingRules(prev => ({ ...prev, title: e.target.value }));
+                                setLandingContentSaved(false);
+                              }}
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                              placeholder="Judul rules..."
+                            />
+                          </div>
+
+                          {/* Rules Items */}
+                          <div className="space-y-2">
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold block">Daftar Rules</label>
+                            {landingRules.items.map((rule, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-bold flex-shrink-0" style={{ background: 'rgba(255,107,53,0.10)', color: 'rgba(255,107,53,0.7)' }}>{idx + 1}</span>
+                                <input
+                                  type="text"
+                                  value={rule}
+                                  onChange={(e) => {
+                                    const updated = [...landingRules.items];
+                                    updated[idx] = e.target.value;
+                                    setLandingRules(prev => ({ ...prev, items: updated }));
+                                    setLandingContentSaved(false);
+                                  }}
+                                  className="flex-1 bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] transition-colors"
+                                  placeholder={`Rule ${idx + 1}...`}
+                                />
+                                {landingRules.items.length > 1 && (
+                                  <motion.button
+                                    onClick={() => {
+                                      const updated = [...landingRules.items];
+                                      updated.splice(idx, 1);
+                                      setLandingRules(prev => ({ ...prev, items: updated }));
+                                      setLandingContentSaved(false);
+                                    }}
+                                    className="p-1.5 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors flex-shrink-0"
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </motion.button>
+                                )}
+                              </div>
+                            ))}
+                            <motion.button
+                              onClick={() => {
+                                setLandingRules(prev => ({ ...prev, items: [...prev.items, ''] }));
+                                setLandingContentSaved(false);
+                              }}
+                              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold cursor-pointer transition-colors"
+                              style={{ background: 'rgba(255,107,53,0.06)', border: '1px solid rgba(255,107,53,0.12)', color: '#FF6B35' }}
+                              whileHover={{ background: 'rgba(255,107,53,0.10)' }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <Plus className="w-3 h-3" /> Tambah Rule
+                            </motion.button>
+                          </div>
+                        </div>
+
+                        {/* ── Tournament Info Card ── */}
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3" style={{ borderLeft: '3px solid #38BDF8' }}>
+                          <div className="flex items-center gap-2">
+                            <Trophy className="w-4 h-4 text-cyan-400" />
+                            <span className="text-[12px] font-bold text-white/70">Tentang Turnamen</span>
+                          </div>
+
+                          {/* Title */}
+                          <div>
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                            <input
+                              type="text"
+                              value={landingTournamentInfo.title}
+                              onChange={(e) => {
+                                setLandingTournamentInfo(prev => ({ ...prev, title: e.target.value }));
+                                setLandingContentSaved(false);
+                              }}
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] transition-colors"
+                              placeholder="Judul tentang turnamen..."
+                            />
+                          </div>
+
+                          {/* Description */}
+                          <div>
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
+                            <textarea
+                              value={landingTournamentInfo.description}
+                              onChange={(e) => {
+                                setLandingTournamentInfo(prev => ({ ...prev, description: e.target.value }));
+                                setLandingContentSaved(false);
+                              }}
+                              rows={3}
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] transition-colors resize-none"
+                              placeholder="Deskripsi tentang turnamen..."
+                            />
+                          </div>
+
+                          {/* Features */}
+                          <div className="space-y-2">
+                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold block">Fitur Unggulan</label>
+                            {landingTournamentInfo.features.map((feat, idx) => (
+                              <div key={idx} className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] text-white/30 font-semibold">Fitur {idx + 1}</span>
+                                  {landingTournamentInfo.features.length > 1 && (
+                                    <motion.button
+                                      onClick={() => {
+                                        const updated = [...landingTournamentInfo.features];
+                                        updated.splice(idx, 1);
+                                        setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
+                                        setLandingContentSaved(false);
+                                      }}
+                                      className="p-1 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                      whileTap={{ scale: 0.9 }}
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </motion.button>
+                                  )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="text-[9px] text-white/30 mb-0.5 block">Ikon</label>
+                                    <select
+                                      value={feat.icon}
+                                      onChange={(e) => {
+                                        const updated = [...landingTournamentInfo.features];
+                                        updated[idx] = { ...updated[idx], icon: e.target.value };
+                                        setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
+                                        setLandingContentSaved(false);
+                                      }}
+                                      className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-[11px] text-white/80 outline-none"
+                                    >
+                                      <option value="Trophy">🏆 Trophy</option>
+                                      <option value="Users">👥 Users</option>
+                                      <option value="Zap">⚡ Zap</option>
+                                      <option value="Shield">🛡️ Shield</option>
+                                      <option value="Star">⭐ Star</option>
+                                      <option value="Swords">⚔️ Swords</option>
+                                      <option value="Coins">💰 Coins</option>
+                                      <option value="Heart">❤️ Heart</option>
+                                      <option value="Gamepad2">🎮 Gamepad</option>
+                                      <option value="Info">ℹ️ Info</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="text-[9px] text-white/30 mb-0.5 block">Label</label>
+                                    <input
+                                      type="text"
+                                      value={feat.label}
+                                      onChange={(e) => {
+                                        const updated = [...landingTournamentInfo.features];
+                                        updated[idx] = { ...updated[idx], label: e.target.value };
+                                        setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
+                                        setLandingContentSaved(false);
+                                      }}
+                                      className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-[11px] text-white/80 outline-none"
+                                      placeholder="Label..."
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-[9px] text-white/30 mb-0.5 block">Nilai / Deskripsi</label>
+                                  <input
+                                    type="text"
+                                    value={feat.value}
+                                    onChange={(e) => {
+                                      const updated = [...landingTournamentInfo.features];
+                                      updated[idx] = { ...updated[idx], value: e.target.value };
+                                      setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
+                                      setLandingContentSaved(false);
+                                    }}
+                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-[11px] text-white/80 outline-none"
+                                    placeholder="Deskripsi fitur..."
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                            <motion.button
+                              onClick={() => {
+                                setLandingTournamentInfo(prev => ({ ...prev, features: [...prev.features, { icon: 'Trophy', label: '', value: '' }] }));
+                                setLandingContentSaved(false);
+                              }}
+                              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold cursor-pointer transition-colors"
+                              style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.12)', color: '#38BDF8' }}
+                              whileHover={{ background: 'rgba(56,189,248,0.10)' }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <Plus className="w-3 h-3" /> Tambah Fitur
+                            </motion.button>
+                          </div>
+                        </div>
+                      </div>
                     )}
 
                     {/* ═══ INFO SUB-TAB ═══ */}

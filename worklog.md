@@ -150,3 +150,26 @@ Stage Summary:
 - Video Highlight and Informasi Terbaru sections moved below Dukungan & Sawer
 - Top Players leaderboard remains above Dukungan & Sawer
 - All responsive breakpoints working correctly
+
+---
+Task ID: 13
+Agent: Main Agent
+Task: Add Rules + Tournament Info 2-card section above footer with admin CRUD
+
+Work Log:
+- Created API endpoint /api/admin/landing-content (GET public, PUT admin-only) for Rules & Tournament Info
+- Uses Settings table with keys 'landing_rules' and 'landing_tournament_info'
+- Built LandingContentSection component with 2 cards: Rules (orange) + Tentang Turnamen (cyan)
+- Replaced old QuickInfoSection with new LandingContentSection above footer
+- Added admin CRUD in AdminPanel under new "Konten" sub-tab in Admin panel
+- Rules CRUD: title + dynamic list of rules (add/edit/delete)
+- Tournament Info CRUD: title + description + feature cards (icon/label/value)
+- Added real-time update via BroadcastChannel 'idm-landing-content'
+- Added auto-scroll pause on user interaction (touch/scroll/wheel) with 3-second resume
+- Lint check passed clean, API responding correctly
+
+Stage Summary:
+- Rules & Tournament Info 2-card section displayed above footer on landing page
+- Full CRUD integration in Admin Panel > Admin > Konten sub-tab
+- Auto-scroll carousel pauses on user scroll/touch/wheel interaction (resumes after 3s)
+- Real-time content updates from admin panel via BroadcastChannel
