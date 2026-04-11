@@ -100,6 +100,19 @@ interface ToastData {
   type: 'success' | 'error' | 'warning' | 'info';
 }
 
+interface PlayerAuthUser {
+  id: string;
+  name: string;
+  phone: string;
+  gender: string;
+  tier: string;
+  points: number;
+  avatar: string | null;
+  eloRating: number;
+  eloTier: string;
+  clubId: string | null;
+}
+
 interface AppState {
   // UI State
   activeTab: string;
@@ -109,7 +122,12 @@ interface AppState {
   toasts: ToastData[];
   isAdminAuthenticated: boolean;
   adminUser: { id: string; name: string; email: string; role: string; permissions: Record<string, boolean>; avatar: string | null; tier: string } | null;
-  
+
+  // Player Auth
+  currentPlayer: PlayerAuthUser | null;
+  loginPlayer: (user: PlayerAuthUser) => void;
+  logoutPlayer: () => void;
+
   // Data
   currentUser: User | null;
   users: User[];
@@ -166,7 +184,22 @@ interface AppState {
 // Restore admin auth from localStorage
 let storedAdminAuth = false;
 let storedAdminUser = null;
+let storedPlayer: PlayerAuthUser | null = null;
 if (typeof localStorage !== 'undefined') {
+  // Restore player auth
+  try {
+    const playerRaw = localStorage.getItem('idm_player_auth');
+    if (playerRaw) {
+      const parsed = JSON.parse(playerRaw);
+      if (parsed && parsed.id && parsed.name) {
+        storedPlayer = parsed;
+      } else {
+        localStorage.removeItem('idm_player_auth');
+      }
+    }
+  } catch {
+    localStorage.removeItem('idm_player_auth');
+  }
   try {
     storedAdminAuth = localStorage.getItem('idm_admin_auth') === 'true';
     const raw = localStorage.getItem('idm_admin_user');
@@ -236,6 +269,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   toasts: [],
   isAdminAuthenticated: storedAdminAuth,
   adminUser: storedAdminUser,
+  currentPlayer: storedPlayer,
+  loginPlayer: (user) => {
+    set({ currentPlayer: user });
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('idm_player_auth', JSON.stringify(user));
+    }
+  },
+  logoutPlayer: () => {
+    set({ currentPlayer: null });
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('idm_player_auth');
+    }
+  },
   currentUser: null,
   users: [],
   tournaments: [],

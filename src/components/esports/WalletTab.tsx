@@ -20,6 +20,7 @@ import {
   TrendingDown,
   Clock,
   Send,
+  LogOut,
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -29,6 +30,9 @@ import {
 interface WalletTabProps {
   division: 'male' | 'female';
   currentUserId?: string | null;
+  onLoginClick?: () => void;
+  onLogout?: () => void;
+  currentPlayerName?: string | null;
 }
 
 interface WalletData {
@@ -147,7 +151,7 @@ function useAnimatedCounter(target: number, duration = 800) {
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════
 
-export function WalletTab({ division, currentUserId }: WalletTabProps) {
+export function WalletTab({ division, currentUserId, onLoginClick, onLogout, currentPlayerName }: WalletTabProps) {
   const accent = getAccent(division);
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -314,21 +318,90 @@ export function WalletTab({ division, currentUserId }: WalletTabProps) {
     );
   }
 
-  // ── No user state ──
+  // ── No user state — show login prompt ──
   if (!currentUserId) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-          <WalletIcon className="w-8 h-8 text-white/20" />
-        </div>
-        <p className="text-white/40 font-medium">Wallet belum tersedia</p>
-        <p className="text-xs text-white/25 mt-1">Login untuk mengakses wallet</p>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
+          style={{
+            background: `linear-gradient(135deg, rgba(${accent.glowRGB},0.12) 0%, rgba(${accent.glowRGB},0.04) 100%)`,
+            border: `1px solid rgba(${accent.glowRGB},0.15)`,
+          }}
+        >
+          <WalletIcon className="w-9 h-9" style={{ color: `rgb(${accent.glowRGB})` }} />
+        </motion.div>
+        <h3 className="text-lg font-bold text-white/80 mb-1">Wallet Belum Tersedia</h3>
+        <p className="text-sm text-white/35 mb-6 max-w-[260px]">
+          Daftar atau masuk untuk mengakses wallet, melihat poin, dan melakukan transfer
+        </p>
+        {onLoginClick && (
+          <motion.button
+            onClick={onLoginClick}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2"
+            style={{
+              background: `linear-gradient(135deg, rgba(${accent.glowRGB},0.20) 0%, rgba(${accent.glowRGB},0.08) 100%)`,
+              border: `1.5px solid rgba(${accent.glowRGB},0.30)`,
+              color: `rgb(${accent.glowRGB})`,
+            }}
+          >
+            <WalletIcon className="w-4 h-4" />
+            Daftar / Masuk
+          </motion.button>
+        )}
+        {!onLoginClick && (
+          <p className="text-xs text-white/25">Login untuk mengakses wallet</p>
+        )}
       </div>
     );
   }
 
   return (
     <div className="space-y-4 pb-24">
+      {/* ═══════════════════════════════════════
+          Player Profile Header
+          ═══════════════════════════════════════ */}
+      {currentPlayerName && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center justify-between px-1"
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden text-sm font-bold"
+              style={{
+                background: `rgba(${accent.glowRGB},0.12)`,
+                border: `1px solid rgba(${accent.glowRGB},0.20)`,
+                color: `rgb(${accent.glowRGB})`,
+              }}
+            >
+              {currentPlayerName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white/80">{currentPlayerName}</p>
+              <p className="text-[10px] text-white/25">Pemain terdaftar</p>
+            </div>
+          </div>
+          {onLogout && (
+            <motion.button
+              onClick={onLogout}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-white/30 hover:text-white/50 hover:bg-white/5 transition-colors cursor-pointer"
+              whileTap={{ scale: 0.95 }}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Keluar
+            </motion.button>
+          )}
+        </motion.div>
+      )}
+
       {/* ═══════════════════════════════════════
           Balance Card — Glassmorphism with accent glow
           ═══════════════════════════════════════ */}

@@ -15,10 +15,11 @@ import {
   ChevronRight,
   LayoutGrid,
   Crosshair,
-  Compass,
   Wallet,
   SwordsIcon,
   Building2,
+  UserCircle,
+  LogOut,
 } from 'lucide-react';
 import { NotificationPanel } from '@/components/esports/NotificationPanel';
 
@@ -40,6 +41,8 @@ interface NavigationProps {
   isAdminAuthenticated?: boolean;
   onAdminClick?: () => void;
   adminNotificationCount?: number;
+  currentPlayer?: { id: string; name: string; avatar: string | null; tier: string } | null;
+  onPlayerLoginClick?: () => void;
 }
 
 interface TopBarProps {
@@ -51,6 +54,8 @@ interface TopBarProps {
   onTabChange?: (tab: string) => void;
   onGoHome?: () => void;
   adminNotificationCount?: number;
+  currentPlayer?: { id: string; name: string; avatar: string | null; tier: string } | null;
+  onPlayerLoginClick?: () => void;
 }
 
 /* ────────────────────────────────────────────
@@ -59,7 +64,6 @@ interface TopBarProps {
 
 const regularNavItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
-  { id: 'discover', label: 'Discover', icon: Compass },
   { id: 'tournament', label: 'Tournament', icon: Swords },
   { id: 'bracket', label: 'Bracket', icon: GitBranch },
   { id: 'leaderboard', label: 'Leaderboard', icon: BarChart3 },
@@ -73,7 +77,7 @@ const regularNavItems: NavItem[] = [
 // Mobile bottom bar: show only these 5 + GrandFinal center
 const mobileNavItems: NavItem[] = [
   { id: 'dashboard', label: 'Home', icon: Home },
-  { id: 'discover', label: 'Discover', icon: Compass },
+  { id: 'tournament', label: 'Tourney', icon: Swords },
   { id: 'bounty', label: 'Bounty', icon: Crosshair },
   { id: 'leaderboard', label: 'Board', icon: BarChart3 },
   { id: 'wallet', label: 'Wallet', icon: Wallet },
@@ -206,7 +210,7 @@ export function AdminFAB({
    with floating Grand Final center button
    ════════════════════════════════════════════ */
 
-export function Navigation({ activeTab, onTabChange, division }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, division, currentPlayer, onPlayerLoginClick }: NavigationProps) {
   const t = getThemeTokens(division);
   const isGfActive = activeTab === 'grandfinal';
   const isMale = division === 'male';
@@ -397,6 +401,8 @@ export function Sidebar({
   onTabChange,
   onGoHome,
   adminNotificationCount = 0,
+  currentPlayer,
+  onPlayerLoginClick,
 }: TopBarProps) {
   const t = getThemeTokens(division);
   const isMale = division === 'male';
@@ -585,6 +591,48 @@ export function Sidebar({
             <NotificationPanel division={division} />
           </div>
 
+          {/* Player Profile — Login/Logout */}
+          {currentPlayer ? (
+            <motion.button
+              className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
+              style={{
+                background: `linear-gradient(180deg, rgba(${t.glowRGB},0.08) 0%, rgba(${t.glowRGB},0.02) 100%)`,
+                border: `1px solid rgba(${t.glowRGB},0.12)`,
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden text-[10px] font-bold"
+                style={{ background: `rgba(${t.glowRGB},0.15)`, color: t.primaryColor }}
+              >
+                {currentPlayer.avatar
+                  ? <img src={currentPlayer.avatar} alt="" className="w-full h-full object-cover" />
+                  : currentPlayer.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden lg:flex flex-col items-start leading-tight min-w-0">
+                <span className="text-[11px] font-semibold truncate max-w-[120px]" style={{ color: t.primaryColor }}>
+                  {currentPlayer.name}
+                </span>
+                <span className="text-[9px] text-white/25">Tier {currentPlayer.tier}</span>
+              </div>
+            </motion.button>
+          ) : onPlayerLoginClick ? (
+            <motion.button
+              onClick={onPlayerLoginClick}
+              className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                color: 'rgba(255,255,255,0.45)',
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <UserCircle className="w-5 h-5 flex-shrink-0" strokeWidth={1.8} />
+              <span className="hidden lg:inline text-[12px] font-medium">Daftar / Masuk</span>
+            </motion.button>
+          ) : null}
+
           {/* Admin Panel — moved to bottom */}
           <motion.button
             onClick={onAdminClick}
@@ -747,6 +795,8 @@ export function TopBar({
   onTabChange,
   onGoHome,
   adminNotificationCount = 0,
+  currentPlayer,
+  onPlayerLoginClick,
 }: TopBarProps) {
   const t = getThemeTokens(division);
   const isMale = division === 'male';
@@ -825,8 +875,35 @@ export function TopBar({
                 </div>
               </div>
 
-              {/* Right: Division toggle + Admin Button */}
+              {/* Right: Division toggle + Player + Admin Button */}
               <div className="flex items-center gap-1.5">
+                {/* Player avatar / login */}
+                {currentPlayer ? (
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden text-[10px] font-bold cursor-default"
+                    style={{
+                      background: `rgba(${t.glowRGB},0.12)`,
+                      border: `1px solid rgba(${t.glowRGB},0.20)`,
+                      color: t.primaryColor,
+                    }}
+                  >
+                    {currentPlayer.avatar
+                      ? <img src={currentPlayer.avatar} alt="" className="w-full h-full object-cover" />
+                      : currentPlayer.name.charAt(0).toUpperCase()}
+                  </div>
+                ) : onPlayerLoginClick ? (
+                  <motion.button
+                    onClick={onPlayerLoginClick}
+                    className="flex items-center justify-center w-7 h-7 rounded-lg cursor-pointer outline-none"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <UserCircle className="w-4 h-4 text-white/40" />
+                  </motion.button>
+                ) : null}
                 {/* Division toggle - Male | Female style */}
                 <div
                   className="relative flex rounded-lg overflow-hidden"

@@ -16,11 +16,12 @@ import { ChallongeBracket } from '@/components/esports/ChallongeBracket';
 import { Leaderboard } from '@/components/esports/Leaderboard';
 import { DonasiSawerTab } from '@/components/esports/DonasiSawerTab';
 import { BountieTab } from '@/components/esports/BountieTab';
-import { TournamentDiscovery } from '@/components/esports/TournamentDiscovery';
 import { WalletTab } from '@/components/esports/WalletTab';
 import { MatchmakingTab } from '@/components/esports/MatchmakingTab';
 import { ClubTab } from '@/components/esports/ClubTab';
 import { AdminLogin } from '@/components/esports/AdminLogin';
+import { PlayerAuth } from '@/components/esports/PlayerAuth';
+import type { PlayerUser } from '@/components/esports/PlayerAuth';
 import { LandingPage } from '@/components/esports/LandingPage';
 import { ToastContainer } from '@/components/esports/Toast';
 
@@ -167,6 +168,9 @@ export default function IDOLMETAApp() {
     loginAdmin,
     logoutAdmin,
     fetchAdmins,
+    currentPlayer,
+    loginPlayer,
+    logoutPlayer,
   } = useAppStore();
 
   const { settings } = useAppSettings();
@@ -192,6 +196,7 @@ export default function IDOLMETAApp() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [playerAuthOpen, setPlayerAuthOpen] = useState(false);
   const [playerListOpen, setPlayerListOpen] = useState(false);
   const [prizeModalOpen, setPrizeModalOpen] = useState(false);
   const [pointModalOpen, setPointModalOpen] = useState(false);
@@ -1116,6 +1121,8 @@ export default function IDOLMETAApp() {
               }
             }}
             onGoHome={handleBackToLanding}
+            currentPlayer={currentPlayer}
+            onPlayerLoginClick={() => setPlayerAuthOpen(true)}
           />
 
           {/* Top Bar — Mobile only */}
@@ -1134,6 +1141,8 @@ export default function IDOLMETAApp() {
               }
             }}
             onGoHome={handleBackToLanding}
+            currentPlayer={currentPlayer}
+            onPlayerLoginClick={() => setPlayerAuthOpen(true)}
           />
 
           {/* Admin Login — shown when not authenticated */}
@@ -1141,6 +1150,17 @@ export default function IDOLMETAApp() {
             isOpen={adminLoginOpen}
             onOpenChange={setAdminLoginOpen}
             onLogin={loginAdmin}
+          />
+
+          {/* Player Auth — signup/login modal */}
+          <PlayerAuth
+            division={division}
+            isOpen={playerAuthOpen}
+            onOpenChange={setPlayerAuthOpen}
+            onAuthSuccess={(user: PlayerUser) => {
+              loginPlayer(user);
+              addToast(`Selamat datang, ${user.name}!`, 'success');
+            }}
           />
 
           {/* Admin Panel — full-screen page mode when open */}
@@ -1225,15 +1245,6 @@ export default function IDOLMETAApp() {
                   />
                 )}
 
-                {activeTab === 'discover' && (
-                  <TournamentDiscovery
-                    division={division}
-                    onTournamentSelect={(id) => {
-                      setActiveTab('bracket');
-                      addToast('Memuat bracket turnamen...', 'info');
-                    }}
-                  />
-                )}
 
                 {activeTab === 'tournament' && (
                   <TournamentTab
@@ -1277,6 +1288,7 @@ export default function IDOLMETAApp() {
                 {activeTab === 'bounty' && (
                   <BountieTab
                     division={division}
+                    currentUserId={currentPlayer?.id ?? null}
                     onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}
@@ -1284,6 +1296,7 @@ export default function IDOLMETAApp() {
                 {activeTab === 'matchmaking' && (
                   <MatchmakingTab
                     division={division}
+                    currentUserId={currentPlayer?.id ?? null}
                     onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}
@@ -1291,14 +1304,17 @@ export default function IDOLMETAApp() {
                 {activeTab === 'wallet' && (
                   <WalletTab
                     division={division}
-                    currentUserId={null}
+                    currentUserId={currentPlayer?.id ?? null}
+                    onLoginClick={() => setPlayerAuthOpen(true)}
+                    onLogout={logoutPlayer}
+                    currentPlayerName={currentPlayer?.name ?? null}
                   />
                 )}
 
                 {activeTab === 'club' && (
                   <ClubTab
                     division={division}
-                    currentUserId={null}
+                    currentUserId={currentPlayer?.id ?? null}
                     onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}
