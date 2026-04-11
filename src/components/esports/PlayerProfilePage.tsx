@@ -15,6 +15,9 @@ import {
   MapPin,
   CalendarDays,
   Activity,
+  Zap,
+  Target,
+  Shield,
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -73,6 +76,16 @@ interface ProfileData {
   stats: PlayerStats;
   recentMatches: RecentMatch[];
   achievements: Achievement[];
+  // ELO & Bounty Stats
+  eloRating: number;
+  eloTier: string;
+  winStreak: number;
+  bestStreak: number;
+  totalKills: number;
+  totalDeaths: number;
+  bountiesPlaced: number;
+  bountiesOnMe: number;
+  bountyClaimsCount: number;
 }
 
 interface PlayerProfilePageProps {
@@ -84,6 +97,33 @@ interface PlayerProfilePageProps {
 /* ═══════════════════════════════════════════════════════════════
    TIER CONFIGURATION (expanded with C & D tiers)
    ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   ELO TIER COLORS & HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+
+const ELO_TIER_COLORS: Record<string, string> = {
+  Bronze: '#CD7F32',
+  Silver: '#C0C0C0',
+  Gold: '#FFD700',
+  Platinum: '#E5E4E2',
+  Diamond: '#B9F2FF',
+  Master: '#FF6B6B',
+  Grandmaster: '#FF4500',
+};
+
+function getEloTierIcon(tier: string): string {
+  switch (tier) {
+    case 'Bronze': return '🥉';
+    case 'Silver': return '🥈';
+    case 'Gold': return '🥇';
+    case 'Platinum': return '💎';
+    case 'Diamond': return '💠';
+    case 'Master': return '🔥';
+    case 'Grandmaster': return '👑';
+    default: return '🏅';
+  }
+}
 
 const tierConfig: Record<string, {
   label: string;
@@ -524,6 +564,38 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
 
                 {/* Tier label + Points row — REMOVED to make avatar bigger */}
 
+                {/* ELO Rating Row */}
+                <motion.div className="flex items-center justify-center gap-3 mt-3 flex-wrap" variants={staggerItem}>
+                  {/* ELO tier badge */}
+                  <div
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+                    style={{
+                      background: `${ELO_TIER_COLORS[profile.eloTier] || '#666'}18`,
+                      border: `1px solid ${ELO_TIER_COLORS[profile.eloTier] || '#666'}35`,
+                    }}
+                  >
+                    <span className="text-sm">{getEloTierIcon(profile.eloTier)}</span>
+                    <span className="text-xs font-bold" style={{ color: ELO_TIER_COLORS[profile.eloTier] || '#999' }}>
+                      {profile.eloTier}
+                    </span>
+                  </div>
+                  {/* ELO number */}
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-4 h-4" style={{ color: accentColor }} />
+                    <span className="text-lg font-black" style={{ color: accentColor }}>
+                      {profile.eloRating}
+                    </span>
+                    <span className="text-xs font-semibold text-white/30">ELO</span>
+                  </div>
+                  {/* Win Streak */}
+                  {profile.winStreak >= 3 && (
+                    <div className="flex items-center gap-1 text-orange-400">
+                      <Flame className="w-4 h-4" />
+                      <span className="text-xs font-bold">{profile.winStreak} streak</span>
+                    </div>
+                  )}
+                </motion.div>
+
                 {/* Club row */}
                 {profile.club && (
                   <div
@@ -689,6 +761,25 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   <div className="grid grid-cols-2 sm:hidden">
                     <StatCell label="Win Rate" value={`${profile.stats.winRate}%`} color="#FBBF24" isBorderRight />
                     <StatCell label="MVPs" value={profile.stats.mvpCount.toString()} color="#F59E0B" />
+                  </div>
+                </div>
+              </motion.section>
+
+              {/* ═══════════════════════════════════════════
+                  ELO & BOUNTY STATS
+                  ═══════════════════════════════════════════ */}
+              <motion.section className="mx-4 sm:mx-auto sm:max-w-lg mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }} variants={staggerItem}>
+                <SectionHeader title="ELO & Bounty" accentColor={accentColor} icon={Zap} />
+                <div style={{ background: cardBg }}>
+                  <div className="grid grid-cols-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <StatCell label="ELO" value={profile.eloRating.toString()} color={accentColor} isBorderRight />
+                    <StatCell label="Best Streak" value={profile.bestStreak.toString()} color="#F97316" isBorderRight />
+                    <StatCell label="K/D" value={profile.totalDeaths > 0 ? (profile.totalKills / profile.totalDeaths).toFixed(1) : profile.totalKills.toString()} color="#A855F7" />
+                  </div>
+                  <div className="grid grid-cols-3">
+                    <StatCell label="Bounties" value={profile.bountiesPlaced.toString()} color="#EF4444" isBorderRight />
+                    <StatCell label="On Me" value={profile.bountiesOnMe.toString()} color="#F59E0B" isBorderRight />
+                    <StatCell label="Claims" value={profile.bountyClaimsCount.toString()} color="#3B82F6" />
                   </div>
                 </div>
               </motion.section>

@@ -18,6 +18,7 @@ import {
   Compass,
   Wallet,
   SwordsIcon,
+  Building2,
 } from 'lucide-react';
 import { NotificationPanel } from '@/components/esports/NotificationPanel';
 
@@ -64,6 +65,7 @@ const regularNavItems: NavItem[] = [
   { id: 'leaderboard', label: 'Leaderboard', icon: BarChart3 },
   { id: 'bounty', label: 'Bounty', icon: Crosshair },
   { id: 'matchmaking', label: 'Matchmaking', icon: SwordsIcon },
+  { id: 'club', label: 'Komunitas', icon: Building2 },
   { id: 'wallet', label: 'Wallet', icon: Wallet },
   { id: 'donation', label: 'Donasi', icon: Heart },
 ];

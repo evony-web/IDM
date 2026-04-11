@@ -1,70 +1,113 @@
+# IDM Project Worklog
 
 ---
-Task ID: 1-8
+Task ID: 4
 Agent: Main Agent
-Task: Build Bountie clone features (Bounty System, Tournament Discovery, ELO, Wallet, Matchmaking, Club Management)
+Task: ELO Ranking integration into Leaderboard UI
 
 Work Log:
-- Updated prisma schema with 8 new models: Bounty, BountyClaim, Wallet, WalletTransaction, WalletTransfer, ClubJoinRequest, MatchmakingQueue
-- Added ELO fields to User model (eloRating, eloTier, winStreak, bestStreak, totalKills, totalDeaths)
-- Enhanced Club model with description, motto, isRecruiting, createdBy, joinRequests
-- Created 7 API route files: bounties, bounties/[id], bounties/[id]/claim, bounties/[id]/review, bounties/stats, tournaments/discover, wallet, wallet/transfer, elo, matchmaking
-- Created BountieTab.tsx component (bounty marketplace UI with stats, search, filters, place bounty modal, top hunters)
-- Created TournamentDiscovery.tsx component (browse/search/filter tournaments, status badges, bracket labels, prize display)
-- Updated Navigation.tsx to add Discover and Bounty tabs (Compass and Crosshair icons)
-- Updated page.tsx to import and render new tabs
-- Fixed lint errors (setState in effect)
-- Pushed schema to database successfully
+- Verified Leaderboard.tsx already has ELO tab with EloPlayerRow component
+- ELO leaderboard fetches from /api/elo endpoint
+- Includes ELO tier distribution, search, tier badges, win streak display
+- All working correctly
 
 Stage Summary:
-- Phase 1 (Database): COMPLETE
-- Phase 2 (Bounty System): API + UI COMPLETE
-- Phase 3 (Tournament Discovery): API + UI COMPLETE
-- Phase 4 (ELO Ranking): API COMPLETE, UI integration pending
-- Phase 5 (Matchmaking): API COMPLETE, UI pending
-- Phase 6 (Club Management): Schema ready, API + UI pending
-- Phase 7 (Wallet): API COMPLETE, UI pending
-- Phase 8 (Profile Enhancement): Pending
-
----
-Task ID: 4-a
-Agent: API Builder
-Task: Build Club Management API + Matchmaking UI Component
-
-Work Log:
-- Created Club Join Request API: `/api/clubs/join/route.ts`
-- Created Club Join Review API: `/api/clubs/join/[id]/route.ts`
-- Created Club Detail API: `/api/clubs/[id]/route.ts`
-- Created Matchmaking UI Component: MatchmakingTab.tsx
-- All lint passes
-
-Stage Summary:
-- Phase 5 (Matchmaking): API + UI COMPLETE
-- Phase 6 (Club Management): API COMPLETE, UI pending
-
----
-Task ID: 4-b
-Agent: UI Builder
-Task: Build WalletTab UI + Update Leaderboard with ELO
-
-Work Log:
-- Created WalletTab.tsx with balance card, transactions, top-up & transfer modals
-- Updated Leaderboard.tsx with ELO tab toggle, ELO stats, tier distribution, EloPlayerRow
-- Added Wallet tab to Navigation + page.tsx
-
-Stage Summary:
-- Phase 4 (ELO Ranking): API + UI COMPLETE
-- Phase 7 (Wallet): API + UI COMPLETE
+- Phase 4 was already complete from previous session
+- Leaderboard has dual mode: Poin | ELO toggle
 
 ---
 Task ID: 5
 Agent: Main Agent
-Task: Integrate all new tabs into Navigation + page.tsx, fix mobile nav layout
+Task: Matchmaking UI tab component
 
 Work Log:
-- Added MatchmakingTab import and rendering in page.tsx
-- Updated Navigation.tsx with mobileNavItems (5 items for mobile bottom bar)
-- Mobile bottom bar: Home, Discover, [GrandFinal], Bounty, Leaderboard, Wallet
-- Sidebar shows all 9 regular nav items including Matchmaking, Wallet
-- All tabs compile and render correctly
-- Lint passes clean
+- Verified MatchmakingTab.tsx already exists at src/components/esports/MatchmakingTab.tsx
+- Includes: Find opponent, queue status, match found overlay, ELO range selector
+- Integrated in page.tsx and Navigation.tsx
+
+Stage Summary:
+- Phase 5 was already complete from previous session
+- MatchmakingTab has dark glassmorphism style, queue timer, animated search
+
+---
+Task ID: 7
+Agent: Main Agent
+Task: Wallet UI tab component
+
+Work Log:
+- Verified WalletTab.tsx already exists at src/components/esports/WalletTab.tsx
+- Includes: Balance card, top up, transfer, transaction history
+- Integrated in page.tsx and Navigation.tsx
+
+Stage Summary:
+- Phase 7 was already complete from previous session
+- WalletTab has animated counter, category icons, search users for transfer
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Create ClubTab.tsx component for Club/Community feature
+
+Work Log:
+- Created /src/components/esports/ClubTab.tsx (500+ lines)
+- Features: Club leaderboard, club detail modal, join club, create club, my club card
+- Uses dark glassmorphism style matching WalletTab and MatchmakingTab
+- Added to Navigation.tsx regularNavItems as 'club' with Building2 icon
+- Added to page.tsx imports and tab rendering
+- Uses existing API endpoints: GET /api/clubs, POST /api/clubs, POST /api/clubs/join
+
+Stage Summary:
+- ClubTab.tsx created with full Bountie-clone community feature
+- Club leaderboard with search, detail view with members, join requests, create club modal
+- Added Building2 import to Navigation.tsx
+- Integrated into page.tsx tab system
+
+---
+Task ID: 8
+Agent: Main Agent
+Task: Player Profile enhancements - Add ELO & Bounty stats
+
+Work Log:
+- Enhanced PlayerProfilePage.tsx with ELO tier helpers and display
+- Added ELO_TIER_COLORS and getEloTierIcon functions
+- Added Zap, Target, Shield imports from lucide-react
+- Added ELO rating row in hero section (tier badge + ELO number + win streak)
+- Added new "ELO & Bounty" stats section between Statistics and Achievements
+- Extended ProfileData interface with: eloRating, eloTier, winStreak, bestStreak, totalKills, totalDeaths, bountiesPlaced, bountiesOnMe, bountyClaimsCount
+- Updated /api/users/profile to include ELO and bounty data from database
+
+Stage Summary:
+- Player profile now shows ELO tier badge + rating in hero section
+- New ELO & Bounty section with 6 stat cells (ELO, Best Streak, K/D, Bounties, On Me, Claims)
+- Profile API returns ELO and bounty data
+- Win streak flame icon shown when streak >= 3
+
+---
+Task ID: 9
+Agent: Main Agent
+Task: Integration - Add Club tab to Navigation + page.tsx
+
+Work Log:
+- Added 'club' to Navigation.tsx regularNavItems with Building2 icon
+- Added Building2 to lucide-react imports in Navigation.tsx
+- Added ClubTab import to page.tsx
+- Added club tab rendering in page.tsx AnimatePresence block
+
+Stage Summary:
+- Club tab fully integrated into app navigation and rendering
+- All Bountie clone features now accessible from navigation
+
+---
+Task ID: 10
+Agent: Main Agent
+Task: Final lint check and dev server verification
+
+Work Log:
+- Ran bun run lint - passed clean with no errors
+- Dev server running successfully on port 3000
+- All API routes responding correctly
+
+Stage Summary:
+- All code passes ESLint
+- No compilation errors
+- App is running and functional

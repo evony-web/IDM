@@ -19,6 +19,7 @@ import { BountieTab } from '@/components/esports/BountieTab';
 import { TournamentDiscovery } from '@/components/esports/TournamentDiscovery';
 import { WalletTab } from '@/components/esports/WalletTab';
 import { MatchmakingTab } from '@/components/esports/MatchmakingTab';
+import { ClubTab } from '@/components/esports/ClubTab';
 import { AdminLogin } from '@/components/esports/AdminLogin';
 import { LandingPage } from '@/components/esports/LandingPage';
 import { ToastContainer } from '@/components/esports/Toast';
@@ -1291,6 +1292,14 @@ export default function IDOLMETAApp() {
                   <WalletTab
                     division={division}
                     currentUserId={null}
+                  />
+                )}
+
+                {activeTab === 'club' && (
+                  <ClubTab
+                    division={division}
+                    currentUserId={null}
+                    onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}
 

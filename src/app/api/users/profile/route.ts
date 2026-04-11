@@ -21,6 +21,9 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 10,
         },
+        bountiesPlaced: { select: { id: true } },
+        bountiesOnMe: { select: { id: true } },
+        bountyClaims: { select: { id: true } },
       },
     });
 
@@ -158,6 +161,16 @@ export async function GET(request: NextRequest) {
         },
         recentMatches: recentMatches.slice(0, 10),
         achievements,
+        // ELO & Bounty Stats
+        eloRating: user.eloRating || 1000,
+        eloTier: user.eloTier || 'Bronze',
+        winStreak: user.winStreak || 0,
+        bestStreak: user.bestStreak || 0,
+        totalKills: user.totalKills || 0,
+        totalDeaths: user.totalDeaths || 0,
+        bountiesPlaced: user.bountiesPlaced?.length || 0,
+        bountiesOnMe: user.bountiesOnMe?.length || 0,
+        bountyClaimsCount: user.bountyClaims?.length || 0,
         registrations: user.registrations.map(r => ({
           id: r.id,
           status: r.status,
