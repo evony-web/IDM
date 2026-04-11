@@ -582,6 +582,72 @@ export async function POST(request: NextRequest) {
           });
         }
       }
+
+    } else if (bracketType === 'swiss') {
+      // ═══ SWISS SYSTEM ═══
+      // First round: randomly pair all teams
+      // Subsequent rounds: pair teams with similar win records (filled in as rounds complete)
+      // Number of rounds = log2(n) + 1, minimum 3
+      const numSwissRounds = Math.max(3, Math.ceil(Math.log2(numTeams)) + 1);
+      console.log('[Bracket] Swiss system: ', numTeams, 'teams,', numSwissRounds, 'rounds');
+
+      let matchNumber = 1;
+
+      // Round 1: random pairing
+      // Use shuffledTeams for random pairing
+      const round1Teams = [...shuffledTeams];
+      let round1MatchNumber = 0;
+      for (let i = 0; i + 1 < round1Teams.length; i += 2) {
+        round1MatchNumber++;
+        allMatchData.push({
+          id: uuidv4(),
+          tournamentId,
+          round: 1,
+          matchNumber: round1MatchNumber,
+          teamAId: round1Teams[i].id,
+          teamBId: round1Teams[i + 1].id,
+          status: 'pending',
+          bracket: 'swiss',
+        });
+      }
+      // If odd number of teams, last team gets a bye (automatic win)
+      if (round1Teams.length % 2 !== 0) {
+        round1MatchNumber++;
+        allMatchData.push({
+          id: uuidv4(),
+          tournamentId,
+          round: 1,
+          matchNumber: round1MatchNumber,
+          teamAId: round1Teams[round1Teams.length - 1].id,
+          teamBId: null, // Bye opponent
+          status: 'pending',
+          bracket: 'swiss',
+        });
+      }
+
+      // Rounds 2+: create matches with null team assignments
+      // They get filled in when the previous round completes
+      for (let round = 2; round <= numSwissRounds; round++) {
+        const matchesInRound = Math.floor(numTeams / 2);
+        const hasBye = numTeams % 2 !== 0;
+        const totalMatchesInRound = hasBye ? matchesInRound + 1 : matchesInRound;
+
+        for (let i = 0; i < totalMatchesInRound; i++) {
+          allMatchData.push({
+            id: uuidv4(),
+            tournamentId,
+            round,
+            matchNumber: i + 1,
+            teamAId: null, // Filled in when previous round completes
+            teamBId: null, // Filled in when previous round completes
+            status: 'pending',
+            bracket: 'swiss',
+          });
+        }
+      }
+
+      console.log('[Bracket] Swiss: Round 1 has', round1MatchNumber, 'matches with team assignments');
+      console.log('[Bracket] Swiss: Rounds 2-' + numSwissRounds + ' have null assignments (filled on completion)');
     }
 
     // Execute: delete old matches, create all new matches, update tournament — all in one transaction

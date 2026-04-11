@@ -199,6 +199,11 @@ export async function PUT(request: NextRequest) {
         );
       }
 
+      // Swiss advancement: when a Swiss round completes, auto-generate next round pairings
+      if (match.bracket === 'swiss') {
+        await handleSwissAdvancement(match.tournamentId, match.round);
+      }
+
       // Auto-check achievements for all players (fire-and-forget)
       const winnerMembers = updatedMatch.teamA?.TeamMember ?? [];
       const loserMembers = updatedMatch.teamB?.TeamMember ?? [];
@@ -378,6 +383,346 @@ async function awardMatchPoints(
       });
     }
   });
+}
+
+// ═══ SWISS SYSTEM ADVANCEMENT ═══
+
+interface SwissTeamStanding {
+  teamId: string;
+  seed: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  buchholz: number; // Sum of opponents' wins
+}
+
+/**
+ * Compute Swiss standings from all completed matches.
+ * Ranking: wins (desc) → Buchholz score (desc) → original seed (asc)
+ */
+async function computeSwissStandings(tournamentId: string): Promise<SwissTeamStanding[]> {
+  // Get all teams in the tournament
+  const teams = await db.team.findMany({
+    where: { tournamentId },
+    orderBy: { seed: 'asc' },
+  });
+
+  // Get all completed Swiss matches
+  const completedMatches = await db.match.findMany({
+    where: {
+      tournamentId,
+      bracket: 'swiss',
+      status: 'completed',
+    },
+  });
+
+  // Build a map of team results
+  const standingsMap = new Map<string, SwissTeamStanding>();
+  for (const team of teams) {
+    standingsMap.set(team.id, {
+      teamId: team.id,
+      seed: team.seed,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+      buchholz: 0,
+    });
+  }
+
+  // Track opponents for each team (for Buchholz calculation)
+  const opponentsMap = new Map<string, Set<string>>();
+  for (const team of teams) {
+    opponentsMap.set(team.id, new Set());
+  }
+
+  // Process completed matches
+  for (const m of completedMatches) {
+    // Handle bye matches (teamBId is null)
+    if (!m.teamBId) {
+      // teamA gets an automatic win for a bye
+      const standing = standingsMap.get(m.teamAId!);
+      if (standing) standing.wins++;
+      continue;
+    }
+
+    const standingA = standingsMap.get(m.teamAId!);
+    const standingB = standingsMap.get(m.teamBId);
+    if (!standingA || !standingB) continue;
+
+    // Track opponents
+    opponentsMap.get(m.teamAId!)?.add(m.teamBId);
+    opponentsMap.get(m.teamBId)?.add(m.teamAId!);
+
+    if (m.winnerId === m.teamAId) {
+      standingA.wins++;
+      standingB.losses++;
+    } else if (m.winnerId === m.teamBId) {
+      standingB.wins++;
+      standingA.losses++;
+    } else {
+      // Draw
+      standingA.draws++;
+      standingB.draws++;
+    }
+  }
+
+  // Calculate Buchholz score (sum of opponents' wins)
+  for (const [teamId, opponents] of opponentsMap) {
+    let buchholz = 0;
+    for (const oppId of opponents) {
+      const oppStanding = standingsMap.get(oppId);
+      if (oppStanding) buchholz += oppStanding.wins;
+    }
+    const standing = standingsMap.get(teamId)!;
+    standing.buchholz = buchholz;
+  }
+
+  // Sort by: wins (desc) → Buchholz (desc) → seed (asc)
+  const standings = Array.from(standingsMap.values());
+  standings.sort((a, b) => {
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    if (b.buchholz !== a.buchholz) return b.buchholz - a.buchholz;
+    return a.seed - b.seed;
+  });
+
+  return standings;
+}
+
+/**
+ * Swiss pairing algorithm:
+ * 1. Sort teams by: wins (desc) → Buchholz (desc) → original seed (asc)
+ * 2. Group teams by win count
+ * 3. For each win group, pair teams that haven't played each other
+ * 4. If a team can't be paired within its group, move it to the next group
+ * 5. If odd number of teams, one team gets a bye (automatic win)
+ * 6. Return array of { teamAId, teamBId } pairs
+ */
+function pairSwissRound(
+  standings: SwissTeamStanding[],
+  previousMatches: Array<{ teamAId: string | null; teamBId: string | null }>,
+): Array<{ teamAId: string; teamBId: string | null }> {
+  // Build set of previous matchups (both directions)
+  const playedPairs = new Set<string>();
+  for (const m of previousMatches) {
+    if (m.teamAId && m.teamBId) {
+      playedPairs.add(`${m.teamAId}:${m.teamBId}`);
+      playedPairs.add(`${m.teamBId}:${m.teamAId}`);
+    }
+  }
+
+  // Track how many byes each team has had (to avoid giving same team multiple byes)
+  const byeCount = new Map<string, number>();
+  for (const m of previousMatches) {
+    if (m.teamAId && !m.teamBId) {
+      byeCount.set(m.teamAId, (byeCount.get(m.teamAId) || 0) + 1);
+    }
+  }
+
+  // Work with a mutable copy of teams sorted by standings
+  const unpaired = [...standings];
+  const pairs: Array<{ teamAId: string; teamBId: string | null }> = [];
+
+  // Group by win count for smarter pairing
+  const winGroups = new Map<number, SwissTeamStanding[]>();
+  for (const s of unpaired) {
+    if (!winGroups.has(s.wins)) winGroups.set(s.wins, []);
+    winGroups.get(s.wins)!.push(s);
+  }
+
+  // Flatten teams from win groups (highest to lowest wins)
+  // Teams in the same win group should be paired together first
+  const sortedWinCounts = Array.from(winGroups.keys()).sort((a, b) => b - a);
+
+  // Use a greedy approach: iterate through teams in standings order
+  // and try to pair each with the best available opponent they haven't played
+  const paired = new Set<string>();
+
+  for (const team of unpaired) {
+    if (paired.has(team.teamId)) continue;
+
+    // Try to find an opponent in the same win group first
+    let foundOpponent = false;
+    const sameWinGroup = winGroups.get(team.wins)?.filter(
+      t => !paired.has(t.teamId) && t.teamId !== team.teamId
+    ) || [];
+
+    for (const opponent of sameWinGroup) {
+      if (!playedPairs.has(`${team.teamId}:${opponent.teamId}`)) {
+        pairs.push({ teamAId: team.teamId, teamBId: opponent.teamId });
+        paired.add(team.teamId);
+        paired.add(opponent.teamId);
+        foundOpponent = true;
+        break;
+      }
+    }
+
+    // If no opponent in same win group, try nearby win groups
+    if (!foundOpponent) {
+      // Try adjacent win groups (±1 win)
+      for (const winCount of sortedWinCounts) {
+        if (winCount === team.wins) continue; // Already tried
+        const nearbyGroup = winGroups.get(winCount)?.filter(
+          t => !paired.has(t.teamId) && t.teamId !== team.teamId
+        ) || [];
+
+        for (const opponent of nearbyGroup) {
+          if (!playedPairs.has(`${team.teamId}:${opponent.teamId}`)) {
+            pairs.push({ teamAId: team.teamId, teamBId: opponent.teamId });
+            paired.add(team.teamId);
+            paired.add(opponent.teamId);
+            foundOpponent = true;
+            break;
+          }
+        }
+        if (foundOpponent) break;
+      }
+    }
+
+    // If still no opponent, give a bye (only if odd number of teams)
+    if (!foundOpponent) {
+      pairs.push({ teamAId: team.teamId, teamBId: null });
+      paired.add(team.teamId);
+    }
+  }
+
+  return pairs;
+}
+
+/**
+ * Handle Swiss advancement after a match completes.
+ * Checks if the current round is fully complete, then generates next round pairings.
+ */
+async function handleSwissAdvancement(tournamentId: string, completedRound: number): Promise<void> {
+  try {
+    // Get all Swiss matches in the current round
+    const currentRoundMatches = await db.match.findMany({
+      where: {
+        tournamentId,
+        bracket: 'swiss',
+        round: completedRound,
+      },
+    });
+
+    // Check if all matches in the current round are completed
+    // A match with teamBId=null (bye) where teamA has no winner yet also needs to be auto-completed
+    const allCompleted = currentRoundMatches.every(m => m.status === 'completed');
+    if (!allCompleted) {
+      console.log('[Swiss] Round', completedRound, 'not yet complete, skipping advancement');
+      return;
+    }
+
+    // Get tournament to check bracket type and total rounds
+    const tournament = await db.tournament.findUnique({ where: { id: tournamentId } });
+    if (!tournament || tournament.bracketType !== 'swiss') return;
+
+    // Check if there's a next round to fill
+    const nextRound = completedRound + 1;
+    const nextRoundMatches = await db.match.findMany({
+      where: {
+        tournamentId,
+        bracket: 'swiss',
+        round: nextRound,
+      },
+      orderBy: { matchNumber: 'asc' },
+    });
+
+    if (nextRoundMatches.length === 0) {
+      console.log('[Swiss] No more rounds after round', completedRound, '. Tournament may be complete.');
+      // Check if all Swiss rounds are done
+      const allSwissMatches = await db.match.findMany({
+        where: { tournamentId, bracket: 'swiss' },
+      });
+      const maxRound = Math.max(...allSwissMatches.map(m => m.round));
+      if (completedRound >= maxRound) {
+        // All Swiss rounds complete — update tournament status
+        await db.tournament.update({
+          where: { id: tournamentId },
+          data: { status: 'completed' },
+        });
+        console.log('[Swiss] Tournament', tournamentId, 'completed!');
+
+        // Notify via Pusher
+        if (pusher) {
+          pusher.trigger(
+            [globalChannel, tournamentChannel(tournamentId)],
+            'tournament-update',
+            { action: 'tournament-completed', tournamentId }
+          ).catch(() => {});
+        }
+      }
+      return;
+    }
+
+    // Compute Swiss standings
+    const standings = await computeSwissStandings(tournamentId);
+    console.log('[Swiss] Standings after round', completedRound, ':',
+      standings.map(s => `${s.teamId}(W:${s.wins} B:${s.buchholz})`).join(', '));
+
+    // Get all previous matches for pairing constraint
+    const previousMatches = await db.match.findMany({
+      where: {
+        tournamentId,
+        bracket: 'swiss',
+        round: { lte: completedRound },
+      },
+      select: { teamAId: true, teamBId: true },
+    });
+
+    // Generate pairings for next round
+    const pairings = pairSwissRound(standings, previousMatches);
+    console.log('[Swiss] Generated', pairings.length, 'pairings for round', nextRound);
+
+    // Update next round matches with the generated pairings
+    for (let i = 0; i < nextRoundMatches.length; i++) {
+      const match = nextRoundMatches[i];
+      const pairing = pairings[i];
+
+      if (pairing) {
+        const updateData: { teamAId: string | null; teamBId: string | null; status?: string; winnerId?: string; scoreA?: number; scoreB?: number } = {
+          teamAId: pairing.teamAId,
+          teamBId: pairing.teamBId,
+        };
+
+        // If it's a bye (teamBId is null), auto-complete the match
+        if (!pairing.teamBId) {
+          updateData.status = 'completed';
+          updateData.winnerId = pairing.teamAId;
+          updateData.scoreA = 1;
+          updateData.scoreB = 0;
+          updateData.completedAt = new Date();
+        }
+
+        await db.match.update({
+          where: { id: match.id },
+          data: updateData,
+        });
+
+        // If the bye match is auto-completed, award points and check for further advancement
+        if (!pairing.teamBId) {
+          await awardMatchPoints(
+            { id: match.id, teamAId: pairing.teamAId, teamBId: null, tournamentId, status: 'pending' },
+            pairing.teamAId,
+            null,
+          );
+          // Recursively handle advancement for the auto-completed bye
+          await handleSwissAdvancement(tournamentId, nextRound);
+        }
+      }
+    }
+
+    console.log('[Swiss] Round', nextRound, 'pairings updated successfully');
+
+    // Notify via Pusher
+    if (pusher) {
+      pusher.trigger(
+        [globalChannel, tournamentChannel(tournamentId)],
+        'tournament-update',
+        { action: 'swiss-round-paired', tournamentId, round: nextRound }
+      ).catch(() => {});
+    }
+  } catch (error) {
+    console.error('[Swiss] Error in advancement:', error);
+  }
 }
 
 // Award MVP Only (for completed matches where admin adds/changes MVP)

@@ -318,7 +318,7 @@ export function AdminPanel({
   // ── Create Tournament form state ──
   const [newTournamentName, setNewTournamentName] = useState('');
   const [newTournamentType, setNewTournamentType] = useState<'weekly' | 'grand_final'>('weekly');
-  const [newTournamentBracket, setNewTournamentBracket] = useState<'single' | 'double' | 'group'>('single');
+  const [newTournamentBracket, setNewTournamentBracket] = useState<'single' | 'double' | 'group' | 'round_robin' | 'swiss'>('single');
   const [newTournamentWeek, setNewTournamentWeek] = useState(1);
   const [newTournamentDate, setNewTournamentDate] = useState('');
   const [newTournamentTime, setNewTournamentTime] = useState('');
@@ -337,7 +337,7 @@ export function AdminPanel({
   const [editForm, setEditForm] = useState({
     name: '',
     type: 'weekly' as 'weekly' | 'grand_final',
-    bracketType: 'single' as 'single' | 'double' | 'group',
+    bracketType: 'single' as 'single' | 'double' | 'group' | 'round_robin' | 'swiss',
     week: 1,
     startDate: '',
     startTime: '',
@@ -1064,6 +1064,8 @@ export function AdminPanel({
                                       { key: 'single' as const, label: 'Single', desc: 'Eliminasi' },
                                       { key: 'double' as const, label: 'Double', desc: 'Double Elim' },
                                       { key: 'group' as const, label: 'Group', desc: 'Fase Grup' },
+                                      { key: 'round_robin' as const, label: 'RR', desc: 'Round Robin' },
+                                      { key: 'swiss' as const, label: 'Swiss', desc: 'Swiss System' },
                                     ]).map((b) => (
                                       <button
                                         key={b.key}
@@ -1305,7 +1307,7 @@ export function AdminPanel({
                       setEditForm({
                         name: tournament.name || '',
                         type: (tournament.type || 'weekly') as 'weekly' | 'grand_final',
-                        bracketType: (tournament.bracketType || 'single') as 'single' | 'double' | 'group',
+                        bracketType: (tournament.bracketType || 'single') as 'single' | 'double' | 'group' | 'round_robin' | 'swiss',
                         week: tournament.week || 1,
                         startDate: sd ? sd.toISOString().split('T')[0] : '',
                         startTime: sd ? `${String(sd.getHours()).padStart(2,'0')}:${String(sd.getMinutes()).padStart(2,'0')}` : '',
@@ -1566,6 +1568,7 @@ export function AdminPanel({
                               { key: 'double', label: 'Double Elim', desc: 'Winner & Loser', icon: '🔄' },
                               { key: 'group', label: 'Group + Playoff', desc: 'Fase Grup', icon: '📊' },
                               { key: 'round_robin', label: 'Round Robin', desc: 'Semua vs Semua', icon: '🔁' },
+                              { key: 'swiss', label: 'Swiss System', desc: 'Pairing Bertahap', icon: '🇨🇭' },
                             ]).map((b) => (
                               <motion.button
                                 key={b.key}
@@ -4283,12 +4286,14 @@ export function AdminPanel({
                     <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Bracket</label>
                     <select
                       value={editForm.bracketType}
-                      onChange={(e) => setEditForm(p => ({ ...p, bracketType: e.target.value as 'single' | 'double' | 'group' }))}
+                      onChange={(e) => setEditForm(p => ({ ...p, bracketType: e.target.value as 'single' | 'double' | 'group' | 'round_robin' | 'swiss' }))}
                       className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
                     >
                       <option value="single" className="bg-neutral-900">Single Elim</option>
                       <option value="double" className="bg-neutral-900">Double Elim</option>
                       <option value="group" className="bg-neutral-900">Fase Grup</option>
+                      <option value="round_robin" className="bg-neutral-900">Round Robin</option>
+                      <option value="swiss" className="bg-neutral-900">Swiss System</option>
                     </select>
                   </div>
                 </div>

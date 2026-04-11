@@ -171,6 +171,107 @@ Work Log:
 Stage Summary:
 - Round Robin bracket visualization fully implemented with standings table + matches by round
 - Swiss bracket visualization fully implemented with standings + matches by round
+
+---
+Task ID: 9
+Agent: Main Orchestrator
+Task: Integrate Challonge.com clone features into IDM project
+
+Work Log:
+- Built ChallongeBracket.tsx with horizontal tree layout SVG bezier connectors zoom/pan mobile vertical layout
+- Added Swiss system bracket generation to bracket API route
+- Added Swiss advancement logic to matches API route
+- Integrated ChallongeBracket into page.tsx with view toggle
+- Added Swiss and Round Robin options to AdminPanel
+- All lint checks pass dev server running
+
+Stage Summary:
+- Full Challonge.com-style bracket viewer integrated
+- 5 bracket types supported: Single Elim Double Elim Group Round Robin Swiss
+- Bracket view toggle Challonge/Classic on bracket tab
+- SVG connecting lines with cubic bezier curves
+- Mobile responsive vertical bracket layout
+- Swiss auto-pairing advancement when rounds complete
 - Responsive design: desktop table, mobile cards, grid match layout
 - Admin score input with draw support for Round Robin
 - Pre-computed standings useMemo avoids React hooks conditional call error
+
+---
+Task ID: 3
+Agent: Subagent (full-stack-developer)
+Task: Add Swiss system tournament bracket generation to existing bracket API
+
+Work Log:
+- Read existing bracket API at `/src/app/api/tournaments/bracket/route.ts`
+- Read existing match score update API at `/src/app/api/matches/route.ts`
+- Read Prisma schema to understand data models (Tournament, Team, Match)
+- Added `swiss` case to bracket API route (after `round_robin` case):
+  - Round 1: Random pairing of all teams (using shuffledTeams)
+  - Bye handling: If odd number of teams, last team gets automatic win (teamBId = null)
+  - Rounds 2+: Create matches with null teamAId/teamBId (filled when previous round completes)
+  - Number of rounds = `Math.max(3, Math.ceil(Math.log2(numTeams)) + 1)`
+  - All matches use bracket type `'swiss'`
+- Added Swiss advancement logic to match score update API:
+  - `computeSwissStandings()`: Computes standings from completed matches with wins, losses, draws, and Buchholz score
+  - `pairSwissRound()`: Swiss pairing algorithm that:
+    - Sorts teams by wins (desc) → Buchholz (desc) → seed (asc)
+    - Groups teams by win count
+    - Pairs teams within same win group first
+    - Falls back to adjacent win groups if no valid opponent
+    - Enforces no-repeat-opponent constraint
+    - Handles odd teams with bye (automatic win)
+  - `handleSwissAdvancement()`: Called when a Swiss match completes:
+    - Checks if all matches in the current round are completed
+    - Computes Swiss standings from all completed matches
+    - Generates next round pairings using `pairSwissRound()`
+    - Updates next round match records with generated pairings
+    - Auto-completes bye matches (awards points + recursive advancement)
+    - Marks tournament as completed when all Swiss rounds are done
+    - Sends Pusher real-time notifications for round pairings and tournament completion
+- All code uses SQLite-compatible Prisma queries
+- ESLint passes with no errors
+- Dev server running successfully
+
+Stage Summary:
+- Swiss bracket generation fully implemented in bracket API
+- Swiss advancement (auto-pairing on round completion) fully implemented in match API
+- Complete Swiss pairing algorithm with Buchholz tiebreaker and no-repeat constraint
+- Bye handling with auto-completion and recursive advancement
+- Tournament auto-completes when all Swiss rounds finish
+- Real-time Pusher events for round pairing and tournament completion
+
+---
+Task ID: 2
+Agent: Code Agent
+Task: Build Challonge-style horizontal bracket viewer
+
+Work Log:
+- Read existing Bracket.tsx (2721 lines), ZoomPanWrapper, and MatchDetailPopup components
+- Studied the existing BracketProps interface, color palette, and component structure
+- Created /src/components/esports/ChallongeBracket.tsx with complete Challonge.com-style horizontal bracket visualization
+- Implemented CHALLONGE_COLORS design tokens: male accent #73FF00 (green), female accent #38BDF8 (blue), dark background #0B0B0F
+- Built ChallongeTeamRow and ChallongeEditTeamRow as standalone components (outside render to satisfy React Compiler rules)
+- Built ChallongeMatchCard with compact 220px width, glass-morphism effect, border accents per bracket type
+- Implemented BracketSVGConnectors using cubic bezier SVG paths for smooth horizontal connections between rounds
+- Implemented MobileBracketSVGConnectors with vertical bezier paths for mobile layout
+- Built DesktopBracket with horizontal tree layout (left-to-right progression), ResizeObserver for connector recalculation
+- Built MobileBracket with vertical stacked rounds, grid match cards (1 col → 2 cols)
+- Built RoundRobinView with standings table (Rank, Team, W, L, D, Pts, Diff) + matches grouped by round
+- Main ChallongeBracket export handles: Single Elimination (full horizontal bracket), Double Elimination (separate Winners/Losers/Grand Final sections), Round Robin/Swiss (standings + grid)
+- ZoomPanWrapper integration for desktop bracket scrolling/panning
+- Responsive: useIsMobile hook (768px breakpoint) switches between DesktopBracket and MobileBracket
+- Winner highlighting with division accent color, loser dimming, grand final golden glow, losers bracket reddish tint
+- Admin click-to-edit with pulsing accent border indicator, score stepper, MVP selection
+- Fixed React Compiler errors: removed useCallback with dependency arrays, extracted inner components to standalone functions
+- Lint passes cleanly with no errors
+
+Stage Summary:
+- Complete ChallongeBracket component at /src/components/esports/ChallongeBracket.tsx
+- Horizontal bracket layout with SVG cubic bezier connecting lines (desktop)
+- Vertical stacked layout with SVG connectors (mobile)
+- Supports Single Elimination, Double Elimination, Round Robin, and Swiss
+- Design spec compliant: #73FF00 male, #38BDF8 female, dark theme, glass-morphism cards
+- Zoom/pan support via ZoomPanWrapper on desktop
+- Admin score editing with MVP selection
+- Standings table for Round Robin/Swiss
+- Clean lint, no errors
