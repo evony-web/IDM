@@ -786,7 +786,7 @@ function PlayerRow({
         <p className="text-[10px] text-white/35">Tier {player.tier}</p>
       </div>
 
-      {/* Points + Season Breakdown */}
+      {/* Points */}
       <div className="text-right flex-shrink-0">
         <p
           className="text-[13px] font-bold"
@@ -800,37 +800,6 @@ function PlayerRow({
           {player.points.toLocaleString()}
         </p>
         <p className="text-[9px] text-white/30">pts</p>
-        {player.seasonPoints && player.seasonPoints.length > 0 && (
-          <div className="mt-1 space-y-0.5">
-            {/* Cumulative total */}
-            <div
-              className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded"
-              style={{
-                background: 'rgba(255,215,0,0.08)',
-                border: '1px solid rgba(255,215,0,0.12)',
-              }}
-            >
-              <span className="text-[7px] font-bold" style={{ color: '#FFD700' }}>
-                Σ {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()}
-              </span>
-            </div>
-            {/* Per-season */}
-            <div className="flex items-center gap-0.5 justify-end flex-wrap">
-              {player.seasonPoints.map((sp) => (
-                <span
-                  key={sp.season}
-                  className="text-[6px] font-semibold px-0.5 rounded"
-                  style={{
-                    background: `rgba(${accent},0.08)`,
-                    color: `rgba(${accent},0.5)`,
-                  }}
-                >
-                  S{sp.season}:{sp.points}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1129,7 +1098,7 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
               <p className="text-[10px] text-white/35">Tier {player.tier}</p>
             </div>
 
-            {/* Points + Season Breakdown */}
+            {/* Points */}
             <div className="text-right flex-shrink-0">
               <p
                 className="text-[13px] font-bold"
@@ -1143,23 +1112,6 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
                 {player.points.toLocaleString()}
               </p>
               <p className="text-[9px] text-white/30">pts</p>
-              {/* Season breakdown */}
-              {player.seasonPoints && player.seasonPoints.length > 0 && (
-                <div className="flex items-center gap-1 justify-end mt-0.5 flex-wrap">
-                  {player.seasonPoints.map((sp) => (
-                    <span
-                      key={sp.season}
-                      className="text-[7px] font-semibold px-1 py-[1px] rounded"
-                      style={{
-                        background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                        color: isMale ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
-                      }}
-                    >
-                      S{sp.season}:{sp.points}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         );
@@ -2234,72 +2186,7 @@ function OverallLeaderboardView({ players, onPlayerClick }: { players: TopPlayer
 
   return (
     <>
-      {/* ═══ Top 3 Podium ═══ */}
-      {players.length >= 3 && (
-        <div className="flex items-end justify-center gap-3 sm:gap-4 mb-5 px-2">
-          {/* 2nd Place */}
-          <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[120px]">
-            <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #C0C0C0, #8E8E93)' }}>
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
-                {players[1].avatar ? (
-                  <img src={players[1].avatar} alt={players[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
-                ) : (
-                  <span className="text-[16px] sm:text-[18px] font-bold text-white/70">{players[1].name.charAt(0)}</span>
-                )}
-              </div>
-            </div>
-            <div className="mt-2 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[13px] sm:text-[14px] font-black" style={{ background: 'linear-gradient(135deg, #C7C7CC, #8E8E93)', color: '#1C1C1E' }}>2</div>
-            <p className="text-[12px] sm:text-[13px] font-bold text-white/85 mt-1.5 truncate w-full text-center">{players[1].name}</p>
-            <p className="text-[12px] sm:text-[13px] font-bold mt-0.5" style={{ color: players[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[1].points.toLocaleString()} pts</p>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md mt-1" style={{ background: players[1].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: players[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>
-              {players[1].gender === 'male' ? '♂ Male' : '♀ Female'}
-            </span>
-          </div>
-
-          {/* 1st Place */}
-          <div className="flex flex-col items-center flex-1 max-w-[110px] sm:max-w-[130px]">
-            <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
-              <Crown className="w-6 h-6 sm:w-7 sm:h-7 mb-1" style={{ color: '#FFD700' }} />
-            </motion.div>
-            <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 0 16px rgba(255,215,0,0.3)' }}>
-              <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
-                {players[0].avatar ? (
-                  <img src={players[0].avatar} alt={players[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
-                ) : (
-                  <span className="text-[18px] sm:text-[20px] font-bold text-white/70">{players[0].name.charAt(0)}</span>
-                )}
-              </div>
-            </div>
-            <div className="mt-2 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-[14px] sm:text-[16px] font-black" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000', boxShadow: '0 0 16px rgba(255,215,0,0.3)' }}>1</div>
-            <p className="text-[13px] sm:text-[14px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{players[0].name}</p>
-            <p className="text-[13px] sm:text-[14px] font-bold mt-0.5" style={{ color: players[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[0].points.toLocaleString()} pts</p>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md mt-1" style={{ background: players[0].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: players[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>
-              {players[0].gender === 'male' ? '♂ Male' : '♀ Female'}
-            </span>
-          </div>
-
-          {/* 3rd Place */}
-          <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[120px]">
-            <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)' }}>
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
-                {players[2].avatar ? (
-                  <img src={players[2].avatar} alt={players[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
-                ) : (
-                  <span className="text-[16px] sm:text-[18px] font-bold text-white/70">{players[2].name.charAt(0)}</span>
-                )}
-              </div>
-            </div>
-            <div className="mt-2 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[13px] sm:text-[14px] font-black" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }}>3</div>
-            <p className="text-[12px] sm:text-[13px] font-bold text-white/85 mt-1.5 truncate w-full text-center">{players[2].name}</p>
-            <p className="text-[12px] sm:text-[13px] font-bold mt-0.5" style={{ color: players[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[2].points.toLocaleString()} pts</p>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md mt-1" style={{ background: players[2].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: players[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>
-              {players[2].gender === 'male' ? '♂ Male' : '♀ Female'}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ Remaining Players List ═══ */}
+      {/* ═══ Unified Leaderboard Card ═══ */}
       <div
         className="rounded-2xl overflow-hidden"
         style={{
@@ -2307,6 +2194,70 @@ function OverallLeaderboardView({ players, onPlayerClick }: { players: TopPlayer
           border: '1px solid rgba(255,215,0,0.08)',
         }}
       >
+        {/* ═══ Top 3 Podium — inside the card ═══ */}
+        {players.length >= 3 && (
+          <div className="px-3 sm:px-4 pt-4 sm:pt-5 pb-3">
+            <div className="flex items-end justify-center gap-3 sm:gap-5">
+              {/* 2nd Place */}
+              <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[120px]">
+                <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #C0C0C0, #8E8E93)' }}>
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                    {players[1].avatar ? (
+                      <img src={players[1].avatar} alt={players[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                    ) : (
+                      <span className="text-[15px] sm:text-[17px] font-bold text-white/70">{players[1].name.charAt(0)}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-[12px] sm:text-[13px] font-black" style={{ background: 'linear-gradient(135deg, #C7C7CC, #8E8E93)', color: '#1C1C1E' }}>2</div>
+                <p className="text-[11px] sm:text-[13px] font-bold text-white/85 mt-1.5 truncate w-full text-center">{players[1].name}</p>
+                <p className="text-[11px] sm:text-[13px] font-bold mt-0.5" style={{ color: players[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[1].points.toLocaleString()} pts</p>
+              </div>
+
+              {/* 1st Place */}
+              <div className="flex flex-col items-center flex-1 max-w-[110px] sm:max-w-[130px]">
+                <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                  <Crown className="w-5 h-5 sm:w-6 sm:h-6 mb-1" style={{ color: '#FFD700' }} />
+                </motion.div>
+                <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 0 14px rgba(255,215,0,0.3)' }}>
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                    {players[0].avatar ? (
+                      <img src={players[0].avatar} alt={players[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                    ) : (
+                      <span className="text-[17px] sm:text-[19px] font-bold text-white/70">{players[0].name.charAt(0)}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-[13px] sm:text-[14px] font-black" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000', boxShadow: '0 0 14px rgba(255,215,0,0.3)' }}>1</div>
+                <p className="text-[12px] sm:text-[14px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{players[0].name}</p>
+                <p className="text-[12px] sm:text-[14px] font-bold mt-0.5" style={{ color: players[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[0].points.toLocaleString()} pts</p>
+              </div>
+
+              {/* 3rd Place */}
+              <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[120px]">
+                <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)' }}>
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                    {players[2].avatar ? (
+                      <img src={players[2].avatar} alt={players[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                    ) : (
+                      <span className="text-[15px] sm:text-[17px] font-bold text-white/70">{players[2].name.charAt(0)}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-[12px] sm:text-[13px] font-black" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }}>3</div>
+                <p className="text-[11px] sm:text-[13px] font-bold text-white/85 mt-1.5 truncate w-full text-center">{players[2].name}</p>
+                <p className="text-[11px] sm:text-[13px] font-bold mt-0.5" style={{ color: players[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[2].points.toLocaleString()} pts</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Divider between podium and list */}
+        {players.length >= 3 && (
+          <div className="mx-3 sm:mx-4 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.12), transparent)' }} />
+        )}
+
+        {/* ═══ Remaining Players List ═══ */}
         <div className="px-2 py-2">
           {players.length > 0 ? (
             <PlayerList players={visiblePlayers} startDelay={0} onPlayerClick={onPlayerClick} />
