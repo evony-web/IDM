@@ -2083,6 +2083,26 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
           <p className="text-[14px] text-white/25 text-center font-medium">Belum ada data season points</p>
           <p className="text-[12px] text-white/15 mt-1 text-center">Tambahkan dari panel admin tab Peserta</p>
         </div>
+      ) : displaySeasonPlayers.length === 0 ? (
+        <div
+          className="rounded-2xl flex flex-col items-center justify-center py-16 px-4"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,215,0,0.06)',
+          }}
+        >
+          <BarChart3 className="w-12 h-12 text-white/10 mb-3" />
+          <p className="text-[14px] text-white/25 text-center font-medium">
+            {selectedSeason === 'all'
+              ? 'Belum ada data season points'
+              : `Belum ada data untuk Season ${selectedSeason}`}
+          </p>
+          <p className="text-[12px] text-white/15 mt-1 text-center">
+            {selectedSeason === currentSeason
+              ? 'Season sedang berjalan, points belum ditambahkan'
+              : 'Coba pilih season lain dari dropdown'}
+          </p>
+        </div>
       ) : (
         <>
           <div
