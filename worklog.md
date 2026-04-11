@@ -111,3 +111,23 @@ Stage Summary:
 - All code passes ESLint
 - No compilation errors
 - App is running and functional
+
+---
+Task ID: 11
+Agent: Main Agent
+Task: Move Leaderboard above Dukungan & Sawer + Club Carousel 7-second interval
+
+Work Log:
+- Moved TOP PLAYERS / Leaderboard section above Clubs Carousel in LandingPage.tsx (line 3568-3573)
+- New section order: Division Cards → Leaderboard → Clubs Carousel → Dukungan & Sawer → Quick Info
+- Changed ClubsCarousel auto-scroll interval from 3000ms to 7000ms (7 seconds)
+- Changed auto-scroll condition from `clubs.length <= 7` to `clubs.length === 0` so carousel always auto-scrolls when content overflows
+- Added `maxScroll <= 4` check to skip auto-scroll when all clubs fit on screen
+- Desktop layout already shows 7 clubs (lg:w-[calc(14.286%-14px)])
+- Ran lint check - passed clean
+
+Stage Summary:
+- Leaderboard section is now above Dukungan & Sawer section in LandingPage
+- Club carousel auto-scrolls every 7 seconds instead of 3 seconds
+- 7 clubs visible on desktop horizontal layout
+- No lint errors

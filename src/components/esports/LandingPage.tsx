@@ -1522,6 +1522,8 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const autoScrollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const updateScrollButtons = () => {
     const el = scrollRef.current;
@@ -1529,6 +1531,35 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
     setCanScrollLeft(el.scrollLeft > 4);
     setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
   };
+
+  // ── Auto-scroll carousel every 7 seconds ──
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || clubs.length === 0) return;
+
+    const startAutoScroll = () => {
+      if (autoScrollRef.current) clearInterval(autoScrollRef.current);
+      autoScrollRef.current = setInterval(() => {
+        if (isHovered || !el) return;
+        const cardEl = el.querySelector('[data-club-card]') as HTMLElement | null;
+        const cardWidth = cardEl?.offsetWidth || 180;
+        const gap = 16;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll <= 4) return; // All clubs visible, no scroll needed
+        if (el.scrollLeft >= maxScroll - 4) {
+          // Reset to start smoothly
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: cardWidth + gap, behavior: 'smooth' });
+        }
+      }, 7000);
+    };
+
+    startAutoScroll();
+    return () => {
+      if (autoScrollRef.current) clearInterval(autoScrollRef.current);
+    };
+  }, [clubs, isHovered]);
 
   useEffect(() => {
     updateScrollButtons();
@@ -1597,7 +1628,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
         </div>
       </div>
 
-      {/* Scrollable container - hidden scrollbar */}
+      {/* Scrollable container - hidden scrollbar, auto-scroll on hover pause */}
       <div
         ref={scrollRef}
         data-club-scroll=""
@@ -1606,6 +1637,8 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <style>{`[data-club-scroll]::-webkit-scrollbar{display:none}`}</style>
         {clubs.map((club, idx) => (
@@ -1615,7 +1648,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative flex-shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(16.667%-13px)] overflow-hidden rounded-2xl`}
+            className={`relative flex-shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(14.286%-14px)] overflow-hidden rounded-2xl`}
             style={{
               background: club.name === 'GYMSHARK'
                 ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)'
@@ -3533,6 +3566,13 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           />
         </motion.div>
 
+        {/* ═══ TOP PLAYERS + VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
+        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-10 md:items-stretch">
+          <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
+          <VideoHighlightSection division="all" />
+          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
+        </div>
+
         {/* ═══ CLUBS CAROUSEL ═══ */}
         <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <ClubsCarousel clubs={activeData.clubs} />
@@ -3541,13 +3581,6 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ DONASI & SAWER SECTION ═══ */}
         <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <DonasiSawerSection data={activeData} />
-        </div>
-
-        {/* ═══ TOP PLAYERS + VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-10 md:items-stretch">
-          <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
-          <VideoHighlightSection division="all" />
-          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ QUICK INFO SECTION ═══ */}
