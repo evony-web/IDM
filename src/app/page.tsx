@@ -1,1504 +1,1400 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAppStore } from "@/lib/store";
-import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "next-themes";
-import { toast } from "@/hooks/use-toast";
+// IDM - IDOL META Tournament App
+// Production build for Vercel deployment
 
-// UI Components
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { useAppStore } from '@/lib/store';
+import { IDM_LOGO_URL } from '@/lib/cdn';
+import { Navigation, TopBar, Sidebar } from '@/components/esports/Navigation';
+import { GradientBackground, Premium3DEffects } from '@/components/effects/ParticleField';
+import { Dashboard } from '@/components/esports/Dashboard';
+import { TournamentTab } from '@/components/esports/Tournament';
+import { Bracket } from '@/components/esports/Bracket';
+import { Leaderboard } from '@/components/esports/Leaderboard';
+import { DonasiSawerTab } from '@/components/esports/DonasiSawerTab';
+import { AdminLogin } from '@/components/esports/AdminLogin';
+import { LandingPage } from '@/components/esports/LandingPage';
+import { ToastContainer } from '@/components/esports/Toast';
 
-// Bracket Components
-import { BracketViewer, type BracketMatch } from "@/components/bracket-viewer";
+import { Database } from 'lucide-react';
+import { usePusher } from '@/hooks/usePusher';
+import { adminFetch } from '@/lib/admin-fetch';
 
-// Icons
-import {
-  Trophy,
-  Plus,
-  Users,
-  Swords,
-  Play,
-  RotateCcw,
-  Trash2,
-  Edit,
-  ChevronRight,
-  ChevronLeft,
-  Search,
-  Gamepad2,
-  Settings,
-  X,
-  Check,
-  Globe,
-  Lock,
-  Shuffle,
-  Target,
-  Clock,
-  Zap,
-  Moon,
-  Sun,
-  ListOrdered,
-  ArrowLeft,
-} from "lucide-react";
+// ═══════════════════════════════════════════════════════════════════════
+// LAZY LOAD HEAVY COMPONENTS - Reduces initial bundle by ~40%
+// ═══════════════════════════════════════════════════════════════════════
 
-import { cn } from "@/lib/utils";
+// Modals - only load when opened
+const PlayerListModal = dynamic(() => import('@/components/esports/PlayerListModal'), {
+  loading: () => null,
+  ssr: false,
+});
 
-// ─── Types (matching actual API response shapes) ─────────────────────────────
+const PrizeBreakdownModal = dynamic(() => import('@/components/esports/PrizeBreakdownModal'), {
+  loading: () => null,
+  ssr: false,
+});
 
-interface ApiParticipant {
-  id: string;
-  name: string;
-  seed: number;
-  active: boolean;
-  tournamentId: string;
-}
+const TeamListModal = dynamic(() => import('@/components/esports/TeamListModal'), {
+  loading: () => null,
+  ssr: false,
+});
 
-interface ApiMatchPlayer {
-  id: string;
-  name: string;
-  seed: number;
-}
+// Tab content - load on demand
+const GrandFinal = dynamic(() => import('@/components/esports/GrandFinal'), {
+  loading: () => <div className="animate-pulse h-64 bg-white/5 rounded-2xl" />,
+  ssr: false,
+});
 
-interface ApiMatch {
-  id: string;
-  tournamentId: string;
-  round: number;
-  position: number;
-  bracket: string;
-  player1Id: string | null;
-  player2Id: string | null;
-  score1: number;
-  score2: number;
-  winnerId: string | null;
-  status: string;
-  nextMatchId: string | null;
-  nextMatchPosition: string | null;
-  isThirdPlace: boolean;
-  order: number;
-  player1: ApiMatchPlayer | null;
-  player2: ApiMatchPlayer | null;
-  winner: ApiMatchPlayer | null;
-}
+const AdminPanel = dynamic(() => import('@/components/esports/AdminPanel'), {
+  loading: () => <div className="fixed inset-0 bg-black/50 flex items-center justify-center"><div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin border-amber-400" /></div>,
+  ssr: false,
+});
 
-interface ApiTournament {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  format: string;
-  status: string;
-  gameName: string;
-  isPublic: boolean;
-  seeded: boolean;
-  thirdPlace: boolean;
-  randomize: boolean;
-  maxParticipants: number;
-  swissRounds: number;
-  groupIdSize: number;
-  holdThirdPlaceMatch: boolean;
-  createdAt: string;
-  updatedAt: string;
-  participants?: ApiParticipant[];
-  matches?: ApiMatch[];
-  _count?: { participants: number; matches: number };
-}
+const TournamentHistory = dynamic(() => import('@/components/esports/TournamentHistory'), {
+  loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="animate-pulse h-20 bg-white/5 rounded-xl" />)}</div>,
+  ssr: false,
+});
 
-// ─── Format & Status Helpers ────────────────────────────────────────────────
+// Live Chat - load after main content
+const LiveChat = dynamic(() => import('@/components/esports/LiveChat'), {
+  loading: () => null,
+  ssr: false,
+});
 
-const FORMAT_CONFIG: Record<
-  string,
-  { label: string; color: string; icon: React.ReactNode }
-> = {
-  single_elimination: {
-    label: "Single Elim",
-    color: "bg-red-500/20 text-red-400 border-red-500/30",
-    icon: <Swords className="size-3" />,
-  },
-  double_elimination: {
-    label: "Double Elim",
-    color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    icon: <Swords className="size-3" />,
-  },
-  round_robin: {
-    label: "Round Robin",
-    color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    icon: <RotateCcw className="size-3" />,
-  },
-  swiss: {
-    label: "Swiss",
-    color: "bg-teal-500/20 text-teal-400 border-teal-500/30",
-    icon: <Target className="size-3" />,
-  },
-};
+// Live Score Banner - real-time score notification
+const LiveScoreBanner = dynamic(() => import('@/components/esports/LiveScoreBanner'), {
+  loading: () => null,
+  ssr: false,
+});
 
-const STATUS_CONFIG: Record<
-  string,
-  { label: string; color: string; icon: React.ReactNode }
-> = {
-  pending: {
-    label: "Pending",
-    color: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
-    icon: <Clock className="size-3" />,
-  },
-  in_progress: {
-    label: "Live",
-    color: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
-    icon: <Zap className="size-3" />,
-  },
-  completed: {
-    label: "Completed",
-    color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    icon: <Check className="size-3" />,
-  },
-};
+// Live Match Ticker - shows ongoing matches
+const LiveMatchTicker = dynamic(() => import('@/components/esports/LiveMatchTicker'), {
+  loading: () => null,
+  ssr: false,
+});
 
-// ─── Round Name Helper ──────────────────────────────────────────────────────
+// PWA Install - low priority
+const PWAInstallPrompt = dynamic(() => import('@/components/pwa/PWAInstallPrompt'), {
+  loading: () => null,
+  ssr: false,
+});
 
-function getRoundName(
-  round: number,
-  totalRounds: number,
-  bracket: string
-): string {
-  if (bracket === "grand_finals") return "Grand Finals";
-  if (bracket === "losers") return `Losers Round ${round}`;
+// Player Profile Page - for landing page leaderboard clicks
+const PlayerProfilePage = dynamic(() => import('@/components/esports/PlayerProfilePage').then(m => ({ default: m.PlayerProfilePage })), {
+  loading: () => (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ background: '#12141a' }}>
+      <div className="relative w-10 h-10">
+        <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderTopColor: '#73FF00', borderRightColor: 'rgba(115,255,0,0.3)' }} />
+      </div>
+    </div>
+  ),
+  ssr: false,
+});
 
-  const remaining = totalRounds - round;
-  if (remaining === 0) return "Finals";
-  if (remaining === 1) return "Semi-Finals";
-  if (remaining === 2) return "Quarter-Finals";
-  return `Round ${round}`;
-}
 
-// ─── Transform API matches to BracketMatch ──────────────────────────────────
+export default function IDOLMETAApp() {
+  // Mobile detection for conditional inline styles (loading screen perf)
+  // Start with undefined to avoid hydration mismatch, then set after mount
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
 
-function transformMatches(matches: ApiMatch[]): BracketMatch[] {
-  if (!matches || matches.length === 0) return [];
+  useEffect(() => {
+    // Set initial value after mount
+    const mq = window.matchMedia('(min-width: 768px)');
+    setIsMobile(!mq.matches);
 
-  // Calculate total rounds per bracket
-  const maxRounds: Record<string, number> = {};
-  for (const m of matches) {
-    maxRounds[m.bracket] = Math.max(maxRounds[m.bracket] || 0, m.round);
-  }
+    // Listen for changes
+    const handler = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
-  return matches.map((m, idx) => ({
-    id: m.id,
-    matchNumber: idx + 1,
-    round: m.round,
-    roundName: getRoundName(m.round, maxRounds[m.bracket] || m.round, m.bracket),
-    position: m.position,
-    player1Id: m.player1Id,
-    player1Name: m.player1?.name || null,
-    player1Score: m.status === "pending" && !m.player1Id && !m.player2Id ? null : m.score1,
-    player1IsWinner: m.winnerId === m.player1Id,
-    player2Id: m.player2Id,
-    player2Name: m.player2?.name || null,
-    player2Score: m.status === "pending" && !m.player1Id && !m.player2Id ? null : m.score2,
-    player2IsWinner: m.winnerId === m.player2Id,
-    isCompleted: m.status === "completed",
-    bracket: m.bracket as "winners" | "losers" | "grand_finals" | "main",
-    isBye: m.status === "completed" && (!m.player1Id || !m.player2Id),
-  }));
-}
+  // Default to mobile styles during SSR and initial render
+  const isMobileStyle = isMobile ?? true;
+  const {
+    activeTab,
+    division,
+    isSwitchingDivision,
+    isAdminAuthenticated,
+    users,
+    currentTournament,
+    registrations,
+    teams,
+    matches,
+    donations,
+    totalDonation,
+    totalSawer,
+    toasts,
+    tournaments,
+    setActiveTab,
+    setDivision,
+    setSwitchingDivision,
+    fetchData,
+    registerUser,
+    approveRegistration,
+    updateRegistrationTier,
+    rejectRegistration,
+    deleteRegistration,
+    deleteAllRejected,
+    updateTournamentStatus,
+    updatePrizePool,
+    generateTeams,
+    resetTeams,
+    generateBracket,
+    updateMatchScore,
+    setMVP,
+    removeMVP,
+    finalizeTournament,
+    donate,
+    removeToast,
+    seedDatabase,
+    resetSeason,
+    createTournament,
+    addToast,
+    loginAdmin,
+    logoutAdmin,
+    fetchAdmins,
+  } = useAppStore();
 
-// ─── API Helpers ────────────────────────────────────────────────────────────
+  // ── Theme is always DARK for both divisions ──
+  const theme = 'dark' as const;
 
-async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
+  // Track which sub-tab to show when donation tab opens
+  const [donationDefaultTab, setDonationDefaultTab] = useState<'sawer' | 'donasi'>('sawer');
+
+  // Track initial mount
+  const isInitialMount = useRef(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // ── Loading Screen Audio ──
+  const loadingAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // ── Landing Page state ──
+  const [view, setView] = useState<'loading' | 'landing' | 'app'>('loading');
+  const [landingData, setLandingData] = useState<any>(null);
+  const [landingProfileId, setLandingProfileId] = useState<string | null>(null);
+  const [landingProfileGender, setLandingProfileGender] = useState<'male' | 'female'>('male');
+  const [appProfileId, setAppProfileId] = useState<string | null>(null);
+
+  // Track initial data loading (separate from division switching)
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [playerListOpen, setPlayerListOpen] = useState(false);
+  const [prizeModalOpen, setPrizeModalOpen] = useState(false);
+  const [teamListOpen, setTeamListOpen] = useState(false);
+  const [leaderboardTab, setLeaderboardTab] = useState<'players' | 'clubs'>('players');
+
+  // Live Score Banner state
+  const [liveScoreMatch, setLiveScoreMatch] = useState<{
+    matchId: string;
+    teamAName?: string;
+    teamBName?: string;
+    scoreA: number;
+    scoreB: number;
+    round: number;
+    matchNumber: number;
+    winnerName?: string;
+  } | null>(null);
+  const [topClubs, setTopClubs] = useState<Array<{
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl: string | null;
+    totalPoints: number;
+    memberCount: number;
+    rank: number;
+  }>>([]);
+
+  // ── App Loading Screen — preload landing data, then transition ──
+  useEffect(() => {
+    const controller = new AbortController();
+    let landed = false;
+    const startTime = Date.now();
+
+    // Play loading audio
+    if (loadingAudioRef.current) {
+      loadingAudioRef.current.volume = 0.4;
+      loadingAudioRef.current.play().catch(() => { /* audio autoplay blocked */ });
+    }
+
+    (async () => {
+      try {
+        const res = await fetch('/api/landing', { signal: controller.signal });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success) setLandingData(json.data);
+        }
+      } catch { /* silent */ }
+      // Transition to landing after data ready (min 1.8s for loading feel)
+      if (!landed) {
+        landed = true;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 1800 - elapsed);
+        setTimeout(() => setView('landing'), remaining);
+      }
+    })();
+
+    return () => { controller.abort(); landed = true; };
+  }, []);
+
+  // ── Stop loading audio when leaving loading screen ──
+  useEffect(() => {
+    if (view !== 'loading' && loadingAudioRef.current) {
+      // Fade out audio over 500ms
+      const audio = loadingAudioRef.current;
+      const startVolume = audio.volume;
+      const fadeInterval = setInterval(() => {
+        if (audio.volume > 0.05) {
+          audio.volume = Math.max(0, audio.volume - startVolume / 15);
+        } else {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = startVolume;
+          clearInterval(fadeInterval);
+        }
+      }, 33);
+      // Safety: force stop after 600ms
+      setTimeout(() => {
+        clearInterval(fadeInterval);
+        audio.pause();
+        audio.currentTime = 0;
+      }, 600);
+    }
+  }, [view]);
+
+  // Listen for admin auth changes (e.g., 401 response triggers logout)
+  useEffect(() => {
+    const handleAuthChange = (event: CustomEvent) => {
+      if (!event.detail?.authenticated) {
+        // Admin was logged out due to 401
+        setAdminOpen(false);
+        setAdminLoginOpen(true);
+        addToast('Session admin habis. Silakan login kembali.', 'warning');
+      }
+    };
+    window.addEventListener('admin-auth-changed', handleAuthChange as EventListener);
+    return () => window.removeEventListener('admin-auth-changed', handleAuthChange as EventListener);
+  }, [addToast]);
+
+  // Pusher connection for real-time updates
+  const { joinTournament, isConnected } = usePusher({
+    // On match score update — show live banner
+    onMatchScore: useCallback((data: any) => {
+      setLiveScoreMatch({
+        matchId: data.matchId,
+        teamAName: (data as any).teamAName,
+        teamBName: (data as any).teamBName,
+        scoreA: data.scoreA,
+        scoreB: data.scoreB,
+        round: (data as any).round || 0,
+        matchNumber: (data as any).matchNumber || 0,
+      });
+      fetchData(false);
+    }, [fetchData]),
+    // On match result (completed) — show banner with winner
+    onMatchResult: useCallback((data: any) => {
+      setLiveScoreMatch({
+        matchId: (data as any).matchId || '',
+        teamAName: (data as any).teamAName,
+        teamBName: (data as any).teamBName,
+        scoreA: (data as any).scoreA || 0,
+        scoreB: (data as any).scoreB || 0,
+        round: (data as any).round || 0,
+        matchNumber: (data as any).matchNumber || 0,
+        winnerName: (data as any).winnerName,
+      });
+      fetchData(false);
+    }, [fetchData]),
+    // On announcement
+    onAnnouncement: useCallback((data) => {
+      addToast(data.message, data.type as 'success' | 'error' | 'warning' | 'info');
+    }, [addToast]),
+    // On donation
+    onNewDonation: useCallback((data) => {
+      addToast(`${data.userName} berdonasi Rp${data.amount}!`, 'success');
+      fetchData(false);
+    }, [addToast, fetchData]),
+    // On prize pool update
+    onPrizePoolUpdate: useCallback(() => {
+      fetchData(false);
+    }, [fetchData]),
+    // On tournament update (status change, etc.)
+    onTournamentUpdate: useCallback(() => {
+      fetchData(false);
+    }, [fetchData]),
+    // On registration update
+    onRegistrationUpdate: useCallback(() => {
+      fetchData(false);
+    }, [fetchData]),
+    // On new sawer confirmed
+    onNewSawer: useCallback((data) => {
+      addToast(`${data.senderName} menyawer Rp${data.amount}! Prize pool bertambah!`, 'success');
+      fetchData(false);
+    }, [addToast, fetchData]),
+    // On achievement awarded — show toast with achievement icons
+    onAchievementAwarded: useCallback((data) => {
+      const achList = data.achievements.map(a => `${a.icon} ${a.name}`).join(', ');
+      addToast(`${data.userName} mendapat pencapaian baru: ${achList}`, 'success');
+      fetchData(false);
+    }, [addToast, fetchData]),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(err.error || `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
-// ─── Main Page Component ────────────────────────────────────────────────────
+  // ── Grand Final State ──
+  const [grandFinalData, setGrandFinalData] = useState<any>(null);
+  const [qualifiedPlayers, setQualifiedPlayers] = useState<Array<{id: string; name: string; points: number; tier: string; avatar: string | null}>>([]);
+  const [isGFSettingUp, setIsGFSettingUp] = useState(false);
+  const [isGFDeleting, setIsGFDeleting] = useState(false);
+  const [isGFUpdatingScore, setIsGFUpdatingScore] = useState(false);
+  const [gfPrizePool, setGfPrizePool] = useState<number>(0);
 
-export default function Home() {
-  const { view, selectedTournamentId, setView, selectTournament, goHome } =
-    useAppStore();
-  const { theme, setTheme } = useTheme();
+  // Fetch Grand Final data
+  const fetchGrandFinal = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/tournaments/grand-final?division=${division}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setGrandFinalData(data.grandFinal);
+          setQualifiedPlayers(data.qualifiedPlayers || []);
+        }
+      }
+    } catch { /* silent */ }
+  }, [division]);
 
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <button
-            onClick={goHome}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
-            <Trophy className="size-6 text-emerald-500" />
-            <span className="text-xl font-bold tracking-tight">Brackito</span>
-          </button>
+  // Setup Grand Final (admin)
+  const setupGrandFinal = useCallback(async (prizePoolValue?: number) => {
+    setIsGFSettingUp(true);
+    try {
+      const res = await adminFetch('/api/tournaments/grand-final', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ division, prizePool: prizePoolValue ?? gfPrizePool ?? 0 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast('GRAND FINAL dimulai! 4 tim siap bertanding!', 'success');
+        await fetchGrandFinal();
+        fetchData(false);
+      } else {
+        addToast(data.error || 'Gagal membuat Grand Final', 'error');
+      }
+    } catch {
+      addToast('Gagal membuat Grand Final', 'error');
+    } finally {
+      setIsGFSettingUp(false);
+    }
+  }, [division, gfPrizePool, addToast, fetchGrandFinal, fetchData]);
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="size-9"
-            >
-              {theme === "dark" ? (
-                <Sun className="size-4" />
-              ) : (
-                <Moon className="size-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-      </header>
+  // Delete Grand Final (admin)
+  const deleteGrandFinal = useCallback(async () => {
+    if (!grandFinalData?.id) return;
+    setIsGFDeleting(true);
+    try {
+      const res = await adminFetch(`/api/tournaments/grand-final?tournamentId=${grandFinalData.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast('Grand Final direset', 'warning');
+        await fetchGrandFinal();
+        fetchData(false);
+      } else {
+        addToast(data.error || 'Gagal mereset Grand Final', 'error');
+      }
+    } catch {
+      addToast('Gagal mereset Grand Final', 'error');
+    } finally {
+      setIsGFDeleting(false);
+    }
+  }, [grandFinalData, addToast, fetchGrandFinal, fetchData]);
 
-      {/* Main content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
+  // Update Grand Final match score (admin)
+  const updateGFMatchScore = useCallback(async (matchId: string, scoreA: number, scoreB: number, mvpId?: string) => {
+    setIsGFUpdatingScore(true);
+    try {
+      const res = await adminFetch('/api/matches', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matchId, scoreA, scoreB, mvpId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const mvpText = mvpId ? ` dengan MVP` : '';
+        addToast(`Skor diperbarui: ${scoreA} - ${scoreB}${mvpText}`, 'success');
+        await fetchGrandFinal();
+        fetchData(false);
+      } else {
+        addToast(data.error || 'Gagal memperbarui skor', 'error');
+      }
+    } catch {
+      addToast('Gagal memperbarui skor', 'error');
+    } finally {
+      setIsGFUpdatingScore(false);
+    }
+  }, [addToast, fetchGrandFinal, fetchData]);
+
+  // Fetch Grand Final on mount and division change
+  useEffect(() => {
+    fetchGrandFinal();
+  }, [division, fetchGrandFinal]);
+
+  // Apply theme class - ALWAYS DARK for both divisions
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // Remove all theme classes first
+    root.classList.remove('light', 'dark', 'theme-light-fury', 'dark-fury-pink', 'theme-light-fury-male');
+    root.removeAttribute('data-theme');
+
+    // Both divisions use DARK mode
+    root.classList.add('dark');
+    
+    // Set data-theme for accent colors: Male = Green, Female = Blue
+    if (division === 'male') {
+      root.setAttribute('data-theme', 'dark-male');
+    } else {
+      root.setAttribute('data-theme', 'dark-female');
+    }
+  }, [division]);
+
+  // Toggle division function with loading indicator
+  const toggleDivision = useCallback(() => {
+    const newDivision = division === 'male' ? 'female' : 'male';
+    setSwitchingDivision(true);
+    setDivision(newDivision);
+  }, [division, setDivision, setSwitchingDivision]);
+
+  // ── Go back to landing page ──
+  const handleBackToLanding = useCallback(() => {
+    setView('landing');
+    setIsInitialLoading(true);
+  }, []);
+
+  // ── Handle entering a division from landing page ──
+  const handleEnterDivision = useCallback((div: 'male' | 'female') => {
+    setDivision(div);
+    setView('app');
+    // Quick spinner when coming from landing page
+    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 600));
+ Promise.all([
+      fetchData(false, false),
+      minLoadingTime
+    ]).finally(() => {
+      setIsInitialLoading(false);
+    });
+    // Verify admin session
+    fetchAdmins();
+  }, [setDivision, fetchData, fetchAdmins]);
+
+  // ── Handle player click from landing page leaderboard ──
+  const handleLandingPlayerClick = useCallback((playerId: string, gender: 'male' | 'female') => {
+    setLandingProfileId(playerId);
+    setLandingProfileGender(gender);
+  }, []);
+
+  // ── Handle admin login from landing page ──
+  const handleAdminLoginFromLanding = useCallback(() => {
+    // Just open the admin login modal directly (no view switch, no data fetch)
+    setAdminLoginOpen(true);
+  }, []);
+
+  // ── Admin login from landing page — after success, transition to app view ──
+  const handleAdminLoginFromLandingSubmit = useCallback(async (username: string, password: string): Promise<boolean> => {
+    const success = await loginAdmin(username, password);
+    if (success) {
+      // Switch to app view and open admin panel (no loading screen)
+      setDivision('male');
+      setView('app');
+      setIsInitialLoading(false);
+      fetchData(false, false);
+      setAdminOpen(true);
+    }
+    return success;
+  }, [loginAdmin, setDivision, setView, fetchData]);
+
+
+
+  // Load data on mount and when division changes
+  useEffect(() => {
+    if (view === 'landing') return; // Don't load data when on landing page
+
+    if (isInitialMount.current) {
+      // Initial mount - fetch data with loading indicator
+      isInitialMount.current = false;
+      
+      // Minimum 1 second spinner for data loading
+      const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1000));
+      
+      Promise.all([
+        fetchData(false, false),
+        minLoadingTime
+      ]).finally(() => {
+        setIsInitialLoading(false);
+      });
+      
+      // Verify admin session is still valid
+      fetchAdmins();
+    } else {
+      // Division change - show switching overlay
+      fetchData(false, true);
+    }
+  }, [division, fetchData, view]);
+
+  // Initial fetch & re-fetch on division change
+  useEffect(() => {
+    const controller = new AbortController();
+    const genderParam = division === 'male' ? 'male' : 'female';
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/clubs?gender=${genderParam}&limit=10`, { signal: controller.signal });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.clubs) {
+            setTopClubs(data.clubs);
+          }
+        }
+      } catch { /* silent */ }
+    })();
+
+    return () => controller.abort();
+  }, [division]);
+
+  // Auto-refresh clubs when admin edits/creates/deletes (via BroadcastChannel)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const channel = new BroadcastChannel('idm-club-updates');
+    const handler = () => {
+      const genderParam = division === 'male' ? 'male' : 'female';
+      fetch(`/api/clubs?gender=${genderParam}&limit=10`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data?.success && data.clubs) setTopClubs(data.clubs);
+        })
+        .catch(() => {});
+    };
+    channel.addEventListener('message', handler);
+    return () => channel.removeEventListener('message', handler);
+  }, [division]);
+
+  // Join tournament room when tournament loads
+  useEffect(() => {
+    if (currentTournament && isConnected) {
+      joinTournament(currentTournament.id);
+    }
+  }, [currentTournament, isConnected, joinTournament]);
+
+  // Scroll to top on tab change
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab]);
+
+  // Compute per-user wins/losses from completed matches
+  const userStats = useMemo(() => {
+    const stats = new Map<string, { wins: number; losses: number }>();
+
+    // Build userId → teamId mapping from teams
+    const userTeamMap = new Map<string, string>();
+    for (const team of teams) {
+      for (const member of team.members) {
+        userTeamMap.set(member.user.id, team.id);
+      }
+    }
+
+    // Build teamId → {wins, losses} from completed matches
+    const teamStats = new Map<string, { wins: number; losses: number }>();
+    for (const match of matches) {
+      if (match.status === 'completed' && match.winnerId && match.teamAId && match.teamBId) {
+        const winnerTeamId = match.winnerId;
+        const loserTeamId = winnerTeamId === match.teamAId ? match.teamBId : match.teamAId;
+
+        const winnerStats = teamStats.get(winnerTeamId) || { wins: 0, losses: 0 };
+        winnerStats.wins++;
+        teamStats.set(winnerTeamId, winnerStats);
+
+        const loserStats = teamStats.get(loserTeamId) || { wins: 0, losses: 0 };
+        loserStats.losses++;
+        teamStats.set(loserTeamId, loserStats);
+      }
+    }
+
+    // Map team stats to individual users
+    for (const [userId, teamId] of userTeamMap) {
+      if (teamStats.has(teamId)) {
+        stats.set(userId, teamStats.get(teamId)!);
+      }
+    }
+
+    return stats;
+  }, [matches, teams]);
+
+  const topPlayers = useMemo(() =>
+    users
+      .filter(u => u.role === 'user' || !u.isAdmin)
+      .sort((a, b) => b.points - a.points)
+      .slice(0, 12)
+      .map((user, index) => ({
+        ...user,
+        rank: index + 1,
+        wins: userStats.get(user.id)?.wins ?? 0,
+        losses: userStats.get(user.id)?.losses ?? 0,
+      })),
+    [users, userStats]
+  );
+
+  // ── Live matches — matches currently in progress (score being updated) ──
+  const liveMatches = useMemo(() => {
+    return matches
+      .filter(m => m.status === 'live' || (m.status === 'ongoing') || (m.status !== 'pending' && m.status !== 'completed' && (m.scoreA !== null || m.scoreB !== null)))
+      .map(m => ({
+        id: m.id,
+        round: m.round,
+        matchNumber: m.matchNumber,
+        teamAName: (m.teamA as any)?.name || null,
+        teamBName: (m.teamB as any)?.name || null,
+        scoreA: m.scoreA,
+        scoreB: m.scoreB,
+        bracket: m.bracket,
+        mvpName: (m.mvp as any)?.name || null,
+        tournamentName: (m.tournament as any)?.name || undefined,
+      }));
+  }, [matches]);
+
+  // ── Champion of the week: winner of the highest-round completed match ──
+  const championOfTheWeek = useMemo(() => {
+    const completedMatches = matches
+      .filter(m => m.status === 'completed' && m.winnerId)
+      .sort((a, b) => {
+        if (b.round !== a.round) return b.round - a.round; // highest round first
+        return b.matchNumber - a.matchNumber;
+      });
+
+    if (completedMatches.length === 0) return null;
+
+    const finalMatch = completedMatches[0];
+    const winningTeam = teams.find(t => t.id === finalMatch.winnerId);
+    if (!winningTeam || winningTeam.members.length === 0) return null;
+
+    // All team members with their info
+    const members = winningTeam.members.map(m => ({
+      userId: m.user.id,
+      userName: m.user.name,
+      userAvatar: m.user.avatar,
+      userTier: m.user.tier,
+      role: m.role,
+    }));
+
+    // Captain first, then rest
+    members.sort((a, b) => (a.role === 'captain' ? -1 : b.role === 'captain' ? 1 : 0));
+
+    return {
+      teamName: winningTeam.name,
+      members,
+    };
+  }, [matches, teams]);
+
+  // ── MVP of the week ──
+  const mvpOfTheWeek = useMemo(() => {
+    const mvp = users.find(u => u.isMVP);
+    if (!mvp) return null;
+    return {
+      userId: mvp.id,
+      userName: mvp.name,
+      userAvatar: mvp.avatar,
+      userPoints: mvp.points,
+      mvpScore: mvp.mvpScore || 0,
+    };
+  }, [users]);
+
+  // Memoize common prop transformations
+  const tournamentInfo = useMemo(() => currentTournament ? {
+    name: currentTournament.name,
+    status: currentTournament.status,
+    week: currentTournament.week,
+    prizePool: currentTournament.prizePool,
+    participants: registrations.filter(r => r.status === 'approved').length,
+    mode: currentTournament.mode || undefined,
+    bpm: currentTournament.bpm || undefined,
+    lokasi: currentTournament.lokasi || undefined,
+    startDate: currentTournament.startDate || null,
+  } : null, [currentTournament, registrations]);
+
+  const registrationList = useMemo(() => registrations.map(r => ({
+    id: r.id,
+    name: r.user.name,
+    email: r.user.email,
+    avatar: r.user.avatar || '',
+    tier: r.tierAssigned || r.user.tier,
+    gender: r.user.gender,
+    status: r.status,
+    phone: '',
+  })), [registrations]);
+
+  const playerListData = useMemo(() => registrations.map(r => ({
+    id: r.id,
+    name: r.user.name,
+    phone: (r as Record<string, unknown>).user?.phone as string || '',
+    avatar: r.user.avatar || '',
+    tier: r.tierAssigned || r.user.tier,
+    gender: r.user.gender,
+    status: r.status as 'approved' | 'pending' | 'rejected',
+  })), [registrations]);
+
+  const registeredAvatars = useMemo(() => registrations.map(r => ({
+    name: r.user.name,
+    avatar: r.user.avatar || '',
+  })), [registrations]);
+
+  const historyTournaments = useMemo(() => tournaments.map(t => ({
+    ...t,
+    _count: (t as Record<string, unknown>)._count
+      ? (t as Record<string, unknown>)._count as { registrations: number; teams: number; matches: number }
+      : { registrations: 0, teams: 0, matches: 0 },
+  })), [tournaments]);
+
+  // Sawer handler
+  const handleSawer = async (data: { senderName: string; amount: number; paymentMethod?: string; [key: string]: unknown }) => {
+    try {
+      const res = await fetch('/api/sawer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, tournamentId: currentTournament?.id, division }),
+      });
+      if (res.ok) {
+        addToast(`${data.senderName} menyawer Rp${data.amount}! Menunggu konfirmasi pembayaran.`, 'info');
+        fetchData(false);
+      }
+    } catch {}
+  };
+
+  // ── Render: Loading Screen OR Landing Page (unified AnimatePresence for smooth crossfade) ──
+  if (view === 'loading' || view === 'landing') {
+    return (
+      <main className="h-dvh overflow-hidden relative">
+        {/* Loading Screen Audio */}
+        <audio ref={loadingAudioRef} src="/loading_tone.mp3" loop preload="auto" />
+
         <AnimatePresence mode="wait">
-          {view === "home" && (
+          {view === 'loading' && (
             <motion.div
-              key="home"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
+              key="loading-screen"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 1.05, filter: 'brightness(1.8) blur(6px)' }}
+              transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+              className="absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden text-white"
+              style={{ background: '#050507' }}
             >
-              <HomeView />
+              {/* Diamond pattern */}
+              <div
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='0.5'/%3E%3C/svg%3E")`,
+                  backgroundSize: '60px 60px',
+                }}
+              />
+              {/* Green glow */}
+              <div
+                className="absolute -top-20 left-1/4 w-[400px] h-[400px]"
+                style={{ background: 'radial-gradient(circle, rgba(115,255,0,0.04) 0%, transparent 60%)' }}
+              />
+              {/* Blue glow */}
+              <div
+                className="absolute bottom-[20%] right-0 w-[400px] h-[400px]"
+                style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.035) 0%, transparent 60%)' }}
+              />
+              {/* Gold glow center */}
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px]"
+                style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.03) 0%, transparent 60%)' }}
+              />
+
+              {/* Logo with glow */}
+              <motion.div
+                className="relative z-10"
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {/* Animated glow ring */}
+                <motion.div
+                  className="absolute inset-0 rounded-3xl"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%)',
+                    transform: 'scale(2)',
+                  }}
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <img
+                  src={IDM_LOGO_URL}
+                  alt="IDM Logo"
+                  className="relative w-28 h-28 md:w-36 md:h-36"
+                  loading="eager"
+                />
+              </motion.div>
+
+              {/* Brand */}
+              <motion.h1
+                className="relative z-10 mt-6 text-[28px] md:text-[40px] font-black tracking-tight text-center"
+                style={{
+                  background: 'linear-gradient(135deg, #73FF00 0%, #FFD700 45%, #38BDF8 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                IDOL META
+              </motion.h1>
+
+              <motion.p
+                className="relative z-10 text-[13px] md:text-[15px] font-semibold tracking-[0.2em] uppercase mt-1.5"
+                style={{ color: 'rgba(255,255,255,0.45)' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+              >
+                TARKAM Fan Made Edition
+              </motion.p>
+
+              {/* Loading spinner */}
+              <motion.div
+                className="relative z-10 mt-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.5 }}
+              >
+                <div className="relative w-12 h-12">
+                  {/* Outer ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      border: '2px solid transparent',
+                      borderTopColor: '#73FF00',
+                      borderRightColor: 'rgba(115, 255, 0, 0.3)',
+                    }}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+                  />
+                  {/* Inner ring */}
+                  <motion.div
+                    className="absolute inset-2 rounded-full"
+                    style={{
+                      border: '1.5px solid transparent',
+                      borderBottomColor: '#38BDF8',
+                      borderLeftColor: 'rgba(56, 189, 248, 0.2)',
+                    }}
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                  />
+                  {/* Center dot */}
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <div
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{
+                        background: 'linear-gradient(135deg, #73FF00, #FFD700, #38BDF8)',
+                      }}
+                    />
+                  </motion.div>
+                </div>
+                <p className="mt-4 text-[11px] tracking-wider text-white/30 text-center">
+                  Loading...
+                </p>
+              </motion.div>
+
+              {/* Footer */}
+              <motion.div
+                className="absolute bottom-6 left-0 right-0 z-10 flex flex-col items-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              >
+                <motion.p
+                  className="text-[11px] md:text-[12px] font-bold tracking-[0.15em] uppercase"
+                  style={{
+                    background: 'linear-gradient(135deg, #ffd700 0%, #ffec8b 50%, #ffd700 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                  animate={{ opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  ✦ Borneo Pride ✦
+                </motion.p>
+                <span className="mt-1 text-[9px] tracking-widest text-white/30">
+                  © 2026
+                </span>
+              </motion.div>
             </motion.div>
           )}
-          {view === "create" && (
+
+          {view === 'landing' && (
             <motion.div
-              key="create"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
+              key="landing-page"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute inset-0"
             >
-              <CreateTournamentView />
-            </motion.div>
-          )}
-          {view === "tournament" && selectedTournamentId && (
-            <motion.div
-              key="tournament"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              <TournamentDetailView tournamentId={selectedTournamentId} />
+              <LandingPage
+                onEnterDivision={handleEnterDivision}
+                onAdminLogin={handleAdminLoginFromLanding}
+                onPlayerClick={handleLandingPlayerClick}
+                preloadedData={landingData}
+              />
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-4 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-muted-foreground">
-          Brackito &copy; 2025 | Powered by AI
-        </div>
-      </footer>
-    </div>
-  );
-}
+        {/* Admin Login Modal — available from landing page too */}
+        <AdminLogin
+          isOpen={adminLoginOpen}
+          onOpenChange={setAdminLoginOpen}
+          onLogin={handleAdminLoginFromLandingSubmit}
+        />
 
-// ─── Home View ──────────────────────────────────────────────────────────────
-
-function HomeView() {
-  const { setView } = useAppStore();
-  const [search, setSearch] = useState("");
-
-  const {
-    data: tournaments = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["tournaments"],
-    queryFn: async () => {
-      const res = await fetchApi<{ tournaments: ApiTournament[]; pagination: unknown }>(
-        "/api/tournaments"
-      );
-      return res.tournaments;
-    },
-  });
-
-  const filtered = tournaments.filter(
-    (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      (t.gameName || "").toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-6">
-      {/* Hero section */}
-      <div className="text-center py-8 sm:py-12">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <Trophy className="size-10 text-emerald-500" />
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            Brackito
-          </h1>
-        </div>
-        <p className="text-muted-foreground text-lg max-w-md mx-auto">
-          Create and manage tournaments with ease. All formats supported.
-        </p>
-      </div>
-
-      {/* Search + Create */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tournaments..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+        {/* Player Profile Overlay — from landing page leaderboard click */}
+        {landingProfileId && (
+          <PlayerProfilePage
+            playerId={landingProfileId}
+            division={landingProfileGender}
+            onBack={() => setLandingProfileId(null)}
           />
-        </div>
-        <Button
-          onClick={() => setView("create")}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
-        >
-          <Plus className="size-4" />
-          Create Tournament
-        </Button>
-      </div>
+        )}
 
-      {/* Tournament List */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="p-4">
-              <Skeleton className="h-6 w-3/4 mb-3" />
-              <Skeleton className="h-4 w-1/2 mb-2" />
-              <Skeleton className="h-4 w-1/3" />
-            </Card>
-          ))}
-        </div>
-      ) : error ? (
-        <Card className="p-8 text-center">
-          <p className="text-destructive">Failed to load tournaments</p>
-          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
-        </Card>
-      ) : filtered.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Trophy className="size-16 text-muted-foreground/20 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">
-            {search ? "No tournaments found" : "No tournaments yet"}
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            {search
-              ? "Try a different search term"
-              : "Create your first tournament and start competing!"}
-          </p>
-          {!search && (
-            <Button
-              onClick={() => setView("create")}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
-            >
-              <Plus className="size-4" />
-              Create Your First Tournament
-            </Button>
-          )}
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((t) => {
-            const formatCfg = FORMAT_CONFIG[t.format] || FORMAT_CONFIG.single_elimination;
-            const statusCfg = STATUS_CONFIG[t.status] || STATUS_CONFIG.pending;
-            const participantCount = t._count?.participants ?? t.participants?.length ?? 0;
 
-            return (
-              <Card
-                key={t.id}
-                className="match-card-hover cursor-pointer group border-border/50 hover:border-emerald-500/40 transition-all"
-                onClick={() => useAppStore.getState().selectTournament(t.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-base line-clamp-1 group-hover:text-emerald-500 transition-colors">
-                      {t.name}
-                    </h3>
-                  </div>
 
-                  {t.gameName && (
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
-                      <Gamepad2 className="size-3.5" />
-                      <span>{t.gameName}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 flex-wrap mb-3">
-                    <Badge
-                      variant="outline"
-                      className={cn("text-[11px] gap-1", formatCfg.color)}
-                    >
-                      {formatCfg.icon}
-                      {formatCfg.label}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className={cn("text-[11px] gap-1", statusCfg.color)}
-                    >
-                      {statusCfg.icon}
-                      {statusCfg.label}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="size-3.5" />
-                      <span>
-                        {participantCount}
-                        {t.maxParticipants > 0
-                          ? ` / ${t.maxParticipants}`
-                          : ""}{" "}
-                        players
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {t.isPublic ? (
-                        <Globe className="size-3.5" />
-                      ) : (
-                        <Lock className="size-3.5" />
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Create Tournament View ─────────────────────────────────────────────────
-
-function CreateTournamentView() {
-  const { setView } = useAppStore();
-  const queryClient = useQueryClient();
-
-  // Form state
-  const [name, setName] = useState("");
-  const [gameName, setGameName] = useState("");
-  const [description, setDescription] = useState("");
-  const [format, setFormat] = useState<
-    "single_elimination" | "double_elimination" | "round_robin" | "swiss"
-  >("single_elimination");
-  const [maxParticipants, setMaxParticipants] = useState(8);
-  const [isPublic, setIsPublic] = useState(true);
-  const [seeded, setSeeded] = useState(false);
-  const [randomize, setRandomize] = useState(false);
-  const [holdThirdPlaceMatch, setHoldThirdPlaceMatch] = useState(false);
-  const [swissRounds, setSwissRounds] = useState(3);
-  const [participants, setParticipants] = useState<string[]>([]);
-  const [newParticipant, setNewParticipant] = useState("");
-  const [bulkInput, setBulkInput] = useState("");
-  const [showBulk, setShowBulk] = useState(false);
-  const [startImmediately, setStartImmediately] = useState(false);
-
-  const createMutation = useMutation({
-    mutationFn: async () => {
-      // 1. Create the tournament
-      const res = await fetchApi<{ tournament: ApiTournament }>("/api/tournaments", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          gameName,
-          description,
-          format,
-          maxParticipants,
-          isPublic,
-          seeded,
-          randomize,
-          holdThirdPlaceMatch,
-          swissRounds,
-        }),
-      });
-      const tournament = res.tournament;
-
-      // 2. Add participants if any
-      if (participants.length > 0) {
-        await fetchApi(`/api/tournaments/${tournament.id}/participants`, {
-          method: "POST",
-          body: JSON.stringify({
-            participants: participants.map((p, idx) => ({ name: p, seed: idx + 1 })),
-          }),
-        });
-      }
-
-      // 3. Start if requested
-      if (startImmediately) {
-        await fetchApi(`/api/tournaments/${tournament.id}/start`, {
-          method: "POST",
-        });
-      }
-
-      return tournament;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournaments"] });
-      toast({ title: "Tournament created!" });
-      setView("home");
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error creating tournament",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const addParticipant = () => {
-    const trimmed = newParticipant.trim();
-    if (trimmed && !participants.includes(trimmed)) {
-      setParticipants([...participants, trimmed]);
-      setNewParticipant("");
-    }
-  };
-
-  const addBulkParticipants = () => {
-    const names = bulkInput
-      .split("\n")
-      .map((n) => n.trim())
-      .filter((n) => n && !participants.includes(n));
-    if (names.length > 0) {
-      setParticipants([...participants, ...names]);
-      setBulkInput("");
-      setShowBulk(false);
-    }
-  };
-
-  const removeParticipant = (index: number) => {
-    setParticipants(participants.filter((_, i) => i !== index));
-  };
-
-  const moveParticipant = (from: number, to: number) => {
-    const updated = [...participants];
-    const [item] = updated.splice(from, 1);
-    updated.splice(to, 0, item);
-    setParticipants(updated);
-  };
-
-  const isElimination =
-    format === "single_elimination" || format === "double_elimination";
-
-  const canSubmit = name.trim().length >= 2;
-
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => setView("home")}>
-          <ArrowLeft className="size-4" />
-        </Button>
-        <h2 className="text-2xl font-bold">Create Tournament</h2>
-      </div>
-
-      {/* Form */}
-      <Card>
-        <CardContent className="p-6 space-y-5">
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              Tournament Name <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="name"
-              placeholder="e.g., Spring Championship 2025"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-
-          {/* Game Name */}
-          <div className="space-y-2">
-            <Label htmlFor="game">Game Name</Label>
-            <Input
-              id="game"
-              placeholder="e.g., Super Smash Bros, Chess, Valorant"
-              value={gameName}
-              onChange={(e) => setGameName(e.target.value)}
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="desc">Description</Label>
-            <Textarea
-              id="desc"
-              placeholder="Tournament details, rules, etc."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          {/* Format */}
-          <div className="space-y-2">
-            <Label>Format</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {(
-                Object.entries(FORMAT_CONFIG) as [
-                  string,
-                  { label: string; color: string; icon: React.ReactNode }
-                ][]
-              ).map(([key, cfg]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setFormat(key as typeof format)}
-                  className={cn(
-                    "flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all",
-                    format === key
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-500"
-                      : "border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
-                  )}
-                >
-                  {cfg.icon}
-                  {cfg.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Max Participants */}
-          <div className="space-y-2">
-            <Label htmlFor="maxP">Max Participants (0 = unlimited)</Label>
-            <Input
-              id="maxP"
-              type="number"
-              min={0}
-              value={maxParticipants}
-              onChange={(e) => setMaxParticipants(parseInt(e.target.value) || 0)}
-            />
-          </div>
-
-          {/* Toggles */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2">
-                {isPublic ? (
-                  <Globe className="size-4 text-muted-foreground" />
-                ) : (
-                  <Lock className="size-4 text-muted-foreground" />
-                )}
-                Public
-              </Label>
-              <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2">
-                <ListOrdered className="size-4 text-muted-foreground" />
-                Seeded
-              </Label>
-              <Switch checked={seeded} onCheckedChange={setSeeded} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2">
-                <Shuffle className="size-4 text-muted-foreground" />
-                Randomize Participants
-              </Label>
-              <Switch checked={randomize} onCheckedChange={setRandomize} />
-            </div>
-            {isElimination && (
-              <div className="flex items-center justify-between">
-                <Label className="flex items-center gap-2">
-                  <Trophy className="size-4 text-muted-foreground" />
-                  Hold 3rd Place Match
-                </Label>
-                <Switch
-                  checked={holdThirdPlaceMatch}
-                  onCheckedChange={setHoldThirdPlaceMatch}
-                />
-              </div>
-            )}
-            {format === "swiss" && (
-              <div className="flex items-center justify-between">
-                <Label htmlFor="swissR" className="flex items-center gap-2">
-                  <Target className="size-4 text-muted-foreground" />
-                  Swiss Rounds
-                </Label>
-                <Input
-                  id="swissR"
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={swissRounds}
-                  onChange={(e) =>
-                    setSwissRounds(parseInt(e.target.value) || 3)
-                  }
-                  className="w-20"
-                />
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          {/* Participants Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Users className="size-4" />
-                Participants ({participants.length})
-              </Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowBulk(!showBulk)}
-                className="gap-1"
-              >
-                <Plus className="size-3" />
-                Bulk Add
-              </Button>
-            </div>
-
-            {/* Add single participant */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Participant name"
-                value={newParticipant}
-                onChange={(e) => setNewParticipant(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addParticipant()}
-              />
-              <Button
-                onClick={addParticipant}
-                variant="outline"
-                className="gap-1 shrink-0"
-              >
-                <Plus className="size-4" />
-                Add
-              </Button>
-            </div>
-
-            {/* Bulk add textarea */}
-            {showBulk && (
-              <div className="space-y-2">
-                <Textarea
-                  placeholder="One name per line"
-                  value={bulkInput}
-                  onChange={(e) => setBulkInput(e.target.value)}
-                  rows={4}
-                />
-                <Button
-                  onClick={addBulkParticipants}
-                  size="sm"
-                  className="gap-1"
-                >
-                  <Plus className="size-3" />
-                  Add All
-                </Button>
-              </div>
-            )}
-
-            {/* Participant list */}
-            {participants.length > 0 && (
-              <ScrollArea className="max-h-64">
-                <div className="space-y-1">
-                  {participants.map((p, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-sm group"
-                    >
-                      <span className="text-xs text-muted-foreground font-mono w-6 text-center">
-                        #{i + 1}
-                      </span>
-                      <span className="flex-1 truncate">{p}</span>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {i > 0 && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-6"
-                            onClick={() => moveParticipant(i, i - 1)}
-                          >
-                            <ChevronLeft className="size-3" />
-                          </Button>
-                        )}
-                        {i < participants.length - 1 && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-6"
-                            onClick={() => moveParticipant(i, i + 1)}
-                          >
-                            <ChevronRight className="size-3" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-6 text-destructive"
-                          onClick={() => removeParticipant(i)}
-                        >
-                          <X className="size-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-          </div>
-
-          <Separator />
-
-          {/* Submit options */}
-          <div className="flex items-center justify-between">
-            <Label className="flex items-center gap-2">
-              <Play className="size-4 text-muted-foreground" />
-              Start Immediately
-            </Label>
-            <Switch
-              checked={startImmediately}
-              onCheckedChange={setStartImmediately}
-            />
-          </div>
-
-          {/* Submit */}
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setView("home")}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => createMutation.mutate()}
-              disabled={!canSubmit || createMutation.isPending}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
-            >
-              {createMutation.isPending ? (
-                "Creating..."
-              ) : (
-                <>
-                  <Trophy className="size-4" />
-                  Create Tournament
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// ─── Tournament Detail View ─────────────────────────────────────────────────
-
-function TournamentDetailView({ tournamentId }: { tournamentId: string }) {
-  const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("bracket");
-  const [addParticipantName, setAddParticipantName] = useState("");
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [resetConfirm, setResetConfirm] = useState(false);
-
-  // Edit form state
-  const [editMode, setEditMode] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editGame, setEditGame] = useState("");
-  const [editDesc, setEditDesc] = useState("");
-
-  const {
-    data: tournament,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["tournament", tournamentId],
-    queryFn: async () => {
-      const res = await fetchApi<{ tournament: ApiTournament }>(
-        `/api/tournaments/${tournamentId}`
-      );
-      return res.tournament;
-    },
-    enabled: !!tournamentId,
-  });
-
-  // Transform matches for bracket viewer
-  const bracketMatches = useMemo(
-    () => transformMatches(tournament?.matches || []),
-    [tournament?.matches]
-  );
-
-  const startMutation = useMutation({
-    mutationFn: () =>
-      fetchApi(`/api/tournaments/${tournamentId}/start`, {
-        method: "POST",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", tournamentId] });
-      queryClient.invalidateQueries({ queryKey: ["tournaments"] });
-      toast({ title: "Tournament started!" });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error starting tournament",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const resetMutation = useMutation({
-    mutationFn: () =>
-      fetchApi(`/api/tournaments/${tournamentId}/reset`, {
-        method: "POST",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", tournamentId] });
-      queryClient.invalidateQueries({ queryKey: ["tournaments"] });
-      toast({ title: "Tournament reset" });
-      setResetConfirm(false);
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error resetting tournament",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: () =>
-      fetchApi(`/api/tournaments/${tournamentId}`, { method: "DELETE" }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournaments"] });
-      toast({ title: "Tournament deleted" });
-      useAppStore.getState().goHome();
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error deleting tournament",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const addParticipantMutation = useMutation({
-    mutationFn: (name: string) =>
-      fetchApi(`/api/tournaments/${tournamentId}/participants`, {
-        method: "POST",
-        body: JSON.stringify({ name }),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", tournamentId] });
-      setAddParticipantName("");
-      toast({ title: "Participant added" });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error adding participant",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateScoreMutation = useMutation({
-    mutationFn: ({
-      matchId,
-      score1,
-      score2,
-    }: {
-      matchId: string;
-      score1: number;
-      score2: number;
-    }) =>
-      fetchApi(`/api/tournaments/${tournamentId}/matches`, {
-        method: "PUT",
-        body: JSON.stringify({ matchId, score1, score2 }),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", tournamentId] });
-      toast({ title: "Score updated" });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error updating score",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateTournamentMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      fetchApi(`/api/tournaments/${tournamentId}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", tournamentId] });
-      queryClient.invalidateQueries({ queryKey: ["tournaments"] });
-      toast({ title: "Tournament updated" });
-      setEditMode(false);
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error updating tournament",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const removeParticipantMutation = useMutation({
-    mutationFn: (participantId: string) =>
-      fetchApi(
-        `/api/tournaments/${tournamentId}/participants?participantId=${participantId}`,
-        { method: "DELETE" }
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", tournamentId] });
-      toast({ title: "Participant removed" });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error removing participant",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUpdateScore = useCallback(
-    (matchId: string, p1Score: number, p2Score: number) => {
-      updateScoreMutation.mutate({ matchId, score1: p1Score, score2: p2Score });
-    },
-    [updateScoreMutation]
-  );
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-1/2" />
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      </main>
     );
   }
 
-  if (error || !tournament) {
-    return (
-      <Card className="p-8 text-center">
-        <p className="text-destructive">
-          {error?.message || "Tournament not found"}
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => useAppStore.getState().goHome()}
-          className="mt-4"
-        >
-          Go Home
-        </Button>
-      </Card>
-    );
-  }
-
-  const formatCfg =
-    FORMAT_CONFIG[tournament.format] || FORMAT_CONFIG.single_elimination;
-  const statusCfg = STATUS_CONFIG[tournament.status] || STATUS_CONFIG.pending;
-  const tFormat = tournament.format as
-    | "single_elimination"
-    | "double_elimination"
-    | "round_robin"
-    | "swiss";
-
+  // ── Render: App ──
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => useAppStore.getState().goHome()}
+    <div
+      className={`h-dvh flex flex-col overflow-hidden relative ${division === 'male' ? 'text-white' : 'text-black'}`}
+    >
+      {/* ═════════════════════════════════════════════════════════════════════
+          LIVE SCORE BANNER — Real-time match score notification via Pusher
+          ═════════════════════════════════════════════════════════════════════ */}
+      <LiveScoreBanner
+        match={liveScoreMatch}
+        division={division}
+        onDismiss={() => setLiveScoreMatch(null)}
+      />
+
+      {/* ═════════════════════════════════════════════════════════════════════
+          Simple Loading Spinner — lightweight indicator for division transition
+          Not a full loading screen, just a subtle centered spinner
+          ═════════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {isInitialLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+            style={{ background: 'rgba(0,0,0,0.3)' }}
           >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <h2 className="text-2xl font-bold">{tournament.name}</h2>
-            {tournament.gameName && (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
-                <Gamepad2 className="size-3.5" />
-                {tournament.gameName}
-              </div>
-            )}
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <Badge
-                variant="outline"
-                className={cn("text-[11px] gap-1", formatCfg.color)}
-              >
-                {formatCfg.icon}
-                {formatCfg.label}
-              </Badge>
-              <Badge
-                variant="outline"
-                className={cn("text-[11px] gap-1", statusCfg.color)}
-              >
-                {statusCfg.icon}
-                {statusCfg.label}
-              </Badge>
-              <Badge variant="outline" className="text-[11px] gap-1">
-                <Users className="size-3" />
-                {tournament.participants?.length ?? 0} players
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {tournament.status === "pending" && (
-            <Button
-              onClick={() => startMutation.mutate()}
-              disabled={startMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
-            >
-              <Play className="size-4" />
-              Start
-            </Button>
-          )}
-          {tournament.status !== "pending" && (
-            <Button
-              variant="outline"
-              onClick={() => setResetConfirm(true)}
-              className="gap-2"
-            >
-              <RotateCcw className="size-4" />
-              Reset
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {tournament.description && (
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          {tournament.description}
-        </p>
-      )}
-
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="bracket" className="gap-1.5">
-            <Swords className="size-3.5" />
-            Bracket
-          </TabsTrigger>
-          <TabsTrigger value="participants" className="gap-1.5">
-            <Users className="size-3.5" />
-            Participants
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="gap-1.5">
-            <Settings className="size-3.5" />
-            Settings
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Bracket Tab */}
-        <TabsContent value="bracket" className="mt-4">
-          {tournament.status === "pending" ? (
-            <Card className="p-8 text-center">
-              <Trophy className="size-12 text-muted-foreground/20 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                Tournament not started
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Add participants and start the tournament to see the bracket.
-              </p>
-              <Button
-                onClick={() => startMutation.mutate()}
-                disabled={startMutation.isPending}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
-              >
-                <Play className="size-4" />
-                Start Tournament
-              </Button>
-            </Card>
-          ) : (
-            <BracketViewer
-              matches={bracketMatches}
-              format={tFormat}
-              onUpdateScore={handleUpdateScore}
-              isUpdating={updateScoreMutation.isPending}
-            />
-          )}
-        </TabsContent>
-
-        {/* Participants Tab */}
-        <TabsContent value="participants" className="mt-4">
-          <div className="space-y-4">
-            {tournament.status === "pending" && (
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add participant name"
-                  value={addParticipantName}
-                  onChange={(e) => setAddParticipantName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && addParticipantName.trim()) {
-                      addParticipantMutation.mutate(addParticipantName.trim());
-                    }
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative w-10 h-10">
+                <div
+                  className="absolute inset-0 rounded-full animate-spin"
+                  style={{
+                    border: '2.5px solid transparent',
+                    borderTopColor: division === 'male' ? '#73FF00' : '#38BDF8',
+                    borderRightColor: division === 'male' ? 'rgba(115,255,0,0.25)' : 'rgba(56,189,248,0.25)',
                   }}
                 />
-                <Button
-                  onClick={() =>
-                    addParticipantName.trim() &&
-                    addParticipantMutation.mutate(addParticipantName.trim())
-                  }
-                  disabled={
-                    !addParticipantName.trim() ||
-                    addParticipantMutation.isPending
-                  }
-                  className="gap-1 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
-                >
-                  <Plus className="size-4" />
-                  Add
-                </Button>
               </div>
-            )}
+              <span
+                className="text-[11px] font-medium tracking-wider"
+                style={{ color: division === 'male' ? '#73FF00' : '#38BDF8' }}
+              >
+                Memuat...
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {tournament.participants && tournament.participants.length > 0 ? (
-              <Card>
-                <CardContent className="p-0">
-                  <div className="divide-y divide-border/50">
-                    {tournament.participants
-                      .sort((a, b) => a.seed - b.seed)
-                      .map((p, i) => (
-                        <div
-                          key={p.id}
-                          className="flex items-center gap-3 px-4 py-3 group"
-                        >
-                          <span className="text-xs text-muted-foreground font-mono w-8 text-center">
-                            #{i + 1}
-                          </span>
-                          <span className="flex-1 text-sm font-medium">
-                            {p.name}
-                          </span>
-                          {tournament.status === "pending" && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-                              onClick={() =>
-                                removeParticipantMutation.mutate(p.id)
-                              }
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="p-8 text-center">
-                <Users className="size-12 text-muted-foreground/20 mx-auto mb-4" />
-                <p className="text-muted-foreground">No participants yet</p>
-              </Card>
-            )}
+      {/* ═════════════════════════════════════════════════════════════════════
+          Division Switch Loading - Lightweight for mid-range devices
+          ═════════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {isSwitchingDivision && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[90] flex items-center gap-3 px-5 py-3 rounded-xl pointer-events-none"
+            style={{
+              background: 'rgba(0, 0, 0, 0.85)',
+              border: `1px solid ${division === 'male' ? 'rgba(115, 255, 0, 0.15)' : 'rgba(56, 189, 248, 0.15)'}`,
+            }}
+          >
+            {/* Cool Dual Ring Spinner */}
+            <div className="relative w-5 h-5">
+              <motion.div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  border: '2px solid transparent',
+                  borderTopColor: division === 'male' ? '#73FF00' : '#38BDF8',
+                  borderRightColor: division === 'male' ? 'rgba(115, 255, 0, 0.25)' : 'rgba(56, 189, 248, 0.25)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                className="absolute inset-1 rounded-full"
+                style={{
+                  border: '1px solid transparent',
+                  borderBottomColor: division === 'male' ? '#73FF00' : '#38BDF8',
+                }}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 0.7, repeat: Infinity, ease: 'linear' }}
+              />
+            </div>
+            <span
+              className="text-[12px] font-medium"
+              style={{ color: division === 'male' ? '#73FF00' : '#38BDF8' }}
+            >
+              Memuat
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================
+          Main App Content - Only render after loading complete
+          ======================================== */}
+      {!isInitialLoading && (
+        <>
+          {/* Background - no animation on division switch to prevent blur */}
+          <div className="absolute inset-0">
+            <GradientBackground division={division} uiTheme={theme} />
           </div>
-        </TabsContent>
 
-        {/* Settings Tab */}
-        <TabsContent value="settings" className="mt-4">
-          <Card>
-            <CardContent className="p-6 space-y-5">
-              {!editMode ? (
-                <>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-sm text-muted-foreground">
-                        Tournament Name
-                      </span>
-                      <p className="font-medium">{tournament.name}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground">
-                        Game
-                      </span>
-                      <p className="font-medium">
-                        {tournament.gameName || "Not specified"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground">
-                        Description
-                      </span>
-                      <p className="font-medium">
-                        {tournament.description || "No description"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground">
-                        Format
-                      </span>
-                      <p className="font-medium">
-                        {FORMAT_CONFIG[tournament.format]?.label}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground">
-                        Visibility
-                      </span>
-                      <p className="font-medium">
-                        {tournament.isPublic ? "Public" : "Private"}
-                      </p>
-                    </div>
-                  </div>
+          {/* Premium 3D Effects */}
+          <Premium3DEffects
+            color={division === 'male' ? 'blue' : 'pink'}
+            uiTheme={theme}
+          />
 
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setEditName(tournament.name);
-                        setEditGame(tournament.gameName);
-                        setEditDesc(tournament.description);
-                        setEditMode(true);
-                      }}
-                      className="gap-2"
-                    >
-                      <Edit className="size-4" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => setDeleteConfirm(true)}
-                      className="gap-2"
-                    >
-                      <Trash2 className="size-4" />
-                      Delete
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="editName">Tournament Name</Label>
-                      <Input
-                        id="editName"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="editGame">Game Name</Label>
-                      <Input
-                        id="editGame"
-                        value={editGame}
-                        onChange={(e) => setEditGame(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="editDesc">Description</Label>
-                      <Textarea
-                        id="editDesc"
-                        value={editDesc}
-                        onChange={(e) => setEditDesc(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setEditMode(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        updateTournamentMutation.mutate({
-                          name: editName,
-                          gameName: editGame,
-                          description: editDesc,
-                        })
-                      }
-                      disabled={updateTournamentMutation.isPending}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                    >
-                      {updateTournamentMutation.isPending
-                        ? "Saving..."
-                        : "Save Changes"}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={deleteConfirm} onOpenChange={setDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Tournament</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{tournament.name}&quot;? This
-              action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteMutation.mutate()}
-              className="bg-destructive hover:bg-destructive/90"
+          {/* Toast Notifications */}
+          <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+          {/* Sidebar - Desktop/Tablet only */}
+          <Sidebar
+            division={division}
+            onToggleDivision={toggleDivision}
+            isAdminAuthenticated={isAdminAuthenticated}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            adminNotificationCount={isAdminAuthenticated && !adminOpen ? registrations.filter(r => r.status === 'pending').length : 0}
+            onAdminClick={() => {
+              if (isAdminAuthenticated) {
+                setAdminOpen(true);
+              } else {
+                setAdminLoginOpen(true);
+              }
+            }}
+            onGoHome={handleBackToLanding}
+          />
+
+          {/* Top Bar — Mobile only */}
+          <TopBar
+            division={division}
+            onToggleDivision={toggleDivision}
+            isAdminAuthenticated={isAdminAuthenticated}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            adminNotificationCount={isAdminAuthenticated && !adminOpen ? registrations.filter(r => r.status === 'pending').length : 0}
+            onAdminClick={() => {
+              if (isAdminAuthenticated) {
+                setAdminOpen(true);
+              } else {
+                setAdminLoginOpen(true);
+              }
+            }}
+            onGoHome={handleBackToLanding}
+          />
+
+          {/* Admin Login — shown when not authenticated */}
+          <AdminLogin
+            isOpen={adminLoginOpen}
+            onOpenChange={setAdminLoginOpen}
+            onLogin={loginAdmin}
+          />
+
+          {/* Admin Panel — full-screen page mode when open */}
+          {isAdminAuthenticated && adminOpen && (
+            <AdminPanel
+              division={division}
+              tournament={currentTournament}
+              registrations={registrations}
+              teams={teams}
+              matches={matches}
+              onApprove={approveRegistration}
+              onUpdateTier={updateRegistrationTier}
+              onReject={rejectRegistration}
+              onDelete={deleteRegistration}
+              onDeleteAllRejected={deleteAllRejected}
+              onSetMVP={setMVP}
+              onRemoveMVP={removeMVP}
+              onUpdateStatus={updateTournamentStatus}
+              onGenerateTeams={generateTeams}
+              onResetTeams={resetTeams}
+              onGenerateBracket={generateBracket}
+              onUpdateMatchScore={updateMatchScore}
+              onFinalize={finalizeTournament}
+              onResetSeason={resetSeason}
+              onUpdatePrizePool={updatePrizePool}
+              onCreateTournament={createTournament}
+              onLogout={() => { logoutAdmin(); setAdminOpen(false); }}
+              onSwitchDivision={(newDiv) => { setDivision(newDiv); fetchData(false, false); }}
+              mode="page"
+              isOpen={true}
+              onOpenChange={(open) => setAdminOpen(open)}
+            />
+          )}
+
+          {/* Main App Content — hidden when admin panel is open */}
+          {!adminOpen && (
+            <>
+          {users.length === 0 && (
+            <motion.button
+              onClick={seedDatabase}
+              className="fixed bottom-24 right-4 z-40 p-3 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-400"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <Database className="w-5 h-5" />
+            </motion.button>
+          )}
 
-      {/* Reset Confirmation */}
-      <AlertDialog open={resetConfirm} onOpenChange={setResetConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reset Tournament</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will reset all match results and bracket progress. Participants
-              will be kept. Are you sure?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => resetMutation.mutate()}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              Reset
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+          {/* Main Scrollable Content — Premium Full Width with Sidebar */}
+          <div ref={scrollRef} className="relative z-10 flex-1 min-h-0 overflow-y-auto md:ml-16 lg:ml-56" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px))', WebkitOverflowScrolling: 'touch' }}>
+            {/* Premium Full Width Container - Fills all available space */}
+            <div className="w-full px-3 pt-[72px] pb-24 sm:px-6 sm:pt-6 lg:px-8 lg:pb-8 overflow-x-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                {activeTab === 'dashboard' && (
+                  <Dashboard
+                    division={division}
+                    tournament={tournamentInfo}
+                    topPlayers={topPlayers}
+                    onRegister={() => setActiveTab('tournament')}
+                    onNavigate={(tab) => setActiveTab(tab)}
+                    onViewPlayers={() => setPlayerListOpen(true)}
+                    registeredCount={registrations.length}
+                    registeredAvatars={registeredAvatars}
+                    onViewPrize={() => setPrizeModalOpen(true)}
+                    onViewDonation={() => { setDonationDefaultTab('donasi'); setActiveTab('donation'); }}
+                    teamsCount={teams.length}
+                    onViewTeams={() => setTeamListOpen(true)}
+                    champion={championOfTheWeek}
+                    mvp={mvpOfTheWeek}
+                    leaderboardTab={leaderboardTab}
+                    onLeaderboardTabChange={setLeaderboardTab}
+                    topClubs={topClubs}
+                    theme={division === 'male' ? 'dark' : 'light'}
+                    onPlayerClick={(playerId) => setAppProfileId(playerId)}
+                  />
+                )}
+
+                {activeTab === 'tournament' && (
+                  <TournamentTab
+                    division={division}
+                    tournament={currentTournament}
+                    registrations={registrationList}
+                    teams={teams}
+                    isAdmin={isAdminAuthenticated}
+                    onRegister={registerUser}
+                    onApprove={approveRegistration}
+                    onGenerateTeams={generateTeams}
+                    onResetTeams={resetTeams}
+                    onGenerateBracket={generateBracket}
+                  />
+                )}
+
+                {activeTab === 'bracket' && (
+                  <>
+                    {/* Live Match Ticker — shows ongoing matches with real-time scores */}
+                    <LiveMatchTicker matches={liveMatches} division={division} />
+                    <Bracket
+                      division={division}
+                      matches={matches}
+                      isAdmin={isAdminAuthenticated}
+                      onUpdateScore={updateMatchScore}
+                      bracketType={currentTournament?.bracketType}
+                      mvpUser={users.find(u => u.isMVP) || null}
+                    />
+                  </>
+                )}
+
+                {activeTab === 'leaderboard' && (
+                  <Leaderboard
+                    division={division}
+                    players={topPlayers}
+                    onPlayerClick={(playerId) => setAppProfileId(playerId)}
+                  />
+                )}
+
+                {activeTab === 'grandfinal' && (
+                  <GrandFinal
+                    division={division}
+                    topPlayers={topPlayers}
+                    prizePool={grandFinalData?.prizePool || gfPrizePool || 0}
+                    weekNumber={currentTournament?.week || 1}
+                    mvpUser={users.find(u => u.isMVP) || null}
+                    isAdminAuthenticated={isAdminAuthenticated}
+                    grandFinalData={grandFinalData}
+                    qualifiedPlayers={qualifiedPlayers}
+                    onSetupGrandFinal={setupGrandFinal}
+                    onDeleteGrandFinal={deleteGrandFinal}
+                    onUpdateScore={updateGFMatchScore}
+                    onRefresh={fetchGrandFinal}
+                    isSettingUp={isGFSettingUp}
+                    isDeleting={isGFDeleting}
+                    isUpdatingScore={isGFUpdatingScore}
+                    gfPrizePool={gfPrizePool}
+                    onGfPrizePoolChange={setGfPrizePool}
+                  />
+                )}
+
+                {activeTab === 'donation' && (
+                  <DonasiSawerTab
+                    key={donationDefaultTab}
+                    division={division}
+                    totalDonation={totalDonation}
+                    donations={donations}
+                    tournamentId={currentTournament?.id}
+                    tournamentPrizePool={currentTournament?.prizePool || 0}
+                    totalSawer={totalSawer}
+                    isAdminAuthenticated={isAdminAuthenticated}
+                    onDonate={(amount, message, anonymous, paymentMethod, proofUrl, donorName) => donate(amount, message, anonymous, paymentMethod, proofUrl, donorName)}
+                    onSawer={handleSawer}
+                    defaultTab={donationDefaultTab}
+                  />
+                )}
+
+                {activeTab === 'history' && (
+                  <TournamentHistory
+                    division={division}
+                    tournaments={historyTournaments}
+                    onSelect={(id) => {
+                      const tournament = historyTournaments.find(t => t.id === id);
+                      setActiveTab('bracket');
+                      addToast(`Memuat turnamen: ${tournament?.name || 'Turnamen'}`, 'info');
+                    }}
+                  />
+                )}
+
+
+              </motion.div>
+            </AnimatePresence>
+            </div>{/* End Premium Full Width Container */}
+          </div>
+
+          {/* Player List Modal */}
+          <PlayerListModal
+            isOpen={playerListOpen}
+            onOpenChange={setPlayerListOpen}
+            players={playerListData}
+            division={division}
+          />
+
+          {/* Team List Modal */}
+          <TeamListModal
+            isOpen={teamListOpen}
+            onOpenChange={setTeamListOpen}
+            teams={teams}
+            division={division}
+          />
+
+          {/* Prize Breakdown Modal */}
+          <PrizeBreakdownModal
+            isOpen={prizeModalOpen}
+            onOpenChange={setPrizeModalOpen}
+            prizePool={currentTournament?.prizePool || 0}
+            prizeChampion={(currentTournament as any)?.prizeChampion}
+            prizeRunnerUp={(currentTournament as any)?.prizeRunnerUp}
+            prizeThird={(currentTournament as any)?.prizeThird}
+            prizeMvp={(currentTournament as any)?.prizeMvp}
+            division={division}
+          />
+
+          {/* Desktop Footer — branding bar */}
+          <footer className="hidden lg:block mt-auto flex-shrink-0 py-3 px-8 text-center">
+            <div className="flex items-center justify-center gap-3 opacity-40">
+              <span className="text-[10px] tracking-wide font-medium text-white/15">
+                &copy; 2026 IDOL META &mdash; Fan Made Edition
+              </span>
+              <span className="text-[10px] text-white/10">|</span>
+              <span className="text-[10px] tracking-wide font-medium text-white/15">
+                IDOL META Kotabaru Pride — Fan Made Edition
+              </span>
+            </div>
+          </footer>
+
+          {/* Bottom Navigation — static flex item at bottom */}
+          <Navigation
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            division={division}
+            onToggleDivision={toggleDivision}
+            isAdminAuthenticated={isAdminAuthenticated}
+            onAdminClick={() => {
+              if (isAdminAuthenticated) {
+                setAdminOpen(true);
+              } else {
+                setAdminLoginOpen(true);
+              }
+            }}
+            theme={theme}
+          />
+
+          {/* Live Match Chat — mobile-only floating button + slide-up panel */}
+          <LiveChat tournamentId={currentTournament?.id} division={division} />
+
+          {/* PWA Install Prompt — Add to Home Screen */}
+          <PWAInstallPrompt />
+            </>
+          )}
+        </>
+      )}
+
+      {/* Player Profile Overlay — from app view leaderboard click */}
+        {appProfileId && (
+          <PlayerProfilePage
+            playerId={appProfileId}
+            division={division}
+            onBack={() => setAppProfileId(null)}
+          />
+        )}
+
+
+      </div>
   );
 }

@@ -4,10 +4,22 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ['query'],
-  })
+function createPrismaClient(): PrismaClient {
+  console.log('[DB] Creating SQLite Prisma client');
+  return new PrismaClient({
+    log: ['error', 'warn'],
+  });
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+let prisma: PrismaClient;
+
+if (process.env.NODE_ENV === 'production') {
+  prisma = createPrismaClient();
+} else {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+  }
+  prisma = globalForPrisma.prisma;
+}
+
+export const db = prisma;

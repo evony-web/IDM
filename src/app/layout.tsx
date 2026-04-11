@@ -1,55 +1,39 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { QueryProvider } from "@/components/query-provider";
+import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({
-  variable: "--font-inter",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
-  title: "Brackito - Tournament Manager",
-  description:
-    "Create and manage tournaments with ease. Single/Double Elimination, Round Robin, Swiss formats supported.",
-  keywords: [
-    "tournament",
-    "bracket",
-    "elimination",
-    "round robin",
-    "swiss",
-    "challonge",
-    "brackito",
-  ],
-  authors: [{ name: "Brackito" }],
-  manifest: "/manifest.json",
-  icons: {
-    icon: "/icon-512.png",
-    apple: "/icon-512.png",
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Brackito",
-  },
-  openGraph: {
-    title: "Brackito - Tournament Manager",
-    description: "Create and manage tournaments with ease.",
-    type: "website",
-  },
+  title: "IDOL META - TARKAM Fan Made Edition | Esports Tournament",
+  description: "Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.",
+  keywords: ["esports", "tournament", "gaming", "competitive", "leaderboard", "bracket", "IDOL META", "TARKAM"],
+  authors: [{ name: "IDOL META Team" }],
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0B0B0F" },
+  ],
 };
 
 export default function RootLayout({
@@ -58,33 +42,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
       <head>
-        <link rel="manifest" href="/manifest.json" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
-        />
+        <meta name="theme-color" content="#0B0B0F" />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-black`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <QueryProvider>{children}</QueryProvider>
-          <Toaster />
-        </ThemeProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -1,3 +1,5 @@
+// IDM Tournament App - SQLite Schema (Adapted from PostgreSQL)
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,72 +10,278 @@ datasource db {
 }
 
 model Tournament {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String   @default("")
-  format      String   @default("single_elimination") // single_elimination, double_elimination, round_robin, swiss
-  status      String   @default("pending") // pending, in_progress, completed
-  gameName    String   @default("")
-  isPublic    Boolean  @default(true)
-  seeded      Boolean  @default(false)
-  thirdPlace  Boolean  @default(false) // include 3rd place match
-  randomize   Boolean  @default(false)
-  maxParticipants Int   @default(64)
-  swissRounds Int      @default(3)
-  groupIdSize Int      @default(4) // for group stage
-  holdThirdPlaceMatch Boolean @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  participants Participant[]
-  matches      Match[]
-}
-
-model Participant {
   id           String   @id @default(cuid())
-  tournamentId String
   name         String
-  seed         Int      @default(0)
-  active       Boolean  @default(true)
+  division     String   @default("male")
+  type         String   @default("weekly")
+  status       String   @default("setup")
+  week         Int?
+  bracketType  String?
+  prizePool    Float    @default(0)
+  prizeChampion Float   @default(0)
+  prizeRunnerUp Float   @default(0)
+  prizeThird   Float    @default(0)
+  prizeMvp     Float    @default(0)
+  mode         String   @default("GR Arena 3vs3")
+  bpm          String   @default("130")
+  lokasi       String   @default("PUB 1")
+  startDate    DateTime?
+  endDate      DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  tournament     Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  matchPlayer1   Match[]    @relation("MatchPlayer1")
-  matchPlayer2   Match[]    @relation("MatchPlayer2")
-  matchWinner    Match[]    @relation("MatchWinner")
+  matches       Match[]
+  registrations Registration[]
+  sawers        Sawer[]
+  teams         Team[]
+}
 
-  @@index([tournamentId])
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  gender      String   @default("male")
+  tier        String   @default("B")
+  points      Int      @default(0)
+  avatar      String?
+  phone       String?
+  role        String   @default("user")
+  adminPass   String?
+  permissions String   @default("{}")
+  isAdmin     Boolean  @default(false)
+  isMVP       Boolean  @default(false)
+  mvpScore    Int      @default(0)
+  clubId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  city        String?
+
+  donations       Donation[]
+  matchesAsMvp    Match[]        @relation("UserMvpMatches")
+  rankings        Ranking?
+  registrations   Registration[]
+  teamMembers     TeamMember[]
+  club            Club?          @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  achievements    Achievement[]
+  seasonPoints    PlayerSeason[]
+  activityLogs    ActivityLog[]
+  character       Character?
+}
+
+model Club {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members   User[]
+}
+
+model Registration {
+  id           String   @id @default(cuid())
+  userId       String
+  tournamentId String
+  status       String   @default("pending")
+  tierAssigned String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tournamentId])
+}
+
+model Team {
+  id            String   @id @default(cuid())
+  tournamentId  String
+  name          String
+  seed          Int      @default(0)
+  isEliminated  Boolean  @default(false)
+  eliminationType String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tournament Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  TeamMember TeamMember[]
+  matchesWon  Match[]    @relation("Match_winnerIdToTeam")
+  matchesAsTeamB Match[] @relation("Match_teamBIdToTeam")
+  matchesAsTeamA Match[] @relation("Match_teamAIdToTeam")
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  teamId String
+  userId String
+  role   String @default("member")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
 }
 
 model Match {
-  id                String   @id @default(cuid())
-  tournamentId      String
-  round             Int      @default(1)
-  position          Int      @default(0) // position within the round
-  bracket           String   @default("winners") // winners, losers, grand_finals
-  player1Id         String?
-  player2Id         String?
-  score1            Int      @default(0)
-  score2            Int      @default(0)
-  winnerId          String?
-  status            String   @default("pending") // pending, in_progress, completed
-  nextMatchId       String?  // match where winner advances to
-  nextMatchPosition String?  // "player1" or "player2" - which slot in next match
-  isThirdPlace      Boolean  @default(false)
-  order             Int      @default(0) // display order
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id           String   @id @default(cuid())
+  tournamentId String
+  round        Int      @default(1)
+  matchNumber  Int      @default(1)
+  teamAId      String?
+  teamBId      String?
+  scoreA       Int?
+  scoreB       Int?
+  winnerId     String?
+  mvpId        String?
+  status       String   @default("pending")
+  bracket      String   @default("winners")
+  scheduledAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  tournament  Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  player1     Participant? @relation("MatchPlayer1", fields: [player1Id], references: [id])
-  player2     Participant? @relation("MatchPlayer2", fields: [player2Id], references: [id])
-  winner      Participant? @relation("MatchWinner", fields: [winnerId], references: [id])
-  nextMatch   Match?       @relation("MatchAdvance", fields: [nextMatchId], references: [id])
-  prevMatches Match[]      @relation("MatchAdvance")
+  mvp        User?      @relation("UserMvpMatches", fields: [mvpId], references: [id], onDelete: SetNull)
+  winner     Team?      @relation("Match_winnerIdToTeam", fields: [winnerId], references: [id], onDelete: SetNull)
+  teamB      Team?      @relation("Match_teamBIdToTeam", fields: [teamBId], references: [id], onDelete: SetNull)
+  teamA      Team?      @relation("Match_teamAIdToTeam", fields: [teamAId], references: [id], onDelete: SetNull)
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+}
 
-  @@index([tournamentId])
-  @@index([round])
-  @@index([bracket])
+model Donation {
+  id            String    @id @default(cuid())
+  userId        String?
+  donorName     String?
+  amount        Float
+  message       String?
+  anonymous     Boolean   @default(false)
+  paymentMethod String    @default("qris")
+  paymentStatus String    @default("pending")
+  proofImageUrl String?
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Sawer {
+  id               String     @id @default(cuid())
+  tournamentId     String?
+  senderName       String
+  senderAvatar     String?
+  targetPlayerId   String?
+  targetPlayerName String?
+  amount           Float
+  message          String?
+  paymentMethod    String     @default("qris")
+  paymentStatus    String     @default("pending")
+  proofImageUrl    String?
+  paidAt           DateTime?
+  createdAt        DateTime   @default(now())
+
+  tournament Tournament? @relation(fields: [tournamentId], references: [id], onDelete: SetNull)
+}
+
+model Ranking {
+  id     String @id @default(cuid())
+  userId String @unique
+  points Int    @default(0)
+  wins   Int    @default(0)
+  losses Int    @default(0)
+  rank   Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  name        String
+  description String
+  icon        String
+  earnedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model PlayerSeason {
+  id        String   @id @default(cuid())
+  userId    String
+  season    Int
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, season])
+}
+
+model Settings {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  value       String
+  description String?
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String
+  icon      String   @default("📢")
+  data      String?
+  isRead    Boolean  @default(false)
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+model VideoHighlight {
+  id          String   @id @default(cuid())
+  title       String
+  youtubeUrl  String
+  division    String   @default("all")
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WhatsAppSettings {
+  id               String    @id @default(cuid())
+  provider         String    @default("baileys")
+  isActive         Boolean   @default(true)
+  lastConnectedAt  DateTime?
+  connectionStatus String    @default("disconnected")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Character {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  gender    String    @default("male")
+  universe  String
+  alignment String
+  classType String
+  colors    String
+  imageUrl  String?
+  isTaken   Boolean   @default(false)
+  takenBy   String?   @unique
+  takenAt   DateTime?
+
+  user User? @relation(fields: [takenBy], references: [id], onDelete: SetNull)
 }
