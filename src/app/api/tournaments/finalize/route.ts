@@ -241,23 +241,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── Auto-increment current season ──
-    // When a tournament is finalized, the season advances to the next one
-    try {
-      const currentSeasonSetting = await db.settings.findUnique({ where: { key: 'current_season' } });
-      const currentSeason = currentSeasonSetting ? parseInt(currentSeasonSetting.value, 10) : 1;
-      const nextSeason = currentSeason + 1;
-      await db.settings.upsert({
-        where: { key: 'current_season' },
-        update: { value: String(nextSeason) },
-        create: { key: 'current_season', value: String(nextSeason) },
-      });
-      console.log(`[Finalize] Season incremented: ${currentSeason} → ${nextSeason}`);
-    } catch (seasonErr) {
-      console.warn('[Finalize] Failed to increment season:', seasonErr);
-      // Non-critical — don't fail the finalize
-    }
-
     pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'tournament-update', { action: 'finalized', tournamentId, division: tournament.division }).catch(() => {});
     pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'announcement', { message: 'Tournament completed!', type: 'success', tournamentId }).catch(() => {});
 

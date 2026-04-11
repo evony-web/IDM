@@ -1917,7 +1917,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
             <h2 className="text-[19px] sm:text-[22px] font-black text-white/90 tracking-tight">Leaderboard</h2>
             <p className="text-[11px] sm:text-[12px] text-white/35 mt-0.5">
               {seasonLoaded
-                ? `${displaySeasonPlayers.length} pemain • ${seasons.length} season`
+                ? `${displaySeasonPlayers.length} pemain • Season ${currentSeason} sedang berjalan`
                 : 'Memuat data...'}
             </p>
           </div>
@@ -1942,20 +1942,27 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                   style={{
                     background: selectedSeason === 'all'
                       ? 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,215,0,0.08))'
-                      : 'rgba(115,255,0,0.10)',
-                    border: `1px solid ${selectedSeason === 'all' ? 'rgba(255,215,0,0.25)' : 'rgba(115,255,0,0.15)'}`,
+                      : selectedSeason === currentSeason
+                        ? 'linear-gradient(135deg, rgba(115,255,0,0.20), rgba(115,255,0,0.08))'
+                        : 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${selectedSeason === 'all' ? 'rgba(255,215,0,0.25)' : selectedSeason === currentSeason ? 'rgba(115,255,0,0.25)' : 'rgba(255,255,255,0.10)'}`,
                   }}
                 >
                   {selectedSeason === 'all' ? (
                     <Medal className="w-4 h-4" style={{ color: '#FFD700' }} />
                   ) : (
-                    <span className="text-[12px] font-black" style={{ color: '#73FF00' }}>S{selectedSeason}</span>
+                    <span className="text-[12px] font-black" style={{ color: selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.5)' }}>S{selectedSeason}</span>
                   )}
                 </div>
                 <div className="text-left">
-                  <p className="text-[13px] sm:text-[14px] font-bold" style={{ color: selectedSeason === 'all' ? '#FFD700' : '#73FF00' }}>
-                    {selectedSeason === 'all' ? 'All Seasons' : `Season ${selectedSeason}`}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13px] sm:text-[14px] font-bold" style={{ color: selectedSeason === 'all' ? '#FFD700' : selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.6)' }}>
+                      {selectedSeason === 'all' ? 'All Seasons' : `Season ${selectedSeason}`}
+                    </p>
+                    {selectedSeason === currentSeason && (
+                      <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(115,255,0,0.12)', color: '#73FF00', border: '1px solid rgba(115,255,0,0.20)' }}>AKTIF</span>
+                    )}
+                  </div>
                 </div>
               </div>
               <motion.div animate={{ rotate: seasonDropdownOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -2019,7 +2026,12 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                             <span className="text-[12px] font-black" style={{ color: '#73FF00' }}>S{s}</span>
                           </div>
                           <div className="text-left flex-1">
-                            <p className="text-[13px] font-bold" style={{ color: selectedSeason === s ? '#73FF00' : 'rgba(255,255,255,0.7)' }}>Season {s}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-[13px] font-bold" style={{ color: selectedSeason === s ? '#73FF00' : 'rgba(255,255,255,0.7)' }}>Season {s}</p>
+                              {s === currentSeason && (
+                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(115,255,0,0.12)', color: '#73FF00', border: '1px solid rgba(115,255,0,0.20)' }}>AKTIF</span>
+                              )}
+                            </div>
                             <p className="text-[10px] text-white/25">{playerCount} pemain berpoints</p>
                           </div>
                           {selectedSeason === s && <div className="w-2 h-2 rounded-full" style={{ background: '#73FF00', boxShadow: '0 0 6px rgba(115,255,0,0.5)' }} />}

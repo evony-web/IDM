@@ -59,15 +59,17 @@ export async function GET(request: NextRequest) {
     });
     const seasons = Array.from(allSeasons).sort((a, b) => a - b);
 
-    // Get current season from settings
+    // Calculate current season dynamically:
+    // Each season = 11 weeks/tournaments. Season advances every 11 completed tournaments.
+    // Season 1 = tournaments 1-11, Season 2 = tournaments 12-22, etc.
+    // currentSeason = Math.floor(completedTournaments / 11) + 1
     let currentSeason = 1;
     try {
-      const currentSeasonSetting = await db.settings.findUnique({ where: { key: 'current_season' } });
-      if (currentSeasonSetting) {
-        const parsed = parseInt(currentSeasonSetting.value, 10);
-        if (!isNaN(parsed) && parsed >= 1) currentSeason = parsed;
-      }
-    } catch { /* use default */ }
+      const completedCount = await db.tournament.count({
+        where: { status: 'completed' },
+      });
+      currentSeason = Math.floor(completedCount / 11) + 1;
+    } catch { /* use default 1 */ }
 
     return NextResponse.json({
       success: true,

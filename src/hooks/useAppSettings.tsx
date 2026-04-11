@@ -51,9 +51,6 @@ export interface AppSettings {
   default_bracket_type: string;
   tournament_name_template_male: string;
   tournament_name_template_female: string;
-
-  // Season tracking
-  current_season: string;
 }
 
 // Fallback defaults (used before API response arrives)
@@ -88,7 +85,6 @@ const FALLBACK: AppSettings = {
   default_bracket_type: 'single_elimination',
   tournament_name_template_male: 'Week {week}',
   tournament_name_template_female: 'Week {week}',
-  current_season: '1',
 };
 
 // Context for app-wide settings
