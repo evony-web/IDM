@@ -123,7 +123,6 @@ interface GrandFinalProps {
   isUpdatingScore?: boolean;
   gfPrizePool?: number;
   onGfPrizePoolChange?: (value: number) => void;
-  theme?: 'dark' | 'light';
 }
 
 /* ================================================================
@@ -192,7 +191,6 @@ function TeamCard({
   isEliminated,
   division,
   matchResult,
-  theme = 'dark',
 }: {
   team: GFTeam;
   colorIndex: number;
@@ -200,7 +198,6 @@ function TeamCard({
   isEliminated?: boolean;
   division: 'male' | 'female';
   matchResult?: 'win' | 'loss' | null;
-  theme?: 'dark' | 'light';
 }) {
   const color = TEAM_COLORS[colorIndex % 4];
   const accent = getAccent(division);
@@ -280,7 +277,6 @@ function GFMatchCard({
   isAdmin,
   onUpdateScore,
   isUpdating,
-  theme = 'dark',
 }: {
   match: GFMatch;
   allTeams: GFTeam[];
@@ -288,7 +284,6 @@ function GFMatchCard({
   isAdmin: boolean;
   onUpdateScore: (matchId: string, scoreA: number, scoreB: number, mvpId?: string) => void;
   isUpdating: boolean;
-  theme?: 'dark' | 'light';
 }) {
   const teamA = match.teamA || allTeams.find(t => t.id === match.teamAId);
   const teamB = match.teamB || allTeams.find(t => t.id === match.teamBId);
@@ -523,14 +518,12 @@ function PointCard({
   points,
   division,
   index,
-  theme = 'dark',
 }: {
   icon: React.ReactNode;
   label: string;
   points: string;
   division: 'male' | 'female';
   index: number;
-  theme?: 'dark' | 'light';
 }) {
   const accent = getAccent(division);
   const isLight = false; // Dark mode only
@@ -571,7 +564,6 @@ export function GrandFinal({
   isUpdatingScore = false,
   gfPrizePool = 0,
   onGfPrizePoolChange,
-  theme = 'dark',
 }: GrandFinalProps) {
   const accent = getAccent(division);
   const accentGradient = division === 'male'
@@ -944,7 +936,6 @@ export function GrandFinal({
                 isAdmin={isAdminAuthenticated}
                 onUpdateScore={onUpdateScore}
                 isUpdating={isUpdatingScore}
-                theme={theme}
               />
             )}
 
@@ -957,7 +948,6 @@ export function GrandFinal({
                 isAdmin={isAdminAuthenticated}
                 onUpdateScore={onUpdateScore}
                 isUpdating={isUpdatingScore}
-                theme={theme}
               />
             )}
 
@@ -989,7 +979,6 @@ export function GrandFinal({
                   isAdmin={isAdminAuthenticated}
                   onUpdateScore={onUpdateScore}
                   isUpdating={isUpdatingScore}
-                  theme={theme}
                 />
               </div>
             )}
@@ -1038,7 +1027,6 @@ export function GrandFinal({
                       isEliminated={isTeamEliminated}
                       division={division}
                       matchResult={matchResult}
-                      theme={theme}
                     />
                   );
                 })}

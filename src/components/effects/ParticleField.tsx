@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
 type Division = 'male' | 'female';
-type UITheme = 'night-fury' | 'dark-fury-pink' | 'dark';
+type UITheme = 'dark-male' | 'dark-female' | 'dark';
 
 /* ═══════════════════════════════════════════════════════════════════
    GRADIENT BACKGROUND — Dark Mode: Male=Green Glow | Female=Blue Glow

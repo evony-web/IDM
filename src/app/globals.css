@@ -207,111 +207,6 @@
   --dragon-scale-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='rgba(115,255,0,0.03)' stroke-width='0.5'/%3E%3C/svg%3E");
 }
 
-/* ═══════════════════════════════════════════
-   💗 DARK FURY PINK THEME (Female Division)
-   Dark mode with Pink Neon glow - just like Male but Pink!
-   ═══════════════════════════════════════════ */
-
-.dark-fury-pink,
-[data-theme="dark-fury-pink"] {
-  /* Backgrounds - Deep dark (same vibe as Night Fury) */
-  --background: #0d0a10;
-  --background-secondary: #110d14;
-  --background-tertiary: #16101a;
-  --background-elevated: #1e1624;
-  --foreground: #f5f5f7;
-  
-  /* Cards & Surfaces */
-  --card: rgba(22, 16, 26, 0.72);
-  --card-foreground: #f5f5f7;
-  --popover: rgba(26, 20, 32, 0.92);
-  --popover-foreground: #f5f5f7;
-  
-  /* Primary Accent - PINK NEON GLOW */
-  --primary: #38BDF8;
-  --primary-light: #7DD3FC;
-  --primary-dark: #0EA5E9;
-  --primary-foreground: #0d0a10;
-  
-  /* Secondary */
-  --secondary: rgba(56, 189, 248, 0.06);
-  --secondary-foreground: #f5f5f7;
-  --muted: rgba(56, 189, 248, 0.04);
-  --muted-foreground: rgba(255, 255, 255, 0.48);
-  
-  /* Accent Colors */
-  --accent: rgba(56, 189, 248, 0.10);
-  --accent-foreground: #38BDF8;
-  --destructive: #FF453A;
-  
-  /* Borders & Inputs */
-  --border: rgba(56, 189, 248, 0.12);
-  --input: rgba(56, 189, 248, 0.06);
-  --ring: rgba(56, 189, 248, 0.35);
-
-  /* Text Hierarchy */
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-secondary: rgba(255, 255, 255, 0.60);
-  --text-tertiary: rgba(255, 255, 255, 0.38);
-  --text-quaternary: rgba(255, 255, 255, 0.22);
-
-  /* ── Pink Neon Accent Colors ── */
-  --gold: #38BDF8;
-  --gold-light: #7DD3FC;
-  --gold-dark: #0EA5E9;
-  --gold-muted: rgba(56, 189, 248, 0.12);
-  --gold-glow: rgba(56, 189, 248, 0.25);
-
-  --rose: #38BDF8;
-  --rose-light: #7DD3FC;
-  --rose-dark: #0EA5E9;
-  --rose-muted: rgba(56, 189, 248, 0.12);
-  --rose-glow: rgba(56, 189, 248, 0.20);
-
-  --purple: #BF5AF2;
-  --purple-light: #D08AFF;
-  --purple-muted: rgba(191, 90, 242, 0.12);
-
-  --cyan: #64D2FF;
-  --cyan-muted: rgba(100, 210, 255, 0.12);
-
-  --teal: #66D4CF;
-  --teal-muted: rgba(102, 212, 207, 0.12);
-
-  --green: #30D158;
-  --green-muted: rgba(48, 209, 88, 0.12);
-
-  --orange: #FF9F0A;
-  --orange-muted: rgba(255, 159, 10, 0.12);
-
-  --red: #FF453A;
-  --red-muted: rgba(255, 69, 58, 0.12);
-
-  /* ── Glass Morphism - Pink Neon Dark Mode ── */
-  --glass-bg: rgba(56, 189, 248, 0.03);
-  --glass-hover: rgba(56, 189, 248, 0.06);
-  --glass-border: rgba(56, 189, 248, 0.08);
-  --glass-highlight: rgba(56, 189, 248, 0.12);
-  --glass-bg-subtle: rgba(56, 189, 248, 0.015);
-  --glass-bg-heavy: rgba(13, 10, 16, 0.88);
-
-  /* ── Inner Glow Effects - Pink Neon ── */
-  --inner-glow-primary: inset 0 1px 0 rgba(56, 189, 248, 0.15), inset 0 0 32px rgba(56, 189, 248, 0.08);
-  --inner-glow-secondary: inset 0 1px 0 rgba(56, 189, 248, 0.10), inset 0 0 24px rgba(56, 189, 248, 0.04);
-  --inner-glow-white: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
-  /* ── Depth System - Dark Mode ── */
-  --depth-1: 0 1px 4px rgba(0, 0, 0, 0.28), 0 0.5px 1px rgba(0, 0, 0, 0.18);
-  --depth-2: 0 2px 12px rgba(0, 0, 0, 0.32), 0 1px 3px rgba(0, 0, 0, 0.18);
-  --depth-3: 0 4px 24px rgba(0, 0, 0, 0.38), 0 2px 6px rgba(0, 0, 0, 0.18);
-  --depth-4: 0 8px 48px rgba(0, 0, 0, 0.44), 0 4px 12px rgba(0, 0, 0, 0.18);
-  --depth-5: 0 16px 64px rgba(0, 0, 0, 0.50), 0 8px 20px rgba(0, 0, 0, 0.18);
-
-  /* ── Dragon Eye Glow Effect - PINK NEON ── */
-  --dragon-eye-glow: 0 0 20px rgba(56, 189, 248, 0.4), 0 0 40px rgba(56, 189, 248, 0.2);
-  --dragon-scale-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='rgba(56, 189, 248,0.03)' stroke-width='0.5'/%3E%3C/svg%3E");
-}
-
 
 /* ═══════════════════════════════════════════
    DARK THEME SYSTEM (Dark Mode Only)
@@ -467,18 +362,6 @@
     color: #ffffff;
   }
 
-  .dark-fury-pink ::selection,
-  [data-theme="dark-fury-pink"] ::selection {
-    background: rgba(56, 189, 248, 0.25);
-    color: #ffffff;
-  }
-
-  .dark-fury-pink ::-moz-selection,
-  [data-theme="dark-fury-pink"] ::-moz-selection {
-    background: rgba(56, 189, 248, 0.25);
-    color: #ffffff;
-  }
-
   /* Prevent text size adjust on orientation */
   input,
   textarea,
@@ -512,24 +395,9 @@
   background-clip: padding-box;
 }
 
-.dark-fury-pink ::-webkit-scrollbar-thumb,
-[data-theme="dark-fury-pink"] ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.15);
-}
-
-.dark-fury-pink ::-webkit-scrollbar-thumb:hover,
-[data-theme="dark-fury-pink"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.25);
-}
-
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(115, 255, 0, 0.10) transparent;
-}
-
-.dark-fury-pink *,
-[data-theme="dark-fury-pink"] * {
-  scrollbar-color: rgba(56, 189, 248, 0.15) transparent;
 }
 
 
@@ -701,18 +569,18 @@ html {
 
 /* Female division - Blue accent */
 .dark[data-theme="dark-female"] .glass-clear,
-[data-theme="dark-fury-pink"] .glass-clear {
+.dark[data-theme="dark-female"] .glass-clear {
   background: rgba(13, 10, 16, 0.55);
   border-color: rgba(56, 189, 248, 0.12);
 }
 
 .dark[data-theme="dark-female"] .glass-clear::before,
-[data-theme="dark-fury-pink"] .glass-clear::before {
+.dark[data-theme="dark-female"] .glass-clear::before {
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
 }
 
 .dark[data-theme="dark-female"] .glass-clear:hover,
-[data-theme="dark-fury-pink"] .glass-clear:hover {
+.dark[data-theme="dark-female"] .glass-clear:hover {
   background: rgba(13, 10, 16, 0.65);
   border-color: rgba(56, 189, 248, 0.18);
 }
@@ -810,25 +678,6 @@ html {
   border-color: rgba(115, 255, 0, 0.18);
 }
 
-/* ── Dark Fury Pink Premium Card (Female Division) ── */
-.dark-fury-pink .card-gold,
-[data-theme="dark-fury-pink"] .card-gold {
-  background: rgba(13, 10, 16, 0.95);
-  border: 0.5px solid rgba(56, 189, 248, 0.12);
-  box-shadow: var(--ios-shadow-md);
-}
-
-.dark-fury-pink .card-gold::before,
-[data-theme="dark-fury-pink"] .card-gold::before {
-  display: none;
-}
-
-.dark-fury-pink .card-gold:hover,
-[data-theme="dark-fury-pink"] .card-gold:hover {
-  box-shadow: var(--ios-shadow-lg);
-  border-color: rgba(56, 189, 248, 0.18);
-}
-
 
 /* ── Pink Premium Card (for female division in dark mode) ── */
 .card-pink {
@@ -906,35 +755,6 @@ html {
     inset 0 2px 4px rgba(0, 0, 0, 0.10);
   transform: scale(0.97) translateY(0);
   transition-duration: 0.08s;
-}
-
-/* Dark Fury Pink CTA (Female Division - Pink Neon) */
-.dark-fury-pink .btn-gold,
-[data-theme="dark-fury-pink"] .btn-gold {
-  background: linear-gradient(180deg, #38BDF8 0%, #0EA5E9 100%);
-  color: #0a0f0d;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.18),
-    0 2px 20px rgba(56, 189, 248, 0.40),
-    0 0 40px rgba(56, 189, 248, 0.20),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.dark-fury-pink .btn-gold:hover,
-[data-theme="dark-fury-pink"] .btn-gold:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.22),
-    0 4px 30px rgba(56, 189, 248, 0.50),
-    0 0 60px rgba(56, 189, 248, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.dark-fury-pink .btn-gold:active,
-[data-theme="dark-fury-pink"] .btn-gold:active {
-  box-shadow:
-    0 0.5px 1px rgba(0, 0, 0, 0.18),
-    0 1px 10px rgba(56, 189, 248, 0.30),
-    inset 0 2px 4px rgba(0, 0, 0, 0.10);
 }
 
 
@@ -1106,14 +926,6 @@ html {
   background-clip: text;
 }
 
-.dark-fury-pink .gradient-gold,
-[data-theme="dark-fury-pink"] .gradient-gold {
-  background: linear-gradient(180deg, #FFFFFF 10%, #38BDF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 
 .gradient-pink {
   background: linear-gradient(180deg, #FFFFFF 10%, #38BDF8 100%);
@@ -1121,9 +933,6 @@ html {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
-.dark-fury-pink .gradient-pink,
-[data-theme="dark-fury-pink"] .gradient-pink,
 
 .gradient-white {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 100%);
@@ -1152,23 +961,6 @@ html {
   box-shadow:
     0 0 20px rgba(115, 255, 0, 0.25),
     0 0 40px rgba(115, 255, 0, 0.10),
-    0 4px 12px rgba(0, 0, 0, 0.30);
-}
-
-.dark-fury-pink .avatar-ring-gold,
-[data-theme="dark-fury-pink"] .avatar-ring-gold {
-  background: linear-gradient(145deg, #38BDF8, #0EA5E9, #7DD3FC, #38BDF8);
-  box-shadow:
-    0 0 14px rgba(56, 189, 248, 0.20),
-    0 0 28px rgba(56, 189, 248, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.30);
-}
-
-.dark-fury-pink .avatar-ring-gold:hover,
-[data-theme="dark-fury-pink"] .avatar-ring-gold:hover {
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.28),
-    0 0 40px rgba(56, 189, 248, 0.12),
     0 4px 12px rgba(0, 0, 0, 0.30);
 }
 
@@ -1215,11 +1007,6 @@ html {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-}
-
-.dark-fury-pink .inner-light::before,
-[data-theme="dark-fury-pink"] .inner-light::before {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.10) 0%, transparent 35%);
 }
 
 
@@ -1353,12 +1140,6 @@ html {
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
-.dark-fury-pink .bracket-line,
-[data-theme="dark-fury-pink"] .bracket-line {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.03) 100%);
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.08);
-}
-
 .trophy-glow {
   filter:
     drop-shadow(0 0 20px rgba(115, 255, 0, 0.50))
@@ -1366,26 +1147,10 @@ html {
     drop-shadow(0 4px 8px rgba(0, 0, 0, 0.30));
 }
 
-.dark-fury-pink .trophy-glow,
-[data-theme="dark-fury-pink"] .trophy-glow {
-  filter:
-    drop-shadow(0 0 20px rgba(56, 189, 248, 0.50))
-    drop-shadow(0 0 40px rgba(56, 189, 248, 0.25))
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.30));
-}
-
 .champion-crown {
   filter:
     drop-shadow(0 0 28px rgba(115, 255, 0, 0.60))
     drop-shadow(0 0 50px rgba(115, 255, 0, 0.30))
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.40));
-}
-
-.dark-fury-pink .champion-crown,
-[data-theme="dark-fury-pink"] .champion-crown {
-  filter:
-    drop-shadow(0 0 28px rgba(56, 189, 248, 0.60))
-    drop-shadow(0 0 50px rgba(56, 189, 248, 0.30))
     drop-shadow(0 4px 12px rgba(0, 0, 0, 0.40));
 }
 
@@ -1580,18 +1345,6 @@ html {
   color: transparent;
 }
 
-.dark-fury-pink .shimmer-gold,
-[data-theme="dark-fury-pink"] .shimmer-gold {
-  background-image: linear-gradient(
-    105deg,
-    rgba(255, 255, 255, 0.92) 0%,
-    rgba(56, 189, 248, 1) 25%,
-    rgba(255, 255, 255, 0.92) 50%,
-    rgba(255, 102, 255, 0.85) 75%,
-    rgba(255, 255, 255, 0.92) 100%
-  );
-}
-
 .shimmer-pink {
   background-image: linear-gradient(
     105deg,
@@ -1602,18 +1355,6 @@ html {
     rgba(255, 255, 255, 0.92) 100%
   );
   color: transparent;
-}
-
-.dark-fury-pink .shimmer-pink,
-[data-theme="dark-fury-pink"] .shimmer-pink {
-  background-image: linear-gradient(
-    105deg,
-    rgba(255, 255, 255, 0.92) 0%,
-    rgba(56, 189, 248, 1) 25%,
-    rgba(255, 255, 255, 0.92) 50%,
-    rgba(255, 102, 255, 0.85) 75%,
-    rgba(255, 255, 255, 0.92) 100%
-  );
 }
 
 /* Live heartbeat — natural double-pump rhythm */
@@ -1863,12 +1604,6 @@ html {
   background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(56, 189, 248, 0.07) 0%, transparent 70%);
 }
 
-/* Dark Fury Pink theme - Pink Neon Glow */
-.dark-fury-pink .hero-glow-bleed.is-female,
-[data-theme="dark-fury-pink"] .hero-glow-bleed.is-female {
-  background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
-}
-
 
 .hero-gradient-border {
   position: relative;
@@ -1932,11 +1667,6 @@ html {
 /* Female division - Blue/Pink neon */
 .hero-gradient-border.is-female {
   --neon-color: rgba(56, 189, 248, 0.7);
-}
-
-.dark-fury-pink .hero-gradient-border.is-female,
-[data-theme="dark-fury-pink"] .hero-gradient-border.is-female {
-  --neon-color: rgba(236, 72, 153, 0.7);
 }
 
 /* Neon rotation animation */
@@ -2036,11 +1766,6 @@ html {
 
 .hero-neon-particle.female {
   --neon-color: rgba(56, 189, 248, 0.9);
-}
-
-.dark-fury-pink .hero-neon-particle.female,
-[data-theme="dark-fury-pink"] .hero-neon-particle.female {
-  --neon-color: rgba(236, 72, 153, 0.9);
 }
 
 /* Particle travels around the card edges */
@@ -2153,11 +1878,6 @@ html {
 
 .hero-corner-glow.female {
   --neon-color: rgba(56, 189, 248, 0.5);
-}
-
-.dark-fury-pink .hero-corner-glow.female,
-[data-theme="dark-fury-pink"] .hero-corner-glow.female {
-  --neon-color: rgba(236, 72, 153, 0.5);
 }
 
 /* ── Refined Status Pill ── */
@@ -2369,12 +2089,6 @@ html {
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(255, 102, 255, 0.05));
   border: 0.5px solid rgba(56, 189, 248, 0.15);
   color: #38BDF8;
-}
-
-/* Dark Fury Pink theme - Pink Neon glow on icon */
-.dark-fury-pink .hero-info-bar .info-block-icon.icon-pink,
-[data-theme="dark-fury-pink"] .hero-info-bar .info-block-icon.icon-pink {
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
 }
 
 
@@ -2868,168 +2582,6 @@ html {
   }
 }
 
-/* ========================================
-   💗 DARK FURY PINK COMPREHENSIVE OVERRIDES
-   Complete pink neon theme for Female Division
-   ======================================== */
-
-.dark-fury-pink,
-[data-theme="dark-fury-pink"] {
-  /* Force pink neon colors */
-  --accent-glow: 0 0 30px rgba(56, 189, 248, 0.40), 0 0 60px rgba(56, 189, 248, 0.20);
-}
-
-/* ── Hero Glow Bleed Enhancement ── */
-.dark-fury-pink .hero-glow-bleed.is-female,
-[data-theme="dark-fury-pink"] .hero-glow-bleed.is-female {
-  background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
-  opacity: 0.8;
-}
-
-/* ── Status Registration with Pink Neon ── */
-.dark-fury-pink .hero-status-registration,
-[data-theme="dark-fury-pink"] .hero-status-registration {
-  background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.25);
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
-}
-
-.dark-fury-pink .hero-status-registration .status-dot,
-[data-theme="dark-fury-pink"] .hero-status-registration .status-dot {
-  background: #38BDF8;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.60);
-}
-
-/* ── Hero Info Bar with Pink Neon ── */
-.dark-fury-pink .hero-info-bar,
-[data-theme="dark-fury-pink"] .hero-info-bar {
-  background: rgba(56, 189, 248, 0.04);
-  border-color: rgba(56, 189, 248, 0.12);
-}
-
-.dark-fury-pink .hero-info-bar .info-block-divider,
-[data-theme="dark-fury-pink"] .hero-info-bar .info-block-divider {
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.15) 30%,
-    rgba(56, 189, 248, 0.15) 70%,
-    transparent 100%
-  );
-}
-
-/* ── Info Chip with Pink Neon ── */
-.dark-fury-pink .hero-info-chip,
-[data-theme="dark-fury-pink"] .hero-info-chip {
-  background: rgba(56, 189, 248, 0.06);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-.dark-fury-pink .hero-info-chip:hover,
-[data-theme="dark-fury-pink"] .hero-info-chip:hover {
-  background: rgba(56, 189, 248, 0.10);
-  border-color: rgba(56, 189, 248, 0.25);
-}
-
-/* ── Result Cards with Pink Neon Glow ── */
-.dark-fury-pink .hero-result-card,
-[data-theme="dark-fury-pink"] .hero-result-card {
-  border-color: rgba(56, 189, 248, 0.12);
-}
-
-.dark-fury-pink .hero-result-card .result-glow,
-[data-theme="dark-fury-pink"] .hero-result-card .result-glow {
-  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.25), transparent);
-}
-
-/* ── Glass Effects with Pink Neon ── */
-.dark-fury-pink .glass,
-[data-theme="dark-fury-pink"] .glass {
-  background: rgba(56, 189, 248, 0.04);
-  border-color: rgba(56, 189, 248, 0.10);
-}
-
-.dark-fury-pink .glass:hover,
-[data-theme="dark-fury-pink"] .glass:hover {
-  background: rgba(56, 189, 248, 0.08);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-.dark-fury-pink .glass-subtle,
-[data-theme="dark-fury-pink"] .glass-subtle {
-  background: rgba(56, 189, 248, 0.02);
-  border-color: rgba(56, 189, 248, 0.08);
-}
-
-.dark-fury-pink .glass-subtle:hover,
-[data-theme="dark-fury-pink"] .glass-subtle:hover {
-  background: rgba(56, 189, 248, 0.04);
-}
-
-/* ── Button Glow Effects ── */
-.dark-fury-pink .btn-gold::after,
-[data-theme="dark-fury-pink"] .btn-gold::after {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
-  );
-}
-
-/* ── Divider with Pink Neon ── */
-.dark-fury-pink .divider,
-[data-theme="dark-fury-pink"] .divider {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.12) 20%,
-    rgba(56, 189, 248, 0.12) 80%,
-    transparent 100%
-  );
-}
-
-/* ── Bracket Line with Pink Neon ── */
-.dark-fury-pink .bracket-line,
-[data-theme="dark-fury-pink"] .bracket-line {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.20) 0%, rgba(56, 189, 248, 0.05) 100%);
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.10);
-}
-
-/* ── Glow Effects ── */
-.dark-fury-pink .glow-gold,
-[data-theme="dark-fury-pink"] .glow-gold {
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(56, 189, 248, 0.12) 0%,
-    transparent 60%
-  );
-}
-
-/* ── Countdown Digit Pink Accent ── */
-.dark-fury-pink .hero-countdown-digit,
-[data-theme="dark-fury-pink"] .hero-countdown-digit {
-  background: rgba(56, 189, 248, 0.04);
-  border-color: rgba(56, 189, 248, 0.10);
-}
-
-/* ── Force Pink Neon Text Colors ── */
-.dark-fury-pink .text-\[\#73FF00\],
-[data-theme="dark-fury-pink"] .text-\[\#73FF00\] {
-  color: #38BDF8 !important;
-}
-
-.dark-fury-pink .bg-\[\#73FF00\],
-[data-theme="dark-fury-pink"] .bg-\[\#73FF00\] {
-  background-color: #38BDF8 !important;
-}
-
-/* ========================================
-   🌟 THEME SELECTOR MAPPINGS
-   - dark-female = Blue accent (same as dark-fury-pink)
-   - dark-male = Green accent (default dark)
-   ======================================== */
-
 /* ═══════════════════════════════════════════
    DARK FEMALE THEME - PINK NEON
    ═══════════════════════════════════════════ */
@@ -3263,13 +2815,13 @@ html {
 
 /* Female Division - Blue accent */
 .dark[data-theme="dark-female"] .card-light,
-[data-theme="dark-fury-pink"] .card-light {
+.dark[data-theme="dark-female"] .card-light {
   background: rgba(22, 16, 30, 0.65);
   border-color: rgba(56, 189, 248, 0.12);
 }
 
 .dark[data-theme="dark-female"] .card-light:hover,
-[data-theme="dark-fury-pink"] .card-light:hover {
+.dark[data-theme="dark-female"] .card-light:hover {
   background: rgba(22, 16, 30, 0.75);
   border-color: rgba(56, 189, 248, 0.20);
 }
@@ -3297,13 +2849,13 @@ html {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .card-light-accent,
-[data-theme="dark-fury-pink"] .card-light-accent {
+.dark[data-theme="dark-female"] .card-light-accent {
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.06) 0%, rgba(22, 16, 30, 0.65) 100%);
   border-color: rgba(56, 189, 248, 0.15);
 }
 
 .dark[data-theme="dark-female"] .card-light-accent:hover,
-[data-theme="dark-fury-pink"] .card-light-accent:hover {
+.dark[data-theme="dark-female"] .card-light-accent:hover {
   border-color: rgba(56, 189, 248, 0.25);
 }
 
@@ -3333,13 +2885,13 @@ html {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .list-row,
-[data-theme="dark-fury-pink"] .list-row {
+.dark[data-theme="dark-female"] .list-row {
   background: rgba(22, 16, 30, 0.45);
   border-color: rgba(56, 189, 248, 0.08);
 }
 
 .dark[data-theme="dark-female"] .list-row:hover,
-[data-theme="dark-fury-pink"] .list-row:hover {
+.dark[data-theme="dark-female"] .list-row:hover {
   background: rgba(22, 16, 30, 0.60);
 }
 
@@ -3380,13 +2932,13 @@ html {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .match-card,
-[data-theme="dark-fury-pink"] .match-card {
+.dark[data-theme="dark-female"] .match-card {
   background: rgba(22, 16, 30, 0.55);
   border-color: rgba(56, 189, 248, 0.10);
 }
 
 .dark[data-theme="dark-female"] .match-card:hover,
-[data-theme="dark-fury-pink"] .match-card:hover {
+.dark[data-theme="dark-female"] .match-card:hover {
   border-color: rgba(56, 189, 248, 0.20);
   background: rgba(22, 16, 30, 0.70);
 }
@@ -3406,7 +2958,7 @@ html {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .glass-list,
-[data-theme="dark-fury-pink"] .glass-list {
+.dark[data-theme="dark-female"] .glass-list {
   background: linear-gradient(180deg, rgba(22, 16, 30, 0.50) 0%, rgba(22, 16, 30, 0.40) 100%);
   border-color: rgba(56, 189, 248, 0.08);
 }
@@ -6645,12 +6197,12 @@ img {
 
 /* Female Division - Blue Glow */
 .dark[data-theme="dark-female"] .card-pro,
-.dark-fury-pink .card-pro {
+.dark[data-theme="dark-female"] .card-pro {
   background: rgba(13, 10, 16, 0.92);
 }
 
 .dark[data-theme="dark-female"] .card-pro::before,
-.dark-fury-pink .card-pro::before {
+.dark[data-theme="dark-female"] .card-pro::before {
   background: linear-gradient(
     135deg,
     rgba(56, 189, 248, 0.40) 0%,
@@ -6664,7 +6216,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-pro::after,
-.dark-fury-pink .card-pro::after {
+.dark[data-theme="dark-female"] .card-pro::after {
   background: linear-gradient(
     90deg,
     transparent 30%,
@@ -6674,7 +6226,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-pro:hover,
-.dark-fury-pink .card-pro:hover {
+.dark[data-theme="dark-female"] .card-pro:hover {
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.35),
     0 0 30px rgba(56, 189, 248, 0.12);
@@ -6696,7 +6248,7 @@ img {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .card-glow,
-.dark-fury-pink .card-glow {
+.dark[data-theme="dark-female"] .card-glow {
   background: rgba(13, 10, 16, 0.95);
   border-color: rgba(56, 189, 248, 0.15);
   animation: card-glow-pulse-female 3s ease-in-out infinite;
@@ -6726,7 +6278,7 @@ img {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .card-float,
-.dark-fury-pink .card-float {
+.dark[data-theme="dark-female"] .card-float {
   background: rgba(13, 10, 16, 0.90);
   border-color: rgba(56, 189, 248, 0.10);
   box-shadow:
@@ -6735,7 +6287,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-float:hover,
-.dark-fury-pink .card-float:hover {
+.dark[data-theme="dark-female"] .card-float:hover {
   box-shadow:
     0 15px 40px rgba(0, 0, 0, 0.35),
     0 0 30px rgba(56, 189, 248, 0.10);
@@ -6792,7 +6344,7 @@ img {
 
 /* Female Division */
 .dark[data-theme="dark-female"] .card-glass-pro,
-.dark-fury-pink .card-glass-pro {
+.dark[data-theme="dark-female"] .card-glass-pro {
   background: linear-gradient(
     135deg,
     rgba(56, 189, 248, 0.08) 0%,
@@ -6807,7 +6359,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-glass-pro::before,
-.dark-fury-pink .card-glass-pro::before {
+.dark[data-theme="dark-female"] .card-glass-pro::before {
   background: linear-gradient(
     90deg,
     transparent,
@@ -6817,7 +6369,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-glass-pro:hover,
-.dark-fury-pink .card-glass-pro:hover {
+.dark[data-theme="dark-female"] .card-glass-pro:hover {
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.35),
     0 0 20px rgba(56, 189, 248, 0.08),
@@ -6879,13 +6431,13 @@ img {
 
 /* Female Division Holo */
 .dark[data-theme="dark-female"] .card-holo,
-.dark-fury-pink .card-holo {
+.dark[data-theme="dark-female"] .card-holo {
   background: rgba(13, 10, 16, 0.95);
   border-color: rgba(56, 189, 248, 0.15);
 }
 
 .dark[data-theme="dark-female"] .card-holo:hover,
-.dark-fury-pink .card-holo:hover {
+.dark[data-theme="dark-female"] .card-holo:hover {
   border-color: rgba(56, 189, 248, 0.25);
 }
 
@@ -6926,13 +6478,13 @@ img {
 
 /* Female Division Spotlight */
 .dark[data-theme="dark-female"] .card-spotlight,
-.dark-fury-pink .card-spotlight {
+.dark[data-theme="dark-female"] .card-spotlight {
   background: rgba(13, 10, 16, 0.95);
   border-color: rgba(56, 189, 248, 0.10);
 }
 
 .dark[data-theme="dark-female"] .card-spotlight::before,
-.dark-fury-pink .card-spotlight::before {
+.dark[data-theme="dark-female"] .card-spotlight::before {
   background: radial-gradient(
     600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
     rgba(56, 189, 248, 0.10),
@@ -6941,7 +6493,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-spotlight:hover,
-.dark-fury-pink .card-spotlight:hover {
+.dark[data-theme="dark-female"] .card-spotlight:hover {
   border-color: rgba(56, 189, 248, 0.20);
 }
 
@@ -7009,7 +6561,7 @@ img {
 
 /* Female Division Enhanced */
 .dark[data-theme="dark-female"] .card-gold-enhanced,
-.dark-fury-pink .card-gold-enhanced {
+.dark[data-theme="dark-female"] .card-gold-enhanced {
   background: rgba(13, 10, 16, 0.95);
   border-color: rgba(56, 189, 248, 0.15);
   box-shadow:
@@ -7018,7 +6570,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-gold-enhanced::before,
-.dark-fury-pink .card-gold-enhanced::before {
+.dark[data-theme="dark-female"] .card-gold-enhanced::before {
   background: linear-gradient(
     90deg,
     transparent,
@@ -7028,7 +6580,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-gold-enhanced::after,
-.dark-fury-pink .card-gold-enhanced::after {
+.dark[data-theme="dark-female"] .card-gold-enhanced::after {
   background: linear-gradient(
     90deg,
     transparent 40%,
@@ -7038,7 +6590,7 @@ img {
 }
 
 .dark[data-theme="dark-female"] .card-gold-enhanced:hover,
-.dark-fury-pink .card-gold-enhanced:hover {
+.dark[data-theme="dark-female"] .card-gold-enhanced:hover {
   box-shadow:
     var(--ios-shadow-lg),
     0 0 30px rgba(56, 189, 248, 0.15),

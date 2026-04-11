@@ -461,8 +461,6 @@ export default function IDOLMETAApp() {
   useEffect(() => {
     const root = document.documentElement;
 
-    // Remove old theme classes
-    root.classList.remove('theme-light-fury', 'dark-fury-pink', 'theme-light-fury-male');
     root.removeAttribute('data-theme');
 
     // Always dark
