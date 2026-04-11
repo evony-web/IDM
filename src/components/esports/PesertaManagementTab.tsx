@@ -627,6 +627,7 @@ export function PesertaManagementTab({
                                       setNewSeason('');
                                       setNewSeasonPoints('');
                                       fetchSeasonPoints(editingUser.id);
+                                      try { new BroadcastChannel('idm-player-seasons').postMessage('updated'); } catch {}
                                     } else {
                                       addToast(data.error || 'Gagal menyimpan season', 'error');
                                     }
@@ -669,6 +670,7 @@ export function PesertaManagementTab({
                                           if (data.success) {
                                             addToast('Season berhasil dihapus', 'success');
                                             fetchSeasonPoints(editingUser.id);
+                                            try { new BroadcastChannel('idm-player-seasons').postMessage('updated'); } catch {}
                                           }
                                         } catch {
                                           addToast('Gagal menghapus season', 'error');

@@ -173,3 +173,42 @@ Stage Summary:
 - Full CRUD integration in Admin Panel > Admin > Konten sub-tab
 - Auto-scroll carousel pauses on user scroll/touch/wheel interaction (resumes after 3s)
 - Real-time content updates from admin panel via BroadcastChannel
+
+---
+Task ID: 14
+Agent: Main Agent
+Task: Create Season Points Leaderboard UI with per-season point breakdown
+
+Work Log:
+- Created public API endpoint /api/season-leaderboard (GET) for fetching all players with season points
+  - Supports gender filter (all/male/female)
+  - Returns players sorted by totalSeasonPoints descending
+  - Returns all unique season numbers across all players
+  - Only includes players who have at least one season point record
+- Created SeasonPointsLeaderboard component in LandingPage.tsx
+  - Table-style layout: Rank | Avatar+Name | S1 | S2 | S3 | ... | Total
+  - Season carousel: shows 3 seasons at a time with left/right navigation arrows
+  - Pagination dots at the bottom for season pages
+  - Expandable rows: click chevron to show hidden season points in dropdown chips
+  - Gender filter pills: Semua / Male / Female
+  - Sort by total season points (not current points)
+  - Shows player rank, avatar, name, tier, MVP badge, club name
+  - Gold gradient total points display
+  - Empty state when no season data exists
+  - Max height 420px with scroll for many players
+- Added SeasonPointsLeaderboard to LandingPage between Top Players and Clubs Carousel
+- Added BroadcastChannel 'idm-player-seasons' integration:
+  - SeasonPointsLeaderboard listens for updates and refetches data
+  - PesertaManagementTab broadcasts updates when season points are saved/deleted
+- Added test season data for 6 players across 5 seasons (to test carousel)
+- Added new Lucide icons: ChevronDown, ChevronUp, BarChart3, Medal
+- Lint check passed clean
+
+Stage Summary:
+- Season Points Leaderboard shows per-season point breakdown with total
+- Example: TAZOS | S1:140pts | S2:100pts | S3:100pts | S4:80pts | S5:60pts | Total: 480pts
+- Season carousel shows 3 seasons at a time, scroll for more
+- Click expand chevron to see hidden season points in dropdown
+- Gender filter: All / Male / Female
+- Integrated with existing admin CRUD in PesertaManagementTab
+- Real-time updates when admin modifies season points
