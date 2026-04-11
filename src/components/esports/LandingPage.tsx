@@ -3457,15 +3457,17 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 pb-28 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
+        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-8 xl:px-12 pt-2 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
       >
         {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
-        <ChampionCarouselBanner data={activeData} />
+        <div className="w-full max-w-6xl mx-auto">
+          <ChampionCarouselBanner data={activeData} />
+        </div>
 
         {/* ═══ STATS BAR ═══ */}
         <motion.div
           variants={itemVariants}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-full mb-10 md:mb-14"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-6xl mx-auto mb-10 md:mb-14"
         >
           <StatCard
             icon={Users}
@@ -3496,7 +3498,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-full mb-10 md:mb-14"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 w-full max-w-6xl mx-auto mb-10 md:mb-14"
         >
           <DivisionCard
             division="male"
@@ -3513,31 +3515,31 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         </motion.div>
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full max-w-full mb-10 md:mb-14">
+        <div className="w-full max-w-6xl mx-auto mb-10 md:mb-14">
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
         {/* ═══ DONASI & SAWER SECTION ═══ */}
-        <div className="w-full max-w-full mb-10 md:mb-14">
+        <div className="w-full max-w-6xl mx-auto mb-10 md:mb-14">
           <DonasiSawerSection data={activeData} />
         </div>
 
         {/* ═══ TOP PLAYERS + VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div id="leaderboard-section" className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-6 mb-10 md:mb-14 md:items-stretch">
+        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-10 md:mb-14 md:items-stretch">
           <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
           <VideoHighlightSection division="all" />
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ QUICK INFO SECTION ═══ */}
-        <div id="info-section" className="w-full max-w-full mt-10 md:mt-14 mb-10 md:mb-14">
+        <div id="info-section" className="w-full max-w-6xl mx-auto mt-10 md:mt-14 mb-10 md:mb-14">
           <QuickInfoSection />
         </div>
 
         {/* ═══ FOOTER ═══ */}
         <motion.footer
           variants={itemVariants}
-          className="mt-auto pt-8 flex flex-col items-center gap-3"
+          className="mt-auto pt-8 pb-20 md:pb-4 flex flex-col items-center gap-3 w-full max-w-6xl mx-auto"
         >
           <p className="text-[11px] text-white/20 hover:text-white/40 transition-colors cursor-pointer tracking-wide"
             onClick={onAdminLogin}
