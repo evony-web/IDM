@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
+import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -60,6 +62,9 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#0B0B0F" />
         <link rel="manifest" href="/api/manifest" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
@@ -80,7 +85,9 @@ export default function RootLayout({
           ]}
         >
           <AppSettingsProvider>
+            <OfflineIndicator />
             {children}
+            <ServiceWorkerRegistration />
             <Toaster />
           </AppSettingsProvider>
         </ThemeProvider>

@@ -675,7 +675,7 @@ function StatCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="relative flex items-center gap-3 px-4 py-3 rounded-2xl overflow-hidden"
+      className="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl overflow-hidden"
       style={{
         background: `linear-gradient(135deg, rgba(${color},0.08) 0%, rgba(${color},0.02) 100%)`,
         border: `1px solid rgba(${color},0.12)`,
@@ -684,18 +684,18 @@ function StatCard({
       }}
     >
       <div
-        className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
+        className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex-shrink-0"
         style={{
           background: `linear-gradient(135deg, rgba(${color},0.20) 0%, rgba(${color},0.08) 100%)`,
         }}
       >
-        <Icon className="w-5 h-5" style={{ color: `rgb(${color})` }} strokeWidth={2} />
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: `rgb(${color})` }} strokeWidth={2} />
       </div>
       <div className="min-w-0">
-        <p className="text-[11px] font-medium text-white/40 tracking-wide uppercase truncate">
+        <p className="text-[9px] sm:text-[11px] font-medium text-white/40 tracking-wide uppercase truncate">
           {label}
         </p>
-        <p className="text-sm font-bold text-white/90 truncate">{value}</p>
+        <p className="text-[12px] sm:text-sm font-bold text-white/90 truncate">{value}</p>
       </div>
     </motion.div>
   );
@@ -882,22 +882,22 @@ function DivisionCard({
         }}
       />
 
-      <div className="relative p-5 md:p-6 flex flex-col flex-1">
+      <div className="relative p-3 sm:p-4 md:p-6 flex flex-col flex-1">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3 md:mb-4">
           <div className="flex items-center gap-2.5">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center"
               style={{
                 background: `linear-gradient(135deg, rgba(${accent},0.20) 0%, rgba(${accent},0.06) 100%)`,
                 border: `1px solid rgba(${accent},0.18)`,
               }}
             >
-              <Icon className="w-[18px] h-[18px]" style={{ color: accentHex }} strokeWidth={2} />
+              <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" style={{ color: accentHex }} strokeWidth={2} />
             </div>
             <div>
               <h3
-                className="text-[13px] font-bold tracking-wider uppercase"
+                className="text-[11px] sm:text-[13px] font-bold tracking-wider uppercase"
                 style={{
                   background: `linear-gradient(135deg, ${accentHex}, ${accentHex2})`,
                   WebkitBackgroundClip: 'text',
@@ -907,7 +907,7 @@ function DivisionCard({
               >
                 {label}
               </h3>
-              <p className="text-[11px] text-white/35 mt-0.5">{data.totalPlayers} pemain terdaftar</p>
+              <p className="text-[10px] sm:text-[11px] text-white/35 mt-0.5">{data.totalPlayers} pemain terdaftar</p>
             </div>
           </div>
 
@@ -936,32 +936,32 @@ function DivisionCard({
         {/* Tournament Info */}
         {data.tournament ? (
           <div
-            className="rounded-2xl p-4 mb-4"
+            className="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 md:mb-4"
             style={{
               background: `linear-gradient(135deg, rgba(${accent},0.06) 0%, rgba(${accent},0.02) 100%)`,
               border: `1px solid rgba(${accent},0.08)`,
             }}
           >
-            <p className="text-[14px] font-bold text-white/90 mb-2">{data.tournament.name}</p>
-            <div className="grid grid-cols-3 gap-2">
+            <p className="text-[12px] sm:text-[14px] font-bold text-white/90 mb-1.5 sm:mb-2">{data.tournament.name}</p>
+            <div className="grid grid-cols-3 gap-1 sm:gap-2">
               <div>
-                <p className="text-[10px] text-white/35 uppercase tracking-wider">Minggu</p>
-                <p className="text-[13px] font-bold text-white/80 flex items-center gap-1">
-                  <Calendar className="w-3 h-3" style={{ color: accentHex }} />
+                <p className="text-[9px] sm:text-[10px] text-white/35 uppercase tracking-wider">Minggu</p>
+                <p className="text-[11px] sm:text-[13px] font-bold text-white/80 flex items-center gap-1">
+                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ color: accentHex }} />
                   {data.tournament.week}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-white/35 uppercase tracking-wider">Peserta</p>
-                <p className="text-[13px] font-bold text-white/80 flex items-center gap-1">
-                  <Users className="w-3 h-3" style={{ color: accentHex }} />
+                <p className="text-[9px] sm:text-[10px] text-white/35 uppercase tracking-wider">Peserta</p>
+                <p className="text-[11px] sm:text-[13px] font-bold text-white/80 flex items-center gap-1">
+                  <Users className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ color: accentHex }} />
                   {data.tournament.participants}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-white/35 uppercase tracking-wider">Prize Pool</p>
+                <p className="text-[9px] sm:text-[10px] text-white/35 uppercase tracking-wider">Prize</p>
                 <p
-                  className="text-[13px] font-bold flex items-center gap-1"
+                  className="text-[11px] sm:text-[13px] font-bold flex items-center gap-1"
                   style={{
                     background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
                     WebkitBackgroundClip: 'text',
@@ -969,7 +969,7 @@ function DivisionCard({
                     backgroundClip: 'text',
                   }}
                 >
-                  <Coins className="w-3 h-3" style={{ WebkitTextFillColor: '#ffd700' }} />
+                  <Coins className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ WebkitTextFillColor: '#ffd700' }} />
                   {formatRupiah(data.tournament.prizePool)}
                 </p>
               </div>
@@ -977,7 +977,7 @@ function DivisionCard({
           </div>
         ) : (
           <div
-            className="rounded-2xl p-4 mb-4 text-center"
+            className="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 md:mb-4 text-center"
             style={{
               background: 'rgba(255,255,255,0.02)',
               border: '1px solid rgba(255,255,255,0.06)',
@@ -998,8 +998,16 @@ function DivisionCard({
             </div>
             <span className="text-[10px] text-white/25">Top 5</span>
           </div>
-          <div className="space-y-0.5 max-h-64 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `rgba(${accent},0.12) transparent` }}>
-            {data.topPlayers.slice(0, 5).map((player) => (
+          <div className="space-y-0.5 max-h-48 sm:max-h-64 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `rgba(${accent},0.12) transparent` }}>
+            {data.topPlayers.slice(0, 3).map((player) => (
+              <PlayerRow key={player.rank} player={player} accent={accent} onPlayerClick={onPlayerClick} />
+            ))}
+            {data.topPlayers.length > 3 && (
+              <div className="sm:hidden text-center py-1">
+                <span className="text-[9px] text-white/25">+{data.topPlayers.length - 3} lagi</span>
+              </div>
+            )}
+            {data.topPlayers.slice(3, 5).map((player) => (
               <PlayerRow key={player.rank} player={player} accent={accent} onPlayerClick={onPlayerClick} />
             ))}
           </div>
@@ -1008,7 +1016,7 @@ function DivisionCard({
         {/* Enter Button */}
         <motion.button
           onClick={onEnter}
-          className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-[13px] tracking-wide uppercase cursor-pointer outline-none"
+          className="w-full mt-3 md:mt-4 flex items-center justify-center gap-2 py-2.5 sm:py-3 md:py-3.5 rounded-xl font-bold text-[11px] sm:text-[12px] md:text-[13px] tracking-wide uppercase cursor-pointer outline-none"
           style={{
             background: `linear-gradient(135deg, rgba(${accent},0.18) 0%, rgba(${accent},0.08) 100%)`,
             border: `1.5px solid rgba(${accent},0.25)`,
@@ -1607,7 +1615,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative flex-shrink-0 w-[calc(50%-12px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(16.667%-13px)] overflow-hidden ${club.name === 'GYMSHARK' ? 'rounded-2xl' : 'rounded-2xl'}`}
+            className={`relative flex-shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(16.667%-13px)] overflow-hidden rounded-2xl`}
             style={{
               background: club.name === 'GYMSHARK'
                 ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)'
@@ -1968,13 +1976,15 @@ function QuickInfoSection() {
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {/* Mobile: horizontal scroll, Desktop: grid */}
+      <div className="flex gap-3 overflow-x-auto scroll-smooth pb-2 -mx-1 px-1 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible" style={{ scrollbarWidth: 'none' }}>
+        <style>{`.flex.gap-3::-webkit-scrollbar{display:none}`}</style>
         {infoItems.map((item, idx) => {
           const IconComponent = QUICK_INFO_ICON_MAP[item.icon] || Info;
           return (
             <motion.div
               key={idx}
-              className="rounded-2xl p-4"
+              className="flex-shrink-0 w-[260px] md:w-auto rounded-2xl p-4"
               style={{
                 background: `linear-gradient(135deg, rgba(${item.color},0.05) 0%, rgba(${item.color},0.01) 100%)`,
                 border: `1px solid rgba(${item.color},0.08)`,
@@ -3149,16 +3159,16 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/9] sm:aspect-[16/6] md:aspect-[16/5.2] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
+          <div className="relative w-full aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
             <div className="text-center">
               <motion.img
                 src={logoUrl}
                 alt="Logo"
-                className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain opacity-50 mx-auto"
+                className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain opacity-50 mx-auto"
                 animate={{ filter: ['brightness(1) saturate(1)', 'brightness(1.2) saturate(1.1)', 'brightness(1) saturate(1)'] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">Banner</p>
+              <p className="text-[12px] sm:text-[16px] md:text-[20px] font-bold text-white/40 mt-2 tracking-tight">Banner</p>
 
             </div>
           </div>
@@ -3182,7 +3192,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
   return (
     <motion.div
       variants={itemVariants}
-      className="w-full max-w-full mt-8 md:mt-10 mb-8 md:mb-10"
+      className="w-full max-w-full mt-4 md:mt-8 mb-4 md:mb-10"
     >
       <motion.div
         initial={{ opacity: 0, y: -6 }}
@@ -3225,7 +3235,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/10] sm:aspect-[16/7] md:aspect-[16/5.8]">
+          <div className="relative w-full aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5]">
             {/* Slide Content with AnimatePresence */}
             <AnimatePresence mode="wait">
               <motion.div
@@ -3466,7 +3476,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-8 xl:px-12 pt-2 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
+        className="relative z-10 flex flex-col items-center px-3 sm:px-5 lg:px-8 xl:px-12 pt-1 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
       >
         {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
         <div className="w-full max-w-6xl mx-auto">
@@ -3476,7 +3486,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ STATS BAR ═══ */}
         <motion.div
           variants={itemVariants}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-6xl mx-auto mb-10 md:mb-14"
+          className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-6xl mx-auto mb-6 md:mb-10"
         >
           <StatCard
             icon={Users}
@@ -3507,7 +3517,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 w-full max-w-6xl mx-auto mb-10 md:mb-14"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full max-w-6xl mx-auto mb-6 md:mb-10"
         >
           <DivisionCard
             division="male"
@@ -3524,24 +3534,24 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         </motion.div>
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full max-w-6xl mx-auto mb-10 md:mb-14">
+        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
         {/* ═══ DONASI & SAWER SECTION ═══ */}
-        <div className="w-full max-w-6xl mx-auto mb-10 md:mb-14">
+        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <DonasiSawerSection data={activeData} />
         </div>
 
         {/* ═══ TOP PLAYERS + VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-10 md:mb-14 md:items-stretch">
+        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-10 md:items-stretch">
           <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
           <VideoHighlightSection division="all" />
           <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ QUICK INFO SECTION ═══ */}
-        <div id="info-section" className="w-full max-w-6xl mx-auto mt-10 md:mt-14 mb-10 md:mb-14">
+        <div id="info-section" className="w-full max-w-6xl mx-auto mt-4 md:mt-8 mb-6 md:mb-10">
           <QuickInfoSection />
         </div>
 

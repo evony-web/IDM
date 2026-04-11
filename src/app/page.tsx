@@ -1194,7 +1194,7 @@ export default function IDOLMETAApp() {
           {/* Main Scrollable Content — Premium Full Width with Sidebar */}
           <div ref={scrollRef} className="relative z-10 flex-1 min-h-0 overflow-y-auto md:ml-16 lg:ml-56" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px))', WebkitOverflowScrolling: 'touch' }}>
             {/* Premium Full Width Container - Fills all available space */}
-            <div className="w-full px-3 pt-[72px] pb-24 sm:px-6 sm:pt-6 lg:px-8 lg:pb-8 overflow-x-hidden">
+            <div className="w-full px-2.5 pt-[60px] pb-20 sm:px-4 sm:pt-4 sm:pb-24 md:px-6 lg:px-8 lg:pb-8 overflow-x-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}

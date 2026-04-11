@@ -105,3 +105,27 @@ Stage Summary:
 - Fallback chain: DB → env var → generic defaults (works even with empty database)
 - Static manifest.json preserved in public/ as safety net
 - All manifest fields preserved: name, short_name, description, start_url, display, background_color, theme_color, orientation, icons, categories, shortcuts
+
+---
+Task ID: 12
+Agent: main
+Task: UX Home Screen Card Layout Fix + Responsive Design Polish + PWA Completion
+
+Work Log:
+- ChampionCarouselBanner: reduced aspect ratios for less vertical space waste (16/9→16/6 on mobile, 16/5.8→16/4.5 on desktop), reduced top/bottom margins (mt-8→mt-4 on mobile), smaller logo and text on mobile
+- StatCards: responsive icon sizes (w-8→w-10 sm:), smaller text on mobile (text-[9px]→sm:text-[11px]), reduced gap and padding
+- DivisionCards: compact padding (p-5→p-3 sm:p-4 md:p-6), responsive header (w-8→sm:w-9 icon, text-[11px]→sm:text-[13px]), compact tournament info, mobile shows 3 players + "+N lagi" indicator, responsive button sizing
+- Content spacing: reduced section gaps from mb-10→mb-6 on mobile, gap-3→gap-2 on mobile, tighter horizontal padding (px-4→px-3 on mobile)
+- QuickInfoSection: horizontal scroll on mobile (flex overflow-x-auto), grid on desktop (md:grid md:grid-cols-3), fixed-width cards on mobile (w-[260px])
+- ClubsCarousel: wider mobile cards (50%-8px instead of 50%-12px)
+- Main app content: improved padding (px-2.5 on mobile, pt-[60px], pb-20)
+- PWA: integrated ServiceWorkerRegistration + OfflineIndicator into layout.tsx, added apple-touch-icon + apple-mobile-web-app-capable meta tags, upgraded sw.js to v3 with API cache fallback + better offline handling
+- Verified: lint 0 errors, server 200 OK, API endpoints working
+
+Stage Summary:
+- Landing page now significantly more compact and readable on mobile
+- Cards, stats, and sections use responsive sizing (sm: breakpoints throughout)
+- QuickInfo scrolls horizontally on mobile instead of stacking vertically
+- Champion banner takes less vertical space
+- PWA now fully integrated: service worker registration, offline indicator, dynamic manifest, iOS meta tags
+- Service worker v3: caches API responses for offline fallback, stale-while-revalidate for static assets
