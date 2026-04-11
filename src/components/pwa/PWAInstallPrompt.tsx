@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IDM_LOGO_URL } from '@/lib/cdn';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import {
   Download,
   X,
@@ -53,6 +53,7 @@ export function PWAInstallPrompt() {
   const [installed, setInstalled] = useState(getIsStandalone);
   const [isAnimating, setIsAnimating] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { settings } = useAppSettings();
 
   const isInstalled = installed || getInstallDismissed();
 
@@ -206,8 +207,8 @@ export function PWAInstallPrompt() {
                         }}
                       >
                         <img
-                          src={IDM_LOGO_URL}
-                          alt="IDOL META"
+                          src={settings.logo_url || '/logo.png'}
+                          alt={settings.app_name}
                           className="w-10 h-10"
                           loading="lazy"
                         />
@@ -223,7 +224,7 @@ export function PWAInstallPrompt() {
 
                     <div className="flex-1 min-w-0">
                       <h3 className="text-[16px] font-bold text-white tracking-tight">
-                        Install IDOL META
+                        Install {settings.app_name}
                       </h3>
                       <p className="text-[12px] text-white/45 mt-0.5 leading-relaxed">
                         Akses turnamen lebih cepat langsung dari home screen kamu!
@@ -343,8 +344,8 @@ export function PWAInstallPrompt() {
                       }}
                     >
                       <img
-                        src={IDM_LOGO_URL}
-                        alt="IDOL META"
+                        src={settings.logo_url || '/logo.png'}
+                        alt={settings.app_name}
                         className="w-10 h-10"
                         loading="lazy"
                       />
@@ -354,7 +355,7 @@ export function PWAInstallPrompt() {
                         Tambahkan ke Home Screen
                       </h3>
                       <p className="text-[12px] text-white/45 mt-0.5">
-                        Buka IDOL META langsung dari home screen
+                        Buka {settings.app_name} langsung dari home screen
                       </p>
                     </div>
                   </div>

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IDM_LOGO_URL } from '@/lib/cdn';
+import { useAppSettings } from '@/hooks/useAppSettings';
+// Logo comes from useAppSettings().settings.logo_url
 import ShareButton from '@/components/esports/ShareButton';
 import {
   Trophy,
@@ -202,6 +203,8 @@ function TopNavBar({
   activeData: LandingData;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const { settings } = useAppSettings();
+  const logoUrl = settings.logo_url || '/logo.png';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -249,8 +252,8 @@ function TopNavBar({
           {/* ── Left: Logo + Brand ── */}
           <div className="flex items-center gap-2.5">
             <motion.img
-              src={IDM_LOGO_URL}
-              alt="IDM"
+              src={logoUrl}
+              alt="Logo"
               className="w-8 h-8 rounded-xl"
               style={{
                 boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
@@ -267,10 +270,10 @@ function TopNavBar({
                   backgroundClip: 'text',
                 }}
               >
-                IDOL META
+                {settings.app_name}
               </h1>
               <p className="text-[7px] font-semibold tracking-[0.15em] uppercase text-white/20 leading-none mt-0.5">
-                TARKAM Fan Made
+                {settings.app_subtitle}
               </p>
             </div>
 
@@ -307,7 +310,7 @@ function TopNavBar({
 
             {/* Share button */}
             <ShareButton
-              text="IDOL META — TARKAM Fan Made Tournament"
+              text={settings.app_share_text}
               compact
             />
 
@@ -357,8 +360,8 @@ function TopNavBar({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2.5">
               <img
-                src={IDM_LOGO_URL}
-                alt="IDM"
+                src={logoUrl}
+                alt="Logo"
                 className="w-8 h-8 rounded-lg"
               />
               <div>
@@ -371,10 +374,10 @@ function TopNavBar({
                     backgroundClip: 'text',
                   }}
                 >
-                  IDOL META
+                  {settings.app_name}
                 </h1>
                 <p className="text-[8px] font-semibold tracking-[0.18em] uppercase text-white/25 leading-none mt-0.5">
-                  TARKAM Fan Made
+                  {settings.app_subtitle}
                 </p>
               </div>
             </div>
@@ -2276,6 +2279,9 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
    ════════════════════════════════════════════ */
 
 function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
+  const { settings } = useAppSettings();
+  const logoUrl = settings.logo_url || '/logo.png';
+
   useEffect(() => {
     const timer = setTimeout(onComplete, 3200);
     return () => clearTimeout(timer);
@@ -2318,7 +2324,7 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         />
         <img
-          src={IDM_LOGO_URL}
+          src={logoUrl}
           alt="IDM Logo"
           className="relative w-32 h-32 md:w-40 md:h-40"
           loading="eager"
@@ -2338,7 +2344,7 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
           backgroundClip: 'text',
         }}
       >
-        IDOL META
+        {settings.app_name}
       </motion.h1>
 
       {/* Subtitle */}
@@ -2349,7 +2355,7 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
         className="text-[12px] md:text-[14px] font-semibold tracking-[0.2em] uppercase mt-2"
         style={{ color: 'rgba(255,255,255,0.40)' }}
       >
-        TARKAM Fan Made Edition
+        {settings.app_subtitle}
       </motion.p>
 
       {/* Spinner */}
@@ -2389,7 +2395,7 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
         </motion.p>
       </motion.div>
 
-      {/* Borneo Pride */}
+      {/* {settings.app_tagline} */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -2407,9 +2413,9 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
           animate={{ opacity: [0.6, 1, 0.6] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          ✦ Borneo Pride ✦
+          ✦ {settings.app_tagline} ✦
         </motion.p>
-        <span className="mt-1 text-[9px] tracking-widest text-white/30">© 2026</span>
+        <span className="mt-1 text-[9px] tracking-widest text-white/30">© {settings.app_copyright_year}</span>
       </motion.div>
     </motion.div>
   );
@@ -3082,6 +3088,8 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { settings } = useAppSettings();
+  const logoUrl = settings.logo_url || '/logo.png';
 
   const slides: {
     division: 'male' | 'female';
@@ -3144,13 +3152,13 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           <div className="relative w-full aspect-[16/9] sm:aspect-[16/6] md:aspect-[16/5.2] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
             <div className="text-center">
               <motion.img
-                src={IDM_LOGO_URL}
-                alt="IDM"
+                src={logoUrl}
+                alt="Logo"
                 className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain opacity-50 mx-auto"
                 animate={{ filter: ['brightness(1) saturate(1)', 'brightness(1.2) saturate(1.1)', 'brightness(1) saturate(1)'] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">IDM Banner</p>
+              <p className="text-[14px] sm:text-[18px] md:text-[22px] font-bold text-white/40 mt-3 tracking-tight">Banner</p>
 
             </div>
           </div>
@@ -3378,6 +3386,7 @@ const FALLBACK_DATA: LandingData = {
 };
 
 export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, preloadedData }: LandingPageProps) {
+  const { settings } = useAppSettings();
   const [data, setData] = useState<LandingData | null>(preloadedData ?? null);
   const [loading, setLoading] = useState(!preloadedData);
 
@@ -3549,7 +3558,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           <div className="flex items-center gap-3">
             <div className="h-px w-6 bg-white/10" />
             <p className="text-[10px] text-white/20 tracking-wider">
-              © 2026 IDOL META — Borneo Pride
+              © {settings.app_copyright_year} {settings.app_copyright_holder} — {settings.app_tagline}
             </p>
             <div className="h-px w-6 bg-white/10" />
           </div>

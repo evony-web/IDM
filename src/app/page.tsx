@@ -6,8 +6,9 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { useTheme } from 'next-themes';
 import { useAppStore } from '@/lib/store';
-import { IDM_LOGO_URL } from '@/lib/cdn';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { Navigation, TopBar, Sidebar } from '@/components/esports/Navigation';
 import { GradientBackground, Premium3DEffects } from '@/components/effects/ParticleField';
 import { Dashboard } from '@/components/esports/Dashboard';
@@ -160,8 +161,13 @@ export default function IDOLMETAApp() {
     fetchAdmins,
   } = useAppStore();
 
-  // ── Theme is always DARK for both divisions ──
-  const theme = 'dark' as const;
+  // ── Theme system — light/dark toggle with division-aware accent ──
+  const { theme: currentTheme, setTheme } = useTheme();
+  const { settings } = useAppSettings();
+
+  // Derive effective theme from currentTheme (handles 'system', 'dark', 'light', 'dark-male', etc.)
+  const isDarkMode = !currentTheme?.startsWith('light');
+  const theme = isDarkMode ? 'dark' as const : 'light' as const;
 
   // Track which sub-tab to show when donation tab opens
   const [donationDefaultTab, setDonationDefaultTab] = useState<'sawer' | 'donasi'>('sawer');
@@ -453,24 +459,24 @@ export default function IDOLMETAApp() {
     fetchGrandFinal();
   }, [division, fetchGrandFinal]);
 
-  // Apply theme class - ALWAYS DARK for both divisions
+  // Apply theme — division-aware: light/dark + accent color
   useEffect(() => {
     const root = document.documentElement;
-    
-    // Remove all theme classes first
+
+    // Remove old theme classes
     root.classList.remove('light', 'dark', 'theme-light-fury', 'dark-fury-pink', 'theme-light-fury-male');
     root.removeAttribute('data-theme');
 
-    // Both divisions use DARK mode
-    root.classList.add('dark');
-    
+    // Determine base class
+    const baseClass = isDarkMode ? 'dark' : 'light';
+    root.classList.add(baseClass);
+
     // Set data-theme for accent colors: Male = Green, Female = Blue
-    if (division === 'male') {
-      root.setAttribute('data-theme', 'dark-male');
-    } else {
-      root.setAttribute('data-theme', 'dark-female');
-    }
-  }, [division]);
+    const accentTheme = isDarkMode
+      ? (division === 'male' ? 'dark-male' : 'dark-female')
+      : (division === 'male' ? 'light-male' : 'light-female');
+    root.setAttribute('data-theme', accentTheme);
+  }, [division, isDarkMode]);
 
   // Toggle division function with loading indicator
   const toggleDivision = useCallback(() => {
@@ -856,8 +862,8 @@ export default function IDOLMETAApp() {
                   }}
                 />
                 <img
-                  src={IDM_LOGO_URL}
-                  alt="IDM Logo"
+                  src={settings.logo_url || '/logo.png'}
+                  alt="Logo"
                   className="relative w-28 h-28 md:w-36 md:h-36"
                   loading="eager"
                 />
@@ -873,14 +879,14 @@ export default function IDOLMETAApp() {
                   backgroundClip: 'text',
                 }}
               >
-                IDOL META
+                {settings.app_name}
               </h1>
 
               <p
                 className="relative z-10 text-[13px] md:text-[15px] font-semibold tracking-[0.2em] uppercase mt-1.5 idm-subtitle-anim"
                 style={{ color: 'rgba(255,255,255,0.45)' }}
               >
-                TARKAM Fan Made Edition
+                {settings.app_subtitle}
               </p>
 
               {/* Loading spinner — CSS animation, visible without JS */}
@@ -930,10 +936,10 @@ export default function IDOLMETAApp() {
                     backgroundClip: 'text',
                   }}
                 >
-                  ✦ Borneo Pride ✦
+                  ✦ {settings.app_tagline} ✦
                 </p>
                 <span className="mt-1 text-[9px] tracking-widest text-white/30">
-                  © 2026
+                  © {settings.app_copyright_year}
                 </span>
               </div>
             </motion.div>
@@ -1400,11 +1406,11 @@ export default function IDOLMETAApp() {
           <footer className="hidden lg:block mt-auto flex-shrink-0 py-3 px-8 text-center">
             <div className="flex items-center justify-center gap-3 opacity-40">
               <span className="text-[10px] tracking-wide font-medium text-white/15">
-                &copy; 2026 IDOL META &mdash; Fan Made Edition
+                &copy; {settings.app_copyright_year} {settings.app_copyright_holder} &mdash; {settings.app_subtitle}
               </span>
               <span className="text-[10px] text-white/10">|</span>
               <span className="text-[10px] tracking-wide font-medium text-white/15">
-                IDOL META Kotabaru Pride — Fan Made Edition
+                {settings.app_tagline}
               </span>
             </div>
           </footer>

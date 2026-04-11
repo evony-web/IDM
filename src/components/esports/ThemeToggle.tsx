@@ -1,23 +1,19 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
+import { useSyncExternalStore } from 'react';
 
 /* ────────────────────────────────────────────
    SIMPLE THEME: Only Dark or Light
    - Male = Green accent
    - Female = Pink accent
-   ──────────────────────────────────────────── */
+
+   Uses next-themes for persistence & SSR safety.
+   ════════════════════════════════════════════ */
 
 export type ThemeMode = 'dark' | 'light';
-
-interface ThemeToggleProps {
-  theme: ThemeMode;
-  onToggle: () => void;
-  size?: 'sm' | 'md' | 'lg';
-  showLabels?: boolean;
-}
 
 // Color based on division
 const getAccentColor = (division: 'male' | 'female') => ({
@@ -25,42 +21,14 @@ const getAccentColor = (division: 'male' | 'female') => ({
   glow: division === 'male' ? 'rgba(115, 255, 0, 0.35)' : 'rgba(56, 189, 248, 0.35)',
 });
 
-/* ════════════════════════════════════════════
-   ThemeProvider Hook
-   Only 2 modes: dark or light
-   ════════════════════════════════════════════ */
-
-export function useTheme() {
-  const [theme, setTheme] = useState<ThemeMode>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('theme');
-      // Convert old theme values to new simplified values
-      if (stored === 'light' || stored === 'light-fury' || stored === 'light-fury-male') {
-        localStorage.setItem('theme', 'light'); // Update to new value
-        return 'light';
-      }
-      if (stored === 'dark' || stored === 'dark-fury-pink' || stored === 'night-fury') {
-        localStorage.setItem('theme', 'dark'); // Update to new value
-        return 'dark';
-      }
-    }
-    return 'dark';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('theme', theme);
-    
-    // Update html element class for theme
-    const html = document.documentElement;
-    html.classList.remove('dark', 'light');
-    html.classList.add(theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
-  return { theme, setTheme, toggleTheme };
+// Hydration-safe mounted check using useSyncExternalStore
+const emptySubscribe = () => () => {};
+function useMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,  // client: always mounted
+    () => false, // server: never mounted
+  );
 }
 
 /* ════════════════════════════════════════════
@@ -69,20 +37,23 @@ export function useTheme() {
    ════════════════════════════════════════════ */
 
 export function CompactThemeToggle({
-  theme,
-  onToggle,
   division = 'male'
 }: {
-  theme: ThemeMode;
-  onToggle: () => void;
   division?: 'male' | 'female';
 }) {
-  const isLight = theme === 'light';
+  const { theme, setTheme } = useTheme();
+  const mounted = useMounted();
+
+  const isLight = mounted ? (theme === 'light' || theme?.startsWith('light')) : false;
   const accent = getAccentColor(division);
+
+  const toggleTheme = () => {
+    setTheme(isLight ? 'dark' : 'light');
+  };
 
   return (
     <motion.button
-      onClick={onToggle}
+      onClick={toggleTheme}
       className="relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 cursor-pointer"
       style={{
         background: isLight
@@ -146,14 +117,21 @@ export function CompactThemeToggle({
    Full ThemeToggle Component (optional use)
    ════════════════════════════════════════════ */
 
+interface ThemeToggleProps {
+  size?: 'sm' | 'md' | 'lg';
+  showLabels?: boolean;
+  division?: 'male' | 'female';
+}
+
 export function ThemeToggle({
-  theme,
-  onToggle,
   size = 'md',
   showLabels = false,
   division = 'male'
-}: ThemeToggleProps & { division?: 'male' | 'female' }) {
-  const isLight = theme === 'light';
+}: ThemeToggleProps) {
+  const { theme, setTheme } = useTheme();
+  const mounted = useMounted();
+
+  const isLight = mounted ? (theme === 'light' || theme?.startsWith('light')) : false;
   const accent = getAccentColor(division);
 
   const sizeConfig = {
@@ -173,7 +151,7 @@ export function ThemeToggle({
       )}
 
       <motion.button
-        onClick={onToggle}
+        onClick={() => setTheme(isLight ? 'dark' : 'light')}
         className="relative rounded-full"
         style={{ width: s.width, height: s.height }}
         whileTap={{ scale: 0.95 }}

@@ -1,7 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { IDM_LOGO_URL } from '@/lib/cdn';
+
+// Cloud CDN constants — logo URL comes from env or falls back to Cloudinary default
+const DEFAULT_LOGO_URL = process.env.NEXT_PUBLIC_LOGO_URL || 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png';
 
 // Cloud CDN constants
 export const CDN = {
@@ -9,8 +11,8 @@ export const CDN = {
   get baseUrl() {
     return `https://res.cloudinary.com/${this.cloudName}/image/upload`;
   },
-  /** IDM Logo — WebP optimized via Cloudinary */
-  logoUrl: IDM_LOGO_URL,
+  /** Logo URL — from NEXT_PUBLIC_LOGO_URL env or default Cloudinary path */
+  get logoUrl() { return DEFAULT_LOGO_URL; },
   /** Generate a Cloudinary URL with auto WebP + quality */
   url(publicId: string, opts: { w?: number; h?: number; crop?: string; q?: string } = {}) {
     const parts = ['q_auto,f_webp'];

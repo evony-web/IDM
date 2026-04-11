@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Copy, Check, MessageCircle, Send, Twitter } from 'lucide-react';
+import { useAppSettings } from '@/hooks/useAppSettings';
 
 /* ────────────────────────────────────────────
    Types
@@ -69,6 +70,7 @@ export default function ShareButton({
   const [copied, setCopied] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { settings } = useAppSettings();
 
   const shareUrl = providedUrl || (typeof window !== 'undefined' ? window.location.href : '');
 
@@ -98,7 +100,7 @@ export default function ShareButton({
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
-          title: matchData ? `${matchData.teamAName} vs ${matchData.teamBName}` : 'IDOL META',
+          title: matchData ? `${matchData.teamAName} vs ${matchData.teamBName}` : settings.app_name,
           text,
           url: shareUrl,
         });
@@ -109,7 +111,7 @@ export default function ShareButton({
     }
     // Toggle dropdown on desktop / when Web Share API fails
     setOpen((prev) => !prev);
-  }, [text, shareUrl, matchData]);
+  }, [text, shareUrl, matchData, settings.app_name]);
 
   const handleCopyLink = useCallback(async () => {
     try {

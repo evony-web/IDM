@@ -1,6 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import {
   Home,
   Trophy,
@@ -429,12 +431,12 @@ export function Sidebar({
           {/* Logo text - hidden on tablet */}
           <div className="hidden lg:flex flex-col leading-tight">
             <span className={`text-[15px] font-bold tracking-tight ${t.titleGradient}`}>
-              IDOL META
+              {useAppSettings().settings.app_name}
             </span>
             <span className="text-[9px] font-medium tracking-wide"
               style={{ color: 'rgba(255,255,255,0.40)' }}
             >
-              Fan Made Edition
+              {useAppSettings().settings.app_subtitle}
             </span>
           </div>
         </div>
@@ -792,10 +794,10 @@ export function TopBar({
 
                   <div className="flex flex-col leading-tight">
                     <span className={`text-[13px] font-bold tracking-tight ${t.titleGradient}`}>
-                      IDOL META
+                      {useAppSettings().settings.app_name}
                     </span>
                     <span className="text-[8px] font-medium tracking-wide text-white/40">
-                      Fan Made Edition
+                      {useAppSettings().settings.app_subtitle}
                     </span>
                   </div>
                 </div>

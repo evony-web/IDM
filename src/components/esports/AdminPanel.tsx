@@ -53,6 +53,7 @@ import { PesertaManagementTab } from './PesertaManagementTab';
 import { CloudinaryRestorePanel } from './CloudinaryRestorePanel';
 import { useAppStore } from '@/lib/store';
 import { adminFetch } from '@/lib/admin-fetch';
+import { useAppSettings } from '@/hooks/useAppSettings';
 
 interface Registration {
   id: string;
@@ -178,17 +179,17 @@ interface PaymentSettingsForm {
 }
 
 const DEFAULT_PAYMENT_SETTINGS: PaymentSettingsForm = {
-  bankName: 'Bank BCA',
-  bankCode: 'BCA',
-  bankNumber: '1234567890',
-  bankHolder: 'IDOL META',
-  gopayNumber: '081234567890',
-  gopayHolder: 'IDOL META',
-  ovoNumber: '081234567890',
-  ovoHolder: 'IDOL META',
-  danaNumber: '081234567890',
-  danaHolder: 'IDOL META',
-  qrisLabel: 'IDOL META - QRIS',
+  bankName: '',
+  bankCode: '',
+  bankNumber: '',
+  bankHolder: '',
+  gopayNumber: '',
+  gopayHolder: '',
+  ovoNumber: '',
+  ovoHolder: '',
+  danaNumber: '',
+  danaHolder: '',
+  qrisLabel: '',
   qrisImage: '',
   activeMethods: ['qris', 'bank_transfer', 'ewallet'],
 };
@@ -223,6 +224,7 @@ export function AdminPanel({
   mode = 'sheet',
 }: AdminPanelProps) {
   const { adminUser, addToast, fetchData: storeFetchData, verifyAdminSession } = useAppStore();
+  const { settings } = useAppSettings();
   const isPageMode = mode === 'page';
   const [internalOpen, setInternalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<Record<string, string>>({});
@@ -952,7 +954,7 @@ export function AdminPanel({
                             type="text"
                             value={newTournamentName}
                             onChange={(e) => setNewTournamentName(e.target.value)}
-                            placeholder={isMale ? 'Contoh: IDOL META Weekly Male' : 'Contoh: IDOL META Weekly Female'}
+                            placeholder={isMale ? `Contoh: ${settings.app_name} Weekly Male` : `Contoh: ${settings.app_name} Weekly Female`}
                             className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
@@ -2062,7 +2064,7 @@ export function AdminPanel({
                               type="text"
                               value={paySettings.qrisLabel}
                               onChange={(e) => updatePayField('qrisLabel', e.target.value)}
-                              placeholder="IDOL META - QRIS"
+                              placeholder={`${settings.app_name} - QRIS`}
                               className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
                             <p className="text-[10px] text-white/20 mt-1.5">
@@ -2106,7 +2108,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.bankName}
                                 onChange={(e) => updatePayField('bankName', e.target.value)}
-                                placeholder="Bank BCA"
+                                placeholder={settings.bank_name || 'Nama Bank'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2118,7 +2120,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.bankCode}
                                 onChange={(e) => updatePayField('bankCode', e.target.value)}
-                                placeholder="BCA"
+                                placeholder={settings.bank_code || 'Kode Bank'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2131,7 +2133,7 @@ export function AdminPanel({
                               type="text"
                               value={paySettings.bankNumber}
                               onChange={(e) => updatePayField('bankNumber', e.target.value)}
-                              placeholder="1234567890"
+                              placeholder={settings.bank_number || 'Nomor Rekening'}
                               className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
                           </div>
@@ -2143,7 +2145,7 @@ export function AdminPanel({
                               type="text"
                               value={paySettings.bankHolder}
                               onChange={(e) => updatePayField('bankHolder', e.target.value)}
-                              placeholder="IDOL META"
+                              placeholder={settings.bank_holder || 'Atas Nama'}
                               className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
                           </div>
@@ -2176,7 +2178,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.gopayNumber}
                                 onChange={(e) => updatePayField('gopayNumber', e.target.value)}
-                                placeholder="081234567890"
+                                placeholder={settings.gopay_number || '08xxxxxxxxxx'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2186,7 +2188,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.gopayHolder}
                                 onChange={(e) => updatePayField('gopayHolder', e.target.value)}
-                                placeholder="IDOL META"
+                                placeholder={settings.gopay_holder || 'Atas Nama'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2208,7 +2210,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.ovoNumber}
                                 onChange={(e) => updatePayField('ovoNumber', e.target.value)}
-                                placeholder="081234567890"
+                                placeholder={settings.ovo_number || '08xxxxxxxxxx'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2218,7 +2220,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.ovoHolder}
                                 onChange={(e) => updatePayField('ovoHolder', e.target.value)}
-                                placeholder="IDOL META"
+                                placeholder={settings.ovo_holder || 'Atas Nama'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2240,7 +2242,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.danaNumber}
                                 onChange={(e) => updatePayField('danaNumber', e.target.value)}
-                                placeholder="081234567890"
+                                placeholder={settings.dana_number || '08xxxxxxxxxx'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
@@ -2250,7 +2252,7 @@ export function AdminPanel({
                                 type="text"
                                 value={paySettings.danaHolder}
                                 onChange={(e) => updatePayField('danaHolder', e.target.value)}
-                                placeholder="IDOL META"
+                                placeholder={settings.dana_holder || 'Atas Nama'}
                                 className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               />
                             </div>
