@@ -63,30 +63,26 @@ interface MVPData {
   mvpScore: number;
 }
 
-type ThemeMode = 'dark' | 'light';
-
 /* ─────────────────────────────────────────────
    Theme Color Helper - colors based on DIVISION
    Male = Green, Female = Pink
    ───────────────────────────────────────────── */
-function getThemeColors(division: 'male' | 'female', theme?: ThemeMode) {
-  const isLight = theme === 'light';
-  
+function getThemeColors(division: 'male' | 'female') {
   if (division === 'male') {
     // MALE = GREEN
     return {
-      primary: isLight ? '#5FD400' : '#73FF00',
-      primaryRGB: isLight ? '95,212,0' : '115,255,0',
+      primary: '#73FF00',
+      primaryRGB: '115,255,0',
       primaryLight: '#8CFF00',
       primaryDark: '#4AB800',
     };
   } else {
-    // FEMALE = BLUE (Light Fury theme)
+    // FEMALE = BLUE
     return {
-      primary: isLight ? '#D4C91F' : '#38BDF8',
-      primaryRGB: isLight ? '212,201,31' : '56,189,248',  // Blue RGB for dark mode
+      primary: '#38BDF8',
+      primaryRGB: '56,189,248',
       primaryLight: '#7DD3FC',
-      primaryDark: isLight ? '#D4C91F' : '#0EA5E9',
+      primaryDark: '#0EA5E9',
     };
   }
 }
@@ -127,7 +123,6 @@ interface DashboardProps {
     memberCount: number;
     rank: number;
   }>;
-  theme?: ThemeMode;
   onPlayerClick?: (playerId: string) => void;
   onViewPoints?: () => void;
 }
@@ -298,29 +293,27 @@ export function Dashboard({
   leaderboardTab = 'players',
   onLeaderboardTabChange,
   topClubs,
-  theme = 'dark',
   onPlayerClick,
   onViewPoints,
 }: DashboardProps) {
   const isMale = division === 'male';
-  const isLight = theme === 'light';
   // ⚡ PERFORMANCE-OPTIMIZED: Use card-hero for main, card-float for stats
   const heroCardClass = 'card-hero card-hero-corner';  // Premium hero with spinning border
   const statsCardClass = 'card-float card-accent-line';  // Lightweight for many cards
   
-  // Get theme-aware colors based on DIVISION
-  const themeColors = getThemeColors(division, theme);
+  // Get theme-aware colors based on DIVISION (dark mode only)
+  const themeColors = getThemeColors(division);
 
   /* ── Theme-aware accent colors based on DIVISION ── */
   const accentColor = isMale 
-    ? (isLight ? 'text-[#5FD400]' : 'text-[#73FF00]')
-    : (isLight ? 'text-[#0EA5E9]' : 'text-[#38BDF8]');
+    ? 'text-[#73FF00]'
+    : 'text-[#38BDF8]';
   const accentBg = isMale
-    ? (isLight ? 'bg-[#5FD400]/12' : 'bg-[#73FF00]/12')
-    : (isLight ? 'bg-[#0EA5E9]/12' : 'bg-[#38BDF8]/12');
+    ? 'bg-[#73FF00]/12'
+    : 'bg-[#38BDF8]/12';
   const accentSubtleBg = isMale
-    ? (isLight ? 'bg-[#5FD400]/[0.07]' : 'bg-[#73FF00]/[0.07]')
-    : (isLight ? 'bg-[#0EA5E9]/[0.07]' : 'bg-[#38BDF8]/[0.07]');
+    ? 'bg-[#73FF00]/[0.07]'
+    : 'bg-[#38BDF8]/[0.07]';
 
   /* ── Countdown timer ── */
   const shouldShowCountdown = tournament && (tournament.status === 'setup' || tournament.status === 'registration') && tournament.startDate;
@@ -482,7 +475,7 @@ export function Dashboard({
                   <span className="status-dot" />
                   {statusInfo.label}
                 </span>
-                <span className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${isLight ? 'text-slate-400' : 'text-white/35'}`}>
+                <span className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${false ? 'text-slate-400' : 'text-white/35'}`}>
                   Minggu {tournament?.week || 1}
                 </span>
               </div>
@@ -544,8 +537,8 @@ export function Dashboard({
                         className="hero-info-chip"
                       >
                         <Icon className={`w-3.5 h-3.5 chip-icon ${accentColor}`} />
-                        <span className={`chip-label ${isLight ? 'text-slate-600' : 'text-white'}`}>{tag.label}</span>
-                        <span className={`font-bold ${isLight ? 'text-slate-700' : 'text-white/80'}`}>{tag.value}</span>
+                        <span className={`chip-label ${false ? 'text-slate-600' : 'text-white'}`}>{tag.label}</span>
+                        <span className={`font-bold ${false ? 'text-slate-700' : 'text-white/80'}`}>{tag.value}</span>
                       </div>
                     );
                   })}
@@ -556,32 +549,32 @@ export function Dashboard({
               {shouldShowCountdown && (
                 <div className="mb-4">
                   {countdown.expired ? (
-                    <div className={`flex items-center gap-2 text-[12px] font-medium ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+                    <div className={`flex items-center gap-2 text-[12px] font-medium ${false ? 'text-slate-500' : 'text-white/40'}`}>
                       <Clock className="w-3.5 h-3.5" />
                       <span>Seharusnya sudah dimulai</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 flex-wrap">
                       <Clock className={`w-4 h-4 ${accentColor} opacity-60`} />
-                      <span className={`text-[11px] font-medium mr-1 ${isLight ? 'text-slate-400' : 'text-white/35'}`}>Dimulai dalam</span>
+                      <span className={`text-[11px] font-medium mr-1 ${false ? 'text-slate-400' : 'text-white/35'}`}>Dimulai dalam</span>
                       <div className="hero-countdown-block">
                         {countdown.days > 0 && (
                           <>
                             <div className="hero-countdown-digit">
                               <span className={`digit-value ${accentColor}`}>{countdown.days}</span>
-                              <span className={`digit-label ${isLight ? 'text-slate-600' : 'text-white'}`}>Hari</span>
+                              <span className={`digit-label ${false ? 'text-slate-600' : 'text-white'}`}>Hari</span>
                             </div>
                             <span className={`hero-countdown-separator ${accentColor}`}>:</span>
                           </>
                         )}
                         <div className="hero-countdown-digit">
                           <span className={`digit-value ${accentColor}`}>{String(countdown.hours).padStart(2, '0')}</span>
-                          <span className={`digit-label ${isLight ? 'text-slate-600' : 'text-white'}`}>Jam</span>
+                          <span className={`digit-label ${false ? 'text-slate-600' : 'text-white'}`}>Jam</span>
                         </div>
                         <span className={`hero-countdown-separator ${accentColor}`}>:</span>
                         <div className="hero-countdown-digit">
                           <span className={`digit-value ${accentColor}`}>{String(countdown.minutes).padStart(2, '0')}</span>
-                          <span className={`digit-label ${isLight ? 'text-slate-600' : 'text-white'}`}>Menit</span>
+                          <span className={`digit-label ${false ? 'text-slate-600' : 'text-white'}`}>Menit</span>
                         </div>
                       </div>
                     </div>
@@ -590,7 +583,7 @@ export function Dashboard({
               )}
 
               {/* Dynamic Greeting */}
-              <p className={`text-[13px] mb-4 leading-relaxed font-normal lg:text-sm ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+              <p className={`text-[13px] mb-4 leading-relaxed font-normal lg:text-sm ${false ? 'text-slate-500' : 'text-white/40'}`}>
                 {greeting}! {statusInfo.desc}
               </p>
               </div>{/* end left column */}
@@ -619,7 +612,7 @@ export function Dashboard({
                       <Users className="w-3.5 h-3.5" />
                     </div>
                     <div className="info-block-content min-w-0">
-                      <span className={`info-block-value ${isLight ? 'text-slate-800' : 'text-white/90'}`}>{countParticipants}</span>
+                      <span className={`info-block-value ${false ? 'text-slate-800' : 'text-white/90'}`}>{countParticipants}</span>
                       <span className="info-block-label">Peserta</span>
                     </div>
                   </div>
@@ -681,10 +674,10 @@ export function Dashboard({
                     transition={{ duration: 0.6, delay: 0.1, ease: [0.32, 0.72, 0, 1] }}
                     className="hero-result-card lg:flex-1 lg:min-w-0"
                     style={{
-                      background: isLight
+                      background: false
                         ? `linear-gradient(145deg, rgba(${themeColors.primaryRGB},0.10) 0%, rgba(255,255,255,0.85) 50%, rgba(${themeColors.primaryRGB},0.05) 100%)`
                         : `linear-gradient(145deg, rgba(${themeColors.primaryRGB},0.06) 0%, rgba(18,18,22,0.50) 50%, rgba(${themeColors.primaryRGB},0.02) 100%)`,
-                      borderColor: isLight
+                      borderColor: false
                         ? `rgba(${themeColors.primaryRGB},0.15)`
                         : `rgba(${themeColors.primaryRGB},0.10)`,
                     }}
@@ -703,7 +696,7 @@ export function Dashboard({
                         <div
                           className="w-12 h-12 rounded-2xl flex items-center justify-center"
                           style={{
-                            background: isLight
+                            background: false
                               ? `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.20), rgba(${themeColors.primaryRGB},0.10))`
                               : `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.14), rgba(${themeColors.primaryRGB},0.06))`,
                             border: `0.5px solid rgba(${themeColors.primaryRGB},0.20)`,
@@ -720,7 +713,7 @@ export function Dashboard({
                         >
                           Pemenang Pekan Ini
                         </span>
-                        <p className={`text-[16px] font-black truncate leading-tight mt-0.5 tracking-tight ${isLight ? 'text-slate-800' : 'text-white/90'}`}>
+                        <p className={`text-[16px] font-black truncate leading-tight mt-0.5 tracking-tight ${false ? 'text-slate-800' : 'text-white/90'}`}>
                           {champion.teamName}
                         </p>
                       </div>
@@ -732,7 +725,7 @@ export function Dashboard({
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center"
                           style={{
-                            background: isLight
+                            background: false
                               ? `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.15), rgba(${themeColors.primaryRGB},0.08))`
                               : `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.10), rgba(${themeColors.primaryRGB},0.04))`,
                           }}
@@ -743,7 +736,7 @@ export function Dashboard({
                     </div>
 
                     {/* Subtle divider */}
-                    <div className={`mx-4 h-px ${isLight ? 'bg-gradient-to-r from-transparent via-slate-200' : 'bg-gradient-to-r from-transparent via-white/[0.05]'} to-transparent`} />
+                    <div className={`mx-4 h-px ${false ? 'bg-gradient-to-r from-transparent via-slate-200' : 'bg-gradient-to-r from-transparent via-white/[0.05]'} to-transparent`} />
 
                     {/* Team members — staggered entrance with larger avatars */}
                     <div className="space-y-1.5 p-4 pt-3">
@@ -760,16 +753,16 @@ export function Dashboard({
                           whileTap={onPlayerClick ? { scale: 0.99 } : undefined}
                         >
                           <div className={avatarRingClass}>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${false ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                               {member.userAvatar ? (
                                 <img src={member.userAvatar} alt={member.userName} loading="lazy" className="w-full h-full object-cover object-top" />
                               ) : (
-                                <span className={`text-sm font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{member.userName.charAt(0)}</span>
+                                <span className={`text-sm font-bold ${false ? 'text-slate-600' : 'text-white/70'}`}>{member.userName.charAt(0)}</span>
                               )}
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-[13px] font-semibold truncate leading-snug ${isLight ? 'text-slate-800' : 'text-white/90'}`}>
+                            <p className={`text-[13px] font-semibold truncate leading-snug ${false ? 'text-slate-800' : 'text-white/90'}`}>
                               {member.userName}
                               {member.role === 'captain' && (
                                 <span className="ml-2 text-[9px] font-bold uppercase" style={{ letterSpacing: '0.08em', color: `rgba(${themeColors.primaryRGB},0.40)` }}>
@@ -795,10 +788,10 @@ export function Dashboard({
                     transition={{ duration: 0.6, delay: 0.3, ease: [0.32, 0.72, 0, 1] }}
                     className={`hero-result-card lg:flex-1 lg:min-w-0 ${onPlayerClick ? 'cursor-pointer' : ''}`}
                     style={{
-                      background: isLight
+                      background: false
                         ? 'linear-gradient(145deg, rgba(251,146,60,0.10) 0%, rgba(255,255,255,0.85) 50%, rgba(251,146,60,0.05) 100%)'
                         : 'linear-gradient(145deg, rgba(255,159,10,0.06) 0%, rgba(28,28,30,0.45) 50%, rgba(255,214,10,0.02) 100%)',
-                      borderColor: isLight ? 'rgba(251,146,60,0.15)' : 'rgba(255,159,10,0.08)',
+                      borderColor: false ? 'rgba(251,146,60,0.15)' : 'rgba(255,159,10,0.08)',
                     }}
                     onClick={onPlayerClick ? () => onPlayerClick(mvp.userId) : undefined}
                     whileHover={onPlayerClick ? { scale: 1.02 } : undefined}
@@ -827,16 +820,16 @@ export function Dashboard({
                             className="p-[2.5px] rounded-full"
                             style={{
                               background: 'linear-gradient(145deg, #FF9F0A, #E68A00, #FFD60A)',
-                              boxShadow: isLight
+                              boxShadow: false
                                 ? '0 0 16px rgba(255,159,10,0.15), 0 2px 8px rgba(0,0,0,0.08)'
                                 : '0 0 16px rgba(255,159,10,0.20), 0 2px 8px rgba(0,0,0,0.25)',
                             }}
                           >
-                            <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-orange-100 to-orange-200' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
+                            <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden ${false ? 'bg-gradient-to-br from-orange-100 to-orange-200' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                               {mvp.userAvatar ? (
                                 <img src={mvp.userAvatar} alt={mvp.userName} loading="lazy" className="w-full h-full object-cover object-top" />
                               ) : (
-                                <span className={`text-base font-bold ${isLight ? 'text-orange-600' : 'text-white/70'}`}>{mvp.userName.charAt(0)}</span>
+                                <span className={`text-base font-bold ${false ? 'text-orange-600' : 'text-white/70'}`}>{mvp.userName.charAt(0)}</span>
                               )}
                             </div>
                           </div>
@@ -860,7 +853,7 @@ export function Dashboard({
                             +25 pts
                           </span>
                         </div>
-                        <p className={`text-[17px] font-black truncate leading-tight tracking-tight ${isLight ? 'text-slate-800' : 'text-white/90'}`}>
+                        <p className={`text-[17px] font-black truncate leading-tight tracking-tight ${false ? 'text-slate-800' : 'text-white/90'}`}>
                           {mvp.userName}
                         </p>
                         {mvp.mvpScore > 0 && (
@@ -868,7 +861,7 @@ export function Dashboard({
                             Skor: {mvp.mvpScore.toLocaleString('id-ID')}
                           </p>
                         )}
-                        <p className={`text-[11px] mt-0.5 font-normal ${isLight ? 'text-slate-500' : 'text-white/35'}`}>
+                        <p className={`text-[11px] mt-0.5 font-normal ${false ? 'text-slate-500' : 'text-white/35'}`}>
                           {mvp.userPoints.toLocaleString()} total poin
                         </p>
                       </div>
@@ -878,7 +871,7 @@ export function Dashboard({
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center"
                           style={{
-                            background: isLight
+                            background: false
                               ? 'linear-gradient(135deg, rgba(212,201,31,0.12), rgba(212,201,31,0.05))'
                               : 'linear-gradient(135deg, rgba(212,201,31,0.10), rgba(212,201,31,0.03))',
                           }}
@@ -928,7 +921,7 @@ export function Dashboard({
             <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none truncate`}>
               {countParticipants}
             </p>
-            <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+            <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${false ? 'text-slate-500' : 'text-white/40'}`}>
               Peserta
             </p>
             <div className="flex items-center justify-center gap-1 mt-2">
@@ -965,7 +958,7 @@ export function Dashboard({
             <p className={`text-[15px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none truncate`}>
               Rp {compactPrize(countPrize)}
             </p>
-            <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+            <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${false ? 'text-slate-500' : 'text-white/40'}`}>
               Hadiah
             </p>
             <div className="flex items-center justify-center gap-1 mt-2">
@@ -1003,7 +996,7 @@ export function Dashboard({
               <p className={`text-[12px] sm:text-[14px] lg:text-lg font-extrabold ${gradientClass} tracking-tight leading-none`}>
                 Poin
               </p>
-              <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+              <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${false ? 'text-slate-500' : 'text-white/40'}`}>
                 Sistem Poin
               </p>
               <div className="flex items-center justify-center gap-1 mt-2">
@@ -1041,7 +1034,7 @@ export function Dashboard({
             <p className={`text-[17px] sm:text-[20px] lg:text-3xl font-extrabold ${gradientClass} tracking-tight leading-none truncate`}>
               {countTeams}
             </p>
-            <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+            <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${false ? 'text-slate-500' : 'text-white/40'}`}>
               Tim
             </p>
             <div
@@ -1076,7 +1069,7 @@ export function Dashboard({
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Trophy className={`w-4 h-4 ${accentColor}`} />
-                  <span className={`text-[13px] font-bold tracking-tight ${isLight ? 'text-slate-700' : 'text-white/80'}`}>
+                  <span className={`text-[13px] font-bold tracking-tight ${false ? 'text-slate-700' : 'text-white/80'}`}>
                     Top 3 Pemain
                   </span>
                 </div>
@@ -1088,11 +1081,11 @@ export function Dashboard({
                 <div className="flex flex-col items-center flex-1 max-w-[90px] sm:max-w-[100px] lg:max-w-[120px]">
                   {/* Avatar */}
                   <div className={avatarRingClass}>
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
+                    <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center overflow-hidden ${false ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                       {topPlayers[1]?.avatar ? (
                         <img src={topPlayers[1].avatar} alt={topPlayers[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
-                        <span className={`text-lg font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[1]?.name?.charAt(0) || '?'}</span>
+                        <span className={`text-lg font-bold ${false ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[1]?.name?.charAt(0) || '?'}</span>
                       )}
                     </div>
                   </div>
@@ -1110,7 +1103,7 @@ export function Dashboard({
                   </div>
                   
                   {/* Name & Points */}
-                  <p className={`text-[11px] sm:text-[12px] font-bold mt-2 truncate w-full text-center ${isLight ? 'text-slate-800' : 'text-white/90'}`}>
+                  <p className={`text-[11px] sm:text-[12px] font-bold mt-2 truncate w-full text-center ${false ? 'text-slate-800' : 'text-white/90'}`}>
                     {topPlayers[1]?.name || '-'}
                   </p>
                   <p className={`text-[10px] sm:text-[11px] font-bold ${accentColor} mt-0.5`}>
@@ -1142,11 +1135,11 @@ export function Dashboard({
                   
                   {/* Avatar */}
                   <div className={avatarRingClass}>
-                    <div className={`w-16 h-16 sm:w-[72px] sm:h-[72px] lg:w-24 lg:h-24 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
+                    <div className={`w-16 h-16 sm:w-[72px] sm:h-[72px] lg:w-24 lg:h-24 rounded-full flex items-center justify-center overflow-hidden ${false ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                       {topPlayers[0]?.avatar ? (
                         <img src={topPlayers[0].avatar} alt={topPlayers[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
-                        <span className={`text-xl font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[0]?.name?.charAt(0) || '?'}</span>
+                        <span className={`text-xl font-bold ${false ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[0]?.name?.charAt(0) || '?'}</span>
                       )}
                     </div>
                   </div>
@@ -1168,7 +1161,7 @@ export function Dashboard({
                   </div>
                   
                   {/* Name & Points */}
-                  <p className={`text-[12px] sm:text-[13px] lg:text-sm font-bold mt-2 truncate w-full text-center ${isLight ? 'text-slate-800' : 'text-white/90'}`}>
+                  <p className={`text-[12px] sm:text-[13px] lg:text-sm font-bold mt-2 truncate w-full text-center ${false ? 'text-slate-800' : 'text-white/90'}`}>
                     {topPlayers[0]?.name || '-'}
                   </p>
                   <p className={`text-[11px] sm:text-[12px] font-bold ${accentColor} mt-0.5`}>
@@ -1192,11 +1185,11 @@ export function Dashboard({
                 <div className="flex flex-col items-center flex-1 max-w-[90px] sm:max-w-[100px] lg:max-w-[120px]">
                   {/* Avatar */}
                   <div className={avatarRingClass}>
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center overflow-hidden ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
+                    <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center overflow-hidden ${false ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                       {topPlayers[2]?.avatar ? (
                         <img src={topPlayers[2].avatar} alt={topPlayers[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
                       ) : (
-                        <span className={`text-lg font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[2]?.name?.charAt(0) || '?'}</span>
+                        <span className={`text-lg font-bold ${false ? 'text-slate-600' : 'text-white/70'}`}>{topPlayers[2]?.name?.charAt(0) || '?'}</span>
                       )}
                     </div>
                   </div>
@@ -1214,7 +1207,7 @@ export function Dashboard({
                   </div>
                   
                   {/* Name & Points */}
-                  <p className={`text-[11px] sm:text-[12px] font-bold mt-2 truncate w-full text-center ${isLight ? 'text-slate-800' : 'text-white/90'}`}>
+                  <p className={`text-[11px] sm:text-[12px] font-bold mt-2 truncate w-full text-center ${false ? 'text-slate-800' : 'text-white/90'}`}>
                     {topPlayers[2]?.name || '-'}
                   </p>
                   <p className={`text-[10px] sm:text-[11px] font-bold ${accentColor} mt-0.5`}>
@@ -1296,8 +1289,8 @@ export function Dashboard({
             >
               <UserPlus className={`w-4 h-4 sm:w-[18px] sm:h-[18px] ${accentColor}`} />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Daftar</p>
-            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Gabung turnamen</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${false ? 'text-slate-800' : 'text-white/90'}`}>Daftar</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${false ? 'text-slate-500' : 'text-white/40'}`}>Gabung turnamen</p>
           </motion.button>
 
           {/* Bracket */}
@@ -1316,8 +1309,8 @@ export function Dashboard({
             >
               <Swords className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-purple-400" />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Bracket</p>
-            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Lihat pertandingan</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${false ? 'text-slate-800' : 'text-white/90'}`}>Bracket</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${false ? 'text-slate-500' : 'text-white/40'}`}>Lihat pertandingan</p>
           </motion.button>
 
           {/* Leaderboard */}
@@ -1336,8 +1329,8 @@ export function Dashboard({
             >
               <BarChart3 className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-green-400" />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Leaderboard</p>
-            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Pemain terbaik</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${false ? 'text-slate-800' : 'text-white/90'}`}>Leaderboard</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${false ? 'text-slate-500' : 'text-white/40'}`}>Pemain terbaik</p>
           </motion.button>
 
           {/* Total Donasi */}
@@ -1358,8 +1351,8 @@ export function Dashboard({
             >
               <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-purple-400" />
             </div>
-            <p className={`text-[13px] font-semibold leading-snug truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>Total Donasi</p>
-            <p className={`text-[11px] mt-0.5 font-normal truncate ${isLight ? 'text-slate-500' : 'text-white/40'}`}>Dukung Season 2</p>
+            <p className={`text-[13px] font-semibold leading-snug truncate ${false ? 'text-slate-800' : 'text-white/90'}`}>Total Donasi</p>
+            <p className={`text-[11px] mt-0.5 font-normal truncate ${false ? 'text-slate-500' : 'text-white/40'}`}>Dukung Season 2</p>
           </motion.button>
         </div>
       </motion.div>
@@ -1390,13 +1383,13 @@ export function Dashboard({
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <span className={`relative z-10 ${leaderboardTab === tab.id ? accentColor : isLight ? 'text-slate-400' : 'text-white/35'}`}>
+                  <span className={`relative z-10 ${leaderboardTab === tab.id ? accentColor : false ? 'text-slate-400' : 'text-white/35'}`}>
                     <tab.icon className="w-3 h-3 inline" />
                   </span>
-                  <span className={`relative z-10 ${leaderboardTab === tab.id ? (isLight ? 'text-slate-800' : 'text-white/90') : isLight ? 'text-slate-400' : 'text-white/35'} hidden sm:inline`}>
+                  <span className={`relative z-10 ${leaderboardTab === tab.id ? (false ? 'text-slate-800' : 'text-white/90') : false ? 'text-slate-400' : 'text-white/35'} hidden sm:inline`}>
                     {tab.label}
                   </span>
-                  <span className={`relative z-10 ${leaderboardTab === tab.id ? (isLight ? 'text-slate-800' : 'text-white/90') : isLight ? 'text-slate-400' : 'text-white/35'} sm:hidden`}>
+                  <span className={`relative z-10 ${leaderboardTab === tab.id ? (false ? 'text-slate-800' : 'text-white/90') : false ? 'text-slate-400' : 'text-white/35'} sm:hidden`}>
                     {tab.id === 'players' ? 'PEMAIN' : 'CLUB'}
                   </span>
                 </motion.button>
@@ -1405,7 +1398,7 @@ export function Dashboard({
             {leaderboardTab === 'players' && (
               <button
                 onClick={onViewPlayers}
-                className={`text-[11px] flex items-center gap-0.5 font-semibold transition-colors duration-200 ${isLight ? 'text-slate-700 hover:text-slate-900' : 'text-white/40 hover:text-white/60'}`}
+                className={`text-[11px] flex items-center gap-0.5 font-semibold transition-colors duration-200 ${false ? 'text-slate-700 hover:text-slate-900' : 'text-white/40 hover:text-white/60'}`}
               >
                 Lihat Semua <ChevronRight className="w-3 h-3" />
               </button>
@@ -1413,7 +1406,7 @@ export function Dashboard({
             {leaderboardTab === 'clubs' && (
               <button
                 onClick={() => onNavigate && onNavigate('leaderboard')}
-                className={`text-[11px] flex items-center gap-0.5 font-semibold transition-colors duration-200 ${isLight ? 'text-slate-700 hover:text-slate-900' : 'text-white/40 hover:text-white/60'}`}
+                className={`text-[11px] flex items-center gap-0.5 font-semibold transition-colors duration-200 ${false ? 'text-slate-700 hover:text-slate-900' : 'text-white/40 hover:text-white/60'}`}
               >
                 Lihat Semua <ChevronRight className="w-3 h-3" />
               </button>
@@ -1471,7 +1464,7 @@ export function Dashboard({
 
                     {/* Name + Tier */}
                     <div className="flex-1 min-w-0 flex items-center gap-2">
-                      <p className={`text-[13px] font-semibold truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>{player.name}</p>
+                      <p className={`text-[13px] font-semibold truncate ${false ? 'text-slate-800' : 'text-white/90'}`}>{player.name}</p>
                       {player.tier && (
                         <span className={`tier-badge ${tierMap[player.tier] || 'tier-b'} shrink-0`}>
                           {player.tier}
@@ -1499,8 +1492,8 @@ export function Dashboard({
                               key={sp.season}
                               className="text-[6px] font-semibold px-0.5 rounded"
                               style={{
-                                background: isLight ? 'rgba(56,189,248,0.08)' : 'rgba(115,255,0,0.08)',
-                                color: isLight ? 'rgba(56,189,248,0.5)' : 'rgba(115,255,0,0.5)',
+                                background: false ? 'rgba(56,189,248,0.08)' : 'rgba(115,255,0,0.08)',
+                                color: false ? 'rgba(56,189,248,0.5)' : 'rgba(115,255,0,0.5)',
                               }}
                             >
                               S{sp.season}:{sp.points}
@@ -1521,18 +1514,18 @@ export function Dashboard({
                   style={{
                     background: showAllPlayers
                       ? `rgba(${themeColors.primaryRGB},0.08)`
-                      : (isLight ? 'rgba(100,116,139,0.06)' : 'rgba(255,255,255,0.03)'),
+                      : (false ? 'rgba(100,116,139,0.06)' : 'rgba(255,255,255,0.03)'),
                     border: showAllPlayers
                       ? `1px solid rgba(${themeColors.primaryRGB},0.15)`
-                      : `1px solid ${isLight ? 'rgba(100,116,139,0.10)' : 'rgba(255,255,255,0.06)'}`,
+                      : `1px solid ${false ? 'rgba(100,116,139,0.10)' : 'rgba(255,255,255,0.06)'}`,
                     color: showAllPlayers
                       ? themeColors.primary
-                      : (isLight ? 'text-slate-500' : 'text-white/40'),
+                      : (false ? 'text-slate-500' : 'text-white/40'),
                   }}
                   whileHover={{
                     background: showAllPlayers
                       ? `rgba(${themeColors.primaryRGB},0.12)`
-                      : (isLight ? 'rgba(100,116,139,0.10)' : 'rgba(255,255,255,0.06)'),
+                      : (false ? 'rgba(100,116,139,0.10)' : 'rgba(255,255,255,0.06)'),
                   }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -1560,17 +1553,17 @@ export function Dashboard({
                   <div
                     className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
                     style={{
-                      background: isLight
+                      background: false
                         ? 'linear-gradient(135deg, rgba(100,116,139,0.10), rgba(100,116,139,0.05))'
                         : 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
                     }}
                   >
-                    <Shield className={`w-6 h-6 ${isLight ? 'text-slate-300' : 'text-white/15'}`} />
+                    <Shield className={`w-6 h-6 ${false ? 'text-slate-300' : 'text-white/15'}`} />
                   </div>
-                  <p className={`text-[13px] font-medium mb-1 ${isLight ? 'text-slate-400' : 'text-white/30'}`}>
+                  <p className={`text-[13px] font-medium mb-1 ${false ? 'text-slate-400' : 'text-white/30'}`}>
                     Belum ada club terdaftar
                   </p>
-                  <p className={`text-[11px] ${isLight ? 'text-slate-300' : 'text-white/20'}`}>
+                  <p className={`text-[11px] ${false ? 'text-slate-300' : 'text-white/20'}`}>
                     Club akan muncul setelah admin membuat club baru
                   </p>
                 </motion.div>
@@ -1638,9 +1631,9 @@ export function Dashboard({
 
                         {/* Club name + members */}
                         <div className="flex-1 min-w-0 flex items-center gap-2">
-                          <p className={`text-[13px] font-semibold truncate ${isLight ? 'text-slate-800' : 'text-white/90'}`}>{club.name}</p>
+                          <p className={`text-[13px] font-semibold truncate ${false ? 'text-slate-800' : 'text-white/90'}`}>{club.name}</p>
                           <span className={`text-[10px] shrink-0 ${
-                            isLight ? 'text-slate-400' : 'text-white/30'
+                            false ? 'text-slate-400' : 'text-white/30'
                           }`}>
                             {club.memberCount} anggota
                           </span>
@@ -1665,7 +1658,7 @@ export function Dashboard({
                           transition={{ duration: 0.2 }}
                           className="shrink-0"
                         >
-                          <ChevronDown className={`w-3.5 h-3.5 ${isLight ? 'text-slate-400' : 'text-white/30'}`} />
+                          <ChevronDown className={`w-3.5 h-3.5 ${false ? 'text-slate-400' : 'text-white/30'}`} />
                         </motion.div>
                       </motion.div>
 
@@ -1679,7 +1672,7 @@ export function Dashboard({
                         transition={{ duration: 0.25, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className={`pl-10 pr-3 py-2 space-y-1.5 max-h-64 overflow-y-auto ${isLight ? 'bg-slate-50/50' : 'bg-white/[0.02]'} [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full`}>
+                        <div className={`pl-10 pr-3 py-2 space-y-1.5 max-h-64 overflow-y-auto ${false ? 'bg-slate-50/50' : 'bg-white/[0.02]'} [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full`}>
                           {isLoading ? (
                             <div className="flex items-center justify-center py-4">
                               <div className={`w-5 h-5 border-2 border-t-transparent rounded-full animate-spin ${isMale ? 'border-[#73FF00]' : 'border-[#38BDF8]'}`} />
@@ -1691,19 +1684,19 @@ export function Dashboard({
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.05 }}
-                                className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${isLight ? 'hover:bg-white/60' : 'hover:bg-white/[0.03]'}`}
+                                className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${false ? 'hover:bg-white/60' : 'hover:bg-white/[0.03]'}`}
                               >
                                 {/* Member avatar */}
-                                <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden shrink-0 ${isLight ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden shrink-0 ${false ? 'bg-gradient-to-br from-slate-200 to-slate-300' : 'bg-gradient-to-br from-gray-600 to-gray-800'}`}>
                                   {member.avatar ? (
                                     <img src={member.avatar} alt={member.name} loading="lazy" className="w-full h-full object-cover object-top" />
                                   ) : (
-                                    <span className={`text-[10px] font-bold ${isLight ? 'text-slate-600' : 'text-white/70'}`}>{member.name[0]}</span>
+                                    <span className={`text-[10px] font-bold ${false ? 'text-slate-600' : 'text-white/70'}`}>{member.name[0]}</span>
                                   )}
                                 </div>
                                 
                                 {/* Member name */}
-                                <span className={`flex-1 text-[12px] font-medium truncate ${isLight ? 'text-slate-700' : 'text-white/80'}`}>
+                                <span className={`flex-1 text-[12px] font-medium truncate ${false ? 'text-slate-700' : 'text-white/80'}`}>
                                   {member.name}
                                 </span>
                                 

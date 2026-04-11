@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
@@ -46,10 +45,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0B0B0F" },
-  ],
+  themeColor: "#0B0B0F",
 };
 
 export default function RootLayout({
@@ -58,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#0B0B0F" />
         <link rel="manifest" href="/api/manifest" />
@@ -69,28 +65,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange={false}
-          themes={[
-            "dark",
-            "light",
-            // Named theme combinations (division-aware)
-            "dark-male",
-            "dark-female",
-            "light-male",
-            "light-female",
-          ]}
-        >
-          <AppSettingsProvider>
-            <OfflineIndicator />
-            {children}
-            <ServiceWorkerRegistration />
-            <Toaster />
-          </AppSettingsProvider>
-        </ThemeProvider>
+        <AppSettingsProvider>
+          <OfflineIndicator />
+          {children}
+          <ServiceWorkerRegistration />
+          <Toaster />
+        </AppSettingsProvider>
       </body>
     </html>
   );

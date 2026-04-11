@@ -63,8 +63,8 @@
 }
 
 /* ========================================
-   🐉 NIGHT FURY / LIGHT FURY DUAL THEME SYSTEM
-   Premium iOS-style dual theme for Esports Tournament
+   🐉 NIGHT FURY DARK THEME SYSTEM
+   Premium iOS-style dark theme for Esports Tournament
    ======================================== */
 
 :root {
@@ -312,224 +312,13 @@
   --dragon-scale-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='rgba(56, 189, 248,0.03)' stroke-width='0.5'/%3E%3C/svg%3E");
 }
 
-/* ═══════════════════════════════════════════
-   💗 LIGHT FURY THEME (Light Mode - Female Division)
-   Clean, minimal Apple-style light theme with Sky Blue accents
-   ═══════════════════════════════════════════ */
-
-.theme-light-fury,
-[data-theme="light-fury"] {
-  /* Backgrounds - Pure White Apple Style */
-  --background: #FAFAFA;
-  --background-secondary: #F5F5F7;
-  --background-tertiary: #EEEEF0;
-  --background-elevated: #FFFFFF;
-  --foreground: #1d1d1f;
-  
-  /* Cards & Surfaces - Clean white */
-  --card: rgba(255, 255, 255, 0.98);
-  --card-foreground: #1d1d1f;
-  --popover: rgba(255, 255, 255, 0.98);
-  --popover-foreground: #1d1d1f;
-  
-  /* Primary Accent - Sky Blue */
-  --primary: #38BDF8;
-  --primary-light: #7DD3FC;
-  --primary-dark: #0EA5E9;
-  --primary-foreground: #ffffff;
-  
-  /* Secondary */
-  --secondary: rgba(0, 0, 0, 0.04);
-  --secondary-foreground: #1d1d1f;
-  --muted: rgba(0, 0, 0, 0.04);
-  --muted-foreground: rgba(0, 0, 0, 0.50);
-  
-  /* Accent Colors - Sky Blue */
-  --accent: rgba(56, 189, 248, 0.08);
-  --accent-foreground: #38BDF8;
-  --destructive: #FF3B30;
-  
-  /* Borders & Inputs - Minimal */
-  --border: rgba(0, 0, 0, 0.06);
-  --input: rgba(0, 0, 0, 0.04);
-  --ring: rgba(56, 189, 248, 0.20);
-
-  /* Text Hierarchy - Clean dark text */
-  --text-primary: rgba(0, 0, 0, 0.92);
-  --text-secondary: rgba(0, 0, 0, 0.60);
-  --text-tertiary: rgba(0, 0, 0, 0.40);
-  --text-quaternary: rgba(0, 0, 0, 0.25);
-
-  /* ── Sky Blue Accent Colors ── */
-  --gold: #38BDF8;
-  --gold-light: #7DD3FC;
-  --gold-dark: #0EA5E9;
-  --gold-muted: rgba(56, 189, 248, 0.10);
-  --gold-glow: rgba(56, 189, 248, 0.12);
-
-  --rose: #38BDF8;
-  --rose-light: #7DD3FC;
-  --rose-dark: #0EA5E9;
-  --rose-muted: rgba(56, 189, 248, 0.10);
-  --rose-glow: rgba(56, 189, 248, 0.08);
-
-  --purple: #AF52DE;
-  --purple-light: #BF5AF2;
-  --purple-muted: rgba(175, 82, 222, 0.10);
-
-  --cyan: #38BDF8;
-  --cyan-muted: rgba(56, 189, 248, 0.10);
-
-  --teal: #5AC8FA;
-  --teal-muted: rgba(90, 200, 250, 0.10);
-
-  --green: #34C759;
-  --green-muted: rgba(52, 199, 89, 0.10);
-
-  --orange: #FF9500;
-  --orange-muted: rgba(255, 149, 0, 0.10);
-
-  --red: #FF3B30;
-  --red-muted: rgba(255, 59, 48, 0.10);
-
-  /* ── Glass Morphism - Minimal for Light Mode ── */
-  --glass-bg: rgba(255, 255, 255, 0.80);
-  --glass-hover: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(0, 0, 0, 0.06);
-  --glass-highlight: rgba(56, 189, 248, 0.03);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.60);
-  --glass-bg-heavy: rgba(255, 255, 255, 0.96);
-
-  /* ── Inner Glow Effects - Minimal for Light Mode ── */
-  --inner-glow-primary: inset 0 0.5px 0 rgba(255, 255, 255, 0.90);
-  --inner-glow-secondary: inset 0 0.5px 0 rgba(255, 255, 255, 0.80);
-  --inner-glow-white: inset 0 0.5px 0 rgba(255, 255, 255, 1);
-
-  /* ── Depth System - Subtle Apple Style Shadows ── */
-  --depth-1: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --depth-2: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --depth-3: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
-  --depth-4: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
-  --depth-5: 0 16px 48px rgba(0, 0, 0, 0.10), 0 8px 16px rgba(0, 0, 0, 0.05);
-
-  /* ── Dragon Eye Glow Effect - Minimal ── */
-  --dragon-eye-glow: none;
-  --dragon-scale-pattern: none;
-}
 
 /* ═══════════════════════════════════════════
-   💚 LIGHT FURY MALE THEME (Light Mode - Male Division)
-   Light mode with Cyan/Teal accents for Male
-   NOTE: PURE CYAN - No pink, no green mixing!
-   ═══════════════════════════════════════════ */
-
-.theme-light-fury-male,
-[data-theme="light-fury-male"] {
-  /* Backgrounds - LIGHT/TERANG */
-  --background: #f8fafc;
-  --background-secondary: #f1f5f9;
-  --background-tertiary: #e2e8f0;
-  --background-elevated: #ffffff;
-  --foreground: #0f172a;
-  
-  /* Cards & Surfaces - Light with subtle green tint */
-  --card: rgba(255, 255, 255, 0.88);
-  --card-foreground: #0f172a;
-  --popover: rgba(255, 255, 255, 0.96);
-  --popover-foreground: #0f172a;
-  
-  /* Primary Accent - GREEN for Male Light Mode (same as Dark Male) */
-  --primary: #5FD400;
-  --primary-light: #73FF00;
-  --primary-dark: #4AB800;
-  --primary-foreground: #ffffff;
-  
-  /* Secondary */
-  --secondary: rgba(95, 212, 0, 0.10);
-  --secondary-foreground: #0f172a;
-  --muted: rgba(100, 116, 139, 0.08);
-  --muted-foreground: rgba(71, 85, 105, 0.80);
-  
-  /* Accent Colors - GREEN */
-  --accent: rgba(95, 212, 0, 0.12);
-  --accent-foreground: #5FD400;
-  --destructive: #EF4444;
-  
-  /* Borders & Inputs */
-  --border: rgba(148, 163, 184, 0.22);
-  --input: rgba(148, 163, 184, 0.14);
-  --ring: rgba(95, 212, 0, 0.30);
-
-  /* Text Hierarchy - Dark text on light bg */
-  --text-primary: rgba(15, 23, 42, 0.95);
-  --text-secondary: rgba(51, 65, 85, 0.85);
-  --text-tertiary: rgba(71, 85, 105, 0.70);
-  --text-quaternary: rgba(100, 116, 139, 0.55);
-
-  /* ── GREEN Accent Colors for Light Mode Male - SAME AS DARK MALE ── */
-  --gold: #5FD400;
-  --gold-light: #73FF00;
-  --gold-dark: #4AB800;
-  --gold-muted: rgba(95, 212, 0, 0.18);
-  --gold-glow: rgba(95, 212, 0, 0.15);
-
-  --rose: #5FD400;
-  --rose-light: #73FF00;
-  --rose-dark: #4AB800;
-  --rose-muted: rgba(95, 212, 0, 0.18);
-  --rose-glow: rgba(95, 212, 0, 0.12);
-
-  --purple: #A855F7;
-  --purple-light: #C084FC;
-  --purple-muted: rgba(168, 85, 247, 0.15);
-
-  --cyan: #73FF00;
-  --cyan-muted: rgba(115, 255, 0, 0.15);
-
-  --teal: #2DD4BF;
-  --teal-muted: rgba(45, 212, 191, 0.15);
-
-  --green: #73FF00;
-  --green-muted: rgba(115, 255, 0, 0.15);
-
-  --orange: #F97316;
-  --orange-muted: rgba(249, 115, 22, 0.15);
-
-  --red: #EF4444;
-  --red-muted: rgba(239, 68, 68, 0.15);
-
-  /* ── Glass Morphism - Light Mode Male ── */
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-hover: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(148, 163, 184, 0.18);
-  --glass-highlight: rgba(95, 212, 0, 0.08);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.45);
-  --glass-bg-heavy: rgba(248, 250, 252, 0.94);
-
-  /* ── Inner Glow Effects - Light Mode Male (reduced intensity) ── */
-  --inner-glow-primary: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 0 24px rgba(95, 212, 0, 0.04);
-  --inner-glow-secondary: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 0 16px rgba(95, 212, 0, 0.02);
-  --inner-glow-white: inset 0 1px 0 rgba(255, 255, 255, 0.92);
-
-  /* ── Depth System - Light Mode ── */
-  --depth-1: 0 1px 3px rgba(0, 0, 0, 0.07), 0 0.5px 1px rgba(0, 0, 0, 0.05);
-  --depth-2: 0 2px 10px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05);
-  --depth-3: 0 4px 18px rgba(0, 0, 0, 0.11), 0 2px 5px rgba(0, 0, 0, 0.06);
-  --depth-4: 0 8px 35px rgba(0, 0, 0, 0.13), 0 4px 10px rgba(0, 0, 0, 0.06);
-  --depth-5: 0 16px 50px rgba(0, 0, 0, 0.15), 0 8px 18px rgba(0, 0, 0, 0.07);
-
-  /* ── Dragon Eye Glow Effect - Light Mode GREEN (reduced) ── */
-  --dragon-eye-glow: 0 0 12px rgba(95, 212, 0, 0.20), 0 0 24px rgba(95, 212, 0, 0.10);
-  --dragon-scale-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='rgba(148,163,184,0.10)' stroke-width='0.5'/%3E%3C/svg%3E");
-}
-
-/* ═══════════════════════════════════════════
-   SIMPLE THEME SYSTEM
-   - .dark = Dark mode (background gelap)
-   - .light = Light mode (background terang)
+   DARK THEME SYSTEM (Dark Mode Only)
+   - .dark = Always active
    - data-theme determines accent color:
-     - dark-male / light-male = GREEN (#73FF00)
-     - dark-female / light-female = BLUE (#38BDF8)
+     - dark-male = GREEN (#73FF00)
+     - dark-female = BLUE (#38BDF8)
    ═══════════════════════════════════════════ */
 
 /* DARK MODE */
@@ -611,87 +400,6 @@
   --glass-border: rgba(56, 189, 248, 0.10);
 }
 
-/* LIGHT MODE - BRIGHT BACKGROUND */
-.light {
-  --background: #ffffff;
-  --background-secondary: #f8fafc;
-  --background-tertiary: #f1f5f9;
-  --background-elevated: #ffffff;
-  --foreground: #0f172a;
-  
-  --card: rgba(255, 255, 255, 0.95);
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  
-  --secondary: rgba(100, 116, 139, 0.10);
-  --secondary-foreground: #0f172a;
-  --muted: rgba(100, 116, 139, 0.10);
-  --muted-foreground: rgba(71, 85, 105, 0.80);
-  
-  --destructive: #EF4444;
-  --border: rgba(148, 163, 184, 0.25);
-  --input: rgba(148, 163, 184, 0.20);
-  
-  /* Text */
-  --text-primary: rgba(15, 23, 42, 1);
-  --text-secondary: rgba(51, 65, 85, 0.90);
-  --text-tertiary: rgba(71, 85, 105, 0.75);
-  
-  /* Glass - brighter for light mode */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-hover: rgba(255, 255, 255, 0.95);
-  --glass-border: rgba(148, 163, 184, 0.20);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.70);
-  --glass-bg-heavy: rgba(250, 250, 250, 0.95);
-  --glass-highlight: rgba(56, 189, 248, 0.08);
-}
-
-/* LIGHT MALE - Green accent */
-.light[data-theme="light-male"] {
-  --primary: #5FD400;
-  --primary-light: #73FF00;
-  --primary-dark: #4AB800;
-  --primary-foreground: #ffffff;
-  --accent: rgba(95, 212, 0, 0.12);
-  --accent-foreground: #5FD400;
-  --ring: rgba(95, 212, 0, 0.30);
-  
-  --gold: #5FD400;
-  --gold-light: #73FF00;
-  --gold-dark: #4AB800;
-  --gold-muted: rgba(95, 212, 0, 0.18);
-  --gold-glow: rgba(95, 212, 0, 0.25);
-  
-  --rose: #5FD400;
-  --rose-light: #73FF00;
-  --rose-dark: #4AB800;
-  
-  --glass-highlight: rgba(95, 212, 0, 0.08);
-}
-
-/* LIGHT FEMALE - Pink accent - Apple Clean Style */
-.light[data-theme="light-female"] {
-  --primary: #38BDF8;
-  --primary-light: #7DD3FC;
-  --primary-dark: #0EA5E9;
-  --primary-foreground: #ffffff;
-  --accent: rgba(56, 189, 248, 0.10);
-  --accent-foreground: #38BDF8;
-  --ring: rgba(56, 189, 248, 0.25);
-  
-  --gold: #38BDF8;
-  --gold-light: #7DD3FC;
-  --gold-dark: #0EA5E9;
-  --gold-muted: rgba(56, 189, 248, 0.12);
-  --gold-glow: rgba(56, 189, 248, 0.15);
-  
-  --rose: #38BDF8;
-  --rose-light: #7DD3FC;
-  --rose-dark: #0EA5E9;
-  
-  --glass-highlight: rgba(56, 189, 248, 0.04);
-}
 
 /* ========================================
    Base Layer — Refined Foundation
@@ -759,31 +467,15 @@
     color: #ffffff;
   }
 
-  .theme-light-fury ::selection,
-  [data-theme="light-fury"] ::selection,
   .dark-fury-pink ::selection,
   [data-theme="dark-fury-pink"] ::selection {
     background: rgba(56, 189, 248, 0.25);
     color: #ffffff;
   }
 
-  .theme-light-fury ::-moz-selection,
-  [data-theme="light-fury"] ::-moz-selection,
   .dark-fury-pink ::-moz-selection,
   [data-theme="dark-fury-pink"] ::-moz-selection {
     background: rgba(56, 189, 248, 0.25);
-    color: #ffffff;
-  }
-
-  .theme-light-fury-male ::selection,
-  [data-theme="light-fury-male"] ::selection {
-    background: rgba(8, 145, 178, 0.28);
-    color: #ffffff;
-  }
-
-  .theme-light-fury-male ::-moz-selection,
-  [data-theme="light-fury-male"] ::-moz-selection {
-    background: rgba(8, 145, 178, 0.28);
     color: #ffffff;
   }
 
@@ -820,15 +512,11 @@
   background-clip: padding-box;
 }
 
-.theme-light-fury ::-webkit-scrollbar-thumb,
-[data-theme="light-fury"] ::-webkit-scrollbar-thumb,
 .dark-fury-pink ::-webkit-scrollbar-thumb,
 [data-theme="dark-fury-pink"] ::-webkit-scrollbar-thumb {
   background: rgba(56, 189, 248, 0.15);
 }
 
-.theme-light-fury ::-webkit-scrollbar-thumb:hover,
-[data-theme="light-fury"] ::-webkit-scrollbar-thumb:hover,
 .dark-fury-pink ::-webkit-scrollbar-thumb:hover,
 [data-theme="dark-fury-pink"] ::-webkit-scrollbar-thumb:hover {
   background: rgba(56, 189, 248, 0.25);
@@ -839,27 +527,11 @@
   scrollbar-color: rgba(115, 255, 0, 0.10) transparent;
 }
 
-.theme-light-fury *,
-[data-theme="light-fury"] *,
 .dark-fury-pink *,
 [data-theme="dark-fury-pink"] * {
   scrollbar-color: rgba(56, 189, 248, 0.15) transparent;
 }
 
-.theme-light-fury-male ::-webkit-scrollbar-thumb,
-[data-theme="light-fury-male"] ::-webkit-scrollbar-thumb {
-  background: rgba(8, 145, 178, 0.18);
-}
-
-.theme-light-fury-male ::-webkit-scrollbar-thumb:hover,
-[data-theme="light-fury-male"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(8, 145, 178, 0.28);
-}
-
-.theme-light-fury-male *,
-[data-theme="light-fury-male"] * {
-  scrollbar-color: rgba(8, 145, 178, 0.18) transparent;
-}
 
 /* Dark Female Division scrollbar */
 [data-theme="dark-female"] ::-webkit-scrollbar-thumb {
@@ -1045,72 +717,11 @@ html {
   border-color: rgba(56, 189, 248, 0.18);
 }
 
-/* Light mode - subtle white overlay */
-.light .glass-clear {
-  background: rgba(255, 255, 255, 0.45);
-  border-color: rgba(148, 163, 184, 0.18);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.60);
-}
-
-.light .glass-clear::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.30) 0%, transparent 50%);
-}
-
-.light .glass-clear:hover {
-  background: rgba(255, 255, 255, 0.55);
-  border-color: rgba(148, 163, 184, 0.25);
-}
-
-/* Light mode female - blue tint */
-.light[data-theme="light-female"] .glass-clear {
-  border-color: rgba(56, 189, 248, 0.12);
-}
-
-.light[data-theme="light-female"] .glass-clear::before {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.06) 0%, transparent 50%);
-}
-
-/* Light mode male - green tint */
-.light[data-theme="light-male"] .glass-clear {
-  border-color: rgba(95, 212, 0, 0.12);
-}
-
-.light[data-theme="light-male"] .glass-clear::before {
-  background: linear-gradient(180deg, rgba(95, 212, 0, 0.06) 0%, transparent 50%);
-}
 
 /* ═══════════════════════════════════════════
    Light Mode Glass Override - More Opaque
    ═══════════════════════════════════════════ */
 
-/* Light mode - solid white backgrounds for better visibility */
-.light .glass,
-.light .glass-subtle,
-.light .glass-heavy {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(148, 163, 184, 0.20);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.light .glass:hover,
-.light .glass-subtle:hover {
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(148, 163, 184, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.90);
-}
-
-.light .glass-heavy {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-/* Light mode inner-light adjustment */
-.light .inner-light::before {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, transparent 35%);
-}
 
 /* ========================================
    🐉 Dragon Scale Pattern Background
@@ -1218,28 +829,6 @@ html {
   border-color: rgba(56, 189, 248, 0.18);
 }
 
-/* ── Light Fury Premium Card (Light Mode) - Apple Clean Style ── */
-.theme-light-fury .card-gold,
-[data-theme="light-fury"] .card-gold {
-  background: rgba(255, 255, 255, 0.98);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.theme-light-fury .card-gold::before,
-[data-theme="light-fury"] .card-gold::before {
-  display: none;
-}
-
-.theme-light-fury .card-gold:hover,
-[data-theme="light-fury"] .card-gold:hover {
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.06),
-    0 8px 24px rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.10);
-}
 
 /* ── Pink Premium Card (for female division in dark mode) ── */
 .card-pink {
@@ -1262,103 +851,6 @@ html {
   border-color: rgba(56, 189, 248, 0.18);
 }
 
-/* ── Light Fury Card (Female Division - Light Mode) - Apple Clean Style ── */
-.theme-light-fury .card-pink,
-[data-theme="light-fury"] .card-pink,
-.light[data-theme="light-female"] .card-pink {
-  background: rgba(255, 255, 255, 0.98);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.03);
-  border-radius: var(--radius-lg);
-}
-
-.theme-light-fury .card-pink::before,
-[data-theme="light-fury"] .card-pink::before,
-.light[data-theme="light-female"] .card-pink::before {
-  display: none;
-}
-
-.theme-light-fury .card-pink:hover,
-[data-theme="light-fury"] .card-pink:hover,
-.light[data-theme="light-female"] .card-pink:hover {
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.06),
-    0 8px 24px rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.10);
-}
-
-/* ── Light Mode Female - card-gold also gets clean treatment ── */
-.theme-light-fury .card-gold,
-[data-theme="light-fury"] .card-gold,
-.light[data-theme="light-female"] .card-gold {
-  background: rgba(255, 255, 255, 0.98);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.theme-light-fury .card-gold:hover,
-[data-theme="light-fury"] .card-gold:hover,
-.light[data-theme="light-female"] .card-gold:hover {
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.06),
-    0 8px 24px rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.10);
-}
-
-/* ── Light Fury Male Premium Card (Male Division - Light Mode with Cyan) ── */
-.theme-light-fury-male .card-gold,
-[data-theme="light-fury-male"] .card-gold {
-  background:
-    linear-gradient(145deg,
-      rgba(8, 145, 178, 0.08) 0%,
-      rgba(255, 255, 255, 0.92) 35%,
-      rgba(8, 145, 178, 0.02) 100%);
-  border: 0.5px solid rgba(148, 163, 184, 0.22);
-  border-bottom: 1px solid rgba(8, 145, 178, 0.18);
-  box-shadow:
-    var(--depth-2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 0 40px rgba(8, 145, 178, 0.05);
-}
-
-.theme-light-fury-male .card-gold::before,
-[data-theme="light-fury-male"] .card-gold::before {
-  background: linear-gradient(180deg, rgba(8, 145, 178, 0.12) 0%, transparent 45%);
-}
-
-.theme-light-fury-male .card-gold:hover,
-[data-theme="light-fury-male"] .card-gold:hover {
-  box-shadow:
-    var(--depth-3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    0 0 60px rgba(8, 145, 178, 0.08);
-  border-color: rgba(8, 145, 178, 0.25);
-  border-bottom-color: rgba(8, 145, 178, 0.30);
-}
-
-.theme-light-fury-male .card-pink,
-[data-theme="light-fury-male"] .card-pink {
-  background:
-    linear-gradient(145deg,
-      rgba(8, 145, 178, 0.08) 0%,
-      rgba(255, 255, 255, 0.92) 35%,
-      rgba(8, 145, 178, 0.02) 100%);
-  border: 0.5px solid rgba(148, 163, 184, 0.22);
-  border-bottom: 1px solid rgba(8, 145, 178, 0.18);
-  box-shadow:
-    var(--depth-2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 0 40px rgba(8, 145, 178, 0.05);
-}
-
-.theme-light-fury-male .card-pink::before,
-[data-theme="light-fury-male"] .card-pink::before {
-  background: linear-gradient(180deg, rgba(8, 145, 178, 0.12) 0%, transparent 45%);
-}
 
 /* ========================================
    Premium Buttons — Theme-aware
@@ -1445,63 +937,6 @@ html {
     inset 0 2px 4px rgba(0, 0, 0, 0.10);
 }
 
-/* Light Fury CTA (Light Mode - Pink) */
-.theme-light-fury .btn-gold,
-[data-theme="light-fury"] .btn-gold {
-  background: linear-gradient(180deg, #38BDF8 0%, #0EA5E9 100%);
-  color: #0a0f0d;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.10),
-    0 2px 12px rgba(56, 189, 248, 0.25),
-    0 0 24px rgba(56, 189, 248, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.theme-light-fury .btn-gold:hover,
-[data-theme="light-fury"] .btn-gold:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.12),
-    0 4px 20px rgba(56, 189, 248, 0.35),
-    0 0 40px rgba(56, 189, 248, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.theme-light-fury .btn-gold:active,
-[data-theme="light-fury"] .btn-gold:active {
-  box-shadow:
-    0 0.5px 1px rgba(0, 0, 0, 0.10),
-    0 1px 8px rgba(56, 189, 248, 0.20),
-    inset 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-/* Light Fury Male CTA (Light Mode - Cyan/Teal) */
-.theme-light-fury-male .btn-gold,
-[data-theme="light-fury-male"] .btn-gold {
-  background: linear-gradient(180deg, #0891B2 0%, #0E7490 100%);
-  color: #ffffff;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.12),
-    0 2px 14px rgba(8, 145, 178, 0.30),
-    0 0 28px rgba(8, 145, 178, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.30);
-}
-
-.theme-light-fury-male .btn-gold:hover,
-[data-theme="light-fury-male"] .btn-gold:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.14),
-    0 4px 22px rgba(8, 145, 178, 0.40),
-    0 0 44px rgba(8, 145, 178, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.30);
-}
-
-.theme-light-fury-male .btn-gold:active,
-[data-theme="light-fury-male"] .btn-gold:active {
-  box-shadow:
-    0 0.5px 1px rgba(0, 0, 0, 0.12),
-    0 1px 10px rgba(8, 145, 178, 0.25),
-    inset 0 2px 4px rgba(0, 0, 0, 0.10);
-}
 
 /* Pink CTA (Pink Neon) */
 .btn-pink {
@@ -1679,21 +1114,6 @@ html {
   background-clip: text;
 }
 
-.theme-light-fury .gradient-gold,
-[data-theme="light-fury"] .gradient-gold {
-  background: linear-gradient(180deg, #1e293b 10%, #38BDF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.theme-light-fury-male .gradient-gold,
-[data-theme="light-fury-male"] .gradient-gold {
-  background: linear-gradient(180deg, #0f172a 10%, #0891B2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 
 .gradient-pink {
   background: linear-gradient(180deg, #FFFFFF 10%, #38BDF8 100%);
@@ -1704,13 +1124,6 @@ html {
 
 .dark-fury-pink .gradient-pink,
 [data-theme="dark-fury-pink"] .gradient-pink,
-.theme-light-fury .gradient-pink,
-[data-theme="light-fury"] .gradient-pink {
-  background: linear-gradient(180deg, #FFFFFF 10%, #38BDF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 
 .gradient-white {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 100%);
@@ -1719,21 +1132,6 @@ html {
   background-clip: text;
 }
 
-.theme-light-fury .gradient-white,
-[data-theme="light-fury"] .gradient-white {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(30, 41, 59, 0.55) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.theme-light-fury-male .gradient-white,
-[data-theme="light-fury-male"] .gradient-white {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.55) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 
 /* ========================================
    Avatar Ring — Gradient Border
@@ -1774,39 +1172,6 @@ html {
     0 4px 12px rgba(0, 0, 0, 0.30);
 }
 
-.theme-light-fury .avatar-ring-gold,
-[data-theme="light-fury"] .avatar-ring-gold {
-  background: linear-gradient(145deg, #38BDF8, #0EA5E9, #7DD3FC, #38BDF8);
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.25),
-    0 0 40px rgba(56, 189, 248, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.10);
-}
-
-.theme-light-fury .avatar-ring-gold:hover,
-[data-theme="light-fury"] .avatar-ring-gold:hover {
-  box-shadow:
-    0 0 32px rgba(56, 189, 248, 0.35),
-    0 0 60px rgba(56, 189, 248, 0.18),
-    0 3px 8px rgba(0, 0, 0, 0.12);
-}
-
-.theme-light-fury-male .avatar-ring-gold,
-[data-theme="light-fury-male"] .avatar-ring-gold {
-  background: linear-gradient(145deg, #0891B2, #0E7490, #22D3EE, #0891B2);
-  box-shadow:
-    0 0 20px rgba(8, 145, 178, 0.28),
-    0 0 40px rgba(8, 145, 178, 0.14),
-    0 2px 6px rgba(0, 0, 0, 0.12);
-}
-
-.theme-light-fury-male .avatar-ring-gold:hover,
-[data-theme="light-fury-male"] .avatar-ring-gold:hover {
-  box-shadow:
-    0 0 32px rgba(8, 145, 178, 0.40),
-    0 0 60px rgba(8, 145, 178, 0.20),
-    0 3px 8px rgba(0, 0, 0, 0.14);
-}
 
 .avatar-ring-pink {
   padding: 2.5px;
@@ -1852,17 +1217,11 @@ html {
   pointer-events: none;
 }
 
-.theme-light-fury .inner-light::before,
-[data-theme="light-fury"] .inner-light::before,
 .dark-fury-pink .inner-light::before,
 [data-theme="dark-fury-pink"] .inner-light::before {
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.10) 0%, transparent 35%);
 }
 
-.theme-light-fury-male .inner-light::before,
-[data-theme="light-fury-male"] .inner-light::before {
-  background: linear-gradient(180deg, rgba(8, 145, 178, 0.12) 0%, transparent 35%);
-}
 
 /* ========================================
    Depth Shadow Utilities
@@ -1994,8 +1353,6 @@ html {
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
-.theme-light-fury .bracket-line,
-[data-theme="light-fury"] .bracket-line,
 .dark-fury-pink .bracket-line,
 [data-theme="dark-fury-pink"] .bracket-line {
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.03) 100%);
@@ -2009,8 +1366,6 @@ html {
     drop-shadow(0 4px 8px rgba(0, 0, 0, 0.30));
 }
 
-.theme-light-fury .trophy-glow,
-[data-theme="light-fury"] .trophy-glow,
 .dark-fury-pink .trophy-glow,
 [data-theme="dark-fury-pink"] .trophy-glow {
   filter:
@@ -2026,8 +1381,6 @@ html {
     drop-shadow(0 4px 12px rgba(0, 0, 0, 0.40));
 }
 
-.theme-light-fury .champion-crown,
-[data-theme="light-fury"] .champion-crown,
 .dark-fury-pink .champion-crown,
 [data-theme="dark-fury-pink"] .champion-crown {
   filter:
@@ -2135,85 +1488,6 @@ html {
    Bracket Match Cards - Light Mode
    ======================================== */
 
-.light .bracket-match-card,
-[data-theme="light-male"] .bracket-match-card,
-[data-theme="light-female"] .bracket-match-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(250, 250, 252, 0.98));
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.light .bracket-match-card:hover,
-[data-theme="light-male"] .bracket-match-card:hover,
-[data-theme="light-female"] .bracket-match-card:hover {
-  border-color: rgba(148, 163, 184, 0.35);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-}
-
-/* Light Male - Green Accent */
-[data-theme="light-male"] .bracket-match-card {
-  border-color: rgba(95, 212, 0, 0.20);
-}
-
-[data-theme="light-male"] .bracket-match-card:hover {
-  border-color: rgba(95, 212, 0, 0.35);
-}
-
-/* Light Female - Pink Accent */
-[data-theme="light-female"] .bracket-match-card {
-  border-color: rgba(212, 201, 31, 0.20);
-}
-
-[data-theme="light-female"] .bracket-match-card:hover {
-  border-color: rgba(212, 201, 31, 0.35);
-}
-
-/* Light Mode Grand Final */
-.light .bracket-grand-final,
-[data-theme="light-male"] .bracket-grand-final,
-[data-theme="light-female"] .bracket-grand-final {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 248, 255, 0.98));
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.10), 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.light .bracket-grand-final:hover,
-[data-theme="light-male"] .bracket-grand-final:hover,
-[data-theme="light-female"] .bracket-grand-final:hover {
-  border-color: rgba(139, 92, 246, 0.40);
-  box-shadow: 0 6px 32px rgba(139, 92, 246, 0.15), 0 4px 20px rgba(0, 0, 0, 0.12);
-}
-
-/* Light Mode Live Match */
-.light .bracket-match-live,
-[data-theme="light-male"] .bracket-match-live,
-[data-theme="light-female"] .bracket-match-live {
-  background: linear-gradient(180deg, rgba(255, 252, 252, 0.98), rgba(255, 248, 248, 0.98));
-  border: 1px solid rgba(239, 68, 68, 0.30);
-  box-shadow: 0 4px 24px rgba(239, 68, 68, 0.10), 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Light Mode Winner Row */
-.light .bracket-winner-row,
-[data-theme="light-male"] .bracket-winner-row,
-[data-theme="light-female"] .bracket-winner-row {
-  background: rgba(96, 165, 250, 0.08);
-}
-
-/* Light Mode Bracket Connectors */
-.light .bracket-connector-neon,
-[data-theme="light-male"] .bracket-connector-neon,
-[data-theme="light-female"] .bracket-connector-neon {
-  background: rgba(148, 163, 184, 0.30);
-  box-shadow: none;
-}
-
-.light .bracket-connector-neon-v,
-[data-theme="light-male"] .bracket-connector-neon-v,
-[data-theme="light-female"] .bracket-connector-neon-v {
-  background: rgba(148, 163, 184, 0.25);
-  box-shadow: none;
-}
 
 /* ========================================
    Bracket Match Cards - Dark Female (Pink)
@@ -2245,82 +1519,9 @@ html {
 }
 
 /* ========================================
-   Bracket Text Colors - Light Mode Fix
-   Force dark text in light mode for readability
+   Bracket Text Colors
    ======================================== */
 
-.light .bracket-match-card,
-[data-theme="light-male"] .bracket-match-card,
-[data-theme="light-female"] .bracket-match-card {
-  color: rgba(15, 23, 42, 0.90);
-}
-
-/* Override white/transparent text colors for light mode */
-.light .bracket-match-card [style*="rgba(255, 255, 255"],
-[data-theme="light-male"] .bracket-match-card [style*="rgba(255, 255, 255"],
-[data-theme="light-female"] .bracket-match-card [style*="rgba(255, 255, 255"] {
-  color: rgba(51, 65, 85, 0.80) !important;
-}
-
-.light .bracket-match-card [style*="rgba(255,255,255"],
-[data-theme="light-male"] .bracket-match-card [style*="rgba(255,255,255"],
-[data-theme="light-female"] .bracket-match-card [style*="rgba(255,255,255"] {
-  color: rgba(51, 65, 85, 0.80) !important;
-}
-
-/* Bracket card text override for light mode */
-.light .text-white\/40,
-.light .text-white\/30,
-.light .text-white\/20,
-[data-theme="light-male"] .text-white\/40,
-[data-theme="light-male"] .text-white\/30,
-[data-theme="light-male"] .text-white\/20,
-[data-theme="light-female"] .text-white\/40,
-[data-theme="light-female"] .text-white\/30,
-[data-theme="light-female"] .text-white\/20 {
-  color: rgba(71, 85, 105, 0.70) !important;
-}
-
-.light .text-white\/70,
-.light .text-white\/60,
-.light .text-white\/50,
-[data-theme="light-male"] .text-white\/70,
-[data-theme="light-male"] .text-white\/60,
-[data-theme="light-male"] .text-white\/50,
-[data-theme="light-female"] .text-white\/70,
-[data-theme="light-female"] .text-white\/60,
-[data-theme="light-female"] .text-white\/50 {
-  color: rgba(51, 65, 85, 0.85) !important;
-}
-
-.light .text-white\/90,
-.light .text-white\/95,
-[data-theme="light-male"] .text-white\/90,
-[data-theme="light-male"] .text-white\/95,
-[data-theme="light-female"] .text-white\/90,
-[data-theme="light-female"] .text-white\/95 {
-  color: rgba(15, 23, 42, 0.95) !important;
-}
-
-/* Bracket section headers - dark text for light mode */
-.light .bracket-match-card .text-white\/35,
-.light .bracket-match-card .text-white\/25,
-.light .bracket-match-card .text-white\/15,
-[data-theme="light-male"] .bracket-match-card .text-white\/35,
-[data-theme="light-male"] .bracket-match-card .text-white\/25,
-[data-theme="light-male"] .bracket-match-card .text-white\/15,
-[data-theme="light-female"] .bracket-match-card .text-white\/35,
-[data-theme="light-female"] .bracket-match-card .text-white\/25,
-[data-theme="light-female"] .bracket-match-card .text-white\/15 {
-  color: rgba(100, 116, 139, 0.60) !important;
-}
-
-/* Bracket cosmic bg - lighter background for light mode */
-.light .bracket-cosmic-bg,
-[data-theme="light-male"] .bracket-cosmic-bg,
-[data-theme="light-female"] .bracket-cosmic-bg {
-  background: transparent;
-}
 
 /* ========================================
    Keyframe Animations
@@ -2379,8 +1580,6 @@ html {
   color: transparent;
 }
 
-.theme-light-fury .shimmer-gold,
-[data-theme="light-fury"] .shimmer-gold,
 .dark-fury-pink .shimmer-gold,
 [data-theme="dark-fury-pink"] .shimmer-gold {
   background-image: linear-gradient(
@@ -2405,8 +1604,6 @@ html {
   color: transparent;
 }
 
-.theme-light-fury .shimmer-pink,
-[data-theme="light-fury"] .shimmer-pink,
 .dark-fury-pink .shimmer-pink,
 [data-theme="dark-fury-pink"] .shimmer-pink {
   background-image: linear-gradient(
@@ -2503,10 +1700,6 @@ html {
   animation: dragon-eye-pulse 2.5s ease-in-out infinite;
 }
 
-.theme-light-fury .dragon-eye-glow,
-[data-theme="light-fury"] .dragon-eye-glow {
-  animation-name: dragon-eye-pulse-light;
-}
 
 @keyframes dragon-eye-pulse-light {
   0%, 100% {
@@ -2569,15 +1762,6 @@ html {
   border-radius: 8px;
 }
 
-.theme-light-fury .skeleton,
-[data-theme="light-fury"] .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(56, 189, 248, 0.04) 0%,
-    rgba(56, 189, 248, 0.08) 40%,
-    rgba(56, 189, 248, 0.04) 80%
-  );
-}
 
 /* ========================================
    Text Utility Classes
@@ -2627,16 +1811,6 @@ html {
   );
 }
 
-.theme-light-fury .divider,
-[data-theme="light-fury"] .divider {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.10) 20%,
-    rgba(56, 189, 248, 0.10) 80%,
-    transparent 100%
-  );
-}
 
 /* Glow backgrounds — theme-aware */
 .glow-gold {
@@ -2647,14 +1821,6 @@ html {
   );
 }
 
-.theme-light-fury .glow-gold,
-[data-theme="light-fury"] .glow-gold {
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(56, 189, 248, 0.10) 0%,
-    transparent 60%
-  );
-}
 
 .glow-pink {
   background: radial-gradient(
@@ -2703,15 +1869,6 @@ html {
   background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
 }
 
-.theme-light-fury .hero-glow-bleed.is-male,
-[data-theme="light-fury"] .hero-glow-bleed.is-male {
-  background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
-}
-
-.theme-light-fury .hero-glow-bleed.is-female,
-[data-theme="light-fury"] .hero-glow-bleed.is-female {
-  background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
-}
 
 .hero-gradient-border {
   position: relative;
@@ -3134,14 +2291,6 @@ html {
   -webkit-backdrop-filter: blur(12px);
 }
 
-.theme-light-fury .hero-countdown-digit,
-[data-theme="light-fury"] .hero-countdown-digit {
-  background: rgba(56, 189, 248, 0.06);
-  border: 0.5px solid rgba(56, 189, 248, 0.12);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80);
-}
 
 .hero-countdown-digit .digit-value {
   font-size: 22px;
@@ -3188,11 +2337,6 @@ html {
   overflow: hidden;
 }
 
-.theme-light-fury .hero-info-bar,
-[data-theme="light-fury"] .hero-info-bar {
-  background: rgba(255, 255, 255, 0.70);
-  border: 0.5px solid rgba(56, 189, 248, 0.12);
-}
 
 /* Each info block — icon + text column */
 .hero-info-bar .info-block {
@@ -3220,12 +2364,6 @@ html {
   color: #FFD60A;
 }
 
-.theme-light-fury .hero-info-bar .info-block-icon.icon-gold,
-[data-theme="light-fury"] .hero-info-bar .info-block-icon.icon-gold {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(125, 211, 252, 0.05));
-  border: 0.5px solid rgba(56, 189, 248, 0.15);
-  color: #38BDF8;
-}
 
 .hero-info-bar .info-block-icon.icon-pink {
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(255, 102, 255, 0.05));
@@ -3239,13 +2377,6 @@ html {
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
 }
 
-/* Light Fury theme - Pink Neon for female */
-.theme-light-fury .hero-info-bar .info-block-icon.icon-pink,
-[data-theme="light-fury"] .hero-info-bar .info-block-icon.icon-pink {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(255, 102, 255, 0.05));
-  border: 0.5px solid rgba(56, 189, 248, 0.15);
-  color: #38BDF8;
-}
 
 .hero-info-bar .info-block-content {
   display: flex;
@@ -3274,10 +2405,6 @@ html {
   line-height: 1;
 }
 
-.theme-light-fury .hero-info-bar .info-block-label,
-[data-theme="light-fury"] .hero-info-bar .info-block-label {
-  color: rgba(30, 41, 59, 0.50);
-}
 
 /* Vertical divider between blocks */
 .hero-info-bar .info-block-divider {
@@ -3293,16 +2420,6 @@ html {
   );
 }
 
-.theme-light-fury .hero-info-bar .info-block-divider,
-[data-theme="light-fury"] .hero-info-bar .info-block-divider {
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.15) 30%,
-    rgba(56, 189, 248, 0.15) 70%,
-    transparent 100%
-  );
-}
 
 /* ── Hero Shimmer Button (gradient sweep on hover) ── */
 .hero-shimmer-btn {
@@ -3388,17 +2505,6 @@ html {
   border-color: rgba(255, 255, 255, 0.09);
 }
 
-.theme-light-fury .hero-info-chip,
-[data-theme="light-fury"] .hero-info-chip {
-  background: rgba(56, 189, 248, 0.06);
-  border: 0.5px solid rgba(56, 189, 248, 0.12);
-}
-
-.theme-light-fury .hero-info-chip:hover,
-[data-theme="light-fury"] .hero-info-chip:hover {
-  background: rgba(56, 189, 248, 0.10);
-  border-color: rgba(56, 189, 248, 0.18);
-}
 
 .hero-info-chip .chip-icon {
   opacity: 0.5;
@@ -3430,16 +2536,6 @@ html {
   box-shadow: var(--ios-shadow-md);
 }
 
-.theme-light-fury .hero-result-card,
-[data-theme="light-fury"] .hero-result-card {
-  background: rgba(255, 255, 255, 0.70);
-  border: 0.5px solid rgba(56, 189, 248, 0.12);
-}
-
-.theme-light-fury .hero-result-card:hover,
-[data-theme="light-fury"] .hero-result-card:hover {
-  border-color: rgba(56, 189, 248, 0.20);
-}
 
 .hero-result-card .result-glow {
   position: absolute;
@@ -3668,508 +2764,6 @@ html {
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-/* ========================================
-   🐉 THEME TOGGLE COMPONENT
-   Premium iOS-style dragon theme toggle
-   ======================================== */
-
-.theme-toggle-container {
-  position: relative;
-  width: 64px;
-  height: 34px;
-  border-radius: 17px;
-  cursor: pointer;
-  transition: all var(--theme-transition);
-}
-
-.theme-toggle-track {
-  position: absolute;
-  inset: 0;
-  border-radius: 17px;
-  background: linear-gradient(135deg, #0a0f0d 0%, #1a2420 100%);
-  border: 1px solid rgba(115, 255, 0, 0.15);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: all var(--theme-transition);
-  overflow: hidden;
-}
-
-/* Night Fury track (dark) */
-.theme-toggle-track::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(115, 255, 0, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(95, 212, 0, 0.05) 0%, transparent 40%);
-  opacity: 1;
-  transition: opacity var(--theme-transition);
-}
-
-/* Light Fury track (light) */
-.theme-toggle-light .theme-toggle-track,
-[data-theme="light-fury"] .theme-toggle-track {
-  background: linear-gradient(135deg, #fafafa 0%, #eef2f7 100%);
-  border-color: rgba(56, 189, 248, 0.20);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.theme-toggle-light .theme-toggle-track::before,
-[data-theme="light-fury"] .theme-toggle-track::before {
-  background: 
-    radial-gradient(circle at 80% 30%, rgba(56, 189, 248, 0.10) 0%, transparent 50%),
-    radial-gradient(circle at 20% 70%, rgba(125, 211, 252, 0.08) 0%, transparent 40%);
-}
-
-/* Toggle thumb */
-.theme-toggle-thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #73FF00 0%, #5FD400 100%);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(115, 255, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: all var(--theme-transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.theme-toggle-light .theme-toggle-thumb,
-[data-theme="light-fury"] .theme-toggle-thumb {
-  left: calc(100% - 31px);
-  background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 20px rgba(56, 189, 248, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-/* Dragon icon inside thumb */
-.theme-toggle-icon {
-  width: 16px;
-  height: 16px;
-  transition: all var(--theme-transition);
-}
-
-/* Night Fury icon (dark mode) */
-.theme-toggle-icon-night {
-  color: rgba(10, 15, 13, 0.8);
-  filter: drop-shadow(0 0 4px rgba(115, 255, 0, 0.5));
-}
-
-/* Light Fury icon (light mode) */
-.theme-toggle-icon-light {
-  color: #38BDF8;
-  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
-}
-
-/* ========================================
-   🤍 LIGHT FURY COMPREHENSIVE OVERRIDES
-   Complete light theme styling for all UI elements
-   ======================================== */
-
-.theme-light-fury,
-[data-theme="light-fury"] {
-
-  /* ── Text Color Overrides (text-white/XX → slate/XX) ── */
-  --lf-text-primary: rgba(30, 41, 59, 0.95);
-  --lf-text-secondary: rgba(30, 41, 59, 0.70);
-  --lf-text-tertiary: rgba(30, 41, 59, 0.50);
-  --lf-text-quaternary: rgba(30, 41, 59, 0.35);
-  --lf-text-muted: rgba(30, 41, 59, 0.25);
-}
-
-/* ── Hero Card Text Overrides ── */
-.theme-light-fury .hero-status-pill,
-[data-theme="light-fury"] .hero-status-pill {
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.06);
-}
-
-/* ── Force override text-white classes for Light Fury ── */
-.theme-light-fury .text-white,
-[data-theme="light-fury"] .text-white {
-  color: rgba(30, 41, 59, 0.95) !important;
-}
-
-.theme-light-fury .text-white\/90,
-[data-theme="light-fury"] .text-white\/90 {
-  color: rgba(30, 41, 59, 0.90) !important;
-}
-
-.theme-light-fury .text-white\/80,
-[data-theme="light-fury"] .text-white\/80 {
-  color: rgba(30, 41, 59, 0.80) !important;
-}
-
-.theme-light-fury .text-white\/70,
-[data-theme="light-fury"] .text-white\/70 {
-  color: rgba(30, 41, 59, 0.70) !important;
-}
-
-.theme-light-fury .text-white\/60,
-[data-theme="light-fury"] .text-white\/60 {
-  color: rgba(30, 41, 59, 0.60) !important;
-}
-
-.theme-light-fury .text-white\/50,
-[data-theme="light-fury"] .text-white\/50 {
-  color: rgba(30, 41, 59, 0.50) !important;
-}
-
-.theme-light-fury .text-white\/45,
-[data-theme="light-fury"] .text-white\/45 {
-  color: rgba(30, 41, 59, 0.45) !important;
-}
-
-.theme-light-fury .text-white\/40,
-[data-theme="light-fury"] .text-white\/40 {
-  color: rgba(30, 41, 59, 0.40) !important;
-}
-
-.theme-light-fury .text-white\/35,
-[data-theme="light-fury"] .text-white\/35 {
-  color: rgba(30, 41, 59, 0.35) !important;
-}
-
-.theme-light-fury .text-white\/30,
-[data-theme="light-fury"] .text-white\/30 {
-  color: rgba(30, 41, 59, 0.30) !important;
-}
-
-.theme-light-fury .text-white\/25,
-[data-theme="light-fury"] .text-white\/25 {
-  color: rgba(30, 41, 59, 0.25) !important;
-}
-
-.theme-light-fury .text-white\/20,
-[data-theme="light-fury"] .text-white\/20 {
-  color: rgba(30, 41, 59, 0.20) !important;
-}
-
-.theme-light-fury .text-white\/15,
-[data-theme="light-fury"] .text-white\/15 {
-  color: rgba(30, 41, 59, 0.15) !important;
-}
-
-.theme-light-fury .text-white\/10,
-[data-theme="light-fury"] .text-white\/10 {
-  color: rgba(30, 41, 59, 0.10) !important;
-}
-
-/* ── Hero Countdown Digit Override for Light Fury ── */
-.theme-light-fury .hero-countdown-digit .digit-label,
-[data-theme="light-fury"] .hero-countdown-digit .digit-label {
-  color: rgba(30, 41, 59, 0.50);
-}
-
-/* ── Hero Result Card Backgrounds for Light Fury ── */
-.theme-light-fury .hero-result-card,
-[data-theme="light-fury"] .hero-result-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 250, 250, 0.90) 100%);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-/* ── Result Card Glow for Light Fury ── */
-.theme-light-fury .hero-result-card .result-glow,
-[data-theme="light-fury"] .hero-result-card .result-glow {
-  opacity: 0.8;
-}
-
-/* ── Glass Cards for Light Fury ── */
-.theme-light-fury .glass,
-[data-theme="light-fury"] .glass {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-.theme-light-fury .glass:hover,
-[data-theme="light-fury"] .glass:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(56, 189, 248, 0.20);
-}
-
-.theme-light-fury .glass-subtle,
-[data-theme="light-fury"] .glass-subtle {
-  background: rgba(255, 255, 255, 0.70);
-  border-color: rgba(56, 189, 248, 0.12);
-}
-
-/* Light Male Theme - Glass styles */
-[data-theme="light-male"] .glass,
-.light .glass {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(115, 255, 0, 0.15);
-}
-
-[data-theme="light-male"] .glass:hover,
-.light .glass:hover {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(115, 255, 0, 0.20);
-}
-
-[data-theme="light-male"] .glass-subtle,
-.light .glass-subtle {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(148, 163, 184, 0.20);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light-male"] .glass-subtle:hover,
-.light .glass-subtle:hover {
-  background: rgba(255, 255, 255, 0.94);
-  border-color: rgba(148, 163, 184, 0.28);
-}
-
-/* Light Female Theme - Glass styles */
-[data-theme="light-female"] .glass {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-[data-theme="light-female"] .glass:hover {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(56, 189, 248, 0.20);
-}
-
-[data-theme="light-female"] .glass-subtle {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(148, 163, 184, 0.20);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light-female"] .glass-subtle:hover {
-  background: rgba(255, 255, 255, 0.94);
-  border-color: rgba(148, 163, 184, 0.28);
-}
-
-/* Light Fury Male - Glass styles */
-.theme-light-fury-male .glass,
-[data-theme="light-fury-male"] .glass {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(115, 255, 0, 0.15);
-}
-
-.theme-light-fury-male .glass:hover,
-[data-theme="light-fury-male"] .glass:hover {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(115, 255, 0, 0.20);
-}
-
-.theme-light-fury-male .glass-subtle,
-[data-theme="light-fury-male"] .glass-subtle {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(115, 255, 0, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.theme-light-fury-male .glass-subtle:hover,
-[data-theme="light-fury-male"] .glass-subtle:hover {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(115, 255, 0, 0.18);
-}
-
-/* Light Fury Pink - Glass styles */
-.dark-fury-pink.light .glass,
-.light .dark-fury-pink .glass {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-.dark-fury-pink.light .glass:hover,
-.light .dark-fury-pink .glass:hover {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(56, 189, 248, 0.20);
-}
-
-.dark-fury-pink.light .glass-subtle,
-.light .dark-fury-pink .glass-subtle {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(56, 189, 248, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.dark-fury-pink.light .glass-subtle:hover,
-.light .dark-fury-pink .glass-subtle:hover {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(56, 189, 248, 0.18);
-}
-
-.theme-light-fury .glass-heavy,
-[data-theme="light-fury"] .glass-heavy {
-  background: rgba(250, 250, 250, 0.98);
-  border-color: rgba(56, 189, 248, 0.18);
-}
-
-/* ── Card Gold/Pink for Light Fury ── */
-.theme-light-fury .card-gold,
-[data-theme="light-fury"] .card-gold {
-  background:
-    linear-gradient(145deg,
-      rgba(56, 189, 248, 0.10) 0%,
-      rgba(250, 250, 250, 0.95) 35%,
-      rgba(56, 189, 248, 0.05) 100%);
-  border-color: rgba(56, 189, 248, 0.20);
-  border-bottom-color: rgba(56, 189, 248, 0.35);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.90),
-    inset 0 0 32px rgba(56, 189, 248, 0.04);
-}
-
-.theme-light-fury .card-gold:hover,
-[data-theme="light-fury"] .card-gold:hover {
-  border-color: rgba(56, 189, 248, 0.30);
-  border-bottom-color: rgba(56, 189, 248, 0.45);
-}
-
-.theme-light-fury .card-pink,
-[data-theme="light-fury"] .card-pink {
-  background: linear-gradient(145deg, #FBF7F4 0%, #F5EBE0 50%, #F8F2EC 100%);
-  border-color: rgba(56, 189, 248, 0.25);
-  border-bottom-color: rgba(56, 189, 248, 0.35);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.90);
-}
-
-.theme-light-fury .card-pink:hover,
-[data-theme="light-fury"] .card-pink:hover {
-  border-color: rgba(56, 189, 248, 0.40);
-  border-bottom-color: rgba(56, 189, 248, 0.50);
-}
-
-/* ── Inner Light Override for Light Fury ── */
-.theme-light-fury .inner-light::before,
-[data-theme="light-fury"] .inner-light::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, transparent 35%);
-}
-
-/* ── Tournament Bracket Line for Light Fury ── */
-.theme-light-fury .bracket-line,
-[data-theme="light-fury"] .bracket-line {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.20) 0%, rgba(56, 189, 248, 0.05) 100%);
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.06);
-}
-
-/* ── Trophy Glow for Light Fury ── */
-.theme-light-fury .trophy-glow,
-[data-theme="light-fury"] .trophy-glow {
-  filter:
-    drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))
-    drop-shadow(0 0 40px rgba(56, 189, 248, 0.15))
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
-}
-
-.theme-light-fury .champion-crown,
-[data-theme="light-fury"] .champion-crown {
-  filter:
-    drop-shadow(0 0 28px rgba(56, 189, 248, 0.40))
-    drop-shadow(0 0 50px rgba(56, 189, 248, 0.20))
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
-}
-
-/* ── Button Overrides for Light Fury ── */
-.theme-light-fury .btn-ghost,
-[data-theme="light-fury"] .btn-ghost {
-  background: rgba(56, 189, 248, 0.08);
-  border-color: rgba(56, 189, 248, 0.15);
-  color: rgba(30, 41, 59, 0.90);
-}
-
-.theme-light-fury .btn-ghost:hover,
-[data-theme="light-fury"] .btn-ghost:hover {
-  background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.20);
-}
-
-/* ── Avatar Ring Overrides for Light Fury ── */
-.theme-light-fury .avatar-ring-gold,
-[data-theme="light-fury"] .avatar-ring-gold {
-  background: linear-gradient(145deg, #38BDF8, #0EA5E9, #7DD3FC, #38BDF8);
-  box-shadow:
-    0 0 24px rgba(56, 189, 248, 0.25),
-    0 0 48px rgba(56, 189, 248, 0.10),
-    0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.theme-light-fury .avatar-ring-gold:hover,
-[data-theme="light-fury"] .avatar-ring-gold:hover {
-  box-shadow:
-    0 0 32px rgba(56, 189, 248, 0.35),
-    0 0 60px rgba(56, 189, 248, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* ── Divider for Light Fury ── */
-.theme-light-fury .divider,
-[data-theme="light-fury"] .divider {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.15) 20%,
-    rgba(56, 189, 248, 0.15) 80%,
-    transparent 100%
-  );
-}
-
-/* ── Glow Gold/Pink for Light Fury ── */
-.theme-light-fury .glow-gold,
-[data-theme="light-fury"] .glow-gold {
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(56, 189, 248, 0.12) 0%,
-    transparent 60%
-  );
-}
-
-/* ── Club Avatar for Light Fury ── */
-.theme-light-fury .club-avatar,
-[data-theme="light-fury"] .club-avatar {
-  color: rgba(30, 41, 59, 0.90);
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
-}
-
-/* ── Hero Status Live for Light Fury ── */
-.theme-light-fury .hero-status-live,
-[data-theme="light-fury"] .hero-status-live {
-  background: rgba(48, 209, 88, 0.12);
-  border-color: rgba(48, 209, 88, 0.20);
-}
-
-.theme-light-fury .hero-status-registration,
-[data-theme="light-fury"] .hero-status-registration {
-  background: rgba(56, 189, 248, 0.10);
-  border-color: rgba(56, 189, 248, 0.18);
-}
-
-.theme-light-fury .hero-status-completed,
-[data-theme="light-fury"] .hero-status-completed {
-  background: rgba(167, 139, 250, 0.10);
-  border-color: rgba(167, 139, 250, 0.18);
-}
-
-.theme-light-fury .hero-status-setup,
-[data-theme="light-fury"] .hero-status-setup {
-  background: rgba(251, 146, 60, 0.10);
-  border-color: rgba(251, 146, 60, 0.18);
-}
-
-/* ── Force dark text on hero card backgrounds in Light Fury ── */
-.theme-light-fury .hero-card-mesh,
-[data-theme="light-fury"] .hero-card-mesh {
-  color: rgba(30, 41, 59, 0.95);
-}
-
-/* ── Force gradient backgrounds for result cards in Light Fury ── */
-.theme-light-fury .hero-result-card[style*="background"],
-[data-theme="light-fury"] .hero-result-card[style*="background"] {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 250, 250, 0.90) 100%) !important;
-}
 
 /* ========================================
    Mobile Performance Overrides (< 768px)
@@ -4431,102 +3025,9 @@ html {
 }
 
 /* ========================================
-   🤍 LIGHT FURY FEMALE DIVISION OVERRIDES
-   Light background with Pink Neon accent
-   ======================================== */
-
-/* Light Fury Female uses Pink Neon instead of Sky Blue */
-.theme-light-fury .is-female,
-[data-theme="light-fury"] .is-female {
-  /* Pink neon accent color */
-  --lf-accent: #38BDF8;
-  --lf-accent-rgb: 255, 0, 255;
-}
-
-/* ── Light Fury Card Pink Override - Soft Shell ── */
-.theme-light-fury .card-pink,
-[data-theme="light-fury"] .card-pink {
-  background: linear-gradient(145deg, #FBF7F4 0%, #F5EBE0 50%, #F8F2EC 100%);
-  border-color: rgba(56, 189, 248, 0.25);
-  border-bottom-color: rgba(56, 189, 248, 0.35);
-}
-
-.theme-light-fury .card-pink:hover,
-[data-theme="light-fury"] .card-pink:hover {
-  border-color: rgba(56, 189, 248, 0.40);
-  border-bottom-color: rgba(56, 189, 248, 0.50);
-}
-
-/* ── Light Fury Avatar Pink Override ── */
-.theme-light-fury .avatar-ring-pink,
-[data-theme="light-fury"] .avatar-ring-pink {
-  background: linear-gradient(145deg, #38BDF8, #0EA5E9, #7DD3FC, #38BDF8);
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.25),
-    0 0 40px rgba(56, 189, 248, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.10);
-}
-
-.theme-light-fury .avatar-ring-pink:hover,
-[data-theme="light-fury"] .avatar-ring-pink:hover {
-  box-shadow:
-    0 0 32px rgba(56, 189, 248, 0.35),
-    0 0 60px rgba(56, 189, 248, 0.18),
-    0 3px 8px rgba(0, 0, 0, 0.12);
-}
-
-/* ── Light Fury Button Pink Override ── */
-.theme-light-fury .btn-pink,
-[data-theme="light-fury"] .btn-pink {
-  background: linear-gradient(180deg, #38BDF8 0%, #0EA5E9 100%);
-  color: #ffffff;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.10),
-    0 2px 12px rgba(56, 189, 248, 0.25),
-    0 0 24px rgba(56, 189, 248, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.theme-light-fury .btn-pink:hover,
-[data-theme="light-fury"] .btn-pink:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.12),
-    0 4px 20px rgba(56, 189, 248, 0.35),
-    0 0 40px rgba(56, 189, 248, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-/* ── Ensure Light Fury background is actually light - Soft Shell ── */
-.theme-light-fury,
-[data-theme="light-fury"] {
-  background-color: #F5EBE0 !important;
-}
-
-.theme-light-fury body,
-[data-theme="light-fury"] body {
-  background-color: #F5EBE0 !important;
-}
-
-/* ── Light Fury Glass with Pink Tint ── */
-.theme-light-fury .glass.is-female,
-[data-theme="light-fury"] .glass.is-female {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-.theme-light-fury .glass.is-female:hover,
-[data-theme="light-fury"] .glass.is-female:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(56, 189, 248, 0.20);
-}
-
-/* ========================================
-   🌟 NEW THEME SELECTOR MAPPINGS
-   Map new simplified selectors to existing styles
-   - dark-female = Pink (same as dark-fury-pink)
-   - dark-male = Green (default dark)
-   - light-female = Pink (same as light-fury)
-   - light-male = Green (same as light-fury-male)
+   🌟 THEME SELECTOR MAPPINGS
+   - dark-female = Blue accent (same as dark-fury-pink)
+   - dark-male = Green accent (default dark)
    ======================================== */
 
 /* ═══════════════════════════════════════════
@@ -4670,107 +3171,6 @@ html {
    LIGHT FEMALE THEME - PINK
    ═══════════════════════════════════════════ */
 
-/* Button - Pink for light female */
-.light[data-theme="light-female"] .btn-gold {
-  background: linear-gradient(180deg, #38BDF8 0%, #0EA5E9 100%);
-  color: #0a0f0d;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.10),
-    0 2px 12px rgba(56, 189, 248, 0.25),
-    0 0 24px rgba(56, 189, 248, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.light[data-theme="light-female"] .btn-gold:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.12),
-    0 4px 20px rgba(56, 189, 248, 0.35),
-    0 0 40px rgba(56, 189, 248, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-/* Avatar Ring - Pink for light female */
-.light[data-theme="light-female"] .avatar-ring-gold {
-  background: linear-gradient(145deg, #38BDF8, #0EA5E9, #7DD3FC, #38BDF8);
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.25),
-    0 0 40px rgba(56, 189, 248, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.10);
-}
-
-.light[data-theme="light-female"] .avatar-ring-gold:hover {
-  box-shadow:
-    0 0 32px rgba(56, 189, 248, 0.35),
-    0 0 60px rgba(56, 189, 248, 0.18),
-    0 3px 8px rgba(0, 0, 0, 0.12);
-}
-
-/* Gradient Text - Pink for light female */
-.light[data-theme="light-female"] .gradient-gold {
-  background: linear-gradient(180deg, #1e293b 10%, #38BDF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Shimmer Title - Pink for light female */
-.light[data-theme="light-female"] .shimmer-gold {
-  background-image: linear-gradient(
-    105deg,
-    rgba(30, 41, 59, 0.92) 0%,
-    rgba(212, 201, 31, 1) 25%,
-    rgba(30, 41, 59, 0.92) 50%,
-    rgba(255, 102, 255, 0.85) 75%,
-    rgba(30, 41, 59, 0.92) 100%
-  );
-}
-
-/* Card - Soft Shell for light female */
-.light[data-theme="light-female"] .card-gold,
-.light[data-theme="light-female"] .card-pink {
-  background: linear-gradient(145deg, #FBF7F4 0%, #F5EBE0 50%, #F8F2EC 100%);
-  border: 0.5px solid rgba(56, 189, 248, 0.25);
-  box-shadow: var(--depth-2), inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  color: #1e293b;
-}
-
-.light[data-theme="light-female"] .card-gold::before,
-.light[data-theme="light-female"] .card-pink::before {
-  display: none;
-}
-
-.light[data-theme="light-female"] .card-gold:hover,
-.light[data-theme="light-female"] .card-pink:hover {
-  box-shadow: var(--depth-3), inset 0 1px 0 rgba(255, 255, 255, 0.90);
-  border-color: rgba(56, 189, 248, 0.40);
-}
-
-/* Light female background - Soft Shell */
-.light[data-theme="light-female"] {
-  background-color: #F5EBE0 !important;
-  color: #1e293b;
-}
-
-/* Light female text colors */
-.light[data-theme="light-female"] .text-white,
-.light[data-theme="light-female"] .text-white\/50,
-.light[data-theme="light-female"] .text-white\/60,
-.light[data-theme="light-female"] .text-white\/70,
-.light[data-theme="light-female"] .text-white\/80,
-.light[data-theme="light-female"] .text-white\/90 {
-  color: #1e293b !important;
-}
-
-.light[data-theme="light-female"] .text-white\/35,
-.light[data-theme="light-female"] .text-white\/40,
-.light[data-theme="light-female"] .text-white\/45 {
-  color: #64748b !important;
-}
-
-/* Light female - ensure slate text */
-.light[data-theme="light-female"] .text-slate-400 {
-  color: #64748b !important;
-}
 
 /* ═══════════════════════════════════════════
    DARK MALE THEME - GREEN (ensure correct)
@@ -4798,56 +3198,6 @@ html {
    LIGHT MALE THEME - GREEN
    ═══════════════════════════════════════════ */
 
-.light[data-theme="light-male"] .btn-gold {
-  background: linear-gradient(180deg, #5FD400 0%, #4AB800 100%);
-  color: #ffffff;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.12),
-    0 2px 14px rgba(95, 212, 0, 0.30),
-    0 0 28px rgba(95, 212, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.30);
-}
-
-.light[data-theme="light-male"] .avatar-ring-gold {
-  background: linear-gradient(145deg, #5FD400, #4AB800, #73FF00, #5FD400);
-  box-shadow:
-    0 0 20px rgba(95, 212, 0, 0.28),
-    0 0 40px rgba(95, 212, 0, 0.14),
-    0 2px 6px rgba(0, 0, 0, 0.12);
-}
-
-.light[data-theme="light-male"] .gradient-gold {
-  background: linear-gradient(180deg, #0f172a 10%, #5FD400 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.light[data-theme="light-male"] .shimmer-gold {
-  background-image: linear-gradient(
-    105deg,
-    rgba(15, 23, 42, 0.92) 0%,
-    rgba(95, 212, 0, 1) 25%,
-    rgba(15, 23, 42, 0.92) 50%,
-    rgba(115, 255, 0, 0.85) 75%,
-    rgba(15, 23, 42, 0.92) 100%
-  );
-}
-
-.light[data-theme="light-male"] .card-gold,
-.light[data-theme="light-male"] .card-pink {
-  background:
-    linear-gradient(145deg,
-      rgba(95, 212, 0, 0.08) 0%,
-      rgba(255, 255, 255, 0.92) 35%,
-      rgba(95, 212, 0, 0.02) 100%);
-  border: 0.5px solid rgba(148, 163, 184, 0.22);
-  border-bottom: 1px solid rgba(95, 212, 0, 0.18);
-}
-
-.light[data-theme="light-male"] {
-  background-color: #f8fafc !important;
-}
 
 /* Avatar Ring Pink for dark female */
 .dark[data-theme="dark-female"] .avatar-ring-pink {
@@ -4865,21 +3215,6 @@ html {
     0 4px 12px rgba(0, 0, 0, 0.30);
 }
 
-/* Avatar Ring Pink for light female */
-.light[data-theme="light-female"] .avatar-ring-pink {
-  background: linear-gradient(145deg, #38BDF8, #0EA5E9, #7DD3FC, #38BDF8);
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.25),
-    0 0 40px rgba(56, 189, 248, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.10);
-}
-
-.light[data-theme="light-female"] .avatar-ring-pink:hover {
-  box-shadow:
-    0 0 32px rgba(56, 189, 248, 0.35),
-    0 0 60px rgba(56, 189, 248, 0.18),
-    0 3px 8px rgba(0, 0, 0, 0.12);
-}
 
 /* Gradient Pink for dark/light female */
 .dark[data-theme="dark-female"] .gradient-pink {
@@ -4889,12 +3224,6 @@ html {
   background-clip: text;
 }
 
-.light[data-theme="light-female"] .gradient-pink {
-  background: linear-gradient(180deg, #1e293b 10%, #0EA5E9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 
 /* ========================================
    ⚡ PERFORMANCE-OPTIMIZED CARDS
@@ -4945,34 +3274,6 @@ html {
   border-color: rgba(56, 189, 248, 0.20);
 }
 
-/* Light Mode */
-.light .card-light {
-  background: rgba(255, 255, 255, 0.70);
-  border-color: rgba(148, 163, 184, 0.18);
-}
-
-.light .card-light:hover {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(148, 163, 184, 0.28);
-}
-
-/* Light Female */
-.light[data-theme="light-female"] .card-light {
-  border-color: rgba(56, 189, 248, 0.15);
-}
-
-.light[data-theme="light-female"] .card-light:hover {
-  border-color: rgba(56, 189, 248, 0.25);
-}
-
-/* Light Male */
-.light[data-theme="light-male"] .card-light {
-  border-color: rgba(95, 212, 0, 0.15);
-}
-
-.light[data-theme="light-male"] .card-light:hover {
-  border-color: rgba(95, 212, 0, 0.25);
-}
 
 /* ═══════════════════════════════════════════
    CARD LIGHT ACCENT - With subtle top highlight
@@ -5042,15 +3343,6 @@ html {
   background: rgba(22, 16, 30, 0.60);
 }
 
-/* Light Mode */
-.light .list-row {
-  background: rgba(255, 255, 255, 0.50);
-  border-color: rgba(148, 163, 184, 0.12);
-}
-
-.light .list-row:hover {
-  background: rgba(255, 255, 255, 0.70);
-}
 
 /* ═══════════════════════════════════════════
    MATCH CARD - Optimized for bracket view
@@ -5099,16 +3391,6 @@ html {
   background: rgba(22, 16, 30, 0.70);
 }
 
-/* Light Mode */
-.light .match-card {
-  background: rgba(255, 255, 255, 0.55);
-  border-color: rgba(148, 163, 184, 0.15);
-}
-
-.light .match-card:hover {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(148, 163, 184, 0.25);
-}
 
 /* ═══════════════════════════════════════════
    GLASS LIST - For tournament/registration lists
@@ -5129,11 +3411,6 @@ html {
   border-color: rgba(56, 189, 248, 0.08);
 }
 
-/* Light Mode */
-.light .glass-list {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.60) 0%, rgba(255, 255, 255, 0.50) 100%);
-  border-color: rgba(148, 163, 184, 0.12);
-}
 
 /* ═══════════════════════════════════════════
    PERFORMANCE HINTS
@@ -5604,54 +3881,6 @@ img {
   background-size: 40px 40px;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   💗 LIGHT FURY ENHANCED EFFECTS (Female Division)
-   White/Pearl + Blue glow - Like the Light Fury
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Light Fury Eye Glow Animation */
-.light-fury-eye-glow {
-  animation: light-fury-pulse 3s ease-in-out infinite;
-}
-
-@keyframes light-fury-pulse {
-  0%, 100% {
-    box-shadow: 
-      0 0 20px rgba(56, 189, 248, 0.4),
-      0 0 40px rgba(56, 189, 248, 0.2),
-      0 0 60px rgba(56, 189, 248, 0.1);
-  }
-  50% {
-    box-shadow: 
-      0 0 30px rgba(56, 189, 248, 0.6),
-      0 0 60px rgba(56, 189, 248, 0.3),
-      0 0 90px rgba(56, 189, 248, 0.15);
-  }
-}
-
-/* Light Fury Pearl Shimmer */
-.light-fury-pearl {
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(250, 252, 255, 0.90) 50%,
-    rgba(245, 250, 255, 0.95) 100%);
-  animation: pearl-shimmer 4s ease-in-out infinite;
-}
-
-@keyframes pearl-shimmer {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Light Fury Scale Pattern Overlay */
-.light-fury-scales {
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20L20 40L0 20z' fill='none' stroke='rgba(56,189,248,0.05)' stroke-width='0.5'/%3E%3C/svg%3E");
-  background-size: 40px 40px;
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    ✨ 3D PREMIUM EFFECTS - iOS Apple Style
@@ -5716,10 +3945,6 @@ img {
   margin: 8px auto;
 }
 
-/* Light mode drag handle */
-.light .modal-sheet-drag-handle {
-  background: rgba(0, 0, 0, 0.15);
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    🏆 TROPHY GLOW EFFECT
@@ -5835,15 +4060,6 @@ img {
   pointer-events: none;
 }
 
-/* Light mode glass */
-.light .apple-glass {
-  background: rgba(255, 255, 255, 0.72);
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: 
-    0 4px 24px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80);
-}
 
 /* ── Apple Hover Glow Effect ── */
 .apple-glow-hover {
@@ -7118,27 +5334,6 @@ img {
     0 4px 12px rgba(56, 189, 248, 0.10);
 }
 
-/* Light Mode */
-.light .card-float {
-  background: rgba(255, 255, 255, 0.65);
-  border-color: rgba(148, 163, 184, 0.15);
-}
-
-.light .card-float:hover {
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.light[data-theme="light-female"] .card-float {
-  border-color: rgba(56, 189, 248, 0.12);
-}
-
-.light[data-theme="light-female"] .card-float:hover {
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(56, 189, 248, 0.08);
-}
 
 /* ═══════════════════════════════════════════
    ✅ CARD ACCENT LINE - Very Lightweight Premium Feel
@@ -7187,29 +5382,6 @@ img {
   );
 }
 
-/* Light Mode */
-.light .card-accent-line::after {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(148, 163, 184, 0.3) 20%,
-    rgba(148, 163, 184, 0.5) 50%,
-    rgba(148, 163, 184, 0.3) 80%,
-    transparent 100%
-  );
-}
-
-.light[data-theme="light-female"] .card-accent-line::after,
-.light[data-theme="light-male"] .card-accent-line::after {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.4) 20%,
-    rgba(56, 189, 248, 0.6) 50%,
-    rgba(56, 189, 248, 0.4) 80%,
-    transparent 100%
-  );
-}
 
 /* ═══════════════════════════════════════════
    ✨ CARD INNER GLOW - Subtle Depth Effect
@@ -7229,11 +5401,6 @@ img {
     inset 0 0 20px rgba(56, 189, 248, 0.03);
 }
 
-.light .card-inner-glow {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.80),
-    inset 0 0 20px rgba(148, 163, 184, 0.03);
-}
 
 /* ═══════════════════════════════════════════
    🧨 CARD PRO - Glow Border + Shimmer (HOVER ONLY)
@@ -7356,47 +5523,6 @@ img {
     0 8px 20px rgba(56, 189, 248, 0.15);
 }
 
-/* Light Mode */
-.light .card-pro {
-  background: rgba(255, 255, 255, 0.80);
-  border-color: rgba(148, 163, 184, 0.20);
-}
-
-.light .card-pro::before {
-  background: linear-gradient(
-    135deg,
-    rgba(148, 163, 184, 0.3) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgba(148, 163, 184, 0.3) 100%
-  );
-}
-
-.light .card-pro:hover {
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.10),
-    0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.light[data-theme="light-female"] .card-pro {
-  border-color: rgba(56, 189, 248, 0.20);
-}
-
-.light[data-theme="light-female"] .card-pro::before {
-  background: linear-gradient(
-    135deg,
-    rgba(56, 189, 248, 0.3) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgba(56, 189, 248, 0.3) 100%
-  );
-}
-
-.light[data-theme="light-female"] .card-pro:hover {
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.10),
-    0 4px 12px rgba(56, 189, 248, 0.08);
-}
 
 /* ═══════════════════════════════════════════
    🏆 CARD GOLD ENHANCED - For Rank #1 / VIP
@@ -8017,84 +6143,12 @@ img {
   background: rgba(56, 189, 248, 0.60);
 }
 
-/* ── Light Mode Hero Premium (minimal) ── */
-.light .card-hero-premium,
-.light[data-theme="light-male"] .card-hero-premium,
-.light[data-theme="light-female"] .card-hero-premium {
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(250, 250, 252, 0.98) 50%,
-    rgba(255, 255, 255, 0.98) 100%
-  );
-  box-shadow:
-    0 12px 60px rgba(0, 0, 0, 0.10),
-    0 4px 20px rgba(0, 0, 0, 0.05),
-    0 0 100px rgba(95, 212, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
-  animation: hero-float-light 6s ease-in-out infinite;
-}
 
 @keyframes hero-float-light {
   0%, 100% { transform: translateY(0) rotateX(0deg); }
   50% { transform: translateY(-6px) rotateX(1deg); }
 }
 
-.light .card-hero-premium::before,
-.light[data-theme="light-male"] .card-hero-premium::before {
-  background: conic-gradient(
-    from var(--hero-angle, 0deg),
-    rgba(95, 212, 0, 0.60) 0deg,
-    rgba(95, 212, 0, 0.15) 30deg,
-    transparent 60deg,
-    transparent 120deg,
-    rgba(95, 212, 0, 0.15) 150deg,
-    rgba(95, 212, 0, 0.60) 180deg,
-    rgba(95, 212, 0, 0.15) 210deg,
-    transparent 240deg,
-    transparent 300deg,
-    rgba(95, 212, 0, 0.15) 330deg,
-    rgba(95, 212, 0, 0.60) 360deg
-  );
-}
-
-.light[data-theme="light-female"] .card-hero-premium::before {
-  background: conic-gradient(
-    from var(--hero-angle, 0deg),
-    rgba(56, 189, 248, 0.60) 0deg,
-    rgba(56, 189, 248, 0.15) 30deg,
-    transparent 60deg,
-    transparent 120deg,
-    rgba(56, 189, 248, 0.15) 150deg,
-    rgba(56, 189, 248, 0.60) 180deg,
-    rgba(56, 189, 248, 0.15) 210deg,
-    transparent 240deg,
-    transparent 300deg,
-    rgba(56, 189, 248, 0.15) 330deg,
-    rgba(56, 189, 248, 0.60) 360deg
-  );
-}
-
-.light .card-hero-premium:hover {
-  box-shadow:
-    0 30px 100px rgba(0, 0, 0, 0.12),
-    0 15px 50px rgba(0, 0, 0, 0.08),
-    0 0 150px rgba(95, 212, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
-}
-
-.light .hero-badge {
-  background: linear-gradient(135deg, rgba(95, 212, 0, 0.15) 0%, rgba(95, 212, 0, 0.08) 100%);
-  border-color: rgba(95, 212, 0, 0.25);
-  color: #5FD400;
-}
-
-.light[data-theme="light-female"] .hero-badge {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.08) 100%);
-  border-color: rgba(56, 189, 248, 0.25);
-  color: #38BDF8;
-}
 
 /* ═══════════════════════════════════════════
    📦 COMBO UTILITIES - Mix and Match

@@ -6,7 +6,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { useTheme } from 'next-themes';
 import { useAppStore } from '@/lib/store';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { Navigation, TopBar, Sidebar } from '@/components/esports/Navigation';
@@ -165,13 +164,7 @@ export default function IDOLMETAApp() {
     fetchAdmins,
   } = useAppStore();
 
-  // ── Theme system — light/dark toggle with division-aware accent ──
-  const { theme: currentTheme, setTheme } = useTheme();
   const { settings } = useAppSettings();
-
-  // Derive effective theme from currentTheme (handles 'system', 'dark', 'light', 'dark-male', etc.)
-  const isDarkMode = !currentTheme?.startsWith('light');
-  const theme = isDarkMode ? 'dark' as const : 'light' as const;
 
   // Track which sub-tab to show when donation tab opens
   const [donationDefaultTab, setDonationDefaultTab] = useState<'sawer' | 'donasi'>('sawer');
@@ -464,24 +457,21 @@ export default function IDOLMETAApp() {
     fetchGrandFinal();
   }, [division, fetchGrandFinal]);
 
-  // Apply theme — division-aware: light/dark + accent color
+  // Apply theme — division-aware accent color (dark mode only)
   useEffect(() => {
     const root = document.documentElement;
 
     // Remove old theme classes
-    root.classList.remove('light', 'dark', 'theme-light-fury', 'dark-fury-pink', 'theme-light-fury-male');
+    root.classList.remove('theme-light-fury', 'dark-fury-pink', 'theme-light-fury-male');
     root.removeAttribute('data-theme');
 
-    // Determine base class
-    const baseClass = isDarkMode ? 'dark' : 'light';
-    root.classList.add(baseClass);
+    // Always dark
+    root.classList.add('dark');
 
     // Set data-theme for accent colors: Male = Green, Female = Blue
-    const accentTheme = isDarkMode
-      ? (division === 'male' ? 'dark-male' : 'dark-female')
-      : (division === 'male' ? 'light-male' : 'light-female');
+    const accentTheme = division === 'male' ? 'dark-male' : 'dark-female';
     root.setAttribute('data-theme', accentTheme);
-  }, [division, isDarkMode]);
+  }, [division]);
 
   // Toggle division function with loading indicator
   const toggleDivision = useCallback(() => {
@@ -991,7 +981,7 @@ export default function IDOLMETAApp() {
   // ── Render: App ──
   return (
     <div
-      className={`h-dvh flex flex-col overflow-hidden relative ${division === 'male' ? 'text-white' : 'text-black'}`}
+      className="h-dvh flex flex-col overflow-hidden relative text-white"
     >
       {/* ═════════════════════════════════════════════════════════════════════
           LIVE SCORE BANNER — Real-time match score notification via Pusher
@@ -1228,7 +1218,6 @@ export default function IDOLMETAApp() {
                     leaderboardTab={leaderboardTab}
                     onLeaderboardTabChange={setLeaderboardTab}
                     topClubs={topClubs}
-                    theme={division === 'male' ? 'dark' : 'light'}
                     onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}
@@ -1396,7 +1385,6 @@ export default function IDOLMETAApp() {
                 setAdminLoginOpen(true);
               }
             }}
-            theme={theme}
           />
 
           {/* Live Match Chat — mobile-only floating button + slide-up panel */}

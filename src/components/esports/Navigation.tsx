@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTheme } from 'next-themes';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import {
   Home,
@@ -17,7 +16,6 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { NotificationPanel } from '@/components/esports/NotificationPanel';
-import { CompactThemeToggle } from '@/components/esports/ThemeToggle';
 
 /* ────────────────────────────────────────────
    Types
@@ -611,10 +609,7 @@ export function Sidebar({
             )}
           </motion.button>
 
-          {/* Theme Toggle */}
-          <div className="flex justify-center lg:justify-start px-3">
-            <CompactThemeToggle division={division} />
-          </div>
+
         </div>
       </div>
     </aside>
@@ -848,8 +843,6 @@ export function TopBar({
                   <NotificationPanel division={division} />
                 </div>
 
-                {/* Theme Toggle */}
-                <CompactThemeToggle division={division} />
 
                 {/* Admin Button */}
                 <motion.button

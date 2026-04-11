@@ -220,7 +220,7 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
   useEffect(() => {
     if (!player) return;
     const root = document.documentElement;
-    root.classList.remove('light', 'dark', 'theme-light-fury', 'dark-fury-pink', 'theme-light-fury-male');
+    root.classList.remove('dark', 'dark-fury-pink');
     root.removeAttribute('data-theme');
     root.classList.add('dark');
     if (player.gender === 'female') {

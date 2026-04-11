@@ -2,18 +2,18 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    IDOL META (TARKAM) — Premium Background System
-   Male: Solid Black (#000000) - Dark Theme
-   Female: Pure White (#FAFAFA) - Light Theme (Apple-inspired)
+   Male: Solid Black (#000000) - Dark Theme with Green Glow
+   Female: Solid Black (#000000) - Dark Theme with Blue Glow
    ═══════════════════════════════════════════════════════════════════ */
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
 type Division = 'male' | 'female';
-type UITheme = 'night-fury' | 'dark-fury-pink' | 'light-fury' | 'light-fury-male' | 'dark' | 'light';
+type UITheme = 'night-fury' | 'dark-fury-pink' | 'dark';
 
 /* ═══════════════════════════════════════════════════════════════════
-   GRADIENT BACKGROUND — Male: Solid Black | Female: Clean White (Apple Style)
+   GRADIENT BACKGROUND — Dark Mode: Male=Green Glow | Female=Blue Glow
    ═══════════════════════════════════════════════════════════════════ */
 
 interface GradientBackgroundProps {

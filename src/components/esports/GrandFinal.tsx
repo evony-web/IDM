@@ -204,7 +204,7 @@ function TeamCard({
 }) {
   const color = TEAM_COLORS[colorIndex % 4];
   const accent = getAccent(division);
-  const isLight = theme === 'light';
+  const isLight = false; // Dark mode only
 
   return (
     <motion.div
@@ -296,7 +296,7 @@ function GFMatchCard({
   const teamBColorIdx = teamB ? teamB.seed - 1 : 0;
   const colorA = TEAM_COLORS[teamAColorIdx % 4];
   const colorB = TEAM_COLORS[teamBColorIdx % 4];
-  const isLight = theme === 'light';
+  const isLight = false; // Dark mode only
 
   const [scoreA, setScoreA] = useState<string>(match.scoreA?.toString() || '');
   const [scoreB, setScoreB] = useState<string>(match.scoreB?.toString() || '');
@@ -533,7 +533,7 @@ function PointCard({
   theme?: 'dark' | 'light';
 }) {
   const accent = getAccent(division);
-  const isLight = theme === 'light';
+  const isLight = false; // Dark mode only
   return (
     <motion.div
       custom={index}
@@ -578,7 +578,7 @@ export function GrandFinal({
     ? 'from-[#73FF00] via-[#8CFF33] to-[#5FD400]'
     : 'from-[#38BDF8] via-[#7DD3FC] to-[#0EA5E9]';
   const isMale = division === 'male';
-  const isLight = theme === 'light';
+  const isLight = false; // Dark mode only
 
   // Local state for prize pool input
   const [localPrizePool, setLocalPrizePool] = useState<string>(gfPrizePool.toString());
