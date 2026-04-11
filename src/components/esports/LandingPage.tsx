@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppSettings } from '@/hooks/useAppSettings';
 // Logo comes from useAppSettings().settings.logo_url
@@ -1043,340 +1043,6 @@ function DivisionCard({
   );
 }
 
-/* ────────────────────────────────────────────
-   Leaderboard (Combined Male + Female)
-   ──────────────────────────────────────────── */
-
-function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
-  const [showModal, setShowModal] = useState(false);
-  const VISIBLE_COUNT = 7;
-
-  // Merge both divisions, sort by points descending, re-rank
-  const allPlayers = [...data.male.topPlayers, ...data.female.topPlayers]
-    .sort((a, b) => b.points - a.points)
-    .map((p, i) => ({ ...p, rank: i + 1 }));
-
-  const visiblePlayers = allPlayers.slice(0, VISIBLE_COUNT);
-  const hasMore = allPlayers.length > VISIBLE_COUNT;
-
-  return (
-    <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Crown className="w-4 h-4" style={{ color: '#FFD700' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Leaderboard Preview</h2>
-          <span className="text-[11px] text-white/25 ml-1">{allPlayers.length} pemain</span>
-        </div>
-      </div>
-
-      {/* Leaderboard Card */}
-      <div
-        className="rounded-2xl overflow-hidden md:flex-1 md:flex md:flex-col"
-        style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,215,0,0.08)',
-        }}
-      >
-        {/* Player Rows - Top 7 */}
-        <div className="px-2 py-2 md:flex-1">
-          {allPlayers.length > 0 ? (
-            <PlayerList players={visiblePlayers} startDelay={0} onPlayerClick={onPlayerClick} />
-          ) : (
-            <div className="px-4 py-8 text-center">
-              <Users className="w-8 h-8 text-white/15 mx-auto mb-2" />
-              <p className="text-[12px] text-white/25">Belum ada pemain terdaftar</p>
-            </div>
-          )}
-        </div>
-
-        {/* CTA Lihat Semua - Opens Modal */}
-        {hasMore && (
-          <div className="px-4 pb-2">
-            <motion.button
-              onClick={() => setShowModal(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer transition-colors"
-              style={{
-                background: 'rgba(255,215,0,0.06)',
-                border: '1px solid rgba(255,215,0,0.12)',
-                color: '#FFD700',
-              }}
-              whileHover={{
-                background: 'rgba(255,215,0,0.10)',
-                borderColor: 'rgba(255,215,0,0.20)',
-              }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Lihat Semua Pemain
-              <ArrowRight className="w-3.5 h-3.5" />
-            </motion.button>
-          </div>
-        )}
-      </div>
-
-      {/* ═══ Full Leaderboard Modal ═══ */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            {/* Backdrop */}
-            <motion.div
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowModal(false)}
-            />
-
-            {/* Modal content */}
-            <motion.div
-              className="relative w-full max-w-md max-h-[75vh] sm:max-h-[80vh] mx-2 sm:mx-4 mb-20 sm:mb-4 rounded-t-3xl sm:rounded-3xl overflow-hidden"
-              style={{
-                background: 'linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(18,18,22,0.99) 100%)',
-                boxShadow: '0 0 60px rgba(255,215,0,0.08), 0 25px 50px -12px rgba(0,0,0,0.5)',
-              }}
-              initial={{ y: '100%', opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 100 || info.velocity.y > 500) {
-                  setShowModal(false);
-                }
-              }}
-            >
-              {/* Drag handle */}
-              <div className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
-                <div className="w-10 h-1 rounded-full bg-white/20" />
-              </div>
-
-              {/* Header */}
-              <div className="relative px-5 pt-3 pb-4 border-b border-white/[0.06]">
-                <div
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent)',
-                    boxShadow: '0 0 16px rgba(255,215,0,0.4)',
-                  }}
-                />
-                <div className="flex items-center gap-3.5">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255,215,0,0.16), rgba(255,215,0,0.06))',
-                    }}
-                  >
-                    <Crown className="w-6 h-6" style={{ color: '#FFD700' }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-bold text-white/90 tracking-tight">Semua Peringkat</h2>
-                    <p className="text-[12px] text-white/45 mt-0.5">{allPlayers.length} pemain terdaftar</p>
-                  </div>
-                  <motion.button
-                    onClick={() => setShowModal(false)}
-                    className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer"
-                    style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                    }}
-                    whileHover={{ background: 'rgba(255,255,255,0.10)' }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <X className="w-4 h-4 text-white/50" />
-                  </motion.button>
-                </div>
-              </div>
-
-              {/* Top 3 Podium */}
-              {allPlayers.length >= 3 && (
-                <div className="flex items-end justify-center gap-2 px-4 pt-5 pb-3">
-                  {/* 2nd Place */}
-                  <div className="flex flex-col items-center flex-1 max-w-[80px]">
-                    <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #C0C0C0, #8E8E93)' }}>
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
-                        {allPlayers[1].avatar ? (
-                          <img src={allPlayers[1].avatar} alt={allPlayers[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
-                        ) : (
-                          <span className="text-sm font-bold text-white/70">{allPlayers[1].name.charAt(0)}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-2 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'linear-gradient(135deg, #C7C7CC, #8E8E93)', color: '#1C1C1E' }}>2</div>
-                    <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[1].name}</p>
-                    <p className="text-[10px] font-bold" style={{ color: allPlayers[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[1].points.toLocaleString()} pts</p>
-                    {allPlayers[1].seasonPoints && allPlayers[1].seasonPoints.length > 0 && (
-                      <div className="mt-0.5 space-y-0.5 flex flex-col items-center">
-                        <div className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.12)' }}>
-                          <span className="text-[6px] font-bold" style={{ color: '#FFD700' }}>Σ {allPlayers[1].seasonPoints.reduce((sum, sp) => sum + sp.points, 0)}</span>
-                        </div>
-                        <div className="flex gap-0.5 flex-wrap justify-center">
-                          {allPlayers[1].seasonPoints.map(sp => (
-                            <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 1st Place */}
-                  <div className="flex flex-col items-center flex-1 max-w-[90px]">
-                    <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
-                      <Crown className="w-5 h-5 mb-1" style={{ color: '#FFD700' }} />
-                    </motion.div>
-                    <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 0 12px rgba(255,215,0,0.3)' }}>
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
-                        {allPlayers[0].avatar ? (
-                          <img src={allPlayers[0].avatar} alt={allPlayers[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
-                        ) : (
-                          <span className="text-base font-bold text-white/70">{allPlayers[0].name.charAt(0)}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-2 w-11 h-11 rounded-lg flex items-center justify-center text-sm font-black" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000', boxShadow: '0 0 12px rgba(255,215,0,0.3)' }}>1</div>
-                    <p className="text-[12px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{allPlayers[0].name}</p>
-                    <p className="text-[11px] font-bold" style={{ color: allPlayers[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[0].points.toLocaleString()} pts</p>
-                    {allPlayers[0].seasonPoints && allPlayers[0].seasonPoints.length > 0 && (
-                      <div className="mt-0.5 space-y-0.5 flex flex-col items-center">
-                        <div className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.12)' }}>
-                          <span className="text-[6px] font-bold" style={{ color: '#FFD700' }}>Σ {allPlayers[0].seasonPoints.reduce((sum, sp) => sum + sp.points, 0)}</span>
-                        </div>
-                        <div className="flex gap-0.5 flex-wrap justify-center">
-                          {allPlayers[0].seasonPoints.map(sp => (
-                            <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 3rd Place */}
-                  <div className="flex flex-col items-center flex-1 max-w-[80px]">
-                    <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)' }}>
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
-                        {allPlayers[2].avatar ? (
-                          <img src={allPlayers[2].avatar} alt={allPlayers[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
-                        ) : (
-                          <span className="text-sm font-bold text-white/70">{allPlayers[2].name.charAt(0)}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-2 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }}>3</div>
-                    <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[2].name}</p>
-                    <p className="text-[10px] font-bold" style={{ color: allPlayers[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[2].points.toLocaleString()} pts</p>
-                    {allPlayers[2].seasonPoints && allPlayers[2].seasonPoints.length > 0 && (
-                      <div className="mt-0.5 space-y-0.5 flex flex-col items-center">
-                        <div className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.12)' }}>
-                          <span className="text-[6px] font-bold" style={{ color: '#FFD700' }}>Σ {allPlayers[2].seasonPoints.reduce((sum, sp) => sum + sp.points, 0)}</span>
-                        </div>
-                        <div className="flex gap-0.5 flex-wrap justify-center">
-                          {allPlayers[2].seasonPoints.map(sp => (
-                            <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Divider */}
-              {allPlayers.length > 3 && (
-                <div className="flex items-center gap-3 px-5 my-2">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
-                  <span className="text-[9px] font-semibold text-white/30 uppercase tracking-wider">Pemain Lainnya</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
-                </div>
-              )}
-
-              {/* Remaining players */}
-              <div className="overflow-y-auto max-h-[calc(75vh-280px)] sm:max-h-[calc(80vh-280px)] p-4 pt-1 space-y-1.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
-                {allPlayers.slice(3).map((player, index) => {
-                  const isMale = player.gender === 'male';
-                  return (
-                    <motion.div
-                      key={`${player.gender}-${player.rank}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      className={`rounded-xl px-3.5 py-2.5 flex items-center gap-3 ${player.id ? 'cursor-pointer hover:bg-white/[0.04]' : ''}`}
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
-                      onClick={player.id && onPlayerClick ? () => { onPlayerClick(player.id, player.gender); setShowModal(false); } : undefined}
-                    >
-                      {/* Rank */}
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[11px] shrink-0" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}>
-                        {player.rank}
-                      </div>
-                      {/* Avatar */}
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden" style={{ border: isMale ? '1.5px solid rgba(115,255,0,0.20)' : '1.5px solid rgba(56,189,248,0.20)' }}>
-                        {player.avatar ? (
-                          <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
-                        ) : (
-                          <span className="text-xs font-bold" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name.charAt(0)}</span>
-                        )}
-                      </div>
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-[13px] font-semibold truncate" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name}</p>
-                          <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)', color: isMale ? '#73FF00' : '#38BDF8', border: isMale ? '1px solid rgba(115,255,0,0.18)' : '1px solid rgba(56,189,248,0.18)' }}>{isMale ? 'M' : 'F'}</span>
-                          {player.isMVP && <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}>MVP</span>}
-                        </div>
-                        <p className="text-[10px] text-white/35">Tier {player.tier}</p>
-                      </div>
-                      {/* Points + Season Breakdown */}
-                      <div className="text-right shrink-0">
-                        <span className="text-[12px] font-bold" style={{ color: '#FFD700' }}>{player.points.toLocaleString()}</span>
-                        {player.seasonPoints && player.seasonPoints.length > 0 && (
-                          <div className="mt-0.5 space-y-0.5">
-                            {/* Cumulative total */}
-                            <div
-                              className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded"
-                              style={{
-                                background: 'rgba(255,215,0,0.08)',
-                                border: '1px solid rgba(255,215,0,0.12)',
-                              }}
-                            >
-                              <span className="text-[7px] font-bold" style={{ color: '#FFD700' }}>
-                                Σ {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()}
-                              </span>
-                            </div>
-                            {/* Per-season */}
-                            <div className="flex items-center gap-0.5 justify-end flex-wrap">
-                              {player.seasonPoints.map((sp) => (
-                                <span
-                                  key={sp.season}
-                                  className="text-[7px] font-semibold px-1 py-[1px] rounded"
-                                  style={{
-                                    background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                                    color: isMale ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
-                                  }}
-                                >
-                                  S{sp.season}:{sp.points}
-                                </span>
-                            ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 /* ── Reusable player list renderer ── */
 function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer[]; startDelay: number; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
   return (
@@ -2022,86 +1688,98 @@ interface SeasonLeaderboardPlayer {
   totalSeasonPoints: number;
 }
 
-// How many season chips to show before "show more"
-const VISIBLE_SEASON_CHIPS = 4;
+/* ────────────────────────────────────────────
+   UNIFIED LEADERBOARD — Overall + Season Points in one section
+   ──────────────────────────────────────────── */
 
-function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
-  const [players, setPlayers] = useState<SeasonLeaderboardPlayer[]>([]);
+function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
+  const [activeTab, setActiveTab] = useState<'overall' | 'season'>('overall');
+  const [seasonPlayers, setSeasonPlayers] = useState<SeasonLeaderboardPlayer[]>([]);
   const [seasons, setSeasons] = useState<number[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [seasonLoaded, setSeasonLoaded] = useState(false);
   const [filterGender, setFilterGender] = useState<'all' | 'male' | 'female'>('all');
+  const [selectedSeason, setSelectedSeason] = useState<number | 'all'>('all');
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
+  const seasonDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Merge both divisions for overall view
+  const allPlayers = [...data.male.topPlayers, ...data.female.topPlayers]
+    .sort((a, b) => b.points - a.points)
+    .map((p, i) => ({ ...p, rank: i + 1 }));
+
+  // Filter overall players by gender
+  const filteredOverallPlayers = filterGender === 'all'
+    ? allPlayers
+    : allPlayers.filter(p => p.gender === filterGender);
+
+  // Fetch season data when season tab is active
   useEffect(() => {
+    if (activeTab !== 'season') return;
     let cancelled = false;
     const genderParam = filterGender === 'all' ? '' : `?gender=${filterGender}`;
     fetch(`/api/season-leaderboard${genderParam}`)
       .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (!cancelled && data?.success && data.data) {
-          setPlayers(data.data.players || []);
-          setSeasons(data.data.seasons || []);
+      .then(json => {
+        if (!cancelled && json?.success && json.data) {
+          setSeasonPlayers(json.data.players || []);
+          setSeasons(json.data.seasons || []);
+          setSeasonLoaded(true);
         }
       })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setLoaded(true); });
+      .catch(() => { if (!cancelled) setSeasonLoaded(true); });
     return () => { cancelled = true; };
-  }, [filterGender]);
+  }, [activeTab, filterGender]);
 
   // Real-time update from admin panel
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const channel = new BroadcastChannel('idm-player-seasons');
     const handler = () => {
+      if (activeTab !== 'season') return;
       const genderParam = filterGender === 'all' ? '' : `?gender=${filterGender}`;
       fetch(`/api/season-leaderboard${genderParam}`)
         .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (data?.success && data.data) {
-            setPlayers(data.data.players || []);
-            setSeasons(data.data.seasons || []);
+        .then(json => {
+          if (json?.success && json.data) {
+            setSeasonPlayers(json.data.players || []);
+            setSeasons(json.data.seasons || []);
           }
         })
         .catch(() => {});
     };
     channel.addEventListener('message', handler);
     return () => channel.removeEventListener('message', handler);
-  }, [filterGender]);
+  }, [activeTab, filterGender]);
 
-  if (!loaded) return null;
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (seasonDropdownRef.current && !seasonDropdownRef.current.contains(e.target as Node)) {
+        setSeasonDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
-  if (players.length === 0) {
-    return (
-      <motion.div variants={itemVariants} className="w-full max-w-full">
-        <div className="flex items-center gap-2.5 mb-5">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
-              border: '1px solid rgba(255,215,0,0.18)',
-            }}
-          >
-            <BarChart3 className="w-5 h-5" style={{ color: '#FFD700' }} />
-          </div>
-          <div>
-            <h2 className="text-[17px] sm:text-[19px] font-bold text-white/85 tracking-wide">Season Points</h2>
-            <p className="text-[11px] text-white/30 mt-0.5">Klasemen akumulasi poin per season</p>
-          </div>
-        </div>
-        <div
-          className="rounded-2xl flex flex-col items-center justify-center py-14 px-4"
-          style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,215,0,0.06)',
-          }}
-        >
-          <BarChart3 className="w-10 h-10 text-white/10 mb-3" />
-          <p className="text-[13px] text-white/25 text-center">Belum ada data season points</p>
-          <p className="text-[11px] text-white/15 mt-1 text-center">Tambahkan dari panel admin tab Peserta</p>
-        </div>
-      </motion.div>
-    );
-  }
+  // Compute season-filtered players
+  const displaySeasonPlayers = useMemo(() => {
+    if (selectedSeason === 'all') {
+      // Sort by total season points
+      return [...seasonPlayers].sort((a, b) => b.totalSeasonPoints - a.totalSeasonPoints);
+    }
+    // Sort by the selected season's points
+    return [...seasonPlayers].sort((a, b) => {
+      const aSP = a.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0;
+      const bSP = b.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0;
+      return bSP - aSP;
+    }).filter(p => {
+      // Only show players who have points in the selected season
+      const sp = p.seasonPoints.find(s => s.season === selectedSeason);
+      return sp && sp.points > 0;
+    });
+  }, [seasonPlayers, selectedSeason]);
 
   const genderFilters = [
     { key: 'all' as const, label: 'Semua', color: '#FFD700' },
@@ -2109,256 +1787,662 @@ function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId:
     { key: 'female' as const, label: 'Female', color: '#38BDF8' },
   ];
 
+  const tabs = [
+    { key: 'overall' as const, label: 'Overall', icon: Trophy },
+    { key: 'season' as const, label: 'Season Points', icon: BarChart3 },
+  ];
+
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
-      {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+      {/* ═══ Header ═══ */}
+      <div className="flex flex-col gap-4 mb-5">
         <div className="flex items-center gap-2.5">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: 'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
-              border: '1px solid rgba(255,215,0,0.18)',
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.18) 0%, rgba(255,215,0,0.06) 100%)',
+              border: '1px solid rgba(255,215,0,0.22)',
             }}
           >
-            <BarChart3 className="w-5 h-5" style={{ color: '#FFD700' }} />
+            <Crown className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: '#FFD700' }} />
           </div>
           <div>
-            <h2 className="text-[17px] sm:text-[19px] font-bold text-white/85 tracking-wide">Season Points</h2>
-            <p className="text-[11px] text-white/30 mt-0.5">
-              Klasemen akumulasi poin per season • {players.length} pemain • {seasons.length} season
+            <h2 className="text-[19px] sm:text-[22px] font-black text-white/90 tracking-tight">Leaderboard</h2>
+            <p className="text-[11px] sm:text-[12px] text-white/35 mt-0.5">
+              {activeTab === 'overall'
+                ? `${filteredOverallPlayers.length} pemain terdaftar`
+                : `${displaySeasonPlayers.length} pemain • ${seasons.length} season`}
             </p>
           </div>
         </div>
 
-        {/* Gender filter pills */}
-        <div className="flex items-center gap-2">
-          {genderFilters.map(f => (
-            <button
-              key={f.key}
-              onClick={() => setFilterGender(f.key)}
-              className="px-3.5 py-1.5 rounded-xl text-[11px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer"
-              style={{
-                background: filterGender === f.key ? `${f.color}18` : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${filterGender === f.key ? `${f.color}30` : 'rgba(255,255,255,0.06)'}`,
-                color: filterGender === f.key ? f.color : 'rgba(255,255,255,0.35)',
-              }}
-            >
-              {f.label}
-            </button>
-          ))}
+        {/* ═══ Tab Toggle + Gender Filter ═══ */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          {/* Tab Toggle */}
+          <div
+            className="flex items-center rounded-xl p-1 gap-1"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            {tabs.map(tab => {
+              const TabIcon = tab.icon;
+              const isActive = activeTab === tab.key;
+              return (
+                <motion.button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] sm:text-[13px] font-bold tracking-wide cursor-pointer transition-all duration-200"
+                  style={{
+                    background: isActive ? 'rgba(255,215,0,0.12)' : 'transparent',
+                    border: `1px solid ${isActive ? 'rgba(255,215,0,0.20)' : 'transparent'}`,
+                    color: isActive ? '#FFD700' : 'rgba(255,255,255,0.35)',
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <TabIcon className="w-4 h-4" />
+                  {tab.label}
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* Gender Filter */}
+          <div className="flex items-center gap-2">
+            {genderFilters.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilterGender(f.key)}
+                className="px-3.5 py-2 rounded-xl text-[11px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer"
+                style={{
+                  background: filterGender === f.key ? `${f.color}15` : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${filterGender === f.key ? `${f.color}28` : 'rgba(255,255,255,0.06)'}`,
+                  color: filterGender === f.key ? f.color : 'rgba(255,255,255,0.35)',
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── Player Cards ── */}
-      <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
-        {players.map((player, idx) => {
-          const isExpanded = expandedPlayer === player.id;
-          const rank = idx + 1;
-          const accentHex = player.gender === 'male' ? '#73FF00' : '#38BDF8';
-          const accentRGB = player.gender === 'male' ? '115,255,0' : '56,189,248';
-
-          // Determine visible vs hidden season chips
-          const visibleSeasons = player.seasonPoints.slice(0, VISIBLE_SEASON_CHIPS);
-          const hiddenSeasons = player.seasonPoints.slice(VISIBLE_SEASON_CHIPS);
-          const hasMore = hiddenSeasons.length > 0;
-
-          return (
-            <motion.div
-              key={player.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.03, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-2xl overflow-hidden"
-              style={{
-                background: rank <= 3
-                  ? `linear-gradient(135deg, rgba(255,215,0,0.05) 0%, rgba(255,255,255,0.02) 50%, rgba(${accentRGB},0.03) 100%)`
-                  : 'linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%)',
-                border: `1px solid ${rank <= 3 ? 'rgba(255,215,0,0.12)' : `rgba(${accentRGB},0.08)`}`,
-              }}
-            >
-              {/* ── Main row: Rank + Avatar + Name + Total ── */}
+      {/* ═══ Tab Content ═══ */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'overall' ? (
+          <motion.div
+            key="overall-tab"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
+            {/* ═══ OVERALL TAB: Top 3 Podium + Player List ═══ */}
+            <OverallLeaderboardView players={filteredOverallPlayers} onPlayerClick={onPlayerClick} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="season-tab"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
+            {/* ═══ SEASON TAB: Season Selector + Player Cards ═══ */}
+            {!seasonLoaded ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="relative w-8 h-8">
+                  <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderTopColor: '#FFD700', borderRightColor: 'rgba(255,215,0,0.3)' }} />
+                </div>
+              </div>
+            ) : seasonPlayers.length === 0 ? (
               <div
-                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 cursor-pointer transition-colors duration-150 hover:bg-white/[0.03]"
-                onClick={() => {
-                  if (onPlayerClick) onPlayerClick(player.id, player.gender as 'male' | 'female');
+                className="rounded-2xl flex flex-col items-center justify-center py-16 px-4"
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,215,0,0.06)',
                 }}
               >
-                {/* Rank Badge */}
-                <div
-                  className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[13px] sm:text-[15px] font-black flex-shrink-0"
-                  style={{
-                    background: rank === 1
-                      ? 'linear-gradient(135deg, #FFD700, #FFA500)'
-                      : rank === 2
-                        ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
-                        : rank === 3
-                          ? 'linear-gradient(135deg, #CD7F32, #B87333)'
-                          : `rgba(${accentRGB},0.10)`,
-                    color: rank <= 3 ? '#000' : `rgb(${accentRGB})`,
-                    boxShadow: rank <= 3 ? `0 2px 12px ${rank === 1 ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.10)'}` : 'none',
-                  }}
-                >
-                  {rank <= 3 ? <Crown className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} /> : rank}
-                </div>
-
-                {/* Avatar */}
-                <div
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center"
-                  style={{
-                    background: player.avatar
-                      ? `url(${player.avatar}) center/cover`
-                      : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
-                    border: player.isMVP
-                      ? '2px solid #FFD700'
-                      : `2px solid rgba(${accentRGB},0.25)`,
-                    boxShadow: player.isMVP ? '0 0 10px rgba(255,215,0,0.20)' : 'none',
-                  }}
-                >
-                  {!player.avatar && (
-                    <span className="text-[13px] sm:text-[14px] font-bold" style={{ color: `rgb(${accentRGB})` }}>
-                      {player.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-
-                {/* Name + Meta */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-[14px] sm:text-[16px] font-bold text-white/90 truncate">{player.name}</p>
-                    {player.isMVP && (
-                      <span
-                        className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                <BarChart3 className="w-12 h-12 text-white/10 mb-3" />
+                <p className="text-[14px] text-white/25 text-center font-medium">Belum ada data season points</p>
+                <p className="text-[12px] text-white/15 mt-1 text-center">Tambahkan dari panel admin tab Peserta</p>
+              </div>
+            ) : (
+              <>
+                {/* Season Selector Dropdown */}
+                <div className="relative mb-5" ref={seasonDropdownRef}>
+                  <motion.button
+                    onClick={() => setSeasonDropdownOpen(!seasonDropdownOpen)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl cursor-pointer"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.03) 100%)',
+                      border: '1px solid rgba(255,215,0,0.15)',
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center"
                         style={{
-                          background: 'rgba(255,215,0,0.15)',
-                          color: '#FFD700',
-                          border: '1px solid rgba(255,215,0,0.25)',
+                          background: selectedSeason === 'all'
+                            ? 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,215,0,0.08))'
+                            : 'rgba(115,255,0,0.10)',
+                          border: `1px solid ${selectedSeason === 'all' ? 'rgba(255,215,0,0.25)' : 'rgba(115,255,0,0.15)'}`,
                         }}
                       >
-                        MVP
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span
-                      className="text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded-md"
-                      style={{
-                        background: player.tier === 'S' ? 'rgba(255,215,0,0.12)' : player.tier === 'A' ? 'rgba(115,255,0,0.10)' : 'rgba(255,255,255,0.05)',
-                        color: player.tier === 'S' ? '#FFD700' : player.tier === 'A' ? '#73FF00' : 'rgba(255,255,255,0.35)',
-                      }}
-                    >
-                      Tier {player.tier}
-                    </span>
-                    {player.clubName && (
-                      <span className="text-[10px] sm:text-[11px] text-white/30 truncate">{player.clubName}</span>
-                    )}
-                    <span
-                      className="text-[9px] sm:text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0"
-                      style={{
-                        background: `rgba(${accentRGB},0.08)`,
-                        color: accentHex,
-                        border: `1px solid rgba(${accentRGB},0.12)`,
-                      }}
-                    >
-                      {player.gender === 'male' ? '♂ Male' : '♀ Female'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Total Points */}
-                <div className="text-right flex-shrink-0">
-                  <p
-                    className="text-[18px] sm:text-[22px] font-black leading-none"
-                    style={{
-                      background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    }}
-                  >
-                    {player.totalSeasonPoints.toLocaleString()}
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-white/30 mt-0.5">total pts</p>
-                </div>
-              </div>
-
-              {/* ── Season chips row ── */}
-              <div
-                className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}
-              >
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  {visibleSeasons.map(sp => (
-                    <span
-                      key={sp.season}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-[12px] font-semibold"
-                      style={{
-                        background: sp.points > 0 ? `rgba(${accentRGB},0.08)` : 'rgba(255,255,255,0.02)',
-                        border: `1px solid ${sp.points > 0 ? `rgba(${accentRGB},0.15)` : 'rgba(255,255,255,0.04)'}`,
-                        color: sp.points > 0 ? accentHex : 'rgba(255,255,255,0.2)',
-                      }}
-                    >
-                      <span className="font-bold opacity-60">S{sp.season}</span>
-                      <span>{sp.points}pts</span>
-                    </span>
-                  ))}
-
-                  {/* Show more toggle */}
-                  {hasMore && (
-                    <motion.button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedPlayer(isExpanded ? null : player.id);
-                      }}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold cursor-pointer"
-                      style={{
-                        background: isExpanded ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${isExpanded ? 'rgba(255,215,0,0.20)' : 'rgba(255,255,255,0.08)'}`,
-                        color: isExpanded ? '#FFD700' : 'rgba(255,255,255,0.35)',
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      +{hiddenSeasons.length} season
-                      {isExpanded ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
-                    </motion.button>
-                  )}
-                </div>
-
-                {/* Expanded hidden seasons */}
-                <AnimatePresence>
-                  {isExpanded && hasMore && (
+                        {selectedSeason === 'all' ? (
+                          <Medal className="w-4.5 h-4.5" style={{ color: '#FFD700' }} />
+                        ) : (
+                          <span className="text-[13px] font-black" style={{ color: '#73FF00' }}>S{selectedSeason}</span>
+                        )}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[14px] sm:text-[15px] font-bold" style={{ color: selectedSeason === 'all' ? '#FFD700' : '#73FF00' }}>
+                          {selectedSeason === 'all' ? 'All Seasons (Total)' : `Season ${selectedSeason}`}
+                        </p>
+                        <p className="text-[11px] text-white/30">
+                          {selectedSeason === 'all'
+                            ? `Akumulasi semua season • ${displaySeasonPlayers.length} pemain`
+                            : `Peringkat Season ${selectedSeason} • ${displaySeasonPlayers.length} pemain`}
+                        </p>
+                      </div>
+                    </div>
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="overflow-hidden"
+                      animate={{ rotate: seasonDropdownOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mt-2 pt-2" style={{ borderTop: '1px dashed rgba(255,215,0,0.10)' }}>
-                        {hiddenSeasons.map(sp => (
-                          <span
-                            key={sp.season}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-[12px] font-semibold"
+                      <ChevronDown className="w-5 h-5 text-white/30" />
+                    </motion.div>
+                  </motion.button>
+
+                  {/* Dropdown Menu */}
+                  <AnimatePresence>
+                    {seasonDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute top-full left-0 right-0 mt-2 rounded-xl overflow-hidden z-30"
+                        style={{
+                          background: 'rgba(18,18,22,0.98)',
+                          border: '1px solid rgba(255,215,0,0.15)',
+                          boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,215,0,0.05)',
+                          backdropFilter: 'blur(20px)',
+                        }}
+                      >
+                        {/* All Seasons option */}
+                        <button
+                          onClick={() => { setSelectedSeason('all'); setSeasonDropdownOpen(false); setExpandedPlayer(null); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                          style={{
+                            background: selectedSeason === 'all' ? 'rgba(255,215,0,0.08)' : 'transparent',
+                            borderLeft: selectedSeason === 'all' ? '3px solid #FFD700' : '3px solid transparent',
+                          }}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center"
+                            style={{ background: 'rgba(255,215,0,0.10)', border: '1px solid rgba(255,215,0,0.18)' }}
+                          >
+                            <Medal className="w-4 h-4" style={{ color: '#FFD700' }} />
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className="text-[13px] font-bold" style={{ color: selectedSeason === 'all' ? '#FFD700' : 'rgba(255,255,255,0.7)' }}>All Seasons (Total)</p>
+                            <p className="text-[10px] text-white/25">Akumulasi semua season</p>
+                          </div>
+                          {selectedSeason === 'all' && <div className="w-2 h-2 rounded-full" style={{ background: '#FFD700', boxShadow: '0 0 6px rgba(255,215,0,0.5)' }} />}
+                        </button>
+
+                        {/* Divider */}
+                        <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+
+                        {/* Season options */}
+                        <div className="max-h-60 overflow-y-auto py-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
+                          {seasons.map(s => {
+                            const playerCount = seasonPlayers.filter(p => {
+                              const sp = p.seasonPoints.find(sp => sp.season === s);
+                              return sp && sp.points > 0;
+                            }).length;
+                            return (
+                              <button
+                                key={s}
+                                onClick={() => { setSelectedSeason(s); setSeasonDropdownOpen(false); setExpandedPlayer(null); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                                style={{
+                                  background: selectedSeason === s ? 'rgba(115,255,0,0.06)' : 'transparent',
+                                  borderLeft: selectedSeason === s ? '3px solid #73FF00' : '3px solid transparent',
+                                }}
+                              >
+                                <div
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                                  style={{ background: 'rgba(115,255,0,0.08)', border: '1px solid rgba(115,255,0,0.12)' }}
+                                >
+                                  <span className="text-[12px] font-black" style={{ color: '#73FF00' }}>S{s}</span>
+                                </div>
+                                <div className="text-left flex-1">
+                                  <p className="text-[13px] font-bold" style={{ color: selectedSeason === s ? '#73FF00' : 'rgba(255,255,255,0.7)' }}>Season {s}</p>
+                                  <p className="text-[10px] text-white/25">{playerCount} pemain berpoints</p>
+                                </div>
+                                {selectedSeason === s && <div className="w-2 h-2 rounded-full" style={{ background: '#73FF00', boxShadow: '0 0 6px rgba(115,255,0,0.5)' }} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* ═══ Season Player Cards ═══ */}
+                <div className="space-y-3" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
+                  {displaySeasonPlayers.map((player, idx) => {
+                    const isExpanded = expandedPlayer === player.id;
+                    const rank = idx + 1;
+                    const accentHex = player.gender === 'male' ? '#73FF00' : '#38BDF8';
+                    const accentRGB = player.gender === 'male' ? '115,255,0' : '56,189,248';
+
+                    // Get points for the selected season or total
+                    const displayPoints = selectedSeason === 'all'
+                      ? player.totalSeasonPoints
+                      : (player.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0);
+
+                    if (selectedSeason !== 'all' && displayPoints === 0) return null;
+
+                    return (
+                      <motion.div
+                        key={player.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.5), ease: [0.16, 1, 0.3, 1] }}
+                        className="rounded-2xl overflow-hidden"
+                        style={{
+                          background: rank <= 3
+                            ? `linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(${accentRGB},0.04) 100%)`
+                            : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                          border: `1px solid ${rank <= 3 ? 'rgba(255,215,0,0.14)' : `rgba(${accentRGB},0.10)`}`,
+                        }}
+                      >
+                        {/* ── Main Row ── */}
+                        <div
+                          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 cursor-pointer transition-colors duration-150 hover:bg-white/[0.02]"
+                          onClick={() => {
+                            if (selectedSeason === 'all') {
+                              setExpandedPlayer(isExpanded ? null : player.id);
+                            } else if (onPlayerClick) {
+                              onPlayerClick(player.id, player.gender as 'male' | 'female');
+                            }
+                          }}
+                        >
+                          {/* Rank */}
+                          <div
+                            className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl text-[15px] sm:text-[17px] font-black flex-shrink-0"
                             style={{
-                              background: sp.points > 0 ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.02)',
-                              border: `1px solid ${sp.points > 0 ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)'}`,
-                              color: sp.points > 0 ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.2)',
+                              background: rank === 1
+                                ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                                : rank === 2
+                                  ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
+                                  : rank === 3
+                                    ? 'linear-gradient(135deg, #CD7F32, #B87333)'
+                                    : `rgba(${accentRGB},0.08)`,
+                              color: rank <= 3 ? '#000' : `rgb(${accentRGB})`,
+                              boxShadow: rank <= 3 ? `0 2px 16px ${rank === 1 ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.08)'}` : 'none',
                             }}
                           >
-                            <span className="font-bold opacity-60">S{sp.season}</span>
-                            <span>{sp.points}pts</span>
-                          </span>
-                        ))}
+                            {rank <= 3 ? <Crown className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} /> : rank}
+                          </div>
+
+                          {/* Avatar */}
+                          <div
+                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center"
+                            style={{
+                              background: player.avatar
+                                ? `url(${player.avatar}) center/cover`
+                                : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
+                              border: player.isMVP
+                                ? '2.5px solid #FFD700'
+                                : `2px solid rgba(${accentRGB},0.25)`,
+                              boxShadow: player.isMVP ? '0 0 12px rgba(255,215,0,0.20)' : 'none',
+                            }}
+                          >
+                            {!player.avatar && (
+                              <span className="text-[16px] sm:text-[18px] font-bold" style={{ color: `rgb(${accentRGB})` }}>
+                                {player.name.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Name + Meta */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[15px] sm:text-[17px] font-bold text-white/90 truncate">{player.name}</p>
+                              {player.isMVP && (
+                                <span
+                                  className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                                  style={{
+                                    background: 'rgba(255,215,0,0.15)',
+                                    color: '#FFD700',
+                                    border: '1px solid rgba(255,215,0,0.25)',
+                                  }}
+                                >
+                                  MVP
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span
+                                className="text-[11px] sm:text-[12px] font-bold px-2 py-0.5 rounded-md"
+                                style={{
+                                  background: player.tier === 'S' ? 'rgba(255,215,0,0.12)' : player.tier === 'A' ? 'rgba(115,255,0,0.10)' : 'rgba(255,255,255,0.05)',
+                                  color: player.tier === 'S' ? '#FFD700' : player.tier === 'A' ? '#73FF00' : 'rgba(255,255,255,0.35)',
+                                }}
+                              >
+                                Tier {player.tier}
+                              </span>
+                              {player.clubName && (
+                                <span className="text-[11px] sm:text-[12px] text-white/30 truncate">{player.clubName}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Points */}
+                          <div className="text-right flex-shrink-0 flex flex-col items-end">
+                            <p
+                              className="text-[20px] sm:text-[26px] font-black leading-none"
+                              style={{
+                                background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text',
+                              }}
+                            >
+                              {displayPoints.toLocaleString()}
+                            </p>
+                            <p className="text-[10px] sm:text-[11px] text-white/30 mt-1">
+                              {selectedSeason === 'all' ? 'total pts' : `S${selectedSeason} pts`}
+                            </p>
+                            {selectedSeason === 'all' && player.seasonPoints.length > 0 && (
+                              <motion.div
+                                className="flex items-center gap-1 mt-1"
+                                animate={{ opacity: isExpanded ? 0.4 : 0.6 }}
+                              >
+                                <span className="text-[9px] text-white/20">{player.seasonPoints.length} season</span>
+                                <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                                  <ChevronDown className="w-3 h-3 text-white/20" />
+                                </motion.div>
+                              </motion.div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* ── Expandable Season Breakdown (only for "All Seasons" view) ── */}
+                        <AnimatePresence>
+                          {selectedSeason === 'all' && isExpanded && player.seasonPoints.length > 0 && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                              className="overflow-hidden"
+                            >
+                              <div
+                                className="px-4 sm:px-5 pb-4 sm:pb-5 pt-1"
+                                style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
+                              >
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                  {player.seasonPoints.map(sp => (
+                                    <div
+                                      key={sp.season}
+                                      className="flex items-center justify-between px-3 py-2.5 rounded-xl"
+                                      style={{
+                                        background: sp.points > 0 ? `rgba(${accentRGB},0.06)` : 'rgba(255,255,255,0.015)',
+                                        border: `1px solid ${sp.points > 0 ? `rgba(${accentRGB},0.12)` : 'rgba(255,255,255,0.03)'}`,
+                                      }}
+                                    >
+                                      <span className="text-[12px] sm:text-[13px] font-bold text-white/40">S{sp.season}</span>
+                                      <span className="text-[13px] sm:text-[14px] font-bold" style={{ color: sp.points > 0 ? accentHex : 'rgba(255,255,255,0.15)' }}>
+                                        {sp.points}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────
+   Overall Leaderboard View — Top 3 Podium + List
+   Used inside UnifiedLeaderboard for the "Overall" tab
+   ──────────────────────────────────────────── */
+
+function OverallLeaderboardView({ players, onPlayerClick }: { players: TopPlayer[]; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
+  const [showModal, setShowModal] = useState(false);
+  const VISIBLE_COUNT = 7;
+
+  const visiblePlayers = players.slice(0, VISIBLE_COUNT);
+  const hasMore = players.length > VISIBLE_COUNT;
+
+  return (
+    <>
+      {/* ═══ Top 3 Podium ═══ */}
+      {players.length >= 3 && (
+        <div className="flex items-end justify-center gap-3 sm:gap-4 mb-5 px-2">
+          {/* 2nd Place */}
+          <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[120px]">
+            <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #C0C0C0, #8E8E93)' }}>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                {players[1].avatar ? (
+                  <img src={players[1].avatar} alt={players[1].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                ) : (
+                  <span className="text-[16px] sm:text-[18px] font-bold text-white/70">{players[1].name.charAt(0)}</span>
+                )}
+              </div>
+            </div>
+            <div className="mt-2 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[13px] sm:text-[14px] font-black" style={{ background: 'linear-gradient(135deg, #C7C7CC, #8E8E93)', color: '#1C1C1E' }}>2</div>
+            <p className="text-[12px] sm:text-[13px] font-bold text-white/85 mt-1.5 truncate w-full text-center">{players[1].name}</p>
+            <p className="text-[12px] sm:text-[13px] font-bold mt-0.5" style={{ color: players[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[1].points.toLocaleString()} pts</p>
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md mt-1" style={{ background: players[1].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: players[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>
+              {players[1].gender === 'male' ? '♂ Male' : '♀ Female'}
+            </span>
+          </div>
+
+          {/* 1st Place */}
+          <div className="flex flex-col items-center flex-1 max-w-[110px] sm:max-w-[130px]">
+            <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+              <Crown className="w-6 h-6 sm:w-7 sm:h-7 mb-1" style={{ color: '#FFD700' }} />
+            </motion.div>
+            <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 0 16px rgba(255,215,0,0.3)' }}>
+              <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                {players[0].avatar ? (
+                  <img src={players[0].avatar} alt={players[0].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                ) : (
+                  <span className="text-[18px] sm:text-[20px] font-bold text-white/70">{players[0].name.charAt(0)}</span>
+                )}
+              </div>
+            </div>
+            <div className="mt-2 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-[14px] sm:text-[16px] font-black" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000', boxShadow: '0 0 16px rgba(255,215,0,0.3)' }}>1</div>
+            <p className="text-[13px] sm:text-[14px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{players[0].name}</p>
+            <p className="text-[13px] sm:text-[14px] font-bold mt-0.5" style={{ color: players[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[0].points.toLocaleString()} pts</p>
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md mt-1" style={{ background: players[0].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: players[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>
+              {players[0].gender === 'male' ? '♂ Male' : '♀ Female'}
+            </span>
+          </div>
+
+          {/* 3rd Place */}
+          <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[120px]">
+            <div className="p-[2px] rounded-full" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)' }}>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">
+                {players[2].avatar ? (
+                  <img src={players[2].avatar} alt={players[2].name} loading="lazy" className="w-full h-full object-cover object-top" />
+                ) : (
+                  <span className="text-[16px] sm:text-[18px] font-bold text-white/70">{players[2].name.charAt(0)}</span>
+                )}
+              </div>
+            </div>
+            <div className="mt-2 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[13px] sm:text-[14px] font-black" style={{ background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }}>3</div>
+            <p className="text-[12px] sm:text-[13px] font-bold text-white/85 mt-1.5 truncate w-full text-center">{players[2].name}</p>
+            <p className="text-[12px] sm:text-[13px] font-bold mt-0.5" style={{ color: players[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{players[2].points.toLocaleString()} pts</p>
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md mt-1" style={{ background: players[2].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: players[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>
+              {players[2].gender === 'male' ? '♂ Male' : '♀ Female'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Remaining Players List ═══ */}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,215,0,0.08)',
+        }}
+      >
+        <div className="px-2 py-2">
+          {players.length > 0 ? (
+            <PlayerList players={visiblePlayers} startDelay={0} onPlayerClick={onPlayerClick} />
+          ) : (
+            <div className="px-4 py-10 text-center">
+              <Users className="w-10 h-10 text-white/10 mx-auto mb-3" />
+              <p className="text-[13px] text-white/25">Belum ada pemain terdaftar</p>
+            </div>
+          )}
+        </div>
+
+        {/* CTA Lihat Semua */}
+        {hasMore && (
+          <div className="px-4 pb-3">
+            <motion.button
+              onClick={() => setShowModal(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] sm:text-[13px] font-semibold tracking-wide cursor-pointer transition-colors"
+              style={{
+                background: 'rgba(255,215,0,0.06)',
+                border: '1px solid rgba(255,215,0,0.12)',
+                color: '#FFD700',
+              }}
+              whileHover={{
+                background: 'rgba(255,215,0,0.10)',
+                borderColor: 'rgba(255,215,0,0.20)',
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Lihat Semua Pemain
+              <ArrowRight className="w-4 h-4" />
+            </motion.button>
+          </div>
+        )}
+      </div>
+
+      {/* ═══ Full Leaderboard Modal ═══ */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowModal(false)}
+            />
+            <motion.div
+              className="relative w-full max-w-md max-h-[75vh] sm:max-h-[80vh] mx-2 sm:mx-4 mb-20 sm:mb-4 rounded-t-3xl sm:rounded-3xl overflow-hidden"
+              style={{
+                background: 'linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(18,18,22,0.99) 100%)',
+                boxShadow: '0 0 60px rgba(255,215,0,0.08), 0 25px 50px -12px rgba(0,0,0,0.5)',
+              }}
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setShowModal(false);
+                }
+              }}
+            >
+              <div className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+                <div className="w-10 h-1 rounded-full bg-white/20" />
+              </div>
+              <div className="relative px-5 pt-3 pb-4 border-b border-white/[0.06]">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent)', boxShadow: '0 0 16px rgba(255,215,0,0.4)' }} />
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.16), rgba(255,215,0,0.06))' }}>
+                    <Crown className="w-6 h-6" style={{ color: '#FFD700' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-white/90 tracking-tight">Semua Peringkat</h2>
+                    <p className="text-[12px] text-white/45 mt-0.5">{players.length} pemain terdaftar</p>
+                  </div>
+                  <motion.button
+                    onClick={() => setShowModal(false)}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    whileHover={{ background: 'rgba(255,255,255,0.10)' }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X className="w-4 h-4 text-white/50" />
+                  </motion.button>
+                </div>
+              </div>
+              <div className="overflow-y-auto max-h-[calc(75vh-120px)] sm:max-h-[calc(80vh-120px)] p-4 space-y-1.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
+                {players.map((player) => {
+                  const isMale = player.gender === 'male';
+                  return (
+                    <div
+                      key={`${player.gender}-${player.rank}`}
+                      className={`rounded-xl px-3.5 py-3 flex items-center gap-3 ${player.id ? 'cursor-pointer hover:bg-white/[0.04]' : ''}`}
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
+                      onClick={player.id && onPlayerClick ? () => { onPlayerClick(player.id, player.gender); setShowModal(false); } : undefined}
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[12px] shrink-0" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}>
+                        {player.rank}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden" style={{ border: isMale ? '1.5px solid rgba(115,255,0,0.20)' : '1.5px solid rgba(56,189,248,0.20)' }}>
+                        {player.avatar ? (
+                          <img src={player.avatar} alt={player.name} loading="lazy" className="w-full h-full object-cover object-top" />
+                        ) : (
+                          <span className="text-xs font-bold" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[13px] font-semibold truncate" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name}</p>
+                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)', color: isMale ? '#73FF00' : '#38BDF8', border: isMale ? '1px solid rgba(115,255,0,0.18)' : '1px solid rgba(56,189,248,0.18)' }}>{isMale ? 'M' : 'F'}</span>
+                          {player.isMVP && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}>MVP</span>}
+                        </div>
+                        <p className="text-[10px] text-white/35">Tier {player.tier}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-[14px] font-bold" style={{ color: '#FFD700' }}>{player.points.toLocaleString()}</span>
+                        <span className="text-[10px] text-white/30 ml-1">pts</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </motion.div>
-          );
-        })}
-      </div>
-    </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -4143,14 +4227,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           />
         </motion.div>
 
-        {/* ═══ TOP PLAYERS — Leaderboard section ═══ */}
+        {/* ═══ UNIFIED LEADERBOARD — Overall + Season Points ═══ */}
         <div id="leaderboard-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
-          <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
-        </div>
-
-        {/* ═══ SEASON POINTS LEADERBOARD ═══ */}
-        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
-          <SeasonPointsLeaderboard onPlayerClick={handlePlayerClick} />
+          <UnifiedLeaderboard data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
