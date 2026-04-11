@@ -1648,7 +1648,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative flex-shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(14.286%-14px)] overflow-hidden rounded-2xl`}
+            className={`relative flex-shrink-0 w-[calc(33.333%-11px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(14.286%-14px)] overflow-hidden rounded-2xl`}
             style={{
               background: club.name === 'GYMSHARK'
                 ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)'
@@ -1735,15 +1735,15 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
             </div>
 
             {/* Club Info */}
-            <div className="p-3">
-              <p className="text-[13px] font-bold text-white/85 truncate">{club.name}</p>
-              <div className="flex items-center justify-between mt-1.5">
+            <div className="p-2 sm:p-3">
+              <p className="text-[11px] sm:text-[13px] font-bold text-white/85 truncate">{club.name}</p>
+              <div className="flex items-center justify-between mt-1 sm:mt-1.5">
                 <div className="flex items-center gap-1">
                   <Users className="w-3 h-3 text-white/30" />
-                  <span className="text-[11px] text-white/40">{club.memberCount} anggota</span>
+                  <span className="text-[10px] sm:text-[11px] text-white/40">{club.memberCount}</span>
                 </div>
                 <span
-                  className="text-[11px] font-bold"
+                  className="text-[10px] sm:text-[11px] font-bold"
                   style={{
                     background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
                     WebkitBackgroundClip: 'text',
@@ -3566,11 +3566,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           />
         </motion.div>
 
-        {/* ═══ TOP PLAYERS + VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-10 md:items-stretch">
+        {/* ═══ TOP PLAYERS — Leaderboard section ═══ */}
+        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <TopPlayersSection data={activeData} onPlayerClick={handlePlayerClick} />
-          <VideoHighlightSection division="all" />
-          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
@@ -3581,6 +3579,12 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ DONASI & SAWER SECTION ═══ */}
         <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <DonasiSawerSection data={activeData} />
+        </div>
+
+        {/* ═══ VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
+        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-6 md:mb-10 md:items-stretch">
+          <VideoHighlightSection division="all" />
+          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ QUICK INFO SECTION ═══ */}

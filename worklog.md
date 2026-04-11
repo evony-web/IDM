@@ -131,3 +131,22 @@ Stage Summary:
 - Club carousel auto-scrolls every 7 seconds instead of 3 seconds
 - 7 clubs visible on desktop horizontal layout
 - No lint errors
+
+---
+Task ID: 12
+Agent: Main Agent
+Task: Mobile club 3-per-row + Move Highlight/Info below Dukungan & Sawer
+
+Work Log:
+- Changed club card mobile layout from 2-per-row to 3-per-row (w-[calc(50%-8px)] → w-[calc(33.333%-11px)])
+- Made club card text responsive: smaller text on mobile (text-[11px] → text-[10px]/[11px] sm breakpoints)
+- Split leaderboard grid: Top Players stays above Dukungan & Sawer, Video Highlight + Informasi Terbaru moved below
+- New section order: Division Cards → Top Players → Clubs Carousel → Dukungan & Sawer → Video Highlight + Info → Quick Info
+- Adjusted padding and font sizes for 3-per-row mobile cards
+- Lint check passed clean
+
+Stage Summary:
+- Mobile now shows 3 clubs per row (was 2)
+- Video Highlight and Informasi Terbaru sections moved below Dukungan & Sawer
+- Top Players leaderboard remains above Dukungan & Sawer
+- All responsive breakpoints working correctly
