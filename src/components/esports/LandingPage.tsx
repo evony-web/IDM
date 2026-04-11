@@ -792,19 +792,34 @@ function PlayerRow({
         </p>
         <p className="text-[9px] text-white/30">pts</p>
         {player.seasonPoints && player.seasonPoints.length > 0 && (
-          <div className="flex items-center gap-0.5 justify-end mt-0.5 flex-wrap">
-            {player.seasonPoints.map((sp) => (
-              <span
-                key={sp.season}
-                className="text-[6px] font-semibold px-0.5 rounded"
-                style={{
-                  background: `rgba(${accent},0.08)`,
-                  color: `rgba(${accent},0.5)`,
-                }}
-              >
-                S{sp.season}:{sp.points}
+          <div className="mt-1 space-y-0.5">
+            {/* Cumulative total */}
+            <div
+              className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded"
+              style={{
+                background: 'rgba(255,215,0,0.08)',
+                border: '1px solid rgba(255,215,0,0.12)',
+              }}
+            >
+              <span className="text-[7px] font-bold" style={{ color: '#FFD700' }}>
+                Σ {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()}
               </span>
-            ))}
+            </div>
+            {/* Per-season */}
+            <div className="flex items-center gap-0.5 justify-end flex-wrap">
+              {player.seasonPoints.map((sp) => (
+                <span
+                  key={sp.season}
+                  className="text-[6px] font-semibold px-0.5 rounded"
+                  style={{
+                    background: `rgba(${accent},0.08)`,
+                    color: `rgba(${accent},0.5)`,
+                  }}
+                >
+                  S{sp.season}:{sp.points}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -1180,10 +1195,15 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[1].name}</p>
                     <p className="text-[10px] font-bold" style={{ color: allPlayers[1].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[1].points.toLocaleString()} pts</p>
                     {allPlayers[1].seasonPoints && allPlayers[1].seasonPoints.length > 0 && (
-                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
-                        {allPlayers[1].seasonPoints.map(sp => (
-                          <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
-                        ))}
+                      <div className="mt-0.5 space-y-0.5 flex flex-col items-center">
+                        <div className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.12)' }}>
+                          <span className="text-[6px] font-bold" style={{ color: '#FFD700' }}>Σ {allPlayers[1].seasonPoints.reduce((sum, sp) => sum + sp.points, 0)}</span>
+                        </div>
+                        <div className="flex gap-0.5 flex-wrap justify-center">
+                          {allPlayers[1].seasonPoints.map(sp => (
+                            <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[1].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1206,10 +1226,15 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <p className="text-[12px] font-bold text-white/90 mt-1.5 truncate w-full text-center">{allPlayers[0].name}</p>
                     <p className="text-[11px] font-bold" style={{ color: allPlayers[0].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[0].points.toLocaleString()} pts</p>
                     {allPlayers[0].seasonPoints && allPlayers[0].seasonPoints.length > 0 && (
-                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
-                        {allPlayers[0].seasonPoints.map(sp => (
-                          <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
-                        ))}
+                      <div className="mt-0.5 space-y-0.5 flex flex-col items-center">
+                        <div className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.12)' }}>
+                          <span className="text-[6px] font-bold" style={{ color: '#FFD700' }}>Σ {allPlayers[0].seasonPoints.reduce((sum, sp) => sum + sp.points, 0)}</span>
+                        </div>
+                        <div className="flex gap-0.5 flex-wrap justify-center">
+                          {allPlayers[0].seasonPoints.map(sp => (
+                            <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[0].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1229,10 +1254,15 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                     <p className="text-[11px] font-semibold text-white/80 mt-1.5 truncate w-full text-center">{allPlayers[2].name}</p>
                     <p className="text-[10px] font-bold" style={{ color: allPlayers[2].gender === 'male' ? '#73FF00' : '#38BDF8' }}>{allPlayers[2].points.toLocaleString()} pts</p>
                     {allPlayers[2].seasonPoints && allPlayers[2].seasonPoints.length > 0 && (
-                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
-                        {allPlayers[2].seasonPoints.map(sp => (
-                          <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
-                        ))}
+                      <div className="mt-0.5 space-y-0.5 flex flex-col items-center">
+                        <div className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.12)' }}>
+                          <span className="text-[6px] font-bold" style={{ color: '#FFD700' }}>Σ {allPlayers[2].seasonPoints.reduce((sum, sp) => sum + sp.points, 0)}</span>
+                        </div>
+                        <div className="flex gap-0.5 flex-wrap justify-center">
+                          {allPlayers[2].seasonPoints.map(sp => (
+                            <span key={sp.season} className="text-[6px] font-semibold px-0.5 rounded" style={{ background: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)', color: allPlayers[2].gender === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)' }}>S{sp.season}:{sp.points}</span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1287,19 +1317,34 @@ function TopPlayersSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                       <div className="text-right shrink-0">
                         <span className="text-[12px] font-bold" style={{ color: '#FFD700' }}>{player.points.toLocaleString()}</span>
                         {player.seasonPoints && player.seasonPoints.length > 0 && (
-                          <div className="flex items-center gap-1 justify-end mt-0.5 flex-wrap">
-                            {player.seasonPoints.map((sp) => (
-                              <span
-                                key={sp.season}
-                                className="text-[7px] font-semibold px-1 py-[1px] rounded"
-                                style={{
-                                  background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                                  color: isMale ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
-                                }}
-                              >
-                                S{sp.season}:{sp.points}
+                          <div className="mt-0.5 space-y-0.5">
+                            {/* Cumulative total */}
+                            <div
+                              className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded"
+                              style={{
+                                background: 'rgba(255,215,0,0.08)',
+                                border: '1px solid rgba(255,215,0,0.12)',
+                              }}
+                            >
+                              <span className="text-[7px] font-bold" style={{ color: '#FFD700' }}>
+                                Σ {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()}
                               </span>
+                            </div>
+                            {/* Per-season */}
+                            <div className="flex items-center gap-0.5 justify-end flex-wrap">
+                              {player.seasonPoints.map((sp) => (
+                                <span
+                                  key={sp.season}
+                                  className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                                  style={{
+                                    background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                                    color: isMale ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
+                                  }}
+                                >
+                                  S{sp.season}:{sp.points}
+                                </span>
                             ))}
+                            </div>
                           </div>
                         )}
                       </div>

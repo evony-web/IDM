@@ -270,21 +270,37 @@ function PodiumCard({
             </div>
           )}
 
-          {/* Season Points Breakdown */}
+          {/* Season Points — cumulative total + breakdown */}
           {player?.seasonPoints && player.seasonPoints.length > 0 && (
-            <div className="flex items-center gap-1 justify-center mt-1.5 flex-wrap">
-              {player.seasonPoints.map((sp) => (
-                <span
-                  key={sp.season}
-                  className="text-[7px] font-semibold px-1 py-[1px] rounded"
-                  style={{
-                    background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                    color: division === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)',
-                  }}
-                >
-                  S{sp.season}:{sp.points}
+            <div className="mt-1.5 space-y-0.5 flex flex-col items-center">
+              {/* Cumulative total badge */}
+              <div
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md"
+                style={{
+                  background: 'rgba(255,215,0,0.10)',
+                  border: '1px solid rgba(255,215,0,0.15)',
+                }}
+              >
+                <Trophy className="w-2.5 h-2.5" style={{ color: '#FFD700' }} />
+                <span className="text-[8px] font-bold" style={{ color: '#FFD700' }}>
+                  {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()} total
                 </span>
-              ))}
+              </div>
+              {/* Per-season breakdown */}
+              <div className="flex items-center gap-0.5 justify-center flex-wrap">
+                {player.seasonPoints.map((sp) => (
+                  <span
+                    key={sp.season}
+                    className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                    style={{
+                      background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                      color: division === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)',
+                    }}
+                  >
+                    S{sp.season}:{sp.points}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
@@ -434,19 +450,35 @@ function PlayerRow({
           </p>
           <p className="text-[10px] text-white/35 font-medium mt-0.5">poin</p>
           {player.seasonPoints && player.seasonPoints.length > 0 && (
-            <div className="flex items-center gap-1 justify-end mt-1 flex-wrap">
-              {player.seasonPoints.map((sp) => (
-                <span
-                  key={sp.season}
-                  className="text-[7px] font-semibold px-1 py-[1px] rounded"
-                  style={{
-                    background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                    color: division === 'male' ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
-                  }}
-                >
-                  S{sp.season}:{sp.points}
+            <div className="mt-1.5 space-y-0.5">
+              {/* Cumulative season total */}
+              <div
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md"
+                style={{
+                  background: 'rgba(255,215,0,0.10)',
+                  border: '1px solid rgba(255,215,0,0.15)',
+                }}
+              >
+                <Trophy className="w-2.5 h-2.5" style={{ color: '#FFD700' }} />
+                <span className="text-[9px] font-bold" style={{ color: '#FFD700' }}>
+                  {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()} total
                 </span>
-              ))}
+              </div>
+              {/* Per-season breakdown */}
+              <div className="flex items-center gap-0.5 justify-end flex-wrap">
+                {player.seasonPoints.map((sp) => (
+                  <span
+                    key={sp.season}
+                    className="text-[7px] font-semibold px-1 py-[1px] rounded"
+                    style={{
+                      background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                      color: division === 'male' ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
+                    }}
+                  >
+                    S{sp.season}:{sp.points}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
