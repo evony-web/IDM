@@ -55,6 +55,9 @@ const DEFAULT_SETTINGS: Record<string, string> = {
 
   // OG Image
   og_base_url: process.env.NEXTAUTH_URL || '',
+
+  // Season tracking
+  current_season: '1',
 };
 
 // GET /api/settings — Public: returns non-sensitive settings for client
@@ -110,6 +113,14 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, error: 'Invalid settings data' }, { status: 400 });
     }
 
+    // Validate current_season is a positive integer if provided
+    if (settings.current_season !== undefined) {
+      const seasonNum = parseInt(settings.current_season, 10);
+      if (isNaN(seasonNum) || seasonNum < 1) {
+        return NextResponse.json({ success: false, error: 'current_season must be a positive integer' }, { status: 400 });
+      }
+    }
+
     // Upsert each setting
     const upserts = Object.entries(settings).map(([key, value]) =>
       db.settings.upsert({
@@ -131,6 +142,7 @@ export async function PUT(request: Request) {
 // Filter out sensitive settings for public API
 function getPublicSettings(all: Record<string, string>): Record<string, string> {
   const sensitive = ['whatsapp_bot_url', 'discord_bot_url', 'ai_system_prompt', 'og_base_url'];
+  // current_season is public (needed for leaderboard)
   const filtered: Record<string, string> = {};
   for (const [key, value] of Object.entries(all)) {
     if (!sensitive.includes(key)) {

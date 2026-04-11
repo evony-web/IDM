@@ -208,6 +208,23 @@ export async function PUT(request: NextRequest) {
       data: updateData,
     });
 
+    // ── Auto-increment season when tournament is completed ──
+    if (status === 'completed') {
+      try {
+        const currentSeasonSetting = await db.settings.findUnique({ where: { key: 'current_season' } });
+        const currentSeason = currentSeasonSetting ? parseInt(currentSeasonSetting.value, 10) : 1;
+        const nextSeason = currentSeason + 1;
+        await db.settings.upsert({
+          where: { key: 'current_season' },
+          update: { value: String(nextSeason) },
+          create: { key: 'current_season', value: String(nextSeason) },
+        });
+        console.log(`[Tournament Update] Season incremented: ${currentSeason} → ${nextSeason}`);
+      } catch (seasonErr) {
+        console.warn('[Tournament Update] Failed to increment season:', seasonErr);
+      }
+    }
+
     triggerTournamentUpdate(tournament.division, { action: 'updated', tournamentId: tournament.id, division: tournament.division }).catch(() => {});
 
     // ═══ NOTIFICATION: Fire-and-forget (status change) ═══

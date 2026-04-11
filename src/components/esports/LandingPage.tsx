@@ -1647,15 +1647,30 @@ interface SeasonLeaderboardPlayer {
 function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
   const [seasonPlayers, setSeasonPlayers] = useState<SeasonLeaderboardPlayer[]>([]);
   const [seasons, setSeasons] = useState<number[]>([]);
+  const [currentSeason, setCurrentSeason] = useState<number>(1);
   const [seasonLoaded, setSeasonLoaded] = useState(false);
   const [filterGender, setFilterGender] = useState<'all' | 'male' | 'female'>('all');
-  const [selectedSeason, setSelectedSeason] = useState<number | 'all'>('all');
+  const [selectedSeason, setSelectedSeason] = useState<number | 'all'>(1); // Default to current season
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
   const [showAllModal, setShowAllModal] = useState(false);
   const seasonDropdownRef = useRef<HTMLDivElement>(null);
 
   const VISIBLE_COUNT = 7;
+
+  // Helper to process API response
+  const processSeasonData = (json: any) => {
+    if (json?.success && json.data) {
+      const players = json.data.players || [];
+      const seasonList = json.data.seasons || [];
+      const cs = json.data.currentSeason || 1;
+      setSeasonPlayers(players);
+      setSeasons(seasonList);
+      setCurrentSeason(cs);
+      return { players, seasonList, cs };
+    }
+    return null;
+  };
 
   // Fetch season data on mount
   useEffect(() => {
@@ -1664,9 +1679,12 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
     fetch(`/api/season-leaderboard${genderParam}`)
       .then(res => res.ok ? res.json() : null)
       .then(json => {
-        if (!cancelled && json?.success && json.data) {
-          setSeasonPlayers(json.data.players || []);
-          setSeasons(json.data.seasons || []);
+        if (!cancelled) {
+          const result = processSeasonData(json);
+          if (result) {
+            // Set selected season to current season on first load
+            setSelectedSeason(result.cs);
+          }
           setSeasonLoaded(true);
         }
       })
@@ -1683,10 +1701,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
       fetch(`/api/season-leaderboard${genderParam}`)
         .then(res => res.ok ? res.json() : null)
         .then(json => {
-          if (json?.success && json.data) {
-            setSeasonPlayers(json.data.players || []);
-            setSeasons(json.data.seasons || []);
-          }
+          processSeasonData(json);
         })
         .catch(() => {});
     };

@@ -59,16 +59,27 @@ export async function GET(request: NextRequest) {
     });
     const seasons = Array.from(allSeasons).sort((a, b) => a - b);
 
+    // Get current season from settings
+    let currentSeason = 1;
+    try {
+      const currentSeasonSetting = await db.settings.findUnique({ where: { key: 'current_season' } });
+      if (currentSeasonSetting) {
+        const parsed = parseInt(currentSeasonSetting.value, 10);
+        if (!isNaN(parsed) && parsed >= 1) currentSeason = parsed;
+      }
+    } catch { /* use default */ }
+
     return NextResponse.json({
       success: true,
       data: {
         players: playersWithSeasons,
         seasons,
+        currentSeason,
         totalPlayers: playersWithSeasons.length,
       },
     });
   } catch (error) {
     console.error('[SeasonLeaderboard] GET error:', error);
-    return NextResponse.json({ success: false, data: { players: [], seasons: [], totalPlayers: 0 } });
+    return NextResponse.json({ success: false, data: { players: [], seasons: [], currentSeason: 1, totalPlayers: 0 } });
   }
 }
