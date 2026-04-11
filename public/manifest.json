@@ -1,13 +1,19 @@
 {
-  "name": "Brackito - Tournament Manager",
-  "short_name": "Brackito",
-  "description": "Create and manage tournaments with ease. Single/Double Elimination, Round Robin, Swiss formats supported.",
+  "name": "IDOL META — TARKAM Fan Made",
+  "short_name": "IDM",
+  "description": "IDOL META Tournament — TARKAM Fan Made Edition. Live brackets, leaderboard, dan competitive gaming experience.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#10b981",
-  "orientation": "any",
+  "background_color": "#050507",
+  "theme_color": "#73FF00",
+  "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
@@ -15,13 +21,19 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["sports", "entertainment", "utilities"],
+  "categories": ["sports", "entertainment", "games"],
   "shortcuts": [
     {
-      "name": "Create Tournament",
-      "short_name": "Create",
-      "url": "/?action=create",
-      "icons": [{ "src": "/icon-512.png", "sizes": "512x512" }]
+      "name": "Male Division",
+      "short_name": "Male",
+      "url": "/?division=male",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Female Division",
+      "short_name": "Female",
+      "url": "/?division=female",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

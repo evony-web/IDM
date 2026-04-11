@@ -298,6 +298,7 @@ function ChallongeMatchCard({
   bracketLabel,
   isAdmin,
   fullWidth = false,
+  cardWidth = 220,
 }: {
   match: Match;
   division: 'male' | 'female';
@@ -306,6 +307,7 @@ function ChallongeMatchCard({
   bracketLabel?: string;
   isAdmin?: boolean;
   fullWidth?: boolean;
+  cardWidth?: number;
 }) {
   const c = getC(division);
   const teamA = match.teamA;
@@ -319,6 +321,7 @@ function ChallongeMatchCard({
   const hasBothTeams = !!teamA && !!teamB;
   const isGrandFinal = match.bracket === 'grand_final';
   const isLosers = match.bracket === 'losers';
+  const isLive = match.status === 'ongoing' || match.status === 'live';
 
   const [editScoreA, setEditScoreA] = useState(match.scoreA ?? 0);
   const [editScoreB, setEditScoreB] = useState(match.scoreB ?? 0);
@@ -392,6 +395,7 @@ function ChallongeMatchCard({
   // Determine card border style
   const getBorderStyle = (): React.CSSProperties => {
     if (isEditing) return { borderColor: c.liveBorder, boxShadow: `0 0 20px ${c.liveBorder}` };
+    if (isLive) return { borderColor: c.liveBorder, boxShadow: `0 0 12px ${c.liveBorder}` };
     if (isGrandFinal) return { borderColor: c.grandBorder, boxShadow: `0 0 15px ${c.grandGlow}` };
     if (isLosers) return { borderColor: c.losersBorder };
     if (isCompleted && (isWinnerA || isWinnerB)) return { borderColor: c.cardBorderWinner };
@@ -409,9 +413,10 @@ function ChallongeMatchCard({
         className={`relative overflow-hidden rounded-xl border backdrop-blur-sm transition-colors
           ${(canAdminEdit || canAdminBye || (isCompleted && !isAdmin)) ? 'cursor-pointer' : ''}
           ${isEditing ? 'ring-2 ring-red-500/50' : ''}
+          ${isLive ? 'ring-2 ring-red-500/30' : ''}
           ${isGrandFinal ? 'ring-1' : ''}`}
         style={{
-          width: fullWidth ? '100%' : 220,
+          width: fullWidth ? '100%' : cardWidth,
           background: isGrandFinal
             ? `linear-gradient(135deg, ${c.cardBg}, rgba(234,179,8,0.04))`
             : c.cardBg,
@@ -450,7 +455,7 @@ function ChallongeMatchCard({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            {isEditing && (
+            {(isEditing || isLive) && (
               <div className="flex items-center gap-0.5">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
@@ -459,10 +464,10 @@ function ChallongeMatchCard({
                 <span className="text-[7px] font-bold uppercase tracking-wider text-red-400">LIVE</span>
               </div>
             )}
-            {isCompleted && !isEditing && (
+            {isCompleted && !isEditing && !isLive && (
               <span className="text-[7px] font-bold uppercase tracking-wider text-white/20 bg-white/5 px-1.5 py-0.5 rounded">FT</span>
             )}
-            {isPending && !isEditing && (
+            {isPending && !isEditing && !isLive && (
               <span className="text-[7px] font-bold uppercase tracking-wider text-white/15">VS</span>
             )}
           </div>
@@ -768,9 +773,13 @@ function DesktopBracket({
       computeConnectors();
     });
 
-    // Recompute on resize
+    // Recompute on resize with debounce
+    let debounceTimer: ReturnType<typeof setTimeout>;
     const observer = new ResizeObserver(() => {
-      requestAnimationFrame(computeConnectors);
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        requestAnimationFrame(computeConnectors);
+      }, 150);
     });
 
     if (containerRef.current) {
@@ -779,14 +788,37 @@ function DesktopBracket({
 
     return () => {
       cancelAnimationFrame(rafId);
+      clearTimeout(debounceTimer);
       observer.disconnect();
     };
   }, [sortedKeys, rounds, maxRound]);
 
-  // Layout constants
-  const CARD_WIDTH = 220;
-  const CARD_GAP_X = 80; // horizontal gap between rounds
-  const ROUND_PADDING = 16;
+  // Responsive card dimensions based on viewport width
+  const [layoutDims, setLayoutDims] = useState({ cardWidth: 220, cardGapX: 80 });
+
+  useEffect(() => {
+    const updateDims = () => {
+      const w = window.innerWidth;
+      const isTablet = w < 1024;
+      setLayoutDims(prev => {
+        const newWidth = isTablet ? 180 : 220;
+        const newGap = isTablet ? 40 : 80;
+        if (prev.cardWidth === newWidth && prev.cardGapX === newGap) return prev;
+        return { cardWidth: newWidth, cardGapX: newGap };
+      });
+    };
+    updateDims();
+    let dimTimer: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(dimTimer);
+      dimTimer = setTimeout(updateDims, 150);
+    };
+    window.addEventListener('resize', onResize);
+    return () => {
+      clearTimeout(dimTimer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
 
   // Calculate vertical spacing per round
   const getRoundHeight = (roundKey: number) => {
@@ -808,7 +840,7 @@ function DesktopBracket({
       {/* Rounds Layer */}
       <motion.div
         className="flex"
-        style={{ gap: CARD_GAP_X }}
+        style={{ gap: layoutDims.cardGapX }}
         variants={bracketContainerVariants}
         initial="hidden"
         animate="visible"
@@ -818,7 +850,7 @@ function DesktopBracket({
           const roundLabel = getRoundLabel(roundKey, maxRound, bracketFilter ? getBracketLabel(bracketFilter) : undefined);
 
           return (
-            <div key={roundKey} className="flex flex-col flex-shrink-0" style={{ width: CARD_WIDTH }}>
+            <div key={roundKey} className="flex flex-col flex-shrink-0" style={{ width: layoutDims.cardWidth }}>
               {/* Round Label */}
               <motion.div
                 variants={roundLabelVariants}
@@ -856,6 +888,7 @@ function DesktopBracket({
                       isFinal={isFinal(roundKey)}
                       bracketLabel={bracketFilter ? undefined : getBracketLabel(match.bracket)}
                       isAdmin={isAdmin}
+                      cardWidth={layoutDims.cardWidth}
                     />
                   </div>
                 ))}
@@ -993,7 +1026,7 @@ function MobileBracket({
               </motion.div>
 
               {/* Match Cards — full width grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 {roundMatches.map((match) => (
                   <div
                     key={match.id}
@@ -1193,6 +1226,54 @@ function RoundRobinView({
    Responsive Hook
    ================================================================ */
 
+/* ================================================================
+   Bracket Progress Bar
+   ================================================================ */
+
+function BracketProgressBar({ matches, division }: { matches: Match[]; division: 'male' | 'female' }) {
+  const c = getC(division);
+  const total = matches.length;
+  const completed = matches.filter(m => m.status === 'completed').length;
+  const live = matches.filter(m => m.status === 'ongoing' || m.status === 'live').length;
+  const progress = total > 0 ? (completed / total) * 100 : 0;
+
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Trophy className="w-3.5 h-3.5" style={{ color: c.accentText }} />
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: c.accentText }}>
+            Bracket Progress
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {live > 0 && (
+            <div className="flex items-center gap-1">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
+              </span>
+              <span className="text-[9px] font-bold text-red-400">{live} live</span>
+            </div>
+          )}
+          <span className="text-[10px] font-medium tabular-nums text-white/30">
+            {completed}/{total} matches
+          </span>
+        </div>
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+        <motion.div
+          className="h-full rounded-full"
+          style={{ background: c.accent }}
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function useIsMobile(breakpoint = 768): boolean {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -1277,6 +1358,7 @@ export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, br
     return (
       <div className="w-full" style={{ background: c.bg }}>
         {mvpDisplay}
+        <BracketProgressBar matches={matches} division={division} />
         <RoundRobinView
           matches={matches}
           division={division}
@@ -1292,6 +1374,7 @@ export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, br
     return (
       <div className="w-full" style={{ background: c.bg }}>
         {mvpDisplay}
+        <BracketProgressBar matches={matches} division={division} />
 
         {/* Winners Bracket */}
         {winnersMatches.length > 0 && (
@@ -1401,6 +1484,7 @@ export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, br
   return (
     <div className="w-full" style={{ background: c.bg }}>
       {mvpDisplay}
+      <BracketProgressBar matches={matches} division={division} />
 
       {isMobile ? (
         <div className="overflow-x-auto -mx-4 px-4">

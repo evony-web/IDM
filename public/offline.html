@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline — IDOL META</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: #050507;
+      color: white;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, rgba(115,255,0,0.15), rgba(56,189,248,0.15));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #73FF00, #FFD700, #38BDF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      max-width: 320px;
+      margin-bottom: 32px;
+    }
+    button {
+      padding: 14px 32px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(115,255,0,0.3);
+      background: rgba(115,255,0,0.1);
+      color: #73FF00;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover {
+      background: rgba(115,255,0,0.18);
+      border-color: rgba(115,255,0,0.45);
+    }
+    button:active {
+      transform: scale(0.97);
+    }
+    .icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">📡</div>
+  <h1>IDOL META</h1>
+  <p>Anda sedang offline. Pastikan koneksi internet aktif dan coba lagi.</p>
+  <button onclick="location.reload()">Coba Lagi</button>
+</body>
+</html>

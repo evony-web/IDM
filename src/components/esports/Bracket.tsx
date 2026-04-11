@@ -2026,7 +2026,7 @@ function DualLayoutBracket({ sortedKeys, rounds, maxRound, division, onUpdateSco
           animate="visible"
           className="min-h-[340px]"
         >
-          <ZoomPanWrapper initialScale={0.5} minScale={0.25} maxScale={1.2}>
+          <ZoomPanWrapper initialScale={0.85} minScale={0.25} maxScale={1.2}>
             <div className="flex items-stretch gap-3 pb-4">
               {mobileContent}
             </div>
@@ -2238,7 +2238,7 @@ export function Bracket({ division, matches, isAdmin, onUpdateScore, bracketType
             animate="visible"
             className="min-h-[340px]"
           >
-            <ZoomPanWrapper initialScale={0.5} minScale={0.25} maxScale={1.2}>
+            <ZoomPanWrapper initialScale={0.85} minScale={0.25} maxScale={1.2}>
               <div className="flex items-stretch gap-3 pb-4">
                 {sortedKeys.map((roundNum, roundIndex) => {
                   const roundMatches = rounds[roundNum];

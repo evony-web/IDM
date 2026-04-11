@@ -1,7 +1,8 @@
-const CACHE_NAME = 'brackito-v1';
+const CACHE_NAME = 'idm-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
+  '/icon-192.png',
   '/icon-512.png',
 ];
 
@@ -37,11 +38,29 @@ self.addEventListener('fetch', (event) => {
   // Skip API requests - always fetch from network
   if (url.pathname.startsWith('/api/')) return;
 
-  // For navigation requests, try network first, then cache
+  // For Next.js static assets (JS bundles, CSS), use stale-while-revalidate
+  if (url.pathname.startsWith('/_next/static/')) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) =>
+        cache.match(request).then((cached) => {
+          const fetchPromise = fetch(request).then((response) => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          }).catch(() => cached);
+          return cached || fetchPromise;
+        })
+      )
+    );
+    return;
+  }
+
+  // For navigation requests, try network first, then cache, then offline page
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() => {
-        return caches.match('/');
+        return caches.match('/').catch(() => caches.match('/offline.html'));
       })
     );
     return;

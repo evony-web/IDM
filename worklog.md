@@ -275,3 +275,24 @@ Stage Summary:
 - Admin score editing with MVP selection
 - Standings table for Round Robin/Swiss
 - Clean lint, no errors
+
+---
+Task ID: 1-a
+Agent: PWA Fix Agent
+Task: Fix PWA manifest, service worker, and offline page
+
+Work Log:
+- Updated /public/manifest.json: name → "IDOL META — TARKAM Fan Made", short_name → "IDM", description updated, background_color → "#050507", theme_color → "#73FF00", orientation → "portrait-primary"
+- Added icon-192.png entry (purpose: "any"), kept icon-512.png (purpose: "any maskable")
+- Updated categories to ["sports", "entertainment", "games"], shortcuts to Male/Female Division links
+- Updated /public/sw.js: CACHE_NAME → 'idm-v2', STATIC_ASSETS includes '/icon-192.png', added stale-while-revalidate strategy for /_next/static/ assets
+- Navigation fallback now serves /offline.html instead of '/' on network failure
+- Created /public/offline.html: dark themed (#050507), gradient "IDOL META" title, "Anda sedang offline" message, "Coba Lagi" reload button
+- Generated icon-192.png using z-ai CLI (esports IDM icon, neon green on black), resized from 1024→192px via ffmpeg
+- Fixed icon-512.png: was actually a 1024x1024 JPEG mislabeled as PNG — resized to proper 512x512 PNG via ffmpeg
+
+Stage Summary:
+- PWA manifest fully rebranded to IDOL META / IDM with correct colors, orientation, icons, and shortcuts
+- Service worker updated with idm-v2 cache, stale-while-revalidate for Next.js static assets, offline page fallback
+- Dark-themed offline page created with gradient branding and Indonesian-language messaging
+- Both icon files (192px, 512px) now exist as proper PNGs at correct dimensions
