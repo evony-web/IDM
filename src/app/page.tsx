@@ -1081,13 +1081,13 @@ export default function IDOLMETAApp() {
         <>
           {/* Background - no animation on division switch to prevent blur */}
           <div className="absolute inset-0">
-            <GradientBackground division={division} uiTheme={theme} />
+            <GradientBackground division={division} uiTheme={division === 'male' ? 'dark-male' : 'dark-female'} />
           </div>
 
           {/* Premium 3D Effects */}
           <Premium3DEffects
             color={division === 'male' ? 'blue' : 'pink'}
-            uiTheme={theme}
+            uiTheme={division === 'male' ? 'dark-male' : 'dark-female'}
           />
 
 
