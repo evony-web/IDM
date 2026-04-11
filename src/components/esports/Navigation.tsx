@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
+  Crosshair,
+  Compass,
 } from 'lucide-react';
 import { NotificationPanel } from '@/components/esports/NotificationPanel';
 
@@ -54,9 +56,11 @@ interface TopBarProps {
 
 const regularNavItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
+  { id: 'discover', label: 'Discover', icon: Compass },
   { id: 'tournament', label: 'Tournament', icon: Swords },
   { id: 'bracket', label: 'Bracket', icon: GitBranch },
   { id: 'leaderboard', label: 'Leaderboard', icon: BarChart3 },
+  { id: 'bounty', label: 'Bounty', icon: Crosshair },
   { id: 'donation', label: 'Donasi', icon: Heart },
 ];
 
@@ -225,8 +229,8 @@ export function Navigation({ activeTab, onTabChange, division }: NavigationProps
           />
 
           <div className="relative flex items-center justify-around px-2 py-2">
-            {/* ── Left group: Dashboard, Tournament ── */}
-            {regularNavItems.slice(0, 2).map((item) => {
+            {/* ── Left group: Dashboard, Discover, Tournament ── */}
+            {regularNavItems.slice(0, 3).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
@@ -316,8 +320,8 @@ export function Navigation({ activeTab, onTabChange, division }: NavigationProps
 
             </motion.button>
 
-            {/* ── Right group: Bracket, Leaderboard ── */}
-            {regularNavItems.slice(2, 4).map((item) => {
+            {/* ── Right group: Leaderboard, Bounty ── */}
+            {regularNavItems.slice(4, 6).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (

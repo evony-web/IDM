@@ -1,0 +1,157 @@
+import { db } from '@/lib/db'
+import { NextRequest, NextResponse } from 'next/server'
+
+// POST /api/wallet/transfer
+// Transfer points between users
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { senderId, receiverId, amount, reason } = body
+
+    // Validate required fields
+    if (!senderId || !receiverId || amount === undefined || amount === null) {
+      return NextResponse.json(
+        { success: false, error: 'senderId, receiverId, and amount are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate amount
+    if (typeof amount !== 'number' || amount <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Amount must be a positive number' },
+        { status: 400 }
+      )
+    }
+
+    // Cannot transfer to self
+    if (senderId === receiverId) {
+      return NextResponse.json(
+        { success: false, error: 'Cannot transfer to yourself' },
+        { status: 400 }
+      )
+    }
+
+    // Verify both users exist
+    const [sender, receiver] = await Promise.all([
+      db.user.findUnique({ where: { id: senderId } }),
+      db.user.findUnique({ where: { id: receiverId } }),
+    ])
+
+    if (!sender) {
+      return NextResponse.json(
+        { success: false, error: 'Sender not found' },
+        { status: 404 }
+      )
+    }
+
+    if (!receiver) {
+      return NextResponse.json(
+        { success: false, error: 'Receiver not found' },
+        { status: 404 }
+      )
+    }
+
+    // Auto-create wallets if not exists
+    let senderWallet = await db.wallet.findUnique({ where: { userId: senderId } })
+    if (!senderWallet) {
+      senderWallet = await db.wallet.create({
+        data: { userId: senderId, balance: 0, totalIn: 0, totalOut: 0 },
+      })
+    }
+
+    let receiverWallet = await db.wallet.findUnique({ where: { userId: receiverId } })
+    if (!receiverWallet) {
+      receiverWallet = await db.wallet.create({
+        data: { userId: receiverId, balance: 0, totalIn: 0, totalOut: 0 },
+      })
+    }
+
+    // Check sufficient balance
+    if (senderWallet.balance < amount) {
+      return NextResponse.json(
+        { success: false, error: 'Insufficient balance' },
+        { status: 400 }
+      )
+    }
+
+    // Execute transfer in a transaction
+    const result = await db.$transaction(async (tx) => {
+      // Create transfer record
+      const transfer = await tx.walletTransfer.create({
+        data: {
+          senderId,
+          receiverId,
+          amount,
+          reason: reason || null,
+          status: 'completed',
+        },
+      })
+
+      // Create debit transaction for sender
+      const senderTransaction = await tx.walletTransaction.create({
+        data: {
+          walletId: senderWallet!.id,
+          type: 'debit',
+          amount,
+          category: 'transfer',
+          description: reason
+            ? `Transfer to ${receiver.name}: ${reason}`
+            : `Transfer to ${receiver.name}`,
+          referenceId: transfer.id,
+        },
+      })
+
+      // Create credit transaction for receiver
+      const receiverTransaction = await tx.walletTransaction.create({
+        data: {
+          walletId: receiverWallet!.id,
+          type: 'credit',
+          amount,
+          category: 'transfer',
+          description: reason
+            ? `Transfer from ${sender.name}: ${reason}`
+            : `Transfer from ${sender.name}`,
+          referenceId: transfer.id,
+        },
+      })
+
+      // Update sender wallet (debit)
+      const updatedSenderWallet = await tx.wallet.update({
+        where: { id: senderWallet!.id },
+        data: {
+          balance: { decrement: amount },
+          totalOut: { increment: amount },
+        },
+      })
+
+      // Update receiver wallet (credit)
+      const updatedReceiverWallet = await tx.wallet.update({
+        where: { id: receiverWallet!.id },
+        data: {
+          balance: { increment: amount },
+          totalIn: { increment: amount },
+        },
+      })
+
+      return {
+        transfer,
+        senderTransaction,
+        receiverTransaction,
+        updatedSenderWallet,
+        updatedReceiverWallet,
+      }
+    })
+
+    return NextResponse.json({
+      success: true,
+      transfer: result.transfer,
+    })
+  } catch (error) {
+    console.error('[Wallet Transfer POST] Error:', error)
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

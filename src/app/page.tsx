@@ -15,6 +15,8 @@ import { TournamentTab } from '@/components/esports/Tournament';
 import { ChallongeBracket } from '@/components/esports/ChallongeBracket';
 import { Leaderboard } from '@/components/esports/Leaderboard';
 import { DonasiSawerTab } from '@/components/esports/DonasiSawerTab';
+import { BountieTab } from '@/components/esports/BountieTab';
+import { TournamentDiscovery } from '@/components/esports/TournamentDiscovery';
 import { AdminLogin } from '@/components/esports/AdminLogin';
 import { LandingPage } from '@/components/esports/LandingPage';
 import { ToastContainer } from '@/components/esports/Toast';
@@ -1220,6 +1222,16 @@ export default function IDOLMETAApp() {
                   />
                 )}
 
+                {activeTab === 'discover' && (
+                  <TournamentDiscovery
+                    division={division}
+                    onTournamentSelect={(id) => {
+                      setActiveTab('bracket');
+                      addToast('Memuat bracket turnamen...', 'info');
+                    }}
+                  />
+                )}
+
                 {activeTab === 'tournament' && (
                   <TournamentTab
                     division={division}
@@ -1255,6 +1267,13 @@ export default function IDOLMETAApp() {
                   <Leaderboard
                     division={division}
                     players={topPlayers}
+                    onPlayerClick={(playerId) => setAppProfileId(playerId)}
+                  />
+                )}
+
+                {activeTab === 'bounty' && (
+                  <BountieTab
+                    division={division}
                     onPlayerClick={(playerId) => setAppProfileId(playerId)}
                   />
                 )}

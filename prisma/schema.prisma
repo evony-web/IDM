@@ -34,6 +34,7 @@ model Tournament {
   registrations Registration[]
   sawers        Sawer[]
   teams         Team[]
+  bounties      Bounty[]
 }
 
 model User {
@@ -56,6 +57,14 @@ model User {
   updatedAt   DateTime @updatedAt
   city        String?
 
+  // ── ELO / Skill Rating ──
+  eloRating   Int      @default(1000)
+  eloTier     String   @default("Bronze")
+  winStreak   Int      @default(0)
+  bestStreak  Int      @default(0)
+  totalKills  Int      @default(0)
+  totalDeaths Int      @default(0)
+
   donations       Donation[]
   matchesAsMvp    Match[]        @relation("UserMvpMatches")
   rankings        Ranking?
@@ -66,16 +75,29 @@ model User {
   seasonPoints    PlayerSeason[]
   activityLogs    ActivityLog[]
   character       Character?
+  wallet          Wallet?
+  bountiesPlaced  Bounty[]       @relation("BountyPlacer")
+  bountiesOnMe    Bounty[]       @relation("BountyTarget")
+  bountyClaims    BountyClaim[]
+  sentTransfers   WalletTransfer[] @relation("TransferSender")
+  receivedTransfers WalletTransfer[] @relation("TransferReceiver")
+  clubJoinRequests ClubJoinRequest[]
 }
 
 model Club {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  slug      String   @unique
-  logoUrl   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  members   User[]
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  logoUrl     String?
+  description String?
+  motto       String?
+  isRecruiting Boolean @default(true)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members       User[]
+  joinRequests  ClubJoinRequest[]
 }
 
 model Registration {
@@ -284,4 +306,110 @@ model Character {
   takenAt   DateTime?
 
   user User? @relation(fields: [takenBy], references: [id], onDelete: SetNull)
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BOUNTIE CLONE — Bounty, Wallet, ELO, Club Management
+// ═══════════════════════════════════════════════════════════════════════
+
+model Bounty {
+  id              String   @id @default(cuid())
+  placerId        String   // who placed the bounty
+  targetPlayerId  String   // who the bounty is on
+  tournamentId    String?  // optional: tied to a specific tournament
+  amount          Float    @default(0)
+  currency        String   @default("points") // points or rp (real money)
+  reason          String?  // why the bounty was placed
+  status          String   @default("active")  // active, claimed, expired, cancelled
+  expiresAt       DateTime?
+  claimedAt       DateTime?
+  claimedById     String?  // who collected the bounty
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  placer         User          @relation("BountyPlacer", fields: [placerId], references: [id], onDelete: Cascade)
+  targetPlayer   User          @relation("BountyTarget", fields: [targetPlayerId], references: [id], onDelete: Cascade)
+  tournament     Tournament?   @relation(fields: [tournamentId], references: [id], onDelete: SetNull)
+  claims         BountyClaim[]
+}
+
+model BountyClaim {
+  id        String   @id @default(cuid())
+  bountyId  String
+  claimerId String   // who beat the target and claims the bounty
+  matchId   String?  // the match where the target was defeated
+  proof     String?  // screenshot/description
+  status    String   @default("pending") // pending, approved, rejected
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt DateTime @default(now())
+
+  bounty    Bounty   @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+  claimer   User     @relation(fields: [claimerId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Float    @default(0)
+  totalIn   Float    @default(0)
+  totalOut  Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+}
+
+model WalletTransaction {
+  id          String   @id @default(cuid())
+  walletId    String
+  type        String   // credit, debit
+  amount      Float
+  category    String   // bounty_place, bounty_claim, prize, topup, withdraw, sawer, donation
+  description String?
+  referenceId String?  // related entity ID (bounty, tournament, etc)
+  createdAt   DateTime @default(now())
+
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+}
+
+model WalletTransfer {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  amount      Float
+  reason      String?
+  status      String   @default("completed") // pending, completed, cancelled
+  createdAt   DateTime @default(now())
+
+  sender      User     @relation("TransferSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("TransferReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model ClubJoinRequest {
+  id        String   @id @default(cuid())
+  clubId    String
+  userId    String
+  message   String?
+  status    String   @default("pending") // pending, approved, rejected
+  reviewedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])
+}
+
+model MatchmakingQueue {
+  id        String   @id @default(cuid())
+  userId    String
+  division  String   @default("male")
+  eloRange  String   @default("any") // any, narrow, wide
+  status    String   @default("waiting") // waiting, matched, cancelled
+  matchedWith String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
