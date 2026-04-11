@@ -39,6 +39,11 @@ const PrizeBreakdownModal = dynamic(() => import('@/components/esports/PrizeBrea
   ssr: false,
 });
 
+const PointBreakdownModal = dynamic(() => import('@/components/esports/PointBreakdownModal'), {
+  loading: () => null,
+  ssr: false,
+});
+
 const TeamListModal = dynamic(() => import('@/components/esports/TeamListModal'), {
   loading: () => null,
   ssr: false,
@@ -191,6 +196,7 @@ export default function IDOLMETAApp() {
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
   const [playerListOpen, setPlayerListOpen] = useState(false);
   const [prizeModalOpen, setPrizeModalOpen] = useState(false);
+  const [pointModalOpen, setPointModalOpen] = useState(false);
   const [teamListOpen, setTeamListOpen] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState<'players' | 'clubs'>('players');
 
@@ -1213,6 +1219,7 @@ export default function IDOLMETAApp() {
                     registeredCount={registrations.length}
                     registeredAvatars={registeredAvatars}
                     onViewPrize={() => setPrizeModalOpen(true)}
+                    onViewPoints={() => setPointModalOpen(true)}
                     onViewDonation={() => { setDonationDefaultTab('donasi'); setActiveTab('donation'); }}
                     teamsCount={teams.length}
                     onViewTeams={() => setTeamListOpen(true)}
@@ -1347,6 +1354,19 @@ export default function IDOLMETAApp() {
             prizeThird={(currentTournament as any)?.prizeThird}
             prizeMvp={(currentTournament as any)?.prizeMvp}
             division={division}
+          />
+
+          {/* Point Breakdown Modal */}
+          <PointBreakdownModal
+            isOpen={pointModalOpen}
+            onOpenChange={setPointModalOpen}
+            division={division}
+            tournamentId={currentTournament?.id}
+            prizePool={currentTournament?.prizePool || 0}
+            prizeChampion={(currentTournament as any)?.prizeChampion}
+            prizeRunnerUp={(currentTournament as any)?.prizeRunnerUp}
+            prizeThird={(currentTournament as any)?.prizeThird}
+            prizeMvp={(currentTournament as any)?.prizeMvp}
           />
 
           {/* Desktop Footer — branding bar */}

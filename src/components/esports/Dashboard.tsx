@@ -20,6 +20,7 @@ import {
   Music,
   MapPin,
   Shield,
+  Target,
 } from 'lucide-react';
 import { QualifiedPlayersModal } from './QualifiedPlayersModal';
 import { AllRankingsModal } from './AllRankingsModal';
@@ -128,6 +129,7 @@ interface DashboardProps {
   }>;
   theme?: ThemeMode;
   onPlayerClick?: (playerId: string) => void;
+  onViewPoints?: () => void;
 }
 
 /* ─────────────────────────────────────────────
@@ -298,6 +300,7 @@ export function Dashboard({
   topClubs,
   theme = 'dark',
   onPlayerClick,
+  onViewPoints,
 }: DashboardProps) {
   const isMale = division === 'male';
   const isLight = theme === 'light';
@@ -974,6 +977,45 @@ export function Dashboard({
             </div>
           </div>
         </motion.button>
+
+        {/* SISTEM POIN - Point Breakdown */}
+        {onViewPoints && (
+          <motion.button
+            onClick={onViewPoints}
+            className={`relative ${statsCardClass} rounded-2xl p-3 sm:p-4 lg:p-6 text-center cursor-pointer group overflow-hidden min-w-0 min-h-[44px]`}
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            transition={springTransition}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            <div
+              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none"
+              style={{
+                background: isMale
+                  ? 'radial-gradient(circle at 50% 30%, rgba(115,255,0,0.06) 0%, transparent 70%)'
+                  : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
+              }}
+            />
+            <div className="relative z-10 min-w-0">
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 rounded-xl mx-auto mb-2 sm:mb-2.5 lg:mb-3 flex items-center justify-center ${accentSubtleBg}`}>
+                <Target className={`w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 ${accentColor}`} />
+              </div>
+              <p className={`text-[12px] sm:text-[14px] lg:text-lg font-extrabold ${gradientClass} tracking-tight leading-none`}>
+                Poin
+              </p>
+              <p className={`text-[9px] uppercase tracking-[0.1em] mt-1.5 lg:mt-2 font-semibold lg:text-[11px] ${isLight ? 'text-slate-500' : 'text-white/40'}`}>
+                Sistem Poin
+              </p>
+              <div className="flex items-center justify-center gap-1 mt-2">
+                <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
+                <span className={`text-[8px] font-bold tracking-[0.15em] ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`}>
+                  TAP
+                </span>
+                <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
+              </div>
+            </div>
+          </motion.button>
+        )}
 
         {/* TIM */}
         <motion.button

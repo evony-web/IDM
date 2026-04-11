@@ -17,6 +17,10 @@ import {
   AlertTriangle,
   Users,
   ChevronDown,
+  Info,
+  Medal,
+  Target,
+  TrendingUp,
 } from 'lucide-react';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { ZoomPanWrapper } from '@/components/ui/zoom-pan-wrapper';
@@ -60,6 +64,7 @@ interface BracketProps {
   onUpdateScore: (matchId: string, scoreA: number, scoreB: number, mvpId?: string) => void;
   bracketType?: string | null;
   mvpUser?: { id: string; name: string; avatar: string | null; tier: string; points: number; mvpScore?: number } | null;
+  tournamentId?: string | null;
 }
 
 /* ================================================================
@@ -1190,6 +1195,244 @@ function RoundRobinView({
 }
 
 /* ================================================================
+   Point Breakdown Info — Shows point system for the tournament
+   ================================================================ */
+
+interface PointData {
+  match: { participation: number; win: number; mvpBonus: number };
+  tournament: { champion: number; runnerUp: number; third: number; mvp: number; participation: number };
+  meta: {
+    hasPrize: boolean;
+    avgMembersPerTeam: number;
+    prizeChampion: number;
+    prizeRunnerUp: number;
+    prizeThird: number;
+    prizeMvp: number;
+    isPrizeBased: boolean;
+  };
+}
+
+function PointBreakdownInfo({ division, tournamentId }: { division: 'male' | 'female'; tournamentId?: string | null }) {
+  const c = getC(division);
+  const [points, setPoints] = useState<PointData | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!tournamentId) return;
+    let cancelled = false;
+    let loadingTimeout: ReturnType<typeof setTimeout>;
+    loadingTimeout = setTimeout(() => setLoading(true), 0);
+    fetch(`/api/tournaments/points?tournamentId=${tournamentId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!cancelled && data.success) {
+          setPoints(data.pointBreakdown);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; clearTimeout(loadingTimeout); };
+  }, [tournamentId]);
+
+  // Fallback hardcoded values if no API data
+  const matchPts = points?.match ?? { participation: 1, win: 2, mvpBonus: 0 };
+  const tournamentPts = points?.tournament ?? { champion: 100, runnerUp: 70, third: 50, mvp: 30, participation: 10 };
+  const isPrizeBased = points?.meta?.isPrizeBased ?? false;
+
+  const formatPrize = (val: number) => {
+    if (val >= 1_000_000) return `${(val / 1_000_000).toFixed(val % 1_000_000 === 0 ? 0 : 1)}jt`;
+    if (val >= 1_000) return `${Math.round(val / 1_000)}K`;
+    return String(val);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2, duration: 0.3 }}
+      className="rounded-xl overflow-hidden"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      {/* Toggle Header */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-4 py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
+      >
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ background: c.accentDim }}
+          >
+            <Target className="w-3.5 h-3.5" style={{ color: c.accentText }} />
+          </div>
+          <div className="text-left">
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: c.accentText }}>
+              Sistem Poin
+            </span>
+            <span className="text-[9px] text-white/25 ml-2">
+              {isPrizeBased ? 'Based on Prize' : 'Default'}
+            </span>
+          </div>
+        </div>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown className="w-4 h-4 text-white/30" />
+        </motion.div>
+      </button>
+
+      {/* Expandable Content */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-3">
+              {/* Section: Per-Match Points */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Swords className="w-3 h-3 text-white/30" />
+                  <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/35">
+                    Per Pertandingan
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div
+                    className="rounded-lg p-2.5 text-center"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+                  >
+                    <div className="text-lg font-black tabular-nums" style={{ color: c.accentText }}>
+                      +{matchPts.participation}
+                    </div>
+                    <div className="text-[8px] font-semibold uppercase tracking-wider text-white/30 mt-0.5">
+                      Main
+                    </div>
+                  </div>
+                  <div
+                    className="rounded-lg p-2.5 text-center"
+                    style={{ background: c.accentDim, border: `1px solid ${c.accentBorder}` }}
+                  >
+                    <div className="text-lg font-black tabular-nums" style={{ color: c.accentText }}>
+                      +{matchPts.win}
+                    </div>
+                    <div className="text-[8px] font-semibold uppercase tracking-wider text-white/30 mt-0.5">
+                      Menang
+                    </div>
+                  </div>
+                  <div
+                    className="rounded-lg p-2.5 text-center"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+                  >
+                    <div className="text-lg font-black tabular-nums text-white/20">
+                      +{matchPts.mvpBonus}
+                    </div>
+                    <div className="text-[8px] font-semibold uppercase tracking-wider text-white/30 mt-0.5">
+                      MVP Match
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px" style={{ background: 'rgba(255,255,255,0.04)' }} />
+
+              {/* Section: Tournament Finalization Points */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Trophy className="w-3 h-3 text-white/30" />
+                  <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/35">
+                    Finalisasi Turnamen
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  {/* Champion */}
+                  <div
+                    className="flex items-center gap-3 rounded-lg px-3 py-2"
+                    style={{ background: 'linear-gradient(90deg, rgba(234,179,8,0.06), transparent)' }}
+                  >
+                    <Crown className="w-4 h-4 text-yellow-500/70 flex-shrink-0" />
+                    <span className="text-[11px] font-semibold text-white/70 flex-1">Juara</span>
+                    {isPrizeBased && points?.meta && (
+                      <span className="text-[9px] text-white/20">Rp {formatPrize(points.meta.prizeChampion)}</span>
+                    )}
+                    <span className="text-[13px] font-black tabular-nums text-yellow-500/80">+{tournamentPts.champion}</span>
+                  </div>
+                  {/* Runner-up */}
+                  <div
+                    className="flex items-center gap-3 rounded-lg px-3 py-2"
+                    style={{ background: 'rgba(255,255,255,0.02)' }}
+                  >
+                    <Medal className="w-4 h-4 text-slate-400/60 flex-shrink-0" />
+                    <span className="text-[11px] font-semibold text-white/70 flex-1">Runner-Up</span>
+                    {isPrizeBased && points?.meta && (
+                      <span className="text-[9px] text-white/20">Rp {formatPrize(points.meta.prizeRunnerUp)}</span>
+                    )}
+                    <span className="text-[13px] font-black tabular-nums text-white/50">+{tournamentPts.runnerUp}</span>
+                  </div>
+                  {/* Third Place */}
+                  <div
+                    className="flex items-center gap-3 rounded-lg px-3 py-2"
+                    style={{ background: 'rgba(255,255,255,0.02)' }}
+                  >
+                    <Medal className="w-4 h-4 text-orange-700/50 flex-shrink-0" />
+                    <span className="text-[11px] font-semibold text-white/70 flex-1">Juara 3</span>
+                    {isPrizeBased && points?.meta && (
+                      <span className="text-[9px] text-white/20">Rp {formatPrize(points.meta.prizeThird)}</span>
+                    )}
+                    <span className="text-[13px] font-black tabular-nums text-white/40">+{tournamentPts.third}</span>
+                  </div>
+                  {/* MVP */}
+                  <div
+                    className="flex items-center gap-3 rounded-lg px-3 py-2"
+                    style={{ background: 'rgba(245,158,11,0.04)' }}
+                  >
+                    <Star className="w-4 h-4 text-amber-400/60 flex-shrink-0" />
+                    <span className="text-[11px] font-semibold text-white/70 flex-1">MVP Turnamen</span>
+                    {isPrizeBased && points?.meta && (
+                      <span className="text-[9px] text-white/20">Rp {formatPrize(points.meta.prizeMvp)}</span>
+                    )}
+                    <span className="text-[13px] font-black tabular-nums text-amber-400/70">+{tournamentPts.mvp}</span>
+                  </div>
+                  {/* Participation */}
+                  <div
+                    className="flex items-center gap-3 rounded-lg px-3 py-2"
+                    style={{ background: 'rgba(255,255,255,0.02)' }}
+                  >
+                    <Users className="w-4 h-4 text-white/20 flex-shrink-0" />
+                    <span className="text-[11px] font-semibold text-white/50 flex-1">Partisipasi</span>
+                    <span className="text-[13px] font-black tabular-nums text-white/30">+{tournamentPts.participation}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Info note */}
+              <div className="flex items-start gap-2 px-2 pt-1">
+                <Info className="w-3 h-3 text-white/15 flex-shrink-0 mt-0.5" />
+                <p className="text-[9px] text-white/20 leading-relaxed">
+                  {isPrizeBased
+                    ? `Poin dihitung dari hadiah (Rp ÷ anggota tim ÷ 1000). Rata-rata ${points?.meta?.avgMembersPerTeam ?? 3} anggota per tim.`
+                    : 'Poin default digunakan karena belum ada hadiah yang ditetapkan.'}
+                  {' '}Poin menang & partisipasi per match ditambahkan secara kumulatif.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/* ================================================================
    Bracket Progress Bar
    ================================================================ */
 
@@ -1688,7 +1931,7 @@ function GroupStandingsTable({ standings, division, groupName }: {
    Main Export — ChallongeBracket
    ================================================================ */
 
-export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, bracketType, mvpUser }: BracketProps) {
+export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, bracketType, mvpUser, tournamentId }: BracketProps) {
   const c = getC(division);
   const isMobile = useIsMobile();
 
@@ -1871,6 +2114,9 @@ export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, br
         )}
 
         <MPLChampionSlot winnerTeam={winnerTeam} division={division} mvpUser={mvpUser} />
+
+        {/* Point Breakdown */}
+        <PointBreakdownInfo division={division} tournamentId={tournamentId} />
       </div>
     );
   }
@@ -1996,6 +2242,9 @@ export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, br
         )}
 
         <MPLChampionSlot winnerTeam={championTeam} division={division} mvpUser={mvpUser} />
+
+        {/* Point Breakdown */}
+        <PointBreakdownInfo division={division} tournamentId={tournamentId} />
       </div>
     );
   }
@@ -2117,6 +2366,9 @@ export function ChallongeBracket({ division, matches, isAdmin, onUpdateScore, br
         )}
 
         <MPLChampionSlot winnerTeam={playoffChampion} division={division} mvpUser={mvpUser} />
+
+        {/* Point Breakdown */}
+        <PointBreakdownInfo division={division} tournamentId={tournamentId} />
       </div>
     );
   }
