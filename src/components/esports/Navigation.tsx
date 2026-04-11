@@ -16,6 +16,8 @@ import {
   LayoutGrid,
   Crosshair,
   Compass,
+  Wallet,
+  SwordsIcon,
 } from 'lucide-react';
 import { NotificationPanel } from '@/components/esports/NotificationPanel';
 
@@ -61,7 +63,18 @@ const regularNavItems: NavItem[] = [
   { id: 'bracket', label: 'Bracket', icon: GitBranch },
   { id: 'leaderboard', label: 'Leaderboard', icon: BarChart3 },
   { id: 'bounty', label: 'Bounty', icon: Crosshair },
+  { id: 'matchmaking', label: 'Matchmaking', icon: SwordsIcon },
+  { id: 'wallet', label: 'Wallet', icon: Wallet },
   { id: 'donation', label: 'Donasi', icon: Heart },
+];
+
+// Mobile bottom bar: show only these 5 + GrandFinal center
+const mobileNavItems: NavItem[] = [
+  { id: 'dashboard', label: 'Home', icon: Home },
+  { id: 'discover', label: 'Discover', icon: Compass },
+  { id: 'bounty', label: 'Bounty', icon: Crosshair },
+  { id: 'leaderboard', label: 'Board', icon: BarChart3 },
+  { id: 'wallet', label: 'Wallet', icon: Wallet },
 ];
 
 
@@ -229,8 +242,8 @@ export function Navigation({ activeTab, onTabChange, division }: NavigationProps
           />
 
           <div className="relative flex items-center justify-around px-2 py-2">
-            {/* ── Left group: Dashboard, Discover, Tournament ── */}
-            {regularNavItems.slice(0, 3).map((item) => {
+            {/* ── Left group: Home, Discover ── */}
+            {mobileNavItems.slice(0, 2).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
@@ -320,8 +333,8 @@ export function Navigation({ activeTab, onTabChange, division }: NavigationProps
 
             </motion.button>
 
-            {/* ── Right group: Leaderboard, Bounty ── */}
-            {regularNavItems.slice(4, 6).map((item) => {
+            {/* ── Right group: Leaderboard, Wallet ── */}
+            {mobileNavItems.slice(3, 5).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (

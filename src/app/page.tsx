@@ -17,6 +17,8 @@ import { Leaderboard } from '@/components/esports/Leaderboard';
 import { DonasiSawerTab } from '@/components/esports/DonasiSawerTab';
 import { BountieTab } from '@/components/esports/BountieTab';
 import { TournamentDiscovery } from '@/components/esports/TournamentDiscovery';
+import { WalletTab } from '@/components/esports/WalletTab';
+import { MatchmakingTab } from '@/components/esports/MatchmakingTab';
 import { AdminLogin } from '@/components/esports/AdminLogin';
 import { LandingPage } from '@/components/esports/LandingPage';
 import { ToastContainer } from '@/components/esports/Toast';
@@ -1275,6 +1277,20 @@ export default function IDOLMETAApp() {
                   <BountieTab
                     division={division}
                     onPlayerClick={(playerId) => setAppProfileId(playerId)}
+                  />
+                )}
+
+                {activeTab === 'matchmaking' && (
+                  <MatchmakingTab
+                    division={division}
+                    onPlayerClick={(playerId) => setAppProfileId(playerId)}
+                  />
+                )}
+
+                {activeTab === 'wallet' && (
+                  <WalletTab
+                    division={division}
+                    currentUserId={null}
                   />
                 )}
 
