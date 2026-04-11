@@ -64,6 +64,8 @@ export async function GET(request: NextRequest) {
         isMVP: true,
         mvpScore: true,
         clubId: true,
+        eloRating: true,
+        eloTier: true,
         rankings: true,
         club: { select: { id: true, name: true, slug: true, logoUrl: true } },
       },

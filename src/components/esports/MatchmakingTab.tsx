@@ -45,6 +45,14 @@ interface RecentMatch {
   date: string;
 }
 
+interface CurrentUserInfo {
+  id: string;
+  name: string;
+  avatar: string | null;
+  eloRating: number;
+  eloTier: string;
+}
+
 interface MatchmakingTabProps {
   division: 'male' | 'female';
   currentUserId?: string | null;
@@ -78,6 +86,7 @@ export function MatchmakingTab({ division, currentUserId, onPlayerClick }: Match
   const [queueTime, setQueueTime] = useState(0);
   const [recentMatches, setRecentMatches] = useState<RecentMatch[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUserInfo | null>(null);
 
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const queueTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -151,6 +160,31 @@ export function MatchmakingTab({ division, currentUserId, onPlayerClick }: Match
       }
     };
   }, [isInQueue, opponent, checkQueueStatus]);
+
+  // ── Fetch current user info ──
+  useEffect(() => {
+    if (!currentUserId) return;
+    let cancelled = false;
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`/api/users/profile?userId=${currentUserId}`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.success && data.profile) {
+            setCurrentUser({
+              id: data.profile.id,
+              name: data.profile.name,
+              avatar: data.profile.avatar,
+              eloRating: data.profile.eloRating || 0,
+              eloTier: data.profile.eloTier || 'Bronze',
+            });
+          }
+        }
+      } catch { /* silent */ }
+    };
+    fetchUser();
+    return () => { cancelled = true; };
+  }, [currentUserId]);
 
   // ── Fetch recent matches on mount ──
   useEffect(() => {
@@ -311,11 +345,15 @@ export function MatchmakingTab({ division, currentUserId, onPlayerClick }: Match
                   >
                     <div
                       className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-xl font-bold overflow-hidden ring-2"
-                      style={{ ringColor: accentColor }}
+                      style={{ '--tw-ring-color': ELO_TIER_COLORS[currentUser?.eloTier || 'Bronze'] || accentColor } as React.CSSProperties}
                     >
-                      K
+                      {currentUser?.avatar ? (
+                        <img src={currentUser.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        currentUser?.name?.charAt(0).toUpperCase() || 'K'
+                      )}
                     </div>
-                    <span className="text-sm font-bold text-white">Kamu</span>
+                    <span className="text-sm font-bold text-white">{currentUser?.name || 'Kamu'}</span>
                   </motion.div>
 
                   {/* VS */}

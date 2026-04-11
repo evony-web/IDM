@@ -44,18 +44,17 @@ export async function GET(req: NextRequest) {
     // User-specific stats
     let userStats = null;
     if (userId) {
-      const [placed, onMe, claimed] = await Promise.all([
+      const [placed, onMe, claimed, totalEarnedResult] = await Promise.all([
         db.bounty.count({ where: { placerId: userId } }),
         db.bounty.count({ where: { targetPlayerId: userId } }),
         db.bountyClaim.count({ where: { claimerId: userId, status: 'approved' } }),
+        db.bountyClaim.aggregate({
+          where: { claimerId: userId, status: 'approved' },
+          _sum: { amount: true },
+        }),
       ]);
 
-      const totalEarned = await db.bountyClaim.aggregate({
-        where: { claimerId: userId, status: 'approved' },
-        _sum: { true: true } as any,
-      });
-
-      userStats = { placed, onMe, claimed };
+      userStats = { placed, onMe, claimed, totalEarned: totalEarnedResult._sum.amount || 0 };
     }
 
     return NextResponse.json({

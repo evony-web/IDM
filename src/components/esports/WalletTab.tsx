@@ -217,12 +217,12 @@ export function WalletTab({ division, currentUserId }: WalletTabProps) {
                 u.name.toLowerCase().includes(q)
               )
               .slice(0, 8)
-              .map((u: { id: string; name: string; avatar: string | null; points: number }) => ({
+              .map((u: { id: string; name: string; avatar: string | null; eloRating: number; eloTier: string }) => ({
                 id: u.id,
                 name: u.name,
                 avatar: u.avatar,
-                eloRating: u.points,
-                eloTier: 'Bronze',
+                eloRating: u.eloRating || 0,
+                eloTier: u.eloTier || 'Bronze',
               }));
             setSearchUsers(filtered);
           }

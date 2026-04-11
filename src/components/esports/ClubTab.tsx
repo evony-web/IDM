@@ -137,10 +137,31 @@ export function ClubTab({ division, currentUserId, onPlayerClick }: ClubTabProps
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.profile?.club) {
+          const clubSlug = data.profile.club.slug || data.profile.club.name.toLowerCase().replace(/\s+/g, '-');
+          // Fetch full club data from clubs API for accurate stats
+          try {
+            const clubRes = await fetch(`/api/clubs?slug=${clubSlug}`);
+            if (clubRes.ok) {
+              const clubData = await clubRes.json();
+              if (clubData.success && clubData.club) {
+                setMyClub({
+                  id: clubData.club.id,
+                  name: clubData.club.name,
+                  slug: clubSlug,
+                  logoUrl: clubData.club.logoUrl,
+                  totalPoints: clubData.club.totalPoints || 0,
+                  memberCount: clubData.club.memberCount || 0,
+                  rank: 0,
+                });
+                return;
+              }
+            }
+          } catch { /* fallback to basic info */ }
+          // Fallback with basic info from profile
           setMyClub({
             id: data.profile.club.id,
             name: data.profile.club.name,
-            slug: data.profile.club.name.toLowerCase().replace(/\s+/g, '-'),
+            slug: clubSlug,
             logoUrl: data.profile.club.logoUrl,
             totalPoints: 0,
             memberCount: 0,
