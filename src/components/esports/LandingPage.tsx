@@ -2005,7 +2005,8 @@ function VideoHighlightSection({ division }: { division: 'male' | 'female' | 'al
 }
 
 /* ────────────────────────────────────────────
-   Season Points Leaderboard — Per-season point breakdown with total
+   Season Points Leaderboard — Card-based layout with season chips
+   Scales to any number of seasons — no column overflow
    ──────────────────────────────────────────── */
 
 interface SeasonLeaderboardPlayer {
@@ -2021,16 +2022,15 @@ interface SeasonLeaderboardPlayer {
   totalSeasonPoints: number;
 }
 
+// How many season chips to show before "show more"
+const VISIBLE_SEASON_CHIPS = 4;
+
 function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
   const [players, setPlayers] = useState<SeasonLeaderboardPlayer[]>([]);
   const [seasons, setSeasons] = useState<number[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [filterGender, setFilterGender] = useState<'all' | 'male' | 'female'>('all');
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
-  const [visibleSeasonStart, setVisibleSeasonStart] = useState(0);
-
-  // How many season columns to show at once
-  const VISIBLE_SEASONS_COUNT = 3;
 
   useEffect(() => {
     let cancelled = false;
@@ -2041,7 +2041,6 @@ function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId:
         if (!cancelled && data?.success && data.data) {
           setPlayers(data.data.players || []);
           setSeasons(data.data.seasons || []);
-          setVisibleSeasonStart(0);
         }
       })
       .catch(() => {})
@@ -2074,38 +2073,35 @@ function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId:
   if (players.length === 0) {
     return (
       <motion.div variants={itemVariants} className="w-full max-w-full">
-        <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="w-4 h-4" style={{ color: '#FFD700' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Season Points</h2>
+        <div className="flex items-center gap-2.5 mb-5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
+              border: '1px solid rgba(255,215,0,0.18)',
+            }}
+          >
+            <BarChart3 className="w-5 h-5" style={{ color: '#FFD700' }} />
+          </div>
+          <div>
+            <h2 className="text-[17px] sm:text-[19px] font-bold text-white/85 tracking-wide">Season Points</h2>
+            <p className="text-[11px] text-white/30 mt-0.5">Klasemen akumulasi poin per season</p>
+          </div>
         </div>
         <div
-          className="rounded-2xl flex flex-col items-center justify-center py-12 px-4"
+          className="rounded-2xl flex flex-col items-center justify-center py-14 px-4"
           style={{
             background: 'rgba(255,255,255,0.02)',
             border: '1px solid rgba(255,215,0,0.06)',
           }}
         >
-          <BarChart3 className="w-8 h-8 text-white/10 mb-3" />
-          <p className="text-[12px] text-white/25 text-center">Belum ada data season points</p>
-          <p className="text-[10px] text-white/15 mt-1 text-center">Tambahkan dari panel admin tab Peserta</p>
+          <BarChart3 className="w-10 h-10 text-white/10 mb-3" />
+          <p className="text-[13px] text-white/25 text-center">Belum ada data season points</p>
+          <p className="text-[11px] text-white/15 mt-1 text-center">Tambahkan dari panel admin tab Peserta</p>
         </div>
       </motion.div>
     );
   }
-
-  // Visible seasons window (carousel-style)
-  const visibleSeasons = seasons.slice(visibleSeasonStart, visibleSeasonStart + VISIBLE_SEASONS_COUNT);
-  const canScrollLeft = visibleSeasonStart > 0;
-  const canScrollRight = visibleSeasonStart + VISIBLE_SEASONS_COUNT < seasons.length;
-
-  // Get player's points for a specific season
-  const getSeasonPoints = (player: SeasonLeaderboardPlayer, seasonNum: number): number => {
-    const sp = player.seasonPoints.find(s => s.season === seasonNum);
-    return sp ? sp.points : 0;
-  };
-
-  // Get hidden seasons (not in the visible window)
-  const hiddenSeasons = seasons.filter(s => !visibleSeasons.includes(s));
 
   const genderFilters = [
     { key: 'all' as const, label: 'Semua', color: '#FFD700' },
@@ -2115,21 +2111,33 @@ function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId:
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-4 h-4" style={{ color: '#FFD700' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Season Points</h2>
-          <span className="text-[11px] text-white/25 ml-1">{players.length} pemain</span>
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
+              border: '1px solid rgba(255,215,0,0.18)',
+            }}
+          >
+            <BarChart3 className="w-5 h-5" style={{ color: '#FFD700' }} />
+          </div>
+          <div>
+            <h2 className="text-[17px] sm:text-[19px] font-bold text-white/85 tracking-wide">Season Points</h2>
+            <p className="text-[11px] text-white/30 mt-0.5">
+              Klasemen akumulasi poin per season • {players.length} pemain • {seasons.length} season
+            </p>
+          </div>
         </div>
 
         {/* Gender filter pills */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {genderFilters.map(f => (
             <button
               key={f.key}
               onClick={() => setFilterGender(f.key)}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl text-[11px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer"
               style={{
                 background: filterGender === f.key ? `${f.color}18` : 'rgba(255,255,255,0.03)',
                 border: `1px solid ${filterGender === f.key ? `${f.color}30` : 'rgba(255,255,255,0.06)'}`,
@@ -2142,325 +2150,214 @@ function SeasonPointsLeaderboard({ onPlayerClick }: { onPlayerClick?: (playerId:
         </div>
       </div>
 
-      {/* Season carousel navigator */}
-      {seasons.length > VISIBLE_SEASONS_COUNT && (
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <motion.button
-            onClick={() => setVisibleSeasonStart(Math.max(0, visibleSeasonStart - 1))}
-            className="flex items-center justify-center w-7 h-7 rounded-lg cursor-pointer"
-            style={{
-              background: canScrollLeft ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${canScrollLeft ? 'rgba(255,215,0,0.20)' : 'rgba(255,255,255,0.06)'}`,
-              color: canScrollLeft ? '#FFD700' : 'rgba(255,255,255,0.15)',
-            }}
-            whileTap={canScrollLeft ? { scale: 0.9 } : undefined}
-            disabled={!canScrollLeft}
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </motion.button>
+      {/* ── Player Cards ── */}
+      <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
+        {players.map((player, idx) => {
+          const isExpanded = expandedPlayer === player.id;
+          const rank = idx + 1;
+          const accentHex = player.gender === 'male' ? '#73FF00' : '#38BDF8';
+          const accentRGB = player.gender === 'male' ? '115,255,0' : '56,189,248';
 
-          <div className="flex items-center gap-2">
-            {visibleSeasons.map(sNum => (
+          // Determine visible vs hidden season chips
+          const visibleSeasons = player.seasonPoints.slice(0, VISIBLE_SEASON_CHIPS);
+          const hiddenSeasons = player.seasonPoints.slice(VISIBLE_SEASON_CHIPS);
+          const hasMore = hiddenSeasons.length > 0;
+
+          return (
+            <motion.div
+              key={player.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.03, ease: [0.16, 1, 0.3, 1] }}
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: rank <= 3
+                  ? `linear-gradient(135deg, rgba(255,215,0,0.05) 0%, rgba(255,255,255,0.02) 50%, rgba(${accentRGB},0.03) 100%)`
+                  : 'linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%)',
+                border: `1px solid ${rank <= 3 ? 'rgba(255,215,0,0.12)' : `rgba(${accentRGB},0.08)`}`,
+              }}
+            >
+              {/* ── Main row: Rank + Avatar + Name + Total ── */}
               <div
-                key={sNum}
-                className="px-3 py-1 rounded-lg text-[11px] font-bold tracking-wide"
-                style={{
-                  background: 'rgba(255,215,0,0.08)',
-                  border: '1px solid rgba(255,215,0,0.15)',
-                  color: '#FFD700',
+                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 cursor-pointer transition-colors duration-150 hover:bg-white/[0.03]"
+                onClick={() => {
+                  if (onPlayerClick) onPlayerClick(player.id, player.gender as 'male' | 'female');
                 }}
               >
-                S{sNum}
-              </div>
-            ))}
-            {hiddenSeasons.length > 0 && (
-              <div
-                className="px-2 py-1 rounded-lg text-[10px] font-medium text-white/30"
-                style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}
-              >
-                +{hiddenSeasons.length}
-              </div>
-            )}
-          </div>
-
-          <motion.button
-            onClick={() => setVisibleSeasonStart(Math.min(seasons.length - VISIBLE_SEASONS_COUNT, visibleSeasonStart + 1))}
-            className="flex items-center justify-center w-7 h-7 rounded-lg cursor-pointer"
-            style={{
-              background: canScrollRight ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${canScrollRight ? 'rgba(255,215,0,0.20)' : 'rgba(255,255,255,0.06)'}`,
-              color: canScrollRight ? '#FFD700' : 'rgba(255,255,255,0.15)',
-            }}
-            whileTap={canScrollRight ? { scale: 0.9 } : undefined}
-            disabled={!canScrollRight}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </motion.button>
-        </div>
-      )}
-
-      {/* Season columns header */}
-      <div
-        className="rounded-t-2xl overflow-hidden"
-        style={{
-          background: 'rgba(255,215,0,0.04)',
-          border: '1px solid rgba(255,215,0,0.08)',
-          borderBottom: 'none',
-        }}
-      >
-        <div className="flex items-center px-3 py-2.5 gap-2">
-          <div className="w-8 flex-shrink-0 text-center">
-            <span className="text-[9px] font-bold text-white/25 uppercase">#</span>
-          </div>
-          <div className="w-7 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <span className="text-[9px] font-bold text-white/25 uppercase">Pemain</span>
-          </div>
-          {/* Visible season columns */}
-          {visibleSeasons.map(sNum => (
-            <div key={sNum} className="w-14 flex-shrink-0 text-center">
-              <span className="text-[9px] font-bold uppercase" style={{ color: 'rgba(255,215,0,0.6)' }}>S{sNum}</span>
-            </div>
-          ))}
-          {/* More seasons indicator */}
-          {hiddenSeasons.length > 0 && (
-            <div className="w-8 flex-shrink-0 text-center">
-              <span className="text-[9px] font-bold text-white/20">···</span>
-            </div>
-          )}
-          <div className="w-16 flex-shrink-0 text-right">
-            <span className="text-[9px] font-bold uppercase" style={{ color: '#FFD700' }}>Total</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Player rows */}
-      <div
-        className="rounded-b-2xl overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)',
-          border: '1px solid rgba(255,215,0,0.08)',
-          borderTop: 'none',
-        }}
-      >
-        <div className="max-h-[420px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
-          {players.map((player, idx) => {
-            const isExpanded = expandedPlayer === player.id;
-            const rank = idx + 1;
-            const accentRGB = player.gender === 'male' ? '115,255,0' : '56,189,248';
-
-            return (
-              <div key={player.id}>
-                <motion.div
-                  className="flex items-center px-3 py-2 gap-2 cursor-pointer transition-colors duration-150 hover:bg-white/[0.04] active:bg-white/[0.06]"
-                  onClick={() => {
-                    if (onPlayerClick) {
-                      onPlayerClick(player.id, player.gender as 'male' | 'female');
-                    }
+                {/* Rank Badge */}
+                <div
+                  className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[13px] sm:text-[15px] font-black flex-shrink-0"
+                  style={{
+                    background: rank === 1
+                      ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                      : rank === 2
+                        ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
+                        : rank === 3
+                          ? 'linear-gradient(135deg, #CD7F32, #B87333)'
+                          : `rgba(${accentRGB},0.10)`,
+                    color: rank <= 3 ? '#000' : `rgb(${accentRGB})`,
+                    boxShadow: rank <= 3 ? `0 2px 12px ${rank === 1 ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.10)'}` : 'none',
                   }}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: idx * 0.02 }}
                 >
-                  {/* Rank */}
-                  <div className="w-8 flex-shrink-0 text-center">
-                    <div
-                      className="inline-flex items-center justify-center w-6 h-6 rounded-md text-[10px] font-black"
-                      style={{
-                        background: rank === 1
-                          ? 'linear-gradient(135deg, #FFD700, #FFA500)'
-                          : rank === 2
-                            ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
-                            : rank === 3
-                              ? 'linear-gradient(135deg, #CD7F32, #B87333)'
-                              : `rgba(${accentRGB},0.10)`,
-                        color: rank <= 3 ? '#000' : `rgba(${accentRGB},0.7)`,
-                      }}
-                    >
-                      {rank <= 3 ? <Crown className="w-3 h-3" strokeWidth={2.5} /> : rank}
-                    </div>
-                  </div>
+                  {rank <= 3 ? <Crown className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} /> : rank}
+                </div>
 
-                  {/* Avatar */}
-                  <div
-                    className="w-7 h-7 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center"
-                    style={{
-                      background: player.avatar
-                        ? `url(${player.avatar}) center/cover`
-                        : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
-                      border: player.isMVP
-                        ? '1.5px solid #FFD700'
-                        : `1.5px solid rgba(${accentRGB},0.20)`,
-                    }}
-                  >
-                    {!player.avatar && (
-                      <span className="text-[9px] font-bold" style={{ color: `rgb(${accentRGB})` }}>
-                        {player.name.charAt(0).toUpperCase()}
+                {/* Avatar */}
+                <div
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center"
+                  style={{
+                    background: player.avatar
+                      ? `url(${player.avatar}) center/cover`
+                      : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
+                    border: player.isMVP
+                      ? '2px solid #FFD700'
+                      : `2px solid rgba(${accentRGB},0.25)`,
+                    boxShadow: player.isMVP ? '0 0 10px rgba(255,215,0,0.20)' : 'none',
+                  }}
+                >
+                  {!player.avatar && (
+                    <span className="text-[13px] sm:text-[14px] font-bold" style={{ color: `rgb(${accentRGB})` }}>
+                      {player.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+
+                {/* Name + Meta */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[14px] sm:text-[16px] font-bold text-white/90 truncate">{player.name}</p>
+                    {player.isMVP && (
+                      <span
+                        className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                        style={{
+                          background: 'rgba(255,215,0,0.15)',
+                          color: '#FFD700',
+                          border: '1px solid rgba(255,215,0,0.25)',
+                        }}
+                      >
+                        MVP
                       </span>
                     )}
                   </div>
-
-                  {/* Name */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1">
-                      <p className="text-[12px] font-semibold text-white/85 truncate">{player.name}</p>
-                      {player.isMVP && (
-                        <span
-                          className="text-[7px] font-bold px-1 py-0.5 rounded-full flex-shrink-0"
-                          style={{
-                            background: 'rgba(255,215,0,0.15)',
-                            color: '#FFD700',
-                            border: '1px solid rgba(255,215,0,0.25)',
-                          }}
-                        >
-                          MVP
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="text-[8px] font-bold px-1 py-0.5 rounded"
-                        style={{
-                          background: player.tier === 'S' ? 'rgba(255,215,0,0.12)' : player.tier === 'A' ? 'rgba(115,255,0,0.10)' : 'rgba(255,255,255,0.05)',
-                          color: player.tier === 'S' ? '#FFD700' : player.tier === 'A' ? '#73FF00' : 'rgba(255,255,255,0.35)',
-                        }}
-                      >
-                        Tier {player.tier}
-                      </span>
-                      {player.clubName && (
-                        <span className="text-[8px] text-white/25 truncate">{player.clubName}</span>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span
+                      className="text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded-md"
+                      style={{
+                        background: player.tier === 'S' ? 'rgba(255,215,0,0.12)' : player.tier === 'A' ? 'rgba(115,255,0,0.10)' : 'rgba(255,255,255,0.05)',
+                        color: player.tier === 'S' ? '#FFD700' : player.tier === 'A' ? '#73FF00' : 'rgba(255,255,255,0.35)',
+                      }}
+                    >
+                      Tier {player.tier}
+                    </span>
+                    {player.clubName && (
+                      <span className="text-[10px] sm:text-[11px] text-white/30 truncate">{player.clubName}</span>
+                    )}
+                    <span
+                      className="text-[9px] sm:text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0"
+                      style={{
+                        background: `rgba(${accentRGB},0.08)`,
+                        color: accentHex,
+                        border: `1px solid rgba(${accentRGB},0.12)`,
+                      }}
+                    >
+                      {player.gender === 'male' ? '♂ Male' : '♀ Female'}
+                    </span>
                   </div>
+                </div>
 
-                  {/* Visible season points */}
-                  {visibleSeasons.map(sNum => {
-                    const pts = getSeasonPoints(player, sNum);
-                    return (
-                      <div key={sNum} className="w-14 flex-shrink-0 text-center">
-                        {pts > 0 ? (
-                          <span className="text-[11px] font-bold text-white/70">{pts}</span>
-                        ) : (
-                          <span className="text-[10px] text-white/15">-</span>
-                        )}
-                      </div>
-                    );
-                  })}
+                {/* Total Points */}
+                <div className="text-right flex-shrink-0">
+                  <p
+                    className="text-[18px] sm:text-[22px] font-black leading-none"
+                    style={{
+                      background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    {player.totalSeasonPoints.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] text-white/30 mt-0.5">total pts</p>
+                </div>
+              </div>
 
-                  {/* More seasons indicator + expand toggle */}
-                  {hiddenSeasons.length > 0 && (
-                    <div
-                      className="w-8 flex-shrink-0 flex items-center justify-center"
+              {/* ── Season chips row ── */}
+              <div
+                className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}
+              >
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  {visibleSeasons.map(sp => (
+                    <span
+                      key={sp.season}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-[12px] font-semibold"
+                      style={{
+                        background: sp.points > 0 ? `rgba(${accentRGB},0.08)` : 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${sp.points > 0 ? `rgba(${accentRGB},0.15)` : 'rgba(255,255,255,0.04)'}`,
+                        color: sp.points > 0 ? accentHex : 'rgba(255,255,255,0.2)',
+                      }}
+                    >
+                      <span className="font-bold opacity-60">S{sp.season}</span>
+                      <span>{sp.points}pts</span>
+                    </span>
+                  ))}
+
+                  {/* Show more toggle */}
+                  {hasMore && (
+                    <motion.button
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedPlayer(isExpanded ? null : player.id);
                       }}
-                    >
-                      <motion.div
-                        className="flex items-center justify-center w-6 h-6 rounded-md cursor-pointer"
-                        style={{
-                          background: isExpanded ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
-                          border: `1px solid ${isExpanded ? 'rgba(255,215,0,0.20)' : 'rgba(255,255,255,0.08)'}`,
-                        }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className="w-3 h-3" style={{ color: '#FFD700' }} />
-                        ) : (
-                          <ChevronDown className="w-3 h-3 text-white/30" />
-                        )}
-                      </motion.div>
-                    </div>
-                  )}
-                  {hiddenSeasons.length === 0 && (
-                    <div className="w-8 flex-shrink-0" />
-                  )}
-
-                  {/* Total */}
-                  <div className="w-16 flex-shrink-0 text-right">
-                    <p
-                      className="text-[12px] font-bold"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold cursor-pointer"
                       style={{
-                        background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
+                        background: isExpanded ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${isExpanded ? 'rgba(255,215,0,0.20)' : 'rgba(255,255,255,0.08)'}`,
+                        color: isExpanded ? '#FFD700' : 'rgba(255,255,255,0.35)',
                       }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      {player.totalSeasonPoints.toLocaleString()}
-                    </p>
-                    <p className="text-[8px] text-white/25 text-right">pts</p>
-                  </div>
-                </motion.div>
+                      +{hiddenSeasons.length} season
+                      {isExpanded ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
+                    </motion.button>
+                  )}
+                </div>
 
                 {/* Expanded hidden seasons */}
                 <AnimatePresence>
-                  {isExpanded && hiddenSeasons.length > 0 && (
+                  {isExpanded && hasMore && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div
-                        className="flex items-center gap-2 px-3 py-2 ml-[68px]"
-                        style={{
-                          background: 'rgba(255,215,0,0.03)',
-                          borderTop: '1px solid rgba(255,215,0,0.06)',
-                        }}
-                      >
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {player.seasonPoints
-                            .filter(sp => !visibleSeasons.includes(sp.season))
-                            .map(sp => (
-                              <span
-                                key={sp.season}
-                                className="text-[10px] font-semibold px-2 py-1 rounded-lg"
-                                style={{
-                                  background: sp.points > 0 ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.02)',
-                                  border: `1px solid ${sp.points > 0 ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)'}`,
-                                  color: sp.points > 0 ? 'rgba(255,215,0,0.8)' : 'rgba(255,255,255,0.2)',
-                                }}
-                              >
-                                S{sp.season}: {sp.points}pts
-                              </span>
-                            ))}
-                        </div>
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mt-2 pt-2" style={{ borderTop: '1px dashed rgba(255,215,0,0.10)' }}>
+                        {hiddenSeasons.map(sp => (
+                          <span
+                            key={sp.season}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-[12px] font-semibold"
+                            style={{
+                              background: sp.points > 0 ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.02)',
+                              border: `1px solid ${sp.points > 0 ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)'}`,
+                              color: sp.points > 0 ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.2)',
+                            }}
+                          >
+                            <span className="font-bold opacity-60">S{sp.season}</span>
+                            <span>{sp.points}pts</span>
+                          </span>
+                        ))}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            );
-          })}
-        </div>
+            </motion.div>
+          );
+        })}
       </div>
-
-      {/* Bottom season dots (pagination indicator) */}
-      {seasons.length > VISIBLE_SEASONS_COUNT && (
-        <div className="flex items-center justify-center gap-1.5 mt-3">
-          {Array.from({ length: Math.ceil(seasons.length / VISIBLE_SEASONS_COUNT) }).map((_, pageIdx) => {
-            const pageStart = pageIdx * VISIBLE_SEASONS_COUNT;
-            const isActive = visibleSeasonStart >= pageStart && visibleSeasonStart < pageStart + VISIBLE_SEASONS_COUNT;
-            return (
-              <button
-                key={pageIdx}
-                onClick={() => setVisibleSeasonStart(pageStart)}
-                className="rounded-full transition-all duration-200 cursor-pointer"
-                style={{
-                  width: isActive ? 16 : 6,
-                  height: 6,
-                  background: isActive ? '#FFD700' : 'rgba(255,255,255,0.15)',
-                }}
-              />
-            );
-          })}
-        </div>
-      )}
     </motion.div>
   );
 }

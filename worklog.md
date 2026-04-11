@@ -212,3 +212,30 @@ Stage Summary:
 - Gender filter: All / Male / Female
 - Integrated with existing admin CRUD in PesertaManagementTab
 - Real-time updates when admin modifies season points
+
+---
+Task ID: 15
+Agent: Main Agent
+Task: Redesign SeasonPointsLeaderboard — bigger, scalable card-based layout
+
+Work Log:
+- Completely replaced the old column-based table design with card-based layout
+- Old design: tiny columns (S1, S2, S3...) that would overflow when seasons grow to dozens
+- New design: each player is a spacious card with season breakdown as chips/tags
+- Each card shows: Rank badge + Avatar + Name/Meta + Total Points (prominent, 18-22px)
+- Season chips displayed below: S1:140pts | S2:100pts | S3:100pts | S4:80pts (first 4 visible)
+- "+N season" expand button shows remaining seasons in animated dropdown
+- Scalable to any number of seasons — chips wrap naturally, no column overflow
+- Much bigger sizes: avatars 40-44px, rank badges 36-40px, text 14-16px for names, 18-22px for totals
+- Responsive: sm: breakpoints for bigger sizes on tablet/desktop
+- Top 3 players get gold/silver/bronze gradient border backgrounds
+- Gender filter pills increased to 11-12px with bigger touch targets
+- Header now has subtitle "Klasemen akumulasi poin per season" with player/season counts
+- Lint check passed clean
+
+Stage Summary:
+- Card-based layout replaces cramped column table
+- Scales to any number of seasons — chips wrap, expand for more
+- Much larger and more readable on mobile, tablet, desktop
+- Example card: 🥇 [Avatar] TAZOS | Tier B | ♂ Male → 480 total pts
+                S1:140pts | S2:100pts | S3:100pts | S4:80pts | +1 season ▾
