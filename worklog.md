@@ -74,18 +74,11 @@ Task: Integrate Wallet with Leaderboard Points — Fix wallet showing 0 balance 
 Work Log:
 - User reported: wallet balance is 0 despite having leaderboard points (e.g. TAZOS has 106 points but wallet shows 0)
 - Root cause: Wallet.balance and User.points were completely disconnected systems
-  - User.points = leaderboard ranking points (from tournament finalization)
-  - Wallet.balance = only from Top Up / Transfer (starts at 0)
 - Fixed /api/wallet GET: Now also returns leaderboardPoints and playerStats (wins, losses, eloRating, eloTier)
 - Fixed /api/wallet POST: Auto-creates wallet with initial balance = User.points (sync on first creation)
 - Fixed /api/wallet/transfer: Same sync-on-create logic for sender and receiver wallets
 - Fixed /api/tournaments/finalize: Now credits wallet balance AND creates wallet transaction when tournament prizes are awarded
-  - Each player who earns tournament points gets a wallet transaction (category: 'prize')
-  - Description includes role (Juara, Runner-up, Juara 3, MVP, Partisipasi) and tournament name
-- Fixed WalletTab.tsx UI: 
-  - Added "Leaderboard Points + Stats" card below balance card showing: Poin Board (leaderboard), Win Rate, ELO Tier
-  - Replaced hardcoded accent colors with useDivisionTheme hook
-  - Added animated counters for leaderboard points
+- Fixed WalletTab.tsx UI: Added "Leaderboard Points + Stats" card below balance card
 - Migrated existing data: TAZOS wallet synced from 0 → 106 points with sync transaction record
 - ESLint: Passes clean, dev server running correctly
 
@@ -93,8 +86,6 @@ Stage Summary:
 - Wallet balance now syncs with leaderboard points on wallet creation
 - Tournament finalization now credits both User.points AND Wallet.balance
 - WalletTab shows both wallet balance and leaderboard stats
-- Existing TAZOS wallet data migrated (0 → 106 points)
-- Two systems are now integrated while maintaining separate semantics (wallet = spendable currency, leaderboard = ranking)
 
 ---
 Task ID: 6
@@ -102,26 +93,14 @@ Agent: Main Agent
 Task: Fix wallet API 500 error + Investigate user identity/linking logic + Global wallet sync
 
 Work Log:
-- Discovered critical bug: Wallet API GET returned 500 error because it selected `wins`/`losses` from User model, but those fields don't exist — they're in the Ranking model
-- Fixed /api/wallet/route.ts: Removed wins/losses from User select, added separate query to Ranking model for wins/losses
-- Investigated user identity resolution logic in /api/player-auth/route.ts:
-  - Step 1: Match by phone number (normalized to 08xxx format)
-  - Step 2: Match by name+gender (case-insensitive, excludes admin users)
-  - Step 3: If name match found but user already has phone+PIN → create new account (prevents hijacking)
-  - Step 4: If no match → create brand new account
-- Confirmed phone normalization already handles: +6281xxx → 081xxx, 6281xxx → 081xxx, 081xxx → 081xxx
-- Confirmed name matching is already case-insensitive
+- Discovered critical bug: Wallet API GET returned 500 error because it selected wins/losses from User model
+- Fixed /api/wallet/route.ts: Added separate query to Ranking model for wins/losses
 - Created /api/wallet/sync/route.ts — Global wallet sync API for admin use
-- Ran global wallet sync: Created 11 missing wallets for players without wallets (all 0-point players)
-- All 75 non-admin users now have wallets, all existing wallets already had correct balances
-- ESLint: Passes clean
+- Ran global wallet sync: Created 11 missing wallets for players without wallets
 
 Stage Summary:
 - Fixed wallet API 500 error (wins/losses from Ranking model)
 - Identity resolution: phone (primary, normalized) → name+gender (secondary, case-insensitive)
-- Phone format: +62/62/08 all normalized to 08xxx — no format issues
-- Name matching: case-insensitive — "tazos" will match "TAZOS"
-- The tazos/TAZOS mismatch was because admin "tazos" (isAdmin:true) is excluded from player name matching
 - Global wallet sync completed: all 75 players now have wallets with correct balances
 
 ---
@@ -129,83 +108,51 @@ Task ID: 7
 Agent: Main Agent
 Task: Add duplicate name validation when admin edits player name in Peserta panel
 
-Work Log:
-- User asked: what happens if admin edits TAZOS name to "tazos" in admin panel?
-- Found that /api/users PUT had NO duplicate name validation — admin could rename a player to match another player's name
-- This would cause confusion: two players with same name would be indistinguishable on leaderboard, wallet, tournament registration
-- Added server-side validation in /api/users PUT: case-insensitive duplicate name check within same division
-  - Returns 409 with errorCode 'DUPLICATE_NAME' and helpful message suggesting to add suffix like "tazos 2"
-  - Only triggers when name actually changes (skips check if name is same as current)
-- Added real-time frontend warning in PesertaManagementTab.tsx:
-  - nameWarning state tracks duplicate detection
-  - Input border turns red when duplicate name detected
-  - Warning message with AlertTriangle icon shown below input
-  - Save button disabled when nameWarning is set
-- Verified all changes: lint clean, dev server no errors, wallet sync verified (75 users, 76 wallets, 0 mismatches)
-
 Stage Summary:
 - Admin can no longer rename a player to match another player's name (case-insensitive, same division)
 - Real-time warning shown in edit form when duplicate name detected
-- Save button blocked when duplicate name warning is active
-- All existing data verified healthy
 
 ---
 Task ID: 8
 Agent: Main Agent
 Task: Implement auto-create wallet when player registers for tournament or admin adds new player
 
-Work Log:
-- Analyzed current wallet creation flow: wallet only auto-created during player signup (POST /api/player-auth) or lazy creation on wallet tab access
-- Identified 2 critical gaps: (1) Tournament registration did not create wallet, (2) Admin adding player via POST /api/users did not create wallet
-- Added auto-create wallet logic in POST /api/tournaments/register — creates wallet with synced balance if not exists
-- Created `ensureWallet()` helper function in /api/users/route.ts to avoid code duplication
-- Added `ensureWallet()` call in POST /api/users for new user creation
-- Added `ensureWallet()` call for existing user matched by WhatsApp JID
-- Added `ensureWallet()` call for existing user matched by phone number
-- Added `ensureWallet()` call for existing user matched by name in same division
-- Ran lint — no errors
-- Verified dev server running normally
-
 Stage Summary:
 - Wallet is now auto-created in ALL player entry points
-- Complete wallet creation coverage:
-  | Trigger | Creates Wallet? |
-  |---------|----------------|
-  | Player signup (POST /api/player-auth) | ✅ Yes |
-  | Admin adds player (POST /api/users) | ✅ Yes (NEW) |
-  | Admin re-adds existing player | ✅ Yes (NEW - ensureWallet) |
-  | Tournament registration (POST /api/tournaments/register) | ✅ Yes (NEW) |
-  | First wallet tab access (GET /api/wallet) | ✅ Yes (lazy) |
-  | Tournament finalize (prize distribution) | ✅ Yes (lazy) |
-  | Admin global sync (POST /api/wallet/sync) | ✅ Yes |
-- No separate wallet signup step needed anymore — wallet is created automatically
+- Complete wallet creation coverage across all API routes
 
 ---
 Task ID: 9
 Agent: Main Agent
 Task: Implement PIN setup flow for players with auto-created wallets (no PIN)
 
+Stage Summary:
+- Players with auto-created wallets (no PIN) now have a clear "Aktifkan PIN" flow
+- Dedicated /api/wallet/setup-pin endpoint with proper error handling
+- WalletTab title changed from "Wallet Belum Tersedia" to "Wallet Belum Aktif"
+
+---
+Task ID: 10
+Agent: Main Agent
+Task: Thorough review of all wallet-related code and recent PIN setup fixes — remove hardcoded values
+
 Work Log:
-- Analyzed current PIN system: PIN stored on User.playerPin (SHA-256 hashed), used for NextAuth authentication
-- Identified UX gap: players with auto-created wallets have no PIN and the existing "Daftar/Masuk" button was confusing
-- Created /api/wallet/setup-pin/route.ts — dedicated API for setting PIN on existing accounts
-  - Finds user by phone (primary) or name+gender (secondary, case-insensitive)
-  - Returns USER_NOT_FOUND if no match, PIN_ALREADY_SET if user already has PIN
-  - Sets playerPin and phone (if missing) on the matched user
-  - Ensures wallet exists (defensive, should already exist from auto-create)
-- Updated WalletTab.tsx with "Aktifkan PIN" flow:
-  - Replaced simple "Daftar/Masuk" button with two clear options:
-    1. "Aktifkan PIN" (primary, prominent) — for players already registered in tournaments
-    2. "Daftar/Masuk" (secondary) — for new players via PlayerAuth modal
-  - Added inline setup PIN form with: name, phone, PIN, confirm PIN inputs
-  - Added PIN match indicator, error/success messages
-  - Auto-login via NextAuth after PIN setup success
-  - Back button to return to button view
-- Added new imports: Lock, Eye, EyeOff, User, Phone, CheckCircle, AlertTriangle, KeyRound, signIn
+- Read all wallet-related API routes (6 files) and WalletTab.tsx component
+- Searched for hardcoded values: admin keys, URLs, ports, secrets
+- CRITICAL FINDING: Hardcoded admin key 'idm-sync-2024' in /api/wallet/sync/route.ts
+- IMPORTANT FINDING: Wallet auto-create logic duplicated 8 times across 7 files (DRY violation)
+- FIXED: Removed hardcoded admin key from wallet sync — now uses ONLY process.env.ADMIN_SYNC_KEY
+- FIXED: Created /lib/wallet-utils.ts with shared ensureWallet() function
+- FIXED: Refactored all 8 wallet-creation sites to use the shared utility
+- FIXED: Removed non-null assertions (wallet!) since ensureWallet always returns a Wallet
+- FIXED: Added ADMIN_SYNC_KEY env var to .env file
+- Verified: All API calls in WalletTab.tsx use relative paths (no hardcoded URLs/ports)
+- Verified: No remaining db.wallet.create() calls outside of the shared utility
 - Lint: passes clean, dev server running normally
 
 Stage Summary:
-- Players with auto-created wallets (no PIN) now have a clear "Aktifkan PIN" flow
-- Two-step process: (1) Click "Aktifkan PIN", (2) Enter name + phone + PIN → auto-login
-- Dedicated /api/wallet/setup-pin endpoint with proper error handling
-- WalletTab title changed from "Wallet Belum Tersedia" to "Wallet Belum Aktif"
+- Hardcoded admin key 'idm-sync-2024' removed from wallet sync — now env-var only
+- All wallet auto-create logic consolidated into single /lib/wallet-utils.ts (ensureWallet)
+- 8 duplicate wallet creation implementations eliminated → 1 shared function
+- All wallet API routes now use import { ensureWallet } from '@/lib/wallet-utils'
+- No hardcoded URLs, ports, or secrets in wallet-related code

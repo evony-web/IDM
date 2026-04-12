@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { triggerRegistrationUpdate } from '@/lib/pusher';
 import { requireAdmin } from '@/lib/admin-guard';
+import { ensureWallet } from '@/lib/wallet-utils';
 
 // POST - Register user for tournament
 export async function POST(request: NextRequest) {
@@ -39,31 +40,7 @@ export async function POST(request: NextRequest) {
     // ═══ Auto-create wallet if not exists ═══
     // Every player registering for a tournament gets a wallet automatically
     // so they can receive prize points without needing a separate wallet signup
-    const existingWallet = await db.wallet.findUnique({ where: { userId } });
-    if (!existingWallet) {
-      const initialBalance = user.points || 0;
-      const newWallet = await db.wallet.create({
-        data: {
-          userId,
-          balance: initialBalance,
-          totalIn: initialBalance,
-          totalOut: 0,
-        },
-      });
-      // Create sync transaction if player already has points
-      if (initialBalance > 0) {
-        await db.walletTransaction.create({
-          data: {
-            walletId: newWallet.id,
-            type: 'credit',
-            amount: initialBalance,
-            category: 'prize',
-            description: 'Sinkronisasi poin leaderboard ke wallet',
-          },
-        });
-      }
-      console.log(`[Tournament Register] Auto-created wallet for user ${user.name} (${userId})`);
-    }
+    await ensureWallet(userId, user.points || 0);
 
     // Create registration
     const registration = await db.registration.create({

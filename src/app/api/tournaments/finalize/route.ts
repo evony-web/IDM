@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import pusher, { globalChannel, tournamentChannel } from '@/lib/pusher';
 import { requireAdmin } from '@/lib/admin-guard';
+import { ensureWallet } from '@/lib/wallet-utils';
 
 // POST - Finalize tournament (admin only)
 export async function POST(request: NextRequest) {
@@ -173,28 +174,9 @@ export async function POST(request: NextRequest) {
     // For each player who earned points, ensure they have a wallet and credit it
     const walletOps = await Promise.all(
       Array.from(userPointsMap.entries()).map(async ([userId, data]) => {
-        // Find or create wallet
-        let wallet = await db.wallet.findUnique({ where: { userId } });
-        if (!wallet) {
-          // Get user's current points to set as initial balance
-          const user = await db.user.findUnique({ where: { id: userId }, select: { points: true } });
-          const currentPoints = user?.points || 0;
-          const initialBalance = Math.max(0, currentPoints);
-          wallet = await db.wallet.create({
-            data: { userId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
-          });
-          if (initialBalance > 0) {
-            await db.walletTransaction.create({
-              data: {
-                walletId: wallet.id,
-                type: 'credit',
-                amount: initialBalance,
-                category: 'prize',
-                description: 'Sinkronisasi poin leaderboard ke wallet',
-              },
-            });
-          }
-        }
+        // Find or create wallet — uses shared utility
+        const user = await db.user.findUnique({ where: { id: userId }, select: { points: true } });
+        const wallet = await ensureWallet(userId, user?.points || 0);
 
         // Create wallet transaction label for tournament earnings
         const roleLabel = data.roles.length === 1

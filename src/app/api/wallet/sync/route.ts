@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { ensureWallet } from '@/lib/wallet-utils'
 import { NextRequest, NextResponse } from 'next/server'
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -13,8 +14,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const { adminKey } = body
 
-    // Basic auth: admin key from env or default
-    if (adminKey !== 'idm-sync-2024' && adminKey !== process.env.ADMIN_SYNC_KEY) {
+    // Auth: admin key from env only — no hardcoded fallback
+    if (!process.env.ADMIN_SYNC_KEY || adminKey !== process.env.ADMIN_SYNC_KEY) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Admin key required.' },
         { status: 401 }
@@ -51,37 +52,15 @@ export async function POST(request: NextRequest) {
       })
 
       if (!wallet) {
-        // Create wallet with User.points as initial balance
-        const initialBalance = user.points || 0
-        wallet = await db.wallet.create({
-          data: {
-            userId: user.id,
-            balance: initialBalance,
-            totalIn: initialBalance,
-            totalOut: 0,
-          },
-        })
-
-        // Create sync transaction record
-        if (initialBalance > 0) {
-          await db.walletTransaction.create({
-            data: {
-              walletId: wallet.id,
-              type: 'credit',
-              amount: initialBalance,
-              category: 'prize',
-              description: 'Sinkronisasi poin leaderboard ke wallet',
-            },
-          })
-        }
-
+        // Use shared ensureWallet utility
+        wallet = await ensureWallet(user.id, user.points || 0)
         created++
         results.push({
           userId: user.id,
           name: user.name,
           action: 'created',
           points: user.points,
-          newBalance: initialBalance,
+          newBalance: wallet.balance,
         })
       } else if (wallet.balance === 0 && user.points > 0) {
         // Wallet exists but empty — sync with leaderboard points

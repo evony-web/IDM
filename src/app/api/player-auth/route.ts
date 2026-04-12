@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+import { ensureWallet } from '@/lib/wallet-utils';
 
 /** Hash a PIN string with SHA-256 */
 function hashPin(pin: string): string {
@@ -78,46 +79,8 @@ async function ensureUserRecords(userId: string, userPoints: number) {
     });
   }
 
-  // Ensure Wallet record — sync with leaderboard points
-  let wallet = await db.wallet.findUnique({ where: { userId } });
-  if (!wallet) {
-    const initialBalance = userPoints || 0;
-    wallet = await db.wallet.create({
-      data: {
-        id: uuidv4(),
-        userId,
-        balance: initialBalance,
-        totalIn: initialBalance,
-        totalOut: 0,
-      },
-    });
-    if (initialBalance > 0) {
-      await db.walletTransaction.create({
-        data: {
-          walletId: wallet.id,
-          type: 'credit',
-          amount: initialBalance,
-          category: 'prize',
-          description: 'Sinkronisasi poin leaderboard ke wallet',
-        },
-      });
-    }
-  } else if (wallet.balance === 0 && userPoints > 0) {
-    // Wallet exists but empty — sync with leaderboard points
-    await db.wallet.update({
-      where: { id: wallet.id },
-      data: { balance: userPoints, totalIn: userPoints },
-    });
-    await db.walletTransaction.create({
-      data: {
-        walletId: wallet.id,
-        type: 'credit',
-        amount: userPoints,
-        category: 'prize',
-        description: 'Sinkronisasi poin leaderboard ke wallet',
-      },
-    });
-  }
+  // Ensure Wallet record — uses shared utility
+  await ensureWallet(userId, userPoints);
 }
 
 // ─────────────────────────────────────────────
@@ -268,16 +231,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create Wallet record (balance = 0 for new player)
-    await db.wallet.create({
-      data: {
-        id: uuidv4(),
-        userId: newUser.id,
-        balance: 0,
-        totalIn: 0,
-        totalOut: 0,
-      },
-    });
+    // Create Wallet record — uses shared utility
+    await ensureWallet(newUser.id, 0);
 
     return NextResponse.json({
       success: true,

@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePlayerAuth } from '@/lib/session'
+import { ensureWallet } from '@/lib/wallet-utils'
 
 // POST /api/wallet/transfer
 // Transfer points between users — requires authentication
@@ -65,46 +66,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Auto-create wallets if not exists — sync with leaderboard points
-    let senderWallet = await db.wallet.findUnique({ where: { userId: senderId } })
-    if (!senderWallet) {
-      const senderUser = await db.user.findUnique({ where: { id: senderId }, select: { points: true } })
-      const initialBalance = senderUser?.points || 0
-      senderWallet = await db.wallet.create({
-        data: { userId: senderId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
-      })
-      if (initialBalance > 0) {
-        await db.walletTransaction.create({
-          data: {
-            walletId: senderWallet.id,
-            type: 'credit',
-            amount: initialBalance,
-            category: 'prize',
-            description: 'Sinkronisasi poin leaderboard ke wallet',
-          },
-        })
-      }
-    }
-
-    let receiverWallet = await db.wallet.findUnique({ where: { userId: receiverId } })
-    if (!receiverWallet) {
-      const receiverUser = await db.user.findUnique({ where: { id: receiverId }, select: { points: true } })
-      const initialBalance = receiverUser?.points || 0
-      receiverWallet = await db.wallet.create({
-        data: { userId: receiverId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
-      })
-      if (initialBalance > 0) {
-        await db.walletTransaction.create({
-          data: {
-            walletId: receiverWallet.id,
-            type: 'credit',
-            amount: initialBalance,
-            category: 'prize',
-            description: 'Sinkronisasi poin leaderboard ke wallet',
-          },
-        })
-      }
-    }
+    // Auto-create wallets if not exists — uses shared utility
+    const senderWallet = await ensureWallet(senderId, sender.points || 0)
+    const receiverWallet = await ensureWallet(receiverId, receiver.points || 0)
 
     // Check sufficient balance
     if (senderWallet.balance < amount) {
@@ -130,7 +94,7 @@ export async function POST(request: NextRequest) {
       // Create debit transaction for sender
       const senderTransaction = await tx.walletTransaction.create({
         data: {
-          walletId: senderWallet!.id,
+          walletId: senderWallet.id,
           type: 'debit',
           amount,
           category: 'transfer',
@@ -144,7 +108,7 @@ export async function POST(request: NextRequest) {
       // Create credit transaction for receiver
       const receiverTransaction = await tx.walletTransaction.create({
         data: {
-          walletId: receiverWallet!.id,
+          walletId: receiverWallet.id,
           type: 'credit',
           amount,
           category: 'transfer',
@@ -157,7 +121,7 @@ export async function POST(request: NextRequest) {
 
       // Update sender wallet (debit)
       const updatedSenderWallet = await tx.wallet.update({
-        where: { id: senderWallet!.id },
+        where: { id: senderWallet.id },
         data: {
           balance: { decrement: amount },
           totalOut: { increment: amount },
@@ -166,7 +130,7 @@ export async function POST(request: NextRequest) {
 
       // Update receiver wallet (credit)
       const updatedReceiverWallet = await tx.wallet.update({
-        where: { id: receiverWallet!.id },
+        where: { id: receiverWallet.id },
         data: {
           balance: { increment: amount },
           totalIn: { increment: amount },

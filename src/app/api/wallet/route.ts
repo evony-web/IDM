@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePlayerAuth } from '@/lib/session'
+import { ensureWallet } from '@/lib/wallet-utils'
 
 // ═══════════════════════════════════════════════════════════════════════
 // GET /api/wallet
@@ -46,37 +47,8 @@ export async function GET(request: NextRequest) {
       select: { wins: true, losses: true },
     })
 
-    // Auto-create wallet if not exists — initialize with User.points as starting balance
-    let wallet = await db.wallet.findUnique({
-      where: { userId },
-    })
-
-    if (!wallet) {
-      // First time wallet creation: sync balance with leaderboard points
-      // This ensures existing players see their earned points in the wallet
-      const initialBalance = user.points || 0
-      wallet = await db.wallet.create({
-        data: {
-          userId,
-          balance: initialBalance,
-          totalIn: initialBalance,
-          totalOut: 0,
-        },
-      })
-
-      // Create initial transaction record for the sync
-      if (initialBalance > 0) {
-        await db.walletTransaction.create({
-          data: {
-            walletId: wallet.id,
-            type: 'credit',
-            amount: initialBalance,
-            category: 'prize',
-            description: 'Sinkronisasi poin leaderboard ke wallet',
-          },
-        })
-      }
-    }
+    // Auto-create wallet if not exists — uses shared utility
+    const wallet = await ensureWallet(userId, user.points || 0)
 
     // Get last 50 transactions sorted by createdAt DESC
     const transactions = await db.walletTransaction.findMany({
@@ -159,36 +131,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Auto-create wallet if not exists — sync with leaderboard points
-    let wallet = await db.wallet.findUnique({ where: { userId } })
-    if (!wallet) {
-      const initialBalance = user.points || 0
-      wallet = await db.wallet.create({
-        data: {
-          userId,
-          balance: initialBalance,
-          totalIn: initialBalance,
-          totalOut: 0,
-        },
-      })
-      if (initialBalance > 0) {
-        await db.walletTransaction.create({
-          data: {
-            walletId: wallet.id,
-            type: 'credit',
-            amount: initialBalance,
-            category: 'prize',
-            description: 'Sinkronisasi poin leaderboard ke wallet',
-          },
-        })
-      }
-    }
+    // Auto-create wallet if not exists — uses shared utility
+    const wallet = await ensureWallet(userId, user.points || 0)
 
     // Create credit transaction and update wallet in a transaction
     const result = await db.$transaction(async (tx) => {
       const transaction = await tx.walletTransaction.create({
         data: {
-          walletId: wallet!.id,
+          walletId: wallet.id,
           type: 'credit',
           amount,
           category,
@@ -197,7 +147,7 @@ export async function POST(request: NextRequest) {
       })
 
       const updatedWallet = await tx.wallet.update({
-        where: { id: wallet!.id },
+        where: { id: wallet.id },
         data: {
           balance: { increment: amount },
           totalIn: { increment: amount },

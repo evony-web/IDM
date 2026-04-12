@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
+import { ensureWallet } from '@/lib/wallet-utils'
 
 /** Hash a PIN string with SHA-256 */
 function hashPin(pin: string): string {
@@ -132,29 +133,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Ensure wallet exists (should already from auto-create, but just in case)
-    const existingWallet = await db.wallet.findUnique({ where: { userId: updatedUser.id } })
-    if (!existingWallet) {
-      const initialBalance = updatedUser.points || 0
-      const newWallet = await db.wallet.create({
-        data: {
-          userId: updatedUser.id,
-          balance: initialBalance,
-          totalIn: initialBalance,
-          totalOut: 0,
-        },
-      })
-      if (initialBalance > 0) {
-        await db.walletTransaction.create({
-          data: {
-            walletId: newWallet.id,
-            type: 'credit',
-            amount: initialBalance,
-            category: 'prize',
-            description: 'Sinkronisasi poin leaderboard ke wallet',
-          },
-        })
-      }
-    }
+    await ensureWallet(updatedUser.id, updatedUser.points || 0)
 
     console.log(`[Setup PIN] PIN set for user ${updatedUser.name} (${updatedUser.id})`)
 
