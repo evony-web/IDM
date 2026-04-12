@@ -879,7 +879,7 @@ export default function IDOLMETAApp() {
                 <img
                   src={settings.logo_url || 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png'}
                   alt="IDOL META Logo"
-                  className="relative w-28 h-28 md:w-36 md:h-36"
+                  className="relative w-36 h-36 md:w-44 md:h-44"
                   loading="eager"
                   fetchPriority="high"
                 />
