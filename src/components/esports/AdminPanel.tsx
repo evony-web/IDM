@@ -869,13 +869,13 @@ export function AdminPanel({
                         background: `rgba(${glowRGB},0.12)`,
                       }}
                     >
-                      <Shield className={`w-4 h-4 ${accentClass}`} />
+                      <Shield className={`w-5 h-5 ${accentClass}`} />
                     </div>
                     <div>
-                      <h2 className="text-[14px] font-bold text-white/85 tracking-tight">
+                      <h2 className="text-base font-bold text-white/85 tracking-tight">
                         KONTROL TURNAMEN
                       </h2>
-                      <p className="text-[10px] text-white/30 mt-0.5 leading-tight">
+                      <p className="text-xs text-white/30 mt-0.5 leading-tight">
                         {tournament?.name || 'Belum ada turnamen'}
                       </p>
                     </div>
@@ -885,7 +885,7 @@ export function AdminPanel({
                       <div className="flex items-center bg-white/[0.06] rounded-full p-0.5">
                         <button
                           onClick={() => onSwitchDivision('male')}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 transition-all ${
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 transition-all ${
                             division === 'male'
                               ? 'text-[#73FF00]'
                               : 'text-white/30 hover:text-white/50'
@@ -900,7 +900,7 @@ export function AdminPanel({
                         </button>
                         <button
                           onClick={() => onSwitchDivision('female')}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 transition-all ${
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 transition-all ${
                             division === 'female'
                               ? 'text-[#38BDF8]'
                               : 'text-white/30 hover:text-white/50'
@@ -939,7 +939,7 @@ export function AdminPanel({
 
               <div className={`flex-1 overflow-y-auto px-4 ${isPageMode ? 'pb-8 pt-2' : 'pb-28 pt-0'} md:px-5 lg:pb-8 space-y-4 lg:space-y-5 ${isPageMode ? 'w-full' : ''}`}>
                 {/* iOS Segmented Control Tab Switcher — Compact Pill Style */}
-                <div className="flex bg-white/[0.05] rounded-xl p-[3px] gap-[2px]">
+                <div className="flex bg-white/[0.05] rounded-xl p-1 gap-1">
                   {([
                     { id: 'tournament' as const, label: 'Turnamen', icon: Shield },
                     { id: 'peserta' as const, label: 'Peserta', icon: Users },
@@ -952,7 +952,7 @@ export function AdminPanel({
                     <motion.button
                       key={tab.id}
                       onClick={() => setAdminTab(tab.id)}
-                      className="relative flex-1 min-w-0 py-1.5 rounded-[9px] text-[10px] font-semibold flex items-center justify-center gap-1 z-10"
+                      className="relative flex-1 min-w-0 py-2.5 rounded-[9px] text-xs font-semibold flex items-center justify-center gap-1 z-10"
                       whileTap={{ scale: 0.97 }}
                     >
                       {adminTab === tab.id && (
@@ -963,7 +963,7 @@ export function AdminPanel({
                           transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                         />
                       )}
-                      <tab.icon className={`w-3.5 h-3.5 relative z-10 ${adminTab === tab.id ? accentClass : 'text-white/25'}`} />
+                      <tab.icon className={`w-4 h-4 relative z-10 ${adminTab === tab.id ? accentClass : 'text-white/25'}`} />
                       <span className={`relative z-10 whitespace-nowrap hidden sm:inline ${adminTab === tab.id ? 'text-white/90' : 'text-white/25'}`}>
                         {tab.label}
                       </span>
@@ -990,19 +990,19 @@ export function AdminPanel({
                     /* No Tournament State — Create New Tournament Form */
                     <div className="space-y-5">
                       <div className="flex items-center gap-2 mb-1">
-                        <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                          <Plus className={`w-4 h-4 ${accentClass}`} />
+                        <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                          <Plus className={`w-5 h-5 ${accentClass}`} />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Buat Turnamen Baru</p>
-                          <p className="text-[10px] text-white/30">Divisi {isMale ? 'Laki-laki' : 'Perempuan'}</p>
+                          <p className="text-sm font-bold text-white/90">Buat Turnamen Baru</p>
+                          <p className="text-xs text-white/30">Divisi {isMale ? 'Laki-laki' : 'Perempuan'}</p>
                         </div>
                       </div>
 
                       <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 lg:p-6 space-y-4">
                         {/* Tournament Name */}
                         <div>
-                          <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
+                          <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
                             Nama Turnamen
                           </label>
                           <input
@@ -1010,13 +1010,13 @@ export function AdminPanel({
                             value={newTournamentName}
                             onChange={(e) => setNewTournamentName(e.target.value)}
                             placeholder={isMale ? `Contoh: ${settings.app_name} Weekly Male` : `Contoh: ${settings.app_name} Weekly Female`}
-                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-sm lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
 
                         {/* Type Selector */}
                         <div>
-                          <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
+                          <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
                             Jenis Turnamen
                           </label>
                           <div className="grid grid-cols-2 gap-2">
@@ -1034,10 +1034,10 @@ export function AdminPanel({
                                 }`}
                               >
                                 <Trophy className={`w-4 h-4 mb-1 ${newTournamentType === t.key ? accentClass : 'text-white/30'}`} />
-                                <p className={`text-[12px] font-semibold ${newTournamentType === t.key ? 'text-white/90' : 'text-white/40'}`}>
+                                <p className={`text-sm font-semibold ${newTournamentType === t.key ? 'text-white/90' : 'text-white/40'}`}>
                                   {t.label}
                                 </p>
-                                <p className="text-[10px] text-white/25">{t.desc}</p>
+                                <p className="text-xs text-white/25">{t.desc}</p>
                               </button>
                             ))}
                           </div>
@@ -1045,7 +1045,7 @@ export function AdminPanel({
 
                         {/* Week Number */}
                         <div>
-                          <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
+                          <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
                             Minggu Ke-
                           </label>
                           <input
@@ -1055,32 +1055,32 @@ export function AdminPanel({
                             max={99}
                             value={newTournamentWeek}
                             onChange={(e) => setNewTournamentWeek(parseInt(e.target.value) || 1)}
-                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-sm lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                           />
                         </div>
 
                         {/* Tanggal & Jam */}
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                            <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                               <Calendar className="w-3 h-3" /> Tanggal
                             </label>
                             <input
                               type="date"
                               value={newTournamentDate}
                               onChange={(e) => setNewTournamentDate(e.target.value)}
-                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                             />
                           </div>
                           <div>
-                            <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                            <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                               <Clock className="w-3 h-3" /> Jam
                             </label>
                             <input
                               type="time"
                               value={newTournamentTime}
                               onChange={(e) => setNewTournamentTime(e.target.value)}
-                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
+                              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                             />
                           </div>
                         </div>
@@ -1090,7 +1090,7 @@ export function AdminPanel({
                           <button
                             type="button"
                             onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                            className="flex items-center gap-2 text-[11px] text-white/35 hover:text-white/55 font-medium transition-colors py-1"
+                            className="flex items-center gap-2 text-xs text-white/35 hover:text-white/55 font-medium transition-colors py-1"
                           >
                             <motion.div
                               animate={{ rotate: showAdvancedSettings ? 90 : 0 }}
@@ -1099,7 +1099,7 @@ export function AdminPanel({
                               <ChevronDown className="w-3 h-3" />
                             </motion.div>
                             Pengaturan lanjutan
-                            <span className="text-[9px] text-white/20">(Bracket, Mode, BPM, Lokasi)</span>
+                            <span className="text-[10px] text-white/20">(Bracket, Mode, BPM, Lokasi)</span>
                           </button>
 
                           <AnimatePresence>
@@ -1113,7 +1113,7 @@ export function AdminPanel({
                               >
                                 {/* Bracket Type */}
                                 <div>
-                                  <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
+                                  <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
                                     Tipe Bracket
                                   </label>
                                   <div className="grid grid-cols-3 gap-2">
@@ -1133,10 +1133,10 @@ export function AdminPanel({
                                             : 'bg-white/[0.03] border border-white/5 hover:bg-white/[0.06]'
                                         }`}
                                       >
-                                        <p className={`text-[11px] font-semibold ${newTournamentBracket === b.key ? 'text-white/90' : 'text-white/40'}`}>
+                                        <p className={`text-xs font-semibold ${newTournamentBracket === b.key ? 'text-white/90' : 'text-white/40'}`}>
                                           {b.label}
                                         </p>
-                                        <p className="text-[9px] text-white/25">{b.desc}</p>
+                                        <p className="text-[10px] text-white/25">{b.desc}</p>
                                       </button>
                                     ))}
                                   </div>
@@ -1145,7 +1145,7 @@ export function AdminPanel({
                                 {/* Mode, BPM & Lokasi */}
                                 <div className="grid grid-cols-3 gap-2">
                                   <div>
-                                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                                       <Gamepad2 className="w-3 h-3" /> Mode
                                     </label>
                                     <input
@@ -1153,11 +1153,11 @@ export function AdminPanel({
                                       value={newTournamentMode}
                                       onChange={(e) => setNewTournamentMode(e.target.value)}
                                       placeholder="GR Arena 3vs3"
-                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                     />
                                   </div>
                                   <div>
-                                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                                       <Music className="w-3 h-3" /> BPM
                                     </label>
                                     <input
@@ -1165,11 +1165,11 @@ export function AdminPanel({
                                       value={newTournamentBpm}
                                       onChange={(e) => setNewTournamentBpm(e.target.value)}
                                       placeholder="Random 120-140"
-                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                     />
                                   </div>
                                   <div>
-                                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                                       <MapPin className="w-3 h-3" /> Lokasi
                                     </label>
                                     <input
@@ -1177,7 +1177,7 @@ export function AdminPanel({
                                       value={newTournamentLokasi}
                                       onChange={(e) => setNewTournamentLokasi(e.target.value)}
                                       placeholder="PUB 1"
-                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                     />
                                   </div>
                                 </div>
@@ -1217,7 +1217,7 @@ export function AdminPanel({
                             setTimeout(() => setCreatingTournament(false), 2000);
                           }}
                           disabled={creatingTournament}
-                          className={`w-full py-3 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
+                          className={`w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
                             creatingTournament
                               ? 'opacity-50 pointer-events-none'
                               : isMale
@@ -1245,12 +1245,12 @@ export function AdminPanel({
                 <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                     {/* Header */}
                     <div className="flex items-center gap-2 mb-3">
-                      <p className="text-[11px] tracking-[0.08em] uppercase text-white/35 font-semibold">
+                      <p className="text-xs tracking-[0.08em] uppercase text-white/35 font-semibold">
                         Status
                       </p>
                       <div className="ml-auto flex items-center gap-1.5">
                         <div className={`w-1.5 h-1.5 rounded-full ${isMale ? 'bg-[#73FF00]' : 'bg-[#38BDF8]'} animate-pulse`} />
-                        <span className={`text-[10px] font-semibold ${isMale ? 'text-[#73FF00]' : 'text-[#38BDF8]'}`}>
+                        <span className={`text-xs font-semibold ${isMale ? 'text-[#73FF00]' : 'text-[#38BDF8]'}`}>
                           {STEPS[currentStepIndex]?.label}
                         </span>
                       </div>
@@ -1271,7 +1271,7 @@ export function AdminPanel({
                             >
                               {/* Step Dot */}
                               <div
-                                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                                   isCompleted
                                     ? isMale
                                       ? 'bg-[#73FF00]/20 text-[#73FF00]'
@@ -1284,7 +1284,7 @@ export function AdminPanel({
                                 {isCompleted ? (
                                   <Check className="w-3 h-3" />
                                 ) : (
-                                  <span className="text-[9px]">{step.icon}</span>
+                                  <span className="text-[10px]">{step.icon}</span>
                                 )}
                               </div>
                             </motion.button>
@@ -1310,11 +1310,11 @@ export function AdminPanel({
                 {currentStepIndex <= 3 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                    <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                       Peserta ({registrations.length})
                     </p>
                     {pendingRegistrations.length > 0 && (
-                      <span className="flex items-center gap-1 text-[10px] text-[--ios-red]">
+                      <span className="flex items-center gap-1 text-xs text-[--ios-red]">
                         <div className="w-1.5 h-1.5 rounded-full bg-[--ios-red] animate-pulse" />
                         {pendingRegistrations.length} menunggu
                       </span>
@@ -1333,13 +1333,13 @@ export function AdminPanel({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-white/90">Kelola Peserta</p>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className="text-[10px] text-green-400/70">{approvedRegistrations.length} disetujui</span>
+                          <span className="text-xs text-green-400/70">{approvedRegistrations.length} disetujui</span>
                           <span className="text-white/10">·</span>
-                          <span className="text-[10px] text-amber-400/70">S:{tierCounts.s}</span>
-                          <span className="text-[10px] text-purple-400/70">A:{tierCounts.a}</span>
-                          <span className="text-[10px] text-cyan-400/70">B:{tierCounts.b}</span>
+                          <span className="text-xs text-amber-400/70">S:{tierCounts.s}</span>
+                          <span className="text-xs text-purple-400/70">A:{tierCounts.a}</span>
+                          <span className="text-xs text-cyan-400/70">B:{tierCounts.b}</span>
                           <span className="text-white/10">·</span>
-                          <span className="text-[10px] text-yellow-400/70">{pendingRegistrations.length} menunggu</span>
+                          <span className="text-xs text-yellow-400/70">{pendingRegistrations.length} menunggu</span>
                         </div>
                       </div>
                     </div>
@@ -1377,12 +1377,12 @@ export function AdminPanel({
                     className="flex items-center gap-2.5 mb-1 p-2 -mx-2 rounded-xl cursor-pointer transition-colors hover:bg-white/[0.04] w-full"
                     whileTap={{ scale: 0.97 }}
                   >
-                    <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center transition-colors`}>
-                      <Settings className={`w-4 h-4 ${accentClass}`} />
+                    <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center transition-colors`}>
+                      <Settings className={`w-5 h-5 ${accentClass}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-white/90">Buat/Edit Turnamen</p>
-                      <p className="text-[10px] text-white/30">Atur detail & hadiah turnamen</p>
+                      <p className="text-sm font-bold text-white/90">Buat/Edit Turnamen</p>
+                      <p className="text-xs text-white/30">Atur detail & hadiah turnamen</p>
                     </div>
                     <ChevronDown className="w-4 h-4 text-white/20 flex-shrink-0" />
                   </motion.button>
@@ -1394,20 +1394,20 @@ export function AdminPanel({
                     className="w-full flex items-center justify-between bg-white/[0.04] border border-white/[0.06] rounded-2xl px-4 py-3 transition-colors hover:bg-white/[0.06]"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[13px]">🏆</span>
-                      <span className="text-[12px] font-semibold text-white/70">
+                      <span className="text-sm">🏆</span>
+                      <span className="text-sm font-semibold text-white/70">
                         Hadiah Minggu Ini
                       </span>
                     </div>
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[11px] font-medium text-white/30">
+                      <span className="text-xs font-medium text-white/30">
                         Rp {(tournament?.prizePool || 0).toLocaleString('id-ID')}
                       </span>
                       <motion.div
                         animate={{ rotate: showPrizeDropdown ? 180 : 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                        <ChevronDown className="w-4 h-4 text-white/30" />
                       </motion.div>
                     </div>
                   </button>
@@ -1420,7 +1420,7 @@ export function AdminPanel({
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4">
                           {([
                             { key: 'champion' as const, label: 'Juara 1', icon: '🥇', color: 'text-amber-400', placeholder: 'Contoh: 500000' },
                             { key: 'runnerUp' as const, label: 'Juara 2', icon: '🥈', color: 'text-gray-300', placeholder: 'Contoh: 250000' },
@@ -1429,11 +1429,11 @@ export function AdminPanel({
                           ]).map((field) => (
                             <div key={field.key} className="flex items-center gap-3">
                               <span className="text-base w-6 text-center">{field.icon}</span>
-                              <span className={`text-[12px] font-semibold w-14 shrink-0 ${field.color}`}>
+                              <span className={`text-sm font-semibold w-14 shrink-0 ${field.color}`}>
                                 {field.label}
                               </span>
                               <div className="relative flex-1">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 pointer-events-none">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-white/30 pointer-events-none">
                                   Rp
                                 </span>
                                 <input
@@ -1445,7 +1445,7 @@ export function AdminPanel({
                                     setPrizeInput((prev) => ({ ...prev, [field.key]: val }));
                                   }}
                                   placeholder={field.placeholder}
-                                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl pl-9 pr-3 py-2.5 text-white/90 text-[13px] lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl pl-9 pr-3 py-2.5 text-white/90 text-sm lg:text-base placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                                 />
                               </div>
                             </div>
@@ -1462,7 +1462,7 @@ export function AdminPanel({
                               onUpdatePrizePool({ champion: c, runnerUp: r, third: t, mvp: m });
                               setPrizeSaving(false);
                             }}
-                            className={`w-full py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
+                            className={`w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
                               prizeSaving
                                 ? 'opacity-50 pointer-events-none'
                                 : isMale
@@ -1498,12 +1498,12 @@ export function AdminPanel({
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-white/90">Lanjut ke Pembuatan Tim</p>
-                          <p className="text-[10px] text-white/35 mt-0.5">
+                          <p className="text-xs text-white/35 mt-0.5">
                             {approvedRegistrations.length} peserta siap
                           </p>
                         </div>
-                        <div className={`w-8 h-8 rounded-lg ${accentBgSubtle} flex items-center justify-center`}>
-                          <Users className={`w-4 h-4 ${accentClass}`} />
+                        <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                          <Users className={`w-5 h-5 ${accentClass}`} />
                         </div>
                       </div>
                     </motion.button>
@@ -1517,12 +1517,12 @@ export function AdminPanel({
                 {currentStepIndex === 2 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                      <Users className={`w-4 h-4 ${accentClass}`} />
+                    <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                      <Users className={`w-5 h-5 ${accentClass}`} />
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-white/90">Pembuatan Tim</p>
-                      <p className="text-[10px] text-white/30">Buat & atur tim untuk turnamen</p>
+                      <p className="text-sm font-bold text-white/90">Pembuatan Tim</p>
+                      <p className="text-xs text-white/30">Buat & atur tim untuk turnamen</p>
                     </div>
                   </div>
 
@@ -1538,7 +1538,7 @@ export function AdminPanel({
                           <RotateCcw className="w-4.5 h-4.5 text-orange-400" />
                         </div>
                         <p className="text-sm font-semibold text-orange-400">Reset Tim</p>
-                        <p className="text-[10px] text-white/25 mt-0.5">
+                        <p className="text-xs text-white/25 mt-0.5">
                           {teamsCount} tim &middot; buat ulang
                         </p>
                       </motion.button>
@@ -1553,7 +1553,7 @@ export function AdminPanel({
                           <Users className={`w-4.5 h-4.5 ${accentClass}`} />
                         </div>
                         <p className="text-sm font-semibold text-white/90">Buat Tim</p>
-                        <p className="text-[10px] text-white/25 mt-0.5">
+                        <p className="text-xs text-white/25 mt-0.5">
                           {approvedRegistrations.length} pemain
                         </p>
                       </motion.button>
@@ -1574,7 +1574,7 @@ export function AdminPanel({
                         <div className="space-y-3">
                           {/* ─── Strategy Selector ─── */}
                           <div>
-                            <p className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-2">
+                            <p className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-2">
                               Strategi Pairing
                             </p>
                             <div className="grid grid-cols-3 gap-1.5">
@@ -1593,30 +1593,30 @@ export function AdminPanel({
                                   }`}
                                 >
                                   <span className="text-sm block">{s.icon}</span>
-                                  <p className={`text-[10px] font-semibold mt-0.5 ${bracketStrategy === s.key ? 'text-white/90' : 'text-white/40'}`}>
+                                  <p className={`text-xs font-semibold mt-0.5 ${bracketStrategy === s.key ? 'text-white/90' : 'text-white/40'}`}>
                                     {s.label}
                                   </p>
-                                  <p className={`text-[8px] ${bracketStrategy === s.key ? 'text-white/50' : 'text-white/20'}`}>
+                                  <p className={`text-[9px] ${bracketStrategy === s.key ? 'text-white/50' : 'text-white/20'}`}>
                                     {s.desc}
                                   </p>
                                 </button>
                               ))}
                             </div>
                             {bracketStrategy === 'seeded' && (
-                              <p className="text-[9px] text-amber-400/70 mt-1.5 flex items-center gap-1">
+                              <p className="text-[10px] text-amber-400/70 mt-1.5 flex items-center gap-1">
                                 <Info className="w-3 h-3" />
                                 Tim diurutkan berdasarkan tier & poin. Seed 1 vs Seed terakhir.
                               </p>
                             )}
                             {bracketStrategy === 'balanced' && (
-                              <p className="text-[9px] text-amber-400/70 mt-1.5 flex items-center gap-1">
+                              <p className="text-[10px] text-amber-400/70 mt-1.5 flex items-center gap-1">
                                 <Info className="w-3 h-3" />
                                 Tim se-tier saling bertanding (S vs S, A vs A, B vs B).
                               </p>
                             )}
                           </div>
 
-                          <p className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold">
+                          <p className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold">
                             Pilih Tipe Bracket
                           </p>
                           <div className="grid grid-cols-2 gap-2">
@@ -1635,13 +1635,13 @@ export function AdminPanel({
                               >
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className="text-base">{b.icon}</span>
-                                  <p className="text-[11px] font-semibold text-white/80">{b.label}</p>
+                                  <p className="text-xs font-semibold text-white/80">{b.label}</p>
                                 </div>
-                                <p className="text-[9px] text-white/25 ml-6">{b.desc}</p>
+                                <p className="text-[10px] text-white/25 ml-6">{b.desc}</p>
                               </motion.button>
                             ))}
                           </div>
-                          <p className="text-[10px] text-white/30 text-center">
+                          <p className="text-xs text-white/30 text-center">
                             {teamsCount} tim akan bertanding &middot; Strategi: {bracketStrategy === 'random' ? 'Acak' : bracketStrategy === 'seeded' ? 'Seeded (Tier)' : 'Seimbang'}
                           </p>
                         </div>
@@ -1658,12 +1658,12 @@ export function AdminPanel({
                             </div>
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-white/90">Mulai Turnamen</p>
-                              <p className="text-[10px] text-white/35 mt-0.5">
+                              <p className="text-xs text-white/35 mt-0.5">
                                 {matchesCount} pertandingan siap
                               </p>
                             </div>
-                            <div className={`w-8 h-8 rounded-lg ${accentBgSubtle} flex items-center justify-center`}>
-                              <Play className={`w-4 h-4 ${accentClass}`} />
+                            <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                              <Play className={`w-5 h-5 ${accentClass}`} />
                             </div>
                           </div>
                         </motion.button>
@@ -1675,7 +1675,7 @@ export function AdminPanel({
                         className="flex items-center gap-2 w-full text-left"
                       >
                         <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${showTeamsPreview ? 'rotate-0' : '-rotate-90'}`} />
-                        <p className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold">
+                        <p className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold">
                           Lihat Tim ({teamsCount})
                         </p>
                       </button>
@@ -1698,10 +1698,10 @@ export function AdminPanel({
                                   className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3"
                                 >
                                   <div className="flex items-center gap-2 mb-2">
-                                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${accentBgSubtle}`}>
+                                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${accentBgSubtle}`}>
                                       {team.seed}
                                     </div>
-                                    <p className="text-[12px] font-bold text-white/90 truncate flex-1">{team.name}</p>
+                                    <p className="text-sm font-bold text-white/90 truncate flex-1">{team.name}</p>
                                   </div>
                                   <div className="flex flex-wrap gap-1">
                                     {team.members?.slice(0, 4).map((member, mIdx) => (
@@ -1713,17 +1713,17 @@ export function AdminPanel({
                                           {member.user?.avatar ? (
                                             <img src={member.user.avatar} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
                                           ) : (
-                                            <span className="text-[8px] font-bold text-white/60">{member.user?.name?.[0]}</span>
+                                            <span className="text-[9px] font-bold text-white/60">{member.user?.name?.[0]}</span>
                                           )}
                                         </div>
-                                        <span className="text-[10px] text-white/60 truncate max-w-[60px]">{member.user?.name}</span>
+                                        <span className="text-xs text-white/60 truncate max-w-[60px]">{member.user?.name}</span>
                                         {member.role === 'captain' && (
                                           <Crown className="w-3 h-3 text-amber-400" />
                                         )}
                                       </div>
                                     ))}
                                     {team.members?.length > 4 && (
-                                      <span className="text-[9px] text-white/30 px-2 py-1">+{team.members.length - 4}</span>
+                                      <span className="text-[10px] text-white/30 px-2 py-1">+{team.members.length - 4}</span>
                                     )}
                                   </div>
                                 </motion.div>
@@ -1743,12 +1743,12 @@ export function AdminPanel({
                 {currentStepIndex === 3 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                      <GitBranch className={`w-4 h-4 ${accentClass}`} />
+                    <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                      <GitBranch className={`w-5 h-5 ${accentClass}`} />
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-white/90">Bracket Siap</p>
-                      <p className="text-[10px] text-white/30">Turnamen siap dimulai</p>
+                      <p className="text-sm font-bold text-white/90">Bracket Siap</p>
+                      <p className="text-xs text-white/30">Turnamen siap dimulai</p>
                     </div>
                   </div>
 
@@ -1756,11 +1756,11 @@ export function AdminPanel({
                     <div className={`w-10 h-10 rounded-xl ${accentBgSubtle} flex items-center justify-center mx-auto mb-2`}>
                       <CheckCircle className={`w-5 h-5 ${accentClass}`} />
                     </div>
-                    <p className={`text-[12px] font-semibold ${accentClass}`}>Bracket Sudah Dibuat</p>
-                    <p className="text-[10px] text-white/30 mt-1">{matchesCount} pertandingan siap</p>
+                    <p className={`text-sm font-semibold ${accentClass}`}>Bracket Sudah Dibuat</p>
+                    <p className="text-xs text-white/30 mt-1">{matchesCount} pertandingan siap</p>
                     <motion.button
                       onClick={() => onUpdateStatus('ongoing')}
-                      className={`mt-3 px-4 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15 hover:bg-[#73FF00]/18' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15 hover:bg-[#38BDF8]/18'} transition-all`}
+                      className={`mt-3 px-5 py-2.5 rounded-xl text-sm font-semibold ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15 hover:bg-[#73FF00]/18' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15 hover:bg-[#38BDF8]/18'} transition-all`}
                       whileTap={{ scale: 0.95 }}
                     >
                       Mulai Turnamen →
@@ -1776,18 +1776,18 @@ export function AdminPanel({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                        <Play className={`w-4 h-4 ${accentClass}`} />
+                      <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                        <Play className={`w-5 h-5 ${accentClass}`} />
                       </div>
                       <div>
-                        <p className="text-[13px] font-bold text-white/90">Turnamen Berlangsung</p>
-                        <p className="text-[10px] text-white/30">{completedMatches}/{matchesCount} pertandingan selesai</p>
+                        <p className="text-sm font-bold text-white/90">Turnamen Berlangsung</p>
+                        <p className="text-xs text-white/30">{completedMatches}/{matchesCount} pertandingan selesai</p>
                       </div>
                     </div>
                     {completedMatches === matchesCount && matchesCount > 0 && (
                       <motion.button
                         onClick={() => onUpdateStatus('completed')}
-                        className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
                         whileTap={{ scale: 0.95 }}
                       >
                         Selesai ✓
@@ -1807,7 +1807,7 @@ export function AdminPanel({
                         className="flex items-center gap-2 w-full text-left"
                       >
                         <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${showBracketPreview ? 'rotate-0' : '-rotate-90'}`} />
-                        <p className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold">
+                        <p className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold">
                           Pertandingan ({pendingMatches.length} tersisa)
                         </p>
                       </button>
@@ -1836,11 +1836,11 @@ export function AdminPanel({
                                     className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 ${isCompleted ? 'opacity-60' : ''}`}
                                   >
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-[9px] font-semibold text-white/30 uppercase tracking-wider">
+                                      <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">
                                         Round {match.round} · Match {match.matchNumber}
                                       </span>
                                       {isCompleted && (
-                                        <span className="text-[9px] font-semibold text-green-400">SELESAI</span>
+                                        <span className="text-[10px] font-semibold text-green-400">SELESAI</span>
                                       )}
                                     </div>
                                     
@@ -1851,7 +1851,7 @@ export function AdminPanel({
                                           ? 'bg-green-500/10 ring-1 ring-green-500/20'
                                           : 'bg-white/[0.03]'
                                       }`}>
-                                        <p className={`text-[11px] font-semibold truncate ${teamAWinner && isCompleted ? 'text-green-400' : 'text-white/80'}`}>
+                                        <p className={`text-xs font-semibold truncate ${teamAWinner && isCompleted ? 'text-green-400' : 'text-white/80'}`}>
                                           {match.teamA?.name || 'TBD'}
                                         </p>
                                       </div>
@@ -1866,16 +1866,16 @@ export function AdminPanel({
                                               value={editScoreA}
                                               onChange={(e) => setEditScoreA(e.target.value)}
                                               placeholder="0"
-                                              className="w-10 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] text-center text-white/90 text-[13px] font-bold focus:outline-none focus:border-white/[0.15]"
+                                              className="w-10 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] text-center text-white/90 text-sm font-bold focus:outline-none focus:border-white/[0.15]"
                                             />
-                                            <span className="text-white/30 text-[11px]">-</span>
+                                            <span className="text-white/30 text-xs">-</span>
                                             <input
                                               type="number"
                                               inputMode="numeric"
                                               value={editScoreB}
                                               onChange={(e) => setEditScoreB(e.target.value)}
                                               placeholder="0"
-                                              className="w-10 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] text-center text-white/90 text-[13px] font-bold focus:outline-none focus:border-white/[0.15]"
+                                              className="w-10 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] text-center text-white/90 text-sm font-bold focus:outline-none focus:border-white/[0.15]"
                                             />
                                             <motion.button
                                               onClick={() => {
@@ -1900,13 +1900,13 @@ export function AdminPanel({
                                           </>
                                         ) : (
                                           <>
-                                            <span className={`w-8 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold ${
+                                            <span className={`w-8 h-9 rounded-lg flex items-center justify-center text-sm font-bold ${
                                               teamAWinner && isCompleted ? 'bg-green-500/15 text-green-400' : 'bg-white/[0.05] text-white/70'
                                             }`}>
                                               {match.scoreA ?? '-'}
                                             </span>
-                                            <span className="text-white/20 text-[10px]">vs</span>
-                                            <span className={`w-8 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold ${
+                                            <span className="text-white/20 text-xs">vs</span>
+                                            <span className={`w-8 h-9 rounded-lg flex items-center justify-center text-sm font-bold ${
                                               teamBWinner && isCompleted ? 'bg-green-500/15 text-green-400' : 'bg-white/[0.05] text-white/70'
                                             }`}>
                                               {match.scoreB ?? '-'}
@@ -1921,7 +1921,7 @@ export function AdminPanel({
                                           ? 'bg-green-500/10 ring-1 ring-green-500/20'
                                           : 'bg-white/[0.03]'
                                       }`}>
-                                        <p className={`text-[11px] font-semibold truncate text-right ${teamBWinner && isCompleted ? 'text-green-400' : 'text-white/80'}`}>
+                                        <p className={`text-xs font-semibold truncate text-right ${teamBWinner && isCompleted ? 'text-green-400' : 'text-white/80'}`}>
                                           {match.teamB?.name || 'TBD'}
                                         </p>
                                       </div>
@@ -1935,7 +1935,7 @@ export function AdminPanel({
                                           setEditScoreA(String(match.scoreA || ''));
                                           setEditScoreB(String(match.scoreB || ''));
                                         }}
-                                        className="mt-2.5 w-full py-2 rounded-lg text-[10px] font-semibold bg-white/[0.03] text-white/40 hover:bg-white/[0.06] hover:text-white/60 transition-all"
+                                        className="mt-2.5 w-full py-2 rounded-lg text-xs font-semibold bg-white/[0.03] text-white/40 hover:bg-white/[0.06] hover:text-white/60 transition-all"
                                         whileTap={{ scale: 0.98 }}
                                       >
                                         Input Skor
@@ -1959,12 +1959,12 @@ export function AdminPanel({
                 {currentStepIndex === 5 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                      <Flag className={`w-4 h-4 ${accentClass}`} />
+                    <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                      <Flag className={`w-5 h-5 ${accentClass}`} />
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-white/90">Finalisasi</p>
-                      <p className="text-[10px] text-white/30">Turnamen selesai, finalisasi hasil</p>
+                      <p className="text-sm font-bold text-white/90">Finalisasi</p>
+                      <p className="text-xs text-white/30">Turnamen selesai, finalisasi hasil</p>
                     </div>
                   </div>
 
@@ -1982,7 +1982,7 @@ export function AdminPanel({
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-white/90">Finalisasi Turnamen</p>
-                        <p className="text-[10px] text-white/25 mt-0.5">
+                        <p className="text-xs text-white/25 mt-0.5">
                           Tetapkan juara & distribusi hadiah
                         </p>
                       </div>
@@ -1994,7 +1994,7 @@ export function AdminPanel({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-purple-400" />
-                    <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">MVP Minggu Ini</p>
+                    <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">MVP Minggu Ini</p>
                   </div>
                   <motion.button
                     onClick={() => setShowPlayerManagement(true)}
@@ -2008,7 +2008,7 @@ export function AdminPanel({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-white/90">Kelola MVP</p>
-                        <p className="text-[10px] text-white/30">Tetapkan & ubah MVP minggu ini dari daftar peserta</p>
+                        <p className="text-xs text-white/30">Tetapkan & ubah MVP minggu ini dari daftar peserta</p>
                       </div>
                     </div>
                   </motion.button>
@@ -2032,7 +2032,7 @@ export function AdminPanel({
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-amber-400">Reset Data</p>
-                        <p className="text-[10px] text-white/25 mt-0.5">
+                        <p className="text-xs text-white/25 mt-0.5">
                           Reset pertandingan & lanjut ke minggu berikutnya
                         </p>
                       </div>
@@ -2046,7 +2046,7 @@ export function AdminPanel({
                   <div className="space-y-5">
                     {/* Active Methods Toggle */}
                     <div className="space-y-3">
-                      <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                      <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                         Metode Aktif
                       </p>
                       <div className="flex gap-2">
@@ -2072,7 +2072,7 @@ export function AdminPanel({
                               }`}>
                                 <method.icon className={`w-4.5 h-4.5 ${isActive ? accentClass : 'text-white/25'}`} />
                               </div>
-                              <p className={`text-[11px] font-semibold ${isActive ? 'text-white/90' : 'text-white/30'}`}>
+                              <p className={`text-xs font-semibold ${isActive ? 'text-white/90' : 'text-white/30'}`}>
                                 {method.label}
                               </p>
                               {isActive && (
@@ -2088,18 +2088,18 @@ export function AdminPanel({
                     {paySettings.activeMethods.includes('qris') && (
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <QrCode className={`w-4 h-4 ${accentClass}`} />
-                          <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                          <QrCode className={`w-5 h-5 ${accentClass}`} />
+                          <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                             QRIS
                           </p>
                         </div>
                         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-4">
                           {/* QRIS Image Upload */}
                           <div>
-                            <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
+                            <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">
                               Gambar QRIS
                             </label>
-                            <p className="text-[11px] text-white/25 mb-3">
+                            <p className="text-xs text-white/25 mb-3">
                               Screenshot QRIS dari e-wallet (GoPay, OVO, DANA, dll) lalu upload di sini
                             </p>
                             <ImageUpload
@@ -2112,7 +2112,7 @@ export function AdminPanel({
 
                           {/* QRIS Label (fallback) */}
                           <div>
-                            <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
+                            <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">
                               Label QRIS (opsional)
                             </label>
                             <input
@@ -2122,7 +2122,7 @@ export function AdminPanel({
                               placeholder={`${settings.app_name} - QRIS`}
                               className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-white/90 text-sm placeholder-white/25 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                             />
-                            <p className="text-[10px] text-white/20 mt-1.5">
+                            <p className="text-xs text-white/20 mt-1.5">
                               Jika tidak ada gambar, akan auto-generate QR dari label ini
                             </p>
                           </div>
@@ -2130,7 +2130,7 @@ export function AdminPanel({
                           {/* Preview */}
                           {paySettings.qrisImage && (
                             <div className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] inline-block">
-                              <p className="text-[9px] text-white/30 mb-1.5 uppercase tracking-wider font-semibold">Preview</p>
+                              <p className="text-[10px] text-white/30 mb-1.5 uppercase tracking-wider font-semibold">Preview</p>
                               <div className="bg-white rounded-lg p-1.5">
                                 <img
                                   src={paySettings.qrisImage}
@@ -2149,14 +2149,14 @@ export function AdminPanel({
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
                           <Building2 className="w-4 h-4 text-[#73FF00]" />
-                          <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                          <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                             Bank Transfer
                           </p>
                         </div>
-                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4">
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">
                                 Nama Bank
                               </label>
                               <input
@@ -2168,7 +2168,7 @@ export function AdminPanel({
                               />
                             </div>
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">
                                 Kode Bank
                               </label>
                               <input
@@ -2181,7 +2181,7 @@ export function AdminPanel({
                             </div>
                           </div>
                           <div>
-                            <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
+                            <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">
                               Nomor Rekening
                             </label>
                             <input
@@ -2193,7 +2193,7 @@ export function AdminPanel({
                             />
                           </div>
                           <div>
-                            <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">
+                            <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">
                               Atas Nama
                             </label>
                             <input
@@ -2213,7 +2213,7 @@ export function AdminPanel({
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
                           <Wallet className="w-4 h-4 text-emerald-400" />
-                          <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                          <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                             E-Wallet
                           </p>
                         </div>
@@ -2222,13 +2222,13 @@ export function AdminPanel({
                         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-7 h-7 rounded-lg bg-emerald-400/15 flex items-center justify-center">
-                              <Wallet className="w-3.5 h-3.5 text-white/90" />
+                              <Wallet className="w-4 h-4 text-white/90" />
                             </div>
-                            <p className="text-[12px] font-semibold text-white/90">GoPay</p>
+                            <p className="text-sm font-semibold text-white/90">GoPay</p>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">Nomor</label>
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">Nomor</label>
                               <input
                                 type="text"
                                 value={paySettings.gopayNumber}
@@ -2238,7 +2238,7 @@ export function AdminPanel({
                               />
                             </div>
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">Atas Nama</label>
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">Atas Nama</label>
                               <input
                                 type="text"
                                 value={paySettings.gopayHolder}
@@ -2254,13 +2254,13 @@ export function AdminPanel({
                         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-7 h-7 rounded-lg bg-purple-400/15 flex items-center justify-center">
-                              <Wallet className="w-3.5 h-3.5 text-white/90" />
+                              <Wallet className="w-4 h-4 text-white/90" />
                             </div>
-                            <p className="text-[12px] font-semibold text-white/90">OVO</p>
+                            <p className="text-sm font-semibold text-white/90">OVO</p>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">Nomor</label>
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">Nomor</label>
                               <input
                                 type="text"
                                 value={paySettings.ovoNumber}
@@ -2270,7 +2270,7 @@ export function AdminPanel({
                               />
                             </div>
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">Atas Nama</label>
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">Atas Nama</label>
                               <input
                                 type="text"
                                 value={paySettings.ovoHolder}
@@ -2286,13 +2286,13 @@ export function AdminPanel({
                         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-7 h-7 rounded-lg bg-[#73FF00]/15 flex items-center justify-center">
-                              <Wallet className="w-3.5 h-3.5 text-white/90" />
+                              <Wallet className="w-4 h-4 text-white/90" />
                             </div>
-                            <p className="text-[12px] font-semibold text-white/90">DANA</p>
+                            <p className="text-sm font-semibold text-white/90">DANA</p>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">Nomor</label>
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">Nomor</label>
                               <input
                                 type="text"
                                 value={paySettings.danaNumber}
@@ -2302,7 +2302,7 @@ export function AdminPanel({
                               />
                             </div>
                             <div>
-                              <label className="text-[11px] text-white/35 mb-2 block uppercase tracking-wider font-semibold">Atas Nama</label>
+                              <label className="text-xs text-white/35 mb-2 block uppercase tracking-wider font-semibold">Atas Nama</label>
                               <input
                                 type="text"
                                 value={paySettings.danaHolder}
@@ -2346,15 +2346,15 @@ export function AdminPanel({
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Clock className={`w-4 h-4 ${accentClass}`} />
-                          <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                          <Clock className={`w-5 h-5 ${accentClass}`} />
+                          <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                             Verifikasi Pembayaran
                           </p>
                         </div>
                         {pendingPayments.length > 0 && (
                           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/12 text-amber-400">
                             <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                            <span className="text-[10px] font-bold">{pendingPayments.length} menunggu verifikasi</span>
+                            <span className="text-xs font-bold">{pendingPayments.length} menunggu verifikasi</span>
                           </span>
                         )}
                       </div>
@@ -2366,8 +2366,8 @@ export function AdminPanel({
                       ) : pendingPayments.length === 0 ? (
                         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                           <CheckCircle className="w-7 h-7 text-[--ios-green]/40 mx-auto mb-2" />
-                          <p className="text-[13px] text-white/30 font-medium">Semua pembayaran telah diverifikasi</p>
-                          <p className="text-[11px] text-white/15 mt-0.5">Tidak ada pembayaran tertunda</p>
+                          <p className="text-sm text-white/30 font-medium">Semua pembayaran telah diverifikasi</p>
+                          <p className="text-xs text-white/15 mt-0.5">Tidak ada pembayaran tertunda</p>
                         </div>
                       ) : (
                         <div className="space-y-2.5 max-h-[300px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
@@ -2393,7 +2393,7 @@ export function AdminPanel({
                               >
                                 {/* Top row: type badge + amount + time */}
                                 <div className="flex items-center gap-2 mb-2.5">
-                                  <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                  <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                                     payment.type === 'donation'
                                       ? 'bg-[#73FF00]/15 text-[#73FF00]'
                                       : 'bg-emerald-500/15 text-emerald-400'
@@ -2401,7 +2401,7 @@ export function AdminPanel({
                                     {payment.type === 'donation' ? 'Donasi' : 'Sawer'}
                                   </span>
                                   <span className={`text-[14px] font-bold ${accentClass}`}>Rp {payment.amount}</span>
-                                  <span className="text-[11px] text-white/25 ml-auto">{timeAgoStr}</span>
+                                  <span className="text-xs text-white/25 ml-auto">{timeAgoStr}</span>
                                 </div>
 
                                 {/* Info row: from + method */}
@@ -2413,17 +2413,17 @@ export function AdminPanel({
                                       </div>
                                     ) : (
                                       <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0">
-                                        <span className="text-[10px] font-bold text-white/50">{payment.from[0]}</span>
+                                        <span className="text-xs font-bold text-white/50">{payment.from[0]}</span>
                                       </div>
                                     )}
                                     <div className="min-w-0">
-                                      <p className="text-[12px] font-semibold text-white/90 truncate">{payment.from}</p>
+                                      <p className="text-sm font-semibold text-white/90 truncate">{payment.from}</p>
                                       {payment.targetPlayerName && (
-                                        <p className="text-[10px] text-white/30 truncate">→ {payment.targetPlayerName}</p>
+                                        <p className="text-xs text-white/30 truncate">→ {payment.targetPlayerName}</p>
                                       )}
                                     </div>
                                   </div>
-                                  <span className="text-[11px] text-white/30 shrink-0">{pmIcon} {pmLabel}</span>
+                                  <span className="text-xs text-white/30 shrink-0">{pmIcon} {pmLabel}</span>
                                 </div>
 
                                 {/* Proof thumbnail */}
@@ -2436,15 +2436,15 @@ export function AdminPanel({
                                       <img src={payment.proofImageUrl} alt="Bukti" loading="lazy" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex items-center gap-1 flex-1 min-w-0">
-                                      <ImageIcon className="w-3.5 h-3.5 text-white/30 shrink-0" />
-                                      <span className="text-[11px] text-white/40 truncate">Bukti transfer</span>
+                                      <ImageIcon className="w-4 h-4 text-white/30 shrink-0" />
+                                      <span className="text-xs text-white/40 truncate">Bukti transfer</span>
                                     </div>
-                                    <Eye className="w-3.5 h-3.5 text-white/20 shrink-0" />
+                                    <Eye className="w-4 h-4 text-white/20 shrink-0" />
                                   </div>
                                 ) : (
                                   <div className="flex items-center gap-1.5 mb-2.5 px-1">
                                     <ImageIcon className="w-3 h-3 text-white/15" />
-                                    <span className="text-[10px] text-white/20 italic">Tidak ada bukti</span>
+                                    <span className="text-xs text-white/20 italic">Tidak ada bukti</span>
                                   </div>
                                 )}
 
@@ -2458,9 +2458,9 @@ export function AdminPanel({
                                     whileTap={{ scale: 0.97 }}
                                   >
                                     {verifyingId === payment.id ? (
-                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
-                                      <Check className="w-3.5 h-3.5" />
+                                      <Check className="w-4 h-4" />
                                     )}
                                     Setujui
                                   </motion.button>
@@ -2472,9 +2472,9 @@ export function AdminPanel({
                                     whileTap={{ scale: 0.97 }}
                                   >
                                     {verifyingId === payment.id ? (
-                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
-                                      <XCircle className="w-3.5 h-3.5" />
+                                      <XCircle className="w-4 h-4" />
                                     )}
                                     Tolak
                                   </motion.button>
@@ -2495,22 +2495,22 @@ export function AdminPanel({
                     {/* Section Header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                          <Building2 className={`w-4 h-4 ${accentClass}`} />
+                        <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                          <Building2 className={`w-5 h-5 ${accentClass}`} />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Kelola Club</p>
-                          <p className="text-[10px] text-white/30">{clubs.length} club terdaftar</p>
+                          <p className="text-sm font-bold text-white/90">Kelola Club</p>
+                          <p className="text-xs text-white/30">{clubs.length} club terdaftar</p>
                         </div>
                       </div>
                       {!showCreateClub && (
                         <motion.button
                           onClick={() => setShowCreateClub(true)}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
                           whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-4 h-4" />
                           Tambah Club
                         </motion.button>
                       )}
@@ -2520,13 +2520,13 @@ export function AdminPanel({
                     <AnimatePresence>
                       {showCreateClub && (
                         <motion.div
-                          className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3"
+                          className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4"
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -8 }}
                           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         >
-                          <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                          <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                             Club Baru
                           </p>
                           {/* Logo Upload */}
@@ -2543,7 +2543,7 @@ export function AdminPanel({
                               value={newClubName}
                               onChange={(e) => setNewClubName(e.target.value)}
                               placeholder="Nama club..."
-                              className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                              className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter' && newClubName.trim().length >= 2) {
                                   setCreatingClub(true);
@@ -2595,15 +2595,15 @@ export function AdminPanel({
                                   .finally(() => setCreatingClub(false));
                               }}
                               disabled={creatingClub || newClubName.trim().length < 2}
-                              className={`px-4 py-2.5 rounded-xl text-[12px] font-semibold flex items-center gap-1.5 transition-all ${creatingClub || newClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`}
+                              className={`px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-all ${creatingClub || newClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`}
                               whileTap={{ scale: 0.97 }}
                             >
-                              {creatingClub ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                              {creatingClub ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                               <span className="hidden sm:inline">Buat</span>
                             </motion.button>
                             <motion.button
                               onClick={() => { setShowCreateClub(false); setNewClubName(''); setNewClubLogo(null); }}
-                              className="px-3 py-2.5 rounded-xl text-[12px] bg-white/[0.03] border border-white/[0.06] text-white/50"
+                              className="px-3 py-2.5 rounded-xl text-sm bg-white/[0.03] border border-white/[0.06] text-white/50"
                               whileTap={{ scale: 0.97 }}
                             >
                               <XCircle className="w-4 h-4" />
@@ -2621,8 +2621,8 @@ export function AdminPanel({
                     ) : clubs.length === 0 ? (
                       <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                         <Building2 className="w-7 h-7 text-white/20 mx-auto mb-2" />
-                        <p className="text-[13px] text-white/30 font-medium">Belum ada club</p>
-                        <p className="text-[11px] text-white/20 mt-1">Buat club pertama untuk memulai</p>
+                        <p className="text-sm text-white/30 font-medium">Belum ada club</p>
+                        <p className="text-xs text-white/20 mt-1">Buat club pertama untuk memulai</p>
                       </div>
                     ) : (
                       <div className="space-y-2 max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
@@ -2639,15 +2639,15 @@ export function AdminPanel({
                               <div className="space-y-3">
                                 <div className="flex items-center gap-2">
                                   <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                                  <p className="text-[12px] text-red-400 font-semibold">Hapus club "{club.name}"?</p>
+                                  <p className="text-sm text-red-400 font-semibold">Hapus club "{club.name}"?</p>
                                 </div>
-                                <p className="text-[11px] text-white/40 leading-relaxed">
+                                <p className="text-xs text-white/40 leading-relaxed">
                                   Semua anggota akan kehilangan afiliasi club. Tindakan ini tidak dapat dibatalkan.
                                 </p>
                                 <div className="flex gap-2">
                                   <motion.button
                                     onClick={() => setShowDeleteClubConfirm(null)}
-                                    className="flex-1 py-2 rounded-xl text-[11px] font-semibold bg-white/[0.03] border border-white/[0.06] text-white/60"
+                                    className="flex-1 py-2 rounded-xl text-xs font-semibold bg-white/[0.03] border border-white/[0.06] text-white/60"
                                     whileTap={{ scale: 0.97 }}
                                   >
                                     Batal
@@ -2671,10 +2671,10 @@ export function AdminPanel({
                                         .finally(() => setDeletingClub(false));
                                     }}
                                     disabled={deletingClub}
-                                    className="flex-1 py-2 rounded-xl text-[11px] font-semibold bg-red-500/20 text-red-400 border border-red-500/20 disabled:opacity-40"
+                                    className="flex-1 py-2 rounded-xl text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/20 disabled:opacity-40"
                                     whileTap={{ scale: 0.97 }}
                                   >
-                                    {deletingClub ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : 'Ya, Hapus'}
+                                    {deletingClub ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Hapus'}
                                   </motion.button>
                                 </div>
                               </div>
@@ -2682,7 +2682,7 @@ export function AdminPanel({
                               /* Club Info Row */
                               <div className="flex items-center gap-3">
                                 {/* Club Avatar */}
-                                <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center">
                                   {club.logoUrl ? (
                                     <img
                                       src={club.logoUrl}
@@ -2690,11 +2690,11 @@ export function AdminPanel({
                                       className="w-[85%] h-[85%] object-contain"
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).style.display = 'none';
-                                        (e.target as HTMLImageElement).parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}">${club.name.slice(0, 2).toUpperCase()}</div>`;
+                                        (e.target as HTMLImageElement).parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center text-sm font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}">${club.name.slice(0, 2).toUpperCase()}</div>`;
                                       }}
                                     />
                                   ) : (
-                                    <div className={`w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}`}>
+                                    <div className={`w-full h-full flex items-center justify-center text-sm font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}`}>
                                       {club.name.slice(0, 2).toUpperCase()}
                                     </div>
                                   )}
@@ -2702,15 +2702,15 @@ export function AdminPanel({
 
                                 {/* Club Info */}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[13px] font-bold text-white/90 truncate">{club.name}</p>
+                                  <p className="text-sm font-bold text-white/90 truncate">{club.name}</p>
                                   <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="text-[10px] text-white/30">
+                                    <span className="text-xs text-white/30">
                                       {club.memberCount} anggota
                                     </span>
                                     {club.memberCount > 0 && (
                                       <>
                                         <span className="text-white/10">·</span>
-                                        <span className="text-[10px] text-white/30">
+                                        <span className="text-xs text-white/30">
                                           {club.totalPoints.toLocaleString('id-ID')} pts
                                         </span>
                                       </>
@@ -2726,17 +2726,17 @@ export function AdminPanel({
                                       setEditClubName(club.name);
                                       setEditClubLogo(club.logoUrl || '');
                                     }}
-                                    className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center ${accentClass} hover:bg-white/[0.08] transition-colors`}
+                                    className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center ${accentClass} hover:bg-white/[0.08] transition-colors`}
                                     whileTap={{ scale: 0.9 }}
                                   >
-                                    <Pencil className="w-3.5 h-3.5" />
+                                    <Pencil className="w-4 h-4" />
                                   </motion.button>
                                   <motion.button
                                     onClick={() => setShowDeleteClubConfirm(club.id)}
                                     className="w-8 h-8 rounded-xl bg-red-500/[0.06] flex items-center justify-center text-red-400/50 hover:bg-red-500/15 hover:text-red-400 transition-colors"
                                     whileTap={{ scale: 0.9 }}
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-4 h-4" />
                                   </motion.button>
                                 </div>
                               </div>
@@ -2758,14 +2758,14 @@ export function AdminPanel({
                           <ImageIconLucide className="w-4 h-4 text-amber-400" />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Kelola Banner Champion</p>
-                          <p className="text-[10px] text-white/30">Upload gambar juara Male & Female division</p>
+                          <p className="text-sm font-bold text-white/90">Kelola Banner Champion</p>
+                          <p className="text-xs text-white/30">Upload gambar juara Male & Female division</p>
                         </div>
                       </div>
                       <motion.button
                         onClick={saveBanners}
                         disabled={bannerSaving}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                        className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                           bannerSaved
                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
                             : isMale
@@ -2776,11 +2776,11 @@ export function AdminPanel({
                         whileTap={{ scale: 0.95 }}
                       >
                         {bannerSaving ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         ) : bannerSaved ? (
-                          <Check className="w-3.5 h-3.5" />
+                          <Check className="w-4 h-4" />
                         ) : (
-                          <Save className="w-3.5 h-3.5" />
+                          <Save className="w-4 h-4" />
                         )}
                         {bannerSaved ? 'Tersimpan!' : 'Simpan'}
                       </motion.button>
@@ -2790,7 +2790,7 @@ export function AdminPanel({
                     <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 lg:p-6 space-y-5">
                       <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/10">
                         <Info className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-                        <div className="text-[11px] text-white/50 leading-relaxed">
+                        <div className="text-xs text-white/50 leading-relaxed">
                           <p className="text-amber-400/80 font-semibold mb-1">Panduan Upload Banner Champion</p>
                           <p>Upload gambar untuk banner juara di halaman utama. Banner akan ditampilkan sebagai carousel bergantian antara juara Male & Female division. Ukuran yang disarankan: <span className="text-white/70">1600x800px</span> (rasio 2:1). Maksimal <span className="text-white/70">5MB</span>. Format: JPG, PNG, WebP.</p>
                         </div>
@@ -2802,9 +2802,9 @@ export function AdminPanel({
                         <div className="space-y-2.5">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 rounded-md bg-[#73FF00]/12 flex items-center justify-center">
-                              <span className="text-[9px] font-bold text-[#73FF00]">M</span>
+                              <span className="text-[10px] font-bold text-[#73FF00]">M</span>
                             </div>
-                            <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
+                            <label className="text-xs tracking-[0.1em] uppercase text-white/50 font-semibold">
                               Banner Juara Male
                             </label>
                           </div>
@@ -2820,10 +2820,10 @@ export function AdminPanel({
                           </div>
                           {bannerMaleUrl && (
                             <div className="flex items-center justify-between px-1">
-                              <p className="text-[10px] text-white/30">Gambar telah diupload</p>
+                              <p className="text-xs text-white/30">Gambar telah diupload</p>
                               <button
                                 onClick={() => { setBannerMaleUrl(null); setBannerSaved(false); }}
-                                className="text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
+                                className="text-xs text-red-400/60 hover:text-red-400 transition-colors"
                               >
                                 Hapus
                               </button>
@@ -2835,9 +2835,9 @@ export function AdminPanel({
                         <div className="space-y-2.5">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 rounded-md bg-[#38BDF8]/10 flex items-center justify-center">
-                              <span className="text-[9px] font-bold text-[#38BDF8]">F</span>
+                              <span className="text-[10px] font-bold text-[#38BDF8]">F</span>
                             </div>
-                            <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
+                            <label className="text-xs tracking-[0.1em] uppercase text-white/50 font-semibold">
                               Banner Juara Female
                             </label>
                           </div>
@@ -2853,10 +2853,10 @@ export function AdminPanel({
                           </div>
                           {bannerFemaleUrl && (
                             <div className="flex items-center justify-between px-1">
-                              <p className="text-[10px] text-white/30">Gambar telah diupload</p>
+                              <p className="text-xs text-white/30">Gambar telah diupload</p>
                               <button
                                 onClick={() => { setBannerFemaleUrl(null); setBannerSaved(false); }}
-                                className="text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
+                                className="text-xs text-red-400/60 hover:text-red-400 transition-colors"
                               >
                                 Hapus
                               </button>
@@ -2869,7 +2869,7 @@ export function AdminPanel({
                       <div className="space-y-2.5">
                         <div className="flex items-center gap-2">
                           <Eye className="w-4 h-4 text-white/30" />
-                          <label className="text-[11px] tracking-[0.1em] uppercase text-white/50 font-semibold">
+                          <label className="text-xs tracking-[0.1em] uppercase text-white/50 font-semibold">
                             Preview Banner (Carousel Bergantian)
                           </label>
                         </div>
@@ -2895,7 +2895,7 @@ export function AdminPanel({
                                     <div className="w-10 h-10 rounded-xl bg-[#73FF00]/5 flex items-center justify-center">
                                       <ImageIcon className="w-5 h-5 text-[#73FF00]/30" />
                                     </div>
-                                    <p className="text-[10px] text-white/20">Male Champion</p>
+                                    <p className="text-xs text-white/20">Male Champion</p>
                                   </div>
                                 )}
                                 {/* Gradient overlay */}
@@ -2903,7 +2903,7 @@ export function AdminPanel({
                                   <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.20) 50%)' }} />
                                 )}
                                 <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md" style={{ background: 'rgba(115,255,0,0.12)', border: '1px solid rgba(115,255,0,0.2)', backdropFilter: 'blur(8px)' }}>
-                                  <span className="text-[9px] font-bold text-[#73FF00] tracking-wider">MALE CHAMPION</span>
+                                  <span className="text-[10px] font-bold text-[#73FF00] tracking-wider">MALE CHAMPION</span>
                                 </div>
                               </div>
                             </div>
@@ -2929,20 +2929,20 @@ export function AdminPanel({
                                     <div className="w-10 h-10 rounded-xl bg-[#38BDF8]/5 flex items-center justify-center">
                                       <ImageIcon className="w-5 h-5 text-[#38BDF8]/30" />
                                     </div>
-                                    <p className="text-[10px] text-white/20">Female Champion</p>
+                                    <p className="text-xs text-white/20">Female Champion</p>
                                   </div>
                                 )}
                                 {bannerFemaleUrl && (
                                   <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.20) 50%)' }} />
                                 )}
                                 <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md" style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', backdropFilter: 'blur(8px)' }}>
-                                  <span className="text-[9px] font-bold text-[#38BDF8] tracking-wider">FEMALE CHAMPION</span>
+                                  <span className="text-[10px] font-bold text-[#38BDF8] tracking-wider">FEMALE CHAMPION</span>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <p className="text-[10px] text-white/25 text-center">Di halaman utama, kedua banner akan bergantian ditampilkan sebagai carousel setiap 5 detik</p>
+                        <p className="text-xs text-white/25 text-center">Di halaman utama, kedua banner akan bergantian ditampilkan sebagai carousel setiap 5 detik</p>
                       </div>
                     </div>
                   </div>
@@ -2962,8 +2962,8 @@ export function AdminPanel({
                           <ShieldCheck className="w-4 h-4 text-amber-400" />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Admin Panel</p>
-                          <p className="text-[10px] text-white/30">Kelola admin, bot, & pengaturan</p>
+                          <p className="text-sm font-bold text-white/90">Admin Panel</p>
+                          <p className="text-xs text-white/30">Kelola admin, bot, & pengaturan</p>
                         </div>
                       </div>
                     </div>
@@ -2978,7 +2978,7 @@ export function AdminPanel({
                         <motion.button
                           key={sub.id}
                           onClick={() => setAdminSubTab(sub.id)}
-                          className="relative flex-1 min-w-0 py-2 px-2 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 z-10 truncate"
+                          className="relative flex-1 min-w-0 py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 z-10 truncate"
                           whileTap={{ scale: 0.97 }}
                         >
                           {adminSubTab === sub.id && (
@@ -2989,7 +2989,7 @@ export function AdminPanel({
                               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                             />
                           )}
-                          <sub.icon className={`w-3.5 h-3.5 relative z-10 ${adminSubTab === sub.id ? accentClass : 'text-white/30'}`} />
+                          <sub.icon className={`w-4 h-4 relative z-10 ${adminSubTab === sub.id ? accentClass : 'text-white/30'}`} />
                           <span className={`relative z-10 truncate ${adminSubTab === sub.id ? 'text-white/90' : 'text-white/30'}`}>
                             {sub.label}
                           </span>
@@ -3004,18 +3004,18 @@ export function AdminPanel({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="w-7 h-7 rounded-lg bg-amber-500/12 flex items-center justify-center">
-                              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                              <ShieldCheck className="w-4 h-4 text-amber-400" />
                             </div>
-                            <p className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">Daftar Admin</p>
+                            <p className="text-xs text-white/40 uppercase tracking-wider font-semibold">Daftar Admin</p>
                           </div>
                           {adminUser?.role === 'super_admin' && (
                             <motion.button
                               onClick={() => setShowAddAdmin(true)}
-                              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold ${isMale ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20' : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20'}`}
                               whileHover={{ scale: 1.01 }}
                               whileTap={{ scale: 0.95 }}
                             >
-                              <UserPlus className="w-3.5 h-3.5" />
+                              <UserPlus className="w-4 h-4" />
                               Tambah Admin
                             </motion.button>
                           )}
@@ -3029,7 +3029,7 @@ export function AdminPanel({
                         ) : adminList.length === 0 ? (
                           <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                             <Users className="w-7 h-7 text-white/20 mx-auto mb-2" />
-                            <p className="text-[13px] text-white/30 font-medium">Belum ada admin</p>
+                            <p className="text-sm text-white/30 font-medium">Belum ada admin</p>
                           </div>
                         ) : (
                           <div className="space-y-3 max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
@@ -3057,20 +3057,20 @@ export function AdminPanel({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <p className="text-[13px] font-semibold text-white/90 truncate">{admin.name}</p>
+                                    <p className="text-sm font-semibold text-white/90 truncate">{admin.name}</p>
                                     {isSelf && (
-                                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/10 text-white/40 font-medium">Anda</span>
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-white/40 font-medium">Anda</span>
                                     )}
                                     {isSuperAdmin && (
-                                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-400 font-bold flex items-center gap-1">
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-400 font-bold flex items-center gap-1">
                                         <Crown className="w-2.5 h-2.5" />
                                         Super
                                       </span>
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 mt-0.5">
-                                    <p className="text-[11px] text-white/35 truncate">{admin.email || 'No email'}</p>
-                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                    <p className="text-xs text-white/35 truncate">{admin.email || 'No email'}</p>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                                       isSuperAdmin ? 'bg-amber-400/15 text-amber-400' : 'bg-white/[0.06] text-white/50'
                                     }`}>
                                       {isSuperAdmin ? 'Super Admin' : 'Admin'}
@@ -3084,7 +3084,7 @@ export function AdminPanel({
                                     className="w-8 h-8 rounded-xl bg-red-500/[0.06] flex items-center justify-center text-red-400/50 hover:bg-red-500/15 hover:text-red-400 transition-colors"
                                     whileTap={{ scale: 0.9 }}
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-4 h-4" />
                                   </motion.button>
                                 )}
                               </div>
@@ -3094,11 +3094,11 @@ export function AdminPanel({
                                 <div className="rounded-xl bg-amber-500/5 border border-amber-500/8 p-3">
                                   <div className="flex items-center gap-1.5 mb-2">
                                     <Crown className="w-3 h-3 text-amber-400/60" />
-                                    <span className="text-[10px] font-semibold text-amber-400/60 uppercase tracking-wider">Semua Akses</span>
+                                    <span className="text-xs font-semibold text-amber-400/60 uppercase tracking-wider">Semua Akses</span>
                                   </div>
                                   <div className="flex flex-wrap gap-1.5">
                                     {['Tournament', 'Players', 'Bracket', 'Scores', 'Prize Pool', 'Donations', 'Full Reset', 'Manage Admins'].map((p) => (
-                                      <span key={p} className="flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full bg-amber-400/8 text-amber-400/50 font-medium">
+                                      <span key={p} className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-400/8 text-amber-400/50 font-medium">
                                         <Check className="w-2.5 h-2.5" />
                                         {p}
                                       </span>
@@ -3108,11 +3108,11 @@ export function AdminPanel({
                               ) : (
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between">
-                                    <p className="text-[10px] uppercase tracking-wider text-white/30 font-semibold">Permissions</p>
+                                    <p className="text-xs uppercase tracking-wider text-white/30 font-semibold">Permissions</p>
                                     {adminUser?.role === 'super_admin' && (
                                       <button
                                         onClick={() => setEditingPermId(editingPermId === admin.id ? null : admin.id)}
-                                        className="text-[10px] text-white/40 hover:text-white/60 transition-colors font-medium"
+                                        className="text-xs text-white/40 hover:text-white/60 transition-colors font-medium"
                                       >
                                         {editingPermId === admin.id ? 'Selesai' : 'Edit'}
                                       </button>
@@ -3136,7 +3136,7 @@ export function AdminPanel({
                                           key={perm.key}
                                           className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg ${hasPerm ? 'bg-emerald-500/8' : 'bg-white/[0.03]'} transition-colors`}
                                         >
-                                          <span className={`text-[10px] font-medium ${hasPerm ? 'text-emerald-400/80' : 'text-white/25'}`}>
+                                          <span className={`text-xs font-medium ${hasPerm ? 'text-emerald-400/80' : 'text-white/25'}`}>
                                             {perm.label}
                                           </span>
                                           <div
@@ -3167,11 +3167,11 @@ export function AdminPanel({
                                         setRbacLoading(false);
                                       }}
                                       disabled={rbacLoading}
-                                      className={`w-full py-2 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'} disabled:opacity-50`}
+                                      className={`w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 ${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'} disabled:opacity-50`}
                                       whileHover={{ scale: 1.005 }}
                                       whileTap={{ scale: 0.97 }}
                                     >
-                                      {rbacLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                      {rbacLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                       Simpan Permissions
                                     </motion.button>
                                   )}
@@ -3179,7 +3179,7 @@ export function AdminPanel({
                               )}
 
                               {/* Created date */}
-                              <p className="text-[9px] text-white/15 mt-2">
+                              <p className="text-[10px] text-white/15 mt-2">
                                 Dibuat: {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                               </p>
                             </motion.div>
@@ -3193,7 +3193,7 @@ export function AdminPanel({
                       <div className="space-y-3 pt-4 border-t border-white/[0.04]">
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="w-4 h-4 text-red-400" />
-                          <p className="text-[11px] tracking-[0.2em] uppercase text-white/30 font-semibold">
+                          <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold">
                             Danger Zone
                           </p>
                         </div>
@@ -3226,7 +3226,7 @@ export function AdminPanel({
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-emerald-400">Seed Database</p>
-                              <p className="text-[10px] text-white/25 mt-0.5">
+                              <p className="text-xs text-white/25 mt-0.5">
                                 Isi database dengan data contoh (clubs & players)
                               </p>
                             </div>
@@ -3245,7 +3245,7 @@ export function AdminPanel({
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-red-400">Full Database Reset</p>
-                              <p className="text-[10px] text-white/25 mt-0.5">
+                              <p className="text-xs text-white/25 mt-0.5">
                                 Hapus SEMUA data & mulai dari nol
                               </p>
                             </div>
@@ -3294,12 +3294,12 @@ export function AdminPanel({
                     {/* Section Header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
-                          <ListChecks className={`w-4 h-4 ${accentClass}`} />
+                        <div className={`w-9 h-9 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                          <ListChecks className={`w-5 h-5 ${accentClass}`} />
                         </div>
                         <div>
-                          <p className="text-[13px] font-bold text-white/90">Konten Landing Page</p>
-                          <p className="text-[10px] text-white/30">Edit Rules, Info, & Video di landing page</p>
+                          <p className="text-sm font-bold text-white/90">Konten Landing Page</p>
+                          <p className="text-xs text-white/30">Edit Rules, Info, & Video di landing page</p>
                         </div>
                       </div>
                     </div>
@@ -3315,7 +3315,7 @@ export function AdminPanel({
                         <motion.button
                           key={sub.id}
                           onClick={() => setContentSubTab(sub.id)}
-                          className="relative flex-1 min-w-0 py-2 px-2 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 z-10 truncate"
+                          className="relative flex-1 min-w-0 py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 z-10 truncate"
                           whileTap={{ scale: 0.97 }}
                         >
                           {contentSubTab === sub.id && (
@@ -3326,7 +3326,7 @@ export function AdminPanel({
                               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                             />
                           )}
-                          <sub.icon className={`w-3.5 h-3.5 relative z-10 ${contentSubTab === sub.id ? accentClass : 'text-white/30'}`} />
+                          <sub.icon className={`w-4 h-4 relative z-10 ${contentSubTab === sub.id ? accentClass : 'text-white/30'}`} />
                           <span className={`relative z-10 truncate ${contentSubTab === sub.id ? 'text-white/90' : 'text-white/30'}`}>
                             {sub.label}
                           </span>
@@ -3342,7 +3342,7 @@ export function AdminPanel({
                           <motion.button
                             onClick={saveLandingContent}
                             disabled={landingContentSaving}
-                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                               landingContentSaved
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
                                 : isMale
@@ -3353,28 +3353,28 @@ export function AdminPanel({
                             whileTap={{ scale: 0.95 }}
                           >
                             {landingContentSaving ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                             ) : landingContentSaved ? (
-                              <Check className="w-3.5 h-3.5" />
+                              <Check className="w-4 h-4" />
                             ) : (
-                              <Save className="w-3.5 h-3.5" />
+                              <Save className="w-4 h-4" />
                             )}
                             {landingContentSaved ? 'Tersimpan!' : 'Simpan'}
                           </motion.button>
                         </div>
 
                         {/* ── Rules Card ── */}
-                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3" style={{ borderLeft: '3px solid #FF6B35' }}>
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4" style={{ borderLeft: '3px solid #FF6B35' }}>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <ListChecks className="w-4 h-4 text-orange-400" />
-                              <span className="text-[12px] font-bold text-white/70">Rules</span>
+                              <ListChecks className="w-5 h-5 text-orange-400" />
+                              <span className="text-base font-bold text-white/70">Rules</span>
                             </div>
                           </div>
 
                           {/* Title */}
                           <div>
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                            <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
                             <input
                               type="text"
                               value={landingRules.title}
@@ -3382,17 +3382,17 @@ export function AdminPanel({
                                 setLandingRules(prev => ({ ...prev, title: e.target.value }));
                                 setLandingContentSaved(false);
                               }}
-                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                               placeholder="Judul rules..."
                             />
                           </div>
 
                           {/* Rules Items */}
                           <div className="space-y-2">
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold block">Daftar Rules</label>
+                            <label className="text-xs text-white/40 uppercase tracking-wider font-semibold block">Daftar Rules</label>
                             {landingRules.items.map((rule, idx) => (
                               <div key={idx} className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-bold flex-shrink-0" style={{ background: 'rgba(255,107,53,0.10)', color: 'rgba(255,107,53,0.7)' }}>{idx + 1}</span>
+                                <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0" style={{ background: 'rgba(255,107,53,0.10)', color: 'rgba(255,107,53,0.7)' }}>{idx + 1}</span>
                                 <input
                                   type="text"
                                   value={rule}
@@ -3402,7 +3402,7 @@ export function AdminPanel({
                                     setLandingRules(prev => ({ ...prev, items: updated }));
                                     setLandingContentSaved(false);
                                   }}
-                                  className="flex-1 bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] transition-colors"
+                                  className="flex-1 bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] transition-colors"
                                   placeholder={`Rule ${idx + 1}...`}
                                 />
                                 {landingRules.items.length > 1 && (
@@ -3426,7 +3426,7 @@ export function AdminPanel({
                                 setLandingRules(prev => ({ ...prev, items: [...prev.items, ''] }));
                                 setLandingContentSaved(false);
                               }}
-                              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold cursor-pointer transition-colors"
+                              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
                               style={{ background: 'rgba(255,107,53,0.06)', border: '1px solid rgba(255,107,53,0.12)', color: '#FF6B35' }}
                               whileHover={{ background: 'rgba(255,107,53,0.10)' }}
                               whileTap={{ scale: 0.98 }}
@@ -3446,7 +3446,7 @@ export function AdminPanel({
                           <motion.button
                             onClick={saveLandingContent}
                             disabled={landingContentSaving}
-                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                               landingContentSaved
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
                                 : isMale
@@ -3457,26 +3457,26 @@ export function AdminPanel({
                             whileTap={{ scale: 0.95 }}
                           >
                             {landingContentSaving ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                             ) : landingContentSaved ? (
-                              <Check className="w-3.5 h-3.5" />
+                              <Check className="w-4 h-4" />
                             ) : (
-                              <Save className="w-3.5 h-3.5" />
+                              <Save className="w-4 h-4" />
                             )}
                             {landingContentSaved ? 'Tersimpan!' : 'Simpan'}
                           </motion.button>
                         </div>
 
                         {/* ── Tournament Info Card ── */}
-                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3" style={{ borderLeft: '3px solid #38BDF8' }}>
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4" style={{ borderLeft: '3px solid #38BDF8' }}>
                           <div className="flex items-center gap-2">
-                            <Trophy className="w-4 h-4 text-cyan-400" />
-                            <span className="text-[12px] font-bold text-white/70">Tentang Turnamen</span>
+                            <Trophy className="w-5 h-5 text-cyan-400" />
+                            <span className="text-base font-bold text-white/70">Tentang Turnamen</span>
                           </div>
 
                           {/* Title */}
                           <div>
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                            <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
                             <input
                               type="text"
                               value={landingTournamentInfo.title}
@@ -3484,14 +3484,14 @@ export function AdminPanel({
                                 setLandingTournamentInfo(prev => ({ ...prev, title: e.target.value }));
                                 setLandingContentSaved(false);
                               }}
-                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] transition-colors"
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] transition-colors"
                               placeholder="Judul tentang turnamen..."
                             />
                           </div>
 
                           {/* Description */}
                           <div>
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
+                            <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
                             <textarea
                               value={landingTournamentInfo.description}
                               onChange={(e) => {
@@ -3499,18 +3499,18 @@ export function AdminPanel({
                                 setLandingContentSaved(false);
                               }}
                               rows={3}
-                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] transition-colors resize-none"
+                              className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] transition-colors resize-none"
                               placeholder="Deskripsi tentang turnamen..."
                             />
                           </div>
 
                           {/* Features */}
                           <div className="space-y-2">
-                            <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold block">Fitur Unggulan</label>
+                            <label className="text-xs text-white/40 uppercase tracking-wider font-semibold block">Fitur Unggulan</label>
                             {landingTournamentInfo.features.map((feat, idx) => (
                               <div key={idx} className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 space-y-2">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-[10px] text-white/30 font-semibold">Fitur {idx + 1}</span>
+                                  <span className="text-xs text-white/30 font-semibold">Fitur {idx + 1}</span>
                                   {landingTournamentInfo.features.length > 1 && (
                                     <motion.button
                                       onClick={() => {
@@ -3528,7 +3528,7 @@ export function AdminPanel({
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                   <div>
-                                    <label className="text-[9px] text-white/30 mb-0.5 block">Ikon</label>
+                                    <label className="text-[10px] text-white/30 mb-0.5 block">Ikon</label>
                                     <select
                                       value={feat.icon}
                                       onChange={(e) => {
@@ -3537,7 +3537,7 @@ export function AdminPanel({
                                         setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
                                         setLandingContentSaved(false);
                                       }}
-                                      className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-[11px] text-white/80 outline-none"
+                                      className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none"
                                     >
                                       <option value="Trophy">🏆 Trophy</option>
                                       <option value="Users">👥 Users</option>
@@ -3552,7 +3552,7 @@ export function AdminPanel({
                                     </select>
                                   </div>
                                   <div>
-                                    <label className="text-[9px] text-white/30 mb-0.5 block">Label</label>
+                                    <label className="text-[10px] text-white/30 mb-0.5 block">Label</label>
                                     <input
                                       type="text"
                                       value={feat.label}
@@ -3562,13 +3562,13 @@ export function AdminPanel({
                                         setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
                                         setLandingContentSaved(false);
                                       }}
-                                      className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-[11px] text-white/80 outline-none"
+                                      className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none"
                                       placeholder="Label..."
                                     />
                                   </div>
                                 </div>
                                 <div>
-                                  <label className="text-[9px] text-white/30 mb-0.5 block">Nilai / Deskripsi</label>
+                                  <label className="text-[10px] text-white/30 mb-0.5 block">Nilai / Deskripsi</label>
                                   <input
                                     type="text"
                                     value={feat.value}
@@ -3578,7 +3578,7 @@ export function AdminPanel({
                                       setLandingTournamentInfo(prev => ({ ...prev, features: updated }));
                                       setLandingContentSaved(false);
                                     }}
-                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-[11px] text-white/80 outline-none"
+                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none"
                                     placeholder="Deskripsi fitur..."
                                   />
                                 </div>
@@ -3589,7 +3589,7 @@ export function AdminPanel({
                                 setLandingTournamentInfo(prev => ({ ...prev, features: [...prev.features, { icon: 'Trophy', label: '', value: '' }] }));
                                 setLandingContentSaved(false);
                               }}
-                              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold cursor-pointer transition-colors"
+                              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
                               style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.12)', color: '#38BDF8' }}
                               whileHover={{ background: 'rgba(56,189,248,0.10)' }}
                               whileTap={{ scale: 0.98 }}
@@ -3611,14 +3611,14 @@ export function AdminPanel({
                               <Info className="w-4 h-4 text-amber-400" />
                             </div>
                             <div>
-                              <p className="text-[13px] font-bold text-white/90">Kartu Informasi</p>
-                              <p className="text-[10px] text-white/30">Edit kartu informasi di bagian bawah halaman utama</p>
+                              <p className="text-sm font-bold text-white/90">Kartu Informasi</p>
+                              <p className="text-xs text-white/30">Edit kartu informasi di bagian bawah halaman utama</p>
                             </div>
                           </div>
                           <motion.button
                             onClick={saveQuickInfo}
                             disabled={quickInfoSaving}
-                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                               quickInfoSaved
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
                                 : isMale
@@ -3629,11 +3629,11 @@ export function AdminPanel({
                             whileTap={{ scale: 0.95 }}
                           >
                             {quickInfoSaving ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                             ) : quickInfoSaved ? (
-                              <Check className="w-3.5 h-3.5" />
+                              <Check className="w-4 h-4" />
                             ) : (
-                              <Save className="w-3.5 h-3.5" />
+                              <Save className="w-4 h-4" />
                             )}
                             {quickInfoSaved ? 'Tersimpan!' : 'Simpan'}
                           </motion.button>
@@ -3644,11 +3644,11 @@ export function AdminPanel({
                           {quickInfoItems.map((item, idx) => (
                             <div
                               key={idx}
-                              className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3"
+                              className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4"
                               style={{ borderLeft: `3px solid rgb(${item.color || '115,255,0'})` }}
                             >
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-white/40 font-semibold">Kartu {idx + 1}</span>
+                                <span className="text-xs text-white/40 font-semibold">Kartu {idx + 1}</span>
                                 <div className="flex items-center gap-2">
                                   {quickInfoItems.length > 1 && (
                                     <motion.button
@@ -3661,7 +3661,7 @@ export function AdminPanel({
                                       className="p-1.5 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-colors"
                                       whileTap={{ scale: 0.9 }}
                                     >
-                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <Trash2 className="w-4 h-4" />
                                     </motion.button>
                                   )}
                                 </div>
@@ -3670,7 +3670,7 @@ export function AdminPanel({
                               <div className="grid grid-cols-2 gap-3">
                                 {/* Icon selector */}
                                 <div>
-                                  <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Ikon</label>
+                                  <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Ikon</label>
                                   <select
                                     value={item.icon}
                                     onChange={(e) => {
@@ -3679,7 +3679,7 @@ export function AdminPanel({
                                       setQuickInfoItems(updated);
                                       setQuickInfoSaved(false);
                                     }}
-                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                    className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                                   >
                                     <option value="Info">ℹ️ Info</option>
                                     <option value="Calendar">📅 Calendar</option>
@@ -3699,7 +3699,7 @@ export function AdminPanel({
                                 </div>
                                 {/* Color selector */}
                                 <div>
-                                  <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Warna</label>
+                                  <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Warna</label>
                                   <div className="flex items-center gap-2">
                                     {[
                                       { label: 'Hijau', value: '115,255,0' },
@@ -3728,7 +3728,7 @@ export function AdminPanel({
 
                               {/* Title */}
                               <div>
-                                <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                                <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
                                 <input
                                   type="text"
                                   value={item.title}
@@ -3738,14 +3738,14 @@ export function AdminPanel({
                                     setQuickInfoItems(updated);
                                     setQuickInfoSaved(false);
                                   }}
-                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                                   placeholder="Judul kartu..."
                                 />
                               </div>
 
                               {/* Description */}
                               <div>
-                                <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
+                                <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Deskripsi</label>
                                 <textarea
                                   value={item.description}
                                   onChange={(e) => {
@@ -3755,7 +3755,7 @@ export function AdminPanel({
                                     setQuickInfoSaved(false);
                                   }}
                                   rows={3}
-                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors resize-none"
+                                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors resize-none"
                                   placeholder="Deskripsi kartu..."
                                 />
                               </div>
@@ -3769,7 +3769,7 @@ export function AdminPanel({
                             setQuickInfoItems([...quickInfoItems, { icon: 'Info', title: '', description: '', color: '115,255,0' }]);
                             setQuickInfoSaved(false);
                           }}
-                          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer transition-colors"
+                          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold tracking-wide cursor-pointer transition-colors"
                           style={{
                             background: 'rgba(255,215,0,0.06)',
                             border: '1px solid rgba(255,215,0,0.12)',
@@ -3778,15 +3778,15 @@ export function AdminPanel({
                           whileHover={{ background: 'rgba(255,215,0,0.10)', borderColor: 'rgba(255,215,0,0.20)' }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-4 h-4" />
                           Tambah Kartu Informasi
                         </motion.button>
 
                         {/* Preview */}
-                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3">
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <Eye className="w-3.5 h-3.5 text-white/40" />
-                            <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Preview</span>
+                            <Eye className="w-4 h-4 text-white/40" />
+                            <span className="text-xs text-white/40 uppercase tracking-wider font-semibold">Preview</span>
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             {quickInfoItems.map((item, idx) => (
@@ -3798,8 +3798,8 @@ export function AdminPanel({
                                   border: `1px solid rgba(${item.color || '115,255,0'},0.08)`,
                                 }}
                               >
-                                <h4 className="text-[11px] font-bold text-white/70 mb-1">{item.title || 'Judul...'}</h4>
-                                <p className="text-[9px] text-white/30 leading-relaxed line-clamp-2">{item.description || 'Deskripsi...'}</p>
+                                <h4 className="text-xs font-bold text-white/70 mb-1">{item.title || 'Judul...'}</h4>
+                                <p className="text-[10px] text-white/30 leading-relaxed line-clamp-2">{item.description || 'Deskripsi...'}</p>
                               </div>
                             ))}
                           </div>
@@ -3817,49 +3817,49 @@ export function AdminPanel({
                               <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
                             </div>
                             <div>
-                              <p className="text-[13px] font-bold text-white/90">Video Highlight</p>
-                              <p className="text-[10px] text-white/30">Kelola video highlight pertandingan di landing page</p>
+                              <p className="text-sm font-bold text-white/90">Video Highlight</p>
+                              <p className="text-xs text-white/30">Kelola video highlight pertandingan di landing page</p>
                             </div>
                           </div>
                         </div>
 
                         {/* Add New Video Form */}
-                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-3" style={{ borderLeft: '3px solid #FF6B35' }}>
+                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 space-y-4" style={{ borderLeft: '3px solid #FF6B35' }}>
                           <div className="flex items-center gap-2">
-                            <Plus className="w-3.5 h-3.5" style={{ color: '#FF6B35' }} />
-                            <span className="text-[11px] text-white/50 font-semibold uppercase tracking-wider">Tambah Video Baru</span>
+                            <Plus className="w-4 h-4" style={{ color: '#FF6B35' }} />
+                            <span className="text-xs text-white/50 font-semibold uppercase tracking-wider">Tambah Video Baru</span>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {/* Title input */}
                             <div className="sm:col-span-1">
-                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
+                              <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Judul</label>
                               <input
                                 type="text"
                                 value={newVideoTitle}
                                 onChange={(e) => setNewVideoTitle(e.target.value)}
-                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                                 placeholder="Contoh: Final Male Week 5"
                               />
                             </div>
                             {/* YouTube URL input */}
                             <div className="sm:col-span-1">
-                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">URL YouTube</label>
+                              <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">URL YouTube</label>
                               <input
                                 type="url"
                                 value={newVideoUrl}
                                 onChange={(e) => setNewVideoUrl(e.target.value)}
-                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                                 placeholder="https://youtube.com/watch?v=..."
                               />
                             </div>
                             {/* Division selector */}
                             <div className="sm:col-span-1">
-                              <label className="text-[10px] text-white/40 uppercase tracking-wider font-semibold mb-1 block">Divisi</label>
+                              <label className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-1 block">Divisi</label>
                               <select
                                 value={newVideoDivision}
                                 onChange={(e) => setNewVideoDivision(e.target.value)}
-                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
+                                className="w-full bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-white/[0.15] focus:bg-white/[0.07] transition-colors"
                               >
                                 <option value="all">Semua Divisi</option>
                                 <option value="male">Male Division</option>
@@ -3903,7 +3903,7 @@ export function AdminPanel({
                               }
                             }}
                             disabled={addingVideo}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all"
+                            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
                             style={{
                               background: addingVideo ? 'rgba(255,107,53,0.08)' : 'rgba(255,107,53,0.15)',
                               border: '1px solid rgba(255,107,53,0.20)',
@@ -3913,9 +3913,9 @@ export function AdminPanel({
                             whileTap={{ scale: addingVideo ? 1 : 0.95 }}
                           >
                             {addingVideo ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <Plus className="w-3.5 h-3.5" />
+                              <Plus className="w-4 h-4" />
                             )}
                             {addingVideo ? 'Menambahkan...' : 'Tambah Video'}
                           </motion.button>
@@ -3929,8 +3929,8 @@ export function AdminPanel({
                         ) : videoHighlights.length === 0 ? (
                           <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 text-center">
                             <Play className="w-7 h-7 text-white/20 mx-auto mb-2" />
-                            <p className="text-[13px] text-white/30 font-medium">Belum ada video highlight</p>
-                            <p className="text-[10px] text-white/20 mt-1">Tambahkan video YouTube di atas</p>
+                            <p className="text-sm text-white/30 font-medium">Belum ada video highlight</p>
+                            <p className="text-xs text-white/20 mt-1">Tambahkan video YouTube di atas</p>
                           </div>
                         ) : (
                           <div className="space-y-3 max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
@@ -3962,12 +3962,12 @@ export function AdminPanel({
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2">
-                                        <p className="text-[12px] font-semibold text-white/80 truncate">{vh.title}</p>
+                                        <p className="text-sm font-semibold text-white/80 truncate">{vh.title}</p>
                                         {!vh.isActive && (
                                           <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-white/30 font-bold">OFF</span>
                                         )}
                                       </div>
-                                      <p className="text-[10px] text-white/25 truncate mt-0.5">{vh.youtubeUrl}</p>
+                                      <p className="text-xs text-white/25 truncate mt-0.5">{vh.youtubeUrl}</p>
                                       <div className="flex items-center gap-1.5 mt-1">
                                         <span
                                           className="text-[7px] font-bold px-1.5 py-0.5 rounded-full"
@@ -3979,7 +3979,7 @@ export function AdminPanel({
                                         >
                                           {vh.division === 'male' ? 'MALE' : vh.division === 'female' ? 'FEMALE' : 'ALL'}
                                         </span>
-                                        <span className="text-[8px] text-white/20">#{idx + 1}</span>
+                                        <span className="text-[9px] text-white/20">#{idx + 1}</span>
                                       </div>
                                     </div>
                                     {/* Actions */}
@@ -4005,7 +4005,7 @@ export function AdminPanel({
                                         whileTap={{ scale: 0.9 }}
                                         title={vh.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                                       >
-                                        {vh.isActive ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                                        {vh.isActive ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                                       </motion.button>
                                       {/* Delete */}
                                       <motion.button
@@ -4024,7 +4024,7 @@ export function AdminPanel({
                                         whileTap={{ scale: 0.9 }}
                                         title="Hapus"
                                       >
-                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <Trash2 className="w-4 h-4" />
                                       </motion.button>
                                     </div>
                                   </div>
@@ -4084,10 +4084,10 @@ export function AdminPanel({
                               </div>
                             ))}
                         </div>
-                        <p className="text-[11px] text-amber-400/80 mt-2 font-medium">
+                        <p className="text-xs text-amber-400/80 mt-2 font-medium">
                           ✓ Point, kemenangan, MVP & data pemain tetap tersimpan
                         </p>
-                        <p className="text-[11px] text-white/30 mt-1">
+                        <p className="text-xs text-white/30 mt-1">
                           {(tournament?.week || 1) >= 8
                             ? 'Siklus 8 minggu menuju Grand Final dimulai lagi.'
                             : `Turnamen lanjut ke Minggu ${(tournament?.week || 1) + 1}.`}
@@ -4144,8 +4144,8 @@ export function AdminPanel({
                       <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl overflow-hidden">
                         <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
                           <div className="flex items-center gap-2">
-                            <ImageIcon className={`w-4 h-4 ${accentClass}`} />
-                            <span className="text-[13px] font-semibold text-white/90">Bukti Pembayaran</span>
+                            <ImageIcon className={`w-5 h-5 ${accentClass}`} />
+                            <span className="text-sm font-semibold text-white/90">Bukti Pembayaran</span>
                           </div>
                           <button
                             onClick={() => {
@@ -4197,13 +4197,13 @@ export function AdminPanel({
                         </div>
                         <div>
                           <h3 className="text-base font-bold text-white/90">Tambah Admin Baru</h3>
-                          <p className="text-[11px] text-white/35">Buat akun admin dengan permissions tertentu</p>
+                          <p className="text-xs text-white/35">Buat akun admin dengan permissions tertentu</p>
                         </div>
                       </div>
 
                       <div className="space-y-4">
                         <div>
-                          <label className="text-[11px] text-white/35 mb-1.5 block uppercase tracking-wider font-semibold">Nama *</label>
+                          <label className="text-xs text-white/35 mb-1.5 block uppercase tracking-wider font-semibold">Nama *</label>
                           <input
                             type="text"
                             value={newAdminName}
@@ -4213,7 +4213,7 @@ export function AdminPanel({
                           />
                         </div>
                         <div>
-                          <label className="text-[11px] text-white/35 mb-1.5 block uppercase tracking-wider font-semibold">Email *</label>
+                          <label className="text-xs text-white/35 mb-1.5 block uppercase tracking-wider font-semibold">Email *</label>
                           <input
                             type="email"
                             value={newAdminEmail}
@@ -4223,7 +4223,7 @@ export function AdminPanel({
                           />
                         </div>
                         <div>
-                          <label className="text-[11px] text-white/35 mb-1.5 block uppercase tracking-wider font-semibold">Password *</label>
+                          <label className="text-xs text-white/35 mb-1.5 block uppercase tracking-wider font-semibold">Password *</label>
                           <input
                             type="password"
                             value={newAdminPass}
@@ -4236,8 +4236,8 @@ export function AdminPanel({
                         {/* Permission Toggles */}
                         <div>
                           <div className="flex items-center gap-1.5 mb-2.5">
-                            <KeyRound className="w-3.5 h-3.5 text-white/30" />
-                            <p className="text-[11px] uppercase tracking-wider text-white/30 font-semibold">Permissions</p>
+                            <KeyRound className="w-4 h-4 text-white/30" />
+                            <p className="text-xs uppercase tracking-wider text-white/30 font-semibold">Permissions</p>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             {([
@@ -4257,7 +4257,7 @@ export function AdminPanel({
                                   className={`flex items-center justify-between px-3 py-2 rounded-xl ${hasPerm ? 'bg-emerald-500/8' : 'bg-white/[0.03]'} transition-colors`}
                                   onClick={() => setNewAdminPerms((prev) => ({ ...prev, [perm.key]: !hasPerm }))}
                                 >
-                                  <span className={`text-[11px] font-medium ${hasPerm ? 'text-emerald-400/80' : 'text-white/25'}`}>
+                                  <span className={`text-xs font-medium ${hasPerm ? 'text-emerald-400/80' : 'text-white/25'}`}>
                                     {perm.label}
                                   </span>
                                   <div className={`w-8 h-[18px] rounded-full flex items-center transition-colors ${hasPerm ? 'bg-emerald-500/40 justify-end' : 'bg-white/10 justify-start'}`}>
@@ -4427,7 +4427,7 @@ export function AdminPanel({
                           ))}
                         </div>
                         <div className="mt-4 w-full">
-                          <label className="text-[11px] text-white/35 mb-1.5 block uppercase tracking-wider font-semibold text-left">
+                          <label className="text-xs text-white/35 mb-1.5 block uppercase tracking-wider font-semibold text-left">
                             Ketik <span className="text-red-400 font-bold">RESET SEMUA DATA</span> untuk konfirmasi
                           </label>
                           <input
@@ -4517,14 +4517,14 @@ export function AdminPanel({
                 </div>
                 <div>
                   <p className="text-[14px] font-bold text-white/90">Edit Club</p>
-                  <p className="text-[11px] text-white/30">{editingClub.name}</p>
+                  <p className="text-xs text-white/30">{editingClub.name}</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 {/* Name Input */}
                 <div>
-                  <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
+                  <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
                     Nama Club
                   </label>
                   <input
@@ -4532,7 +4532,7 @@ export function AdminPanel({
                     value={editClubName}
                     onChange={(e) => setEditClubName(e.target.value)}
                     placeholder="Nama club..."
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                   />
                 </div>
 
@@ -4549,7 +4549,7 @@ export function AdminPanel({
                 <div className="flex gap-2 pt-1">
                   <motion.button
                     onClick={() => setEditingClub(null)}
-                    className="flex-1 py-3 rounded-xl text-[13px] font-semibold bg-white/[0.03] border border-white/[0.06] text-white/60"
+                    className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white/[0.03] border border-white/[0.06] text-white/60"
                     whileTap={{ scale: 0.97 }}
                   >
                     Batal
@@ -4580,7 +4580,7 @@ export function AdminPanel({
                         .finally(() => setEditClubSaving(false));
                     }}
                     disabled={editClubSaving || editClubName.trim().length < 2}
-                    className={`flex-1 py-3 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${editClubSaving || editClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`}
+                    className={`flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${editClubSaving || editClubName.trim().length < 2 ? 'opacity-40 pointer-events-none' : isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`}
                     whileTap={{ scale: 0.97 }}
                   >
                     {editClubSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -4620,7 +4620,7 @@ export function AdminPanel({
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-white/90">Edit Turnamen</h3>
-                    <p className="text-[10px] text-white/30">Ubah detail turnamen</p>
+                    <p className="text-xs text-white/30">Ubah detail turnamen</p>
                   </div>
                 </div>
                 <button
@@ -4635,36 +4635,36 @@ export function AdminPanel({
               <div className="px-5 pb-6 space-y-4 overflow-y-auto max-h-[65vh]">
                 {/* Tournament Name */}
                 <div>
-                  <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
+                  <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">
                     Nama Turnamen
                   </label>
                   <input
                     type="text"
                     value={editForm.name}
                     onChange={(e) => setEditForm(p => ({ ...p, name: e.target.value }))}
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                   />
                 </div>
 
                 {/* Type & Bracket */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Jenis</label>
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Jenis</label>
                     <select
                       value={editForm.type}
                       onChange={(e) => setEditForm(p => ({ ...p, type: e.target.value as 'weekly' | 'grand_final' }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
                     >
                       <option value="weekly" className="bg-neutral-900">Weekly</option>
                       <option value="grand_final" className="bg-neutral-900">Grand Final</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Bracket</label>
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Bracket</label>
                     <select
                       value={editForm.bracketType}
                       onChange={(e) => setEditForm(p => ({ ...p, bracketType: e.target.value as 'single' | 'double' | 'group' | 'round_robin' | 'swiss' }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors appearance-none"
                     >
                       <option value="single" className="bg-neutral-900">Single Elim</option>
                       <option value="double" className="bg-neutral-900">Double Elim</option>
@@ -4677,7 +4677,7 @@ export function AdminPanel({
 
                 {/* Week Number */}
                 <div className="w-1/2">
-                  <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Minggu Ke-</label>
+                  <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 block">Minggu Ke-</label>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -4685,32 +4685,32 @@ export function AdminPanel({
                     max={99}
                     value={editForm.week}
                     onChange={(e) => setEditForm(p => ({ ...p, week: parseInt(e.target.value) || 1 }))}
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-[13px] placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white/90 text-sm placeholder-white/20 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                   />
                 </div>
 
                 {/* Date & Time */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                       <Calendar className="w-3 h-3" /> Tanggal
                     </label>
                     <input
                       type="date"
                       value={editForm.startDate}
                       onChange={(e) => setEditForm(p => ({ ...p, startDate: e.target.value }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                       <Clock className="w-3 h-3" /> Jam
                     </label>
                     <input
                       type="time"
                       value={editForm.startTime}
                       onChange={(e) => setEditForm(p => ({ ...p, startTime: e.target.value }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[13px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors [color-scheme:dark]"
                     />
                   </div>
                 </div>
@@ -4718,36 +4718,36 @@ export function AdminPanel({
                 {/* Mode, BPM & Lokasi */}
                 <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                       <Gamepad2 className="w-3 h-3" /> Mode
                     </label>
                     <input
                       type="text"
                       value={editForm.mode}
                       onChange={(e) => setEditForm(p => ({ ...p, mode: e.target.value }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                       <Music className="w-3 h-3" /> BPM
                     </label>
                     <input
                       type="text"
                       value={editForm.bpm}
                       onChange={(e) => setEditForm(p => ({ ...p, bpm: e.target.value }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
+                    <label className="text-xs tracking-[0.15em] uppercase text-white/40 font-semibold mb-1.5 flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> Lokasi
                     </label>
                     <input
                       type="text"
                       value={editForm.lokasi}
                       onChange={(e) => setEditForm(p => ({ ...p, lokasi: e.target.value }))}
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-[12px] focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white/90 text-sm focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-colors"
                     />
                   </div>
                 </div>
@@ -4757,7 +4757,7 @@ export function AdminPanel({
 
                 {/* Delete Section */}
                 <div>
-                  <p className="text-[11px] tracking-[0.15em] uppercase text-red-400/50 font-semibold mb-2">Zona Bahaya</p>
+                  <p className="text-xs tracking-[0.15em] uppercase text-red-400/50 font-semibold mb-2">Zona Bahaya</p>
                   <motion.button
                     onClick={() => setShowDeleteTournamentConfirm(true)}
                     className="w-full p-3 rounded-xl border border-red-500/15 bg-red-500/5 flex items-center gap-3 transition-colors hover:bg-red-500/10"
@@ -4767,8 +4767,8 @@ export function AdminPanel({
                       <Trash2 className="w-4 h-4 text-red-400" />
                     </div>
                     <div className="text-left">
-                      <p className="text-[13px] font-semibold text-red-400">Hapus Turnamen</p>
-                      <p className="text-[10px] text-white/25">Semua data pendaftaran, tim & pertandingan akan dihapus</p>
+                      <p className="text-sm font-semibold text-red-400">Hapus Turnamen</p>
+                      <p className="text-xs text-white/25">Semua data pendaftaran, tim & pertandingan akan dihapus</p>
                     </div>
                   </motion.button>
                 </div>
@@ -4814,7 +4814,7 @@ export function AdminPanel({
                     }
                   }}
                   disabled={editSaving}
-                  className={`w-full py-3 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
+                  className={`w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
                     editSaving ? 'opacity-50 pointer-events-none' : `${isMale ? 'bg-[#73FF00]/12 text-[#73FF00] border border-[#73FF00]/15' : 'bg-[#38BDF8]/12 text-[#38BDF8] border border-[#38BDF8]/15'}`
                   }`}
                   whileHover={{ scale: editSaving ? 1 : 1.01 }}
@@ -4853,7 +4853,7 @@ export function AdminPanel({
                       <p className="text-sm text-white/50 mt-2 leading-relaxed">
                         Turnamen <span className="text-white/80 font-semibold">"{tournament.name}"</span> beserta semua pendaftaran, tim, dan pertandingan akan dihapus secara permanen.
                       </p>
-                      <p className="text-[11px] text-red-400/60 mt-2">
+                      <p className="text-xs text-red-400/60 mt-2">
                         ⚠️ Tindakan ini tidak dapat dibatalkan
                       </p>
                       <div className="flex gap-3 mt-5 w-full">

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npx prisma generate && next build",
+  "installCommand": "bun install",
+  "outputDirectory": ".next",
+  "regions": ["iad1"],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "DIRECT_DATABASE_URL": "@direct_database_url",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "NEXTAUTH_URL": "@nextauth_url",
+    "CLOUDINARY_CLOUD_NAME": "@cloudinary_cloud_name",
+    "CLOUDINARY_API_KEY": "@cloudinary_api_key",
+    "CLOUDINARY_API_SECRET": "@cloudinary_api_secret",
+    "NEXT_PUBLIC_PUSHER_KEY": "@next_public_pusher_key",
+    "NEXT_PUBLIC_PUSHER_CLUSTER": "@next_public_pusher_cluster",
+    "PUSHER_CLUSTER": "@pusher_cluster",
+    "PUSHER_SECRET": "@pusher_secret",
+    "PUSHER_KEY": "@pusher_key",
+    "PUSHER_APP_ID": "@pusher_app_id",
+    "DISCORD_TOKEN": "@discord_token",
+    "DISCORD_CLIENT_ID": "@discord_client_id",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+    "WHATSAPP_BOT_URL": "@whatsapp_bot_url",
+    "FRONTEND_URL": "@frontend_url",
+    "ADMIN_SYNC_KEY": "@admin_sync_key"
+  }
+}

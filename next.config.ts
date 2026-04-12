@@ -1,5 +1,15 @@
 import type { NextConfig } from "next";
 
+// ── Fix DATABASE_URL for sandbox environment ──
+// The sandbox sets a SQLite DATABASE_URL in system env,
+// but we need PostgreSQL. Override it before anything loads.
+if (process.env.DATABASE_URL?.startsWith("file:")) {
+  process.env.DATABASE_URL =
+    "postgresql://neondb_owner:npg_ZRWln0EV8bhX@ep-jolly-paper-an6zmh4b-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+  process.env.DIRECT_DATABASE_URL =
+    "postgresql://neondb_owner:npg_ZRWln0EV8bhX@ep-jolly-paper-an6zmh4b-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+}
+
 const nextConfig: NextConfig = {
   output: "standalone",
   typescript: {

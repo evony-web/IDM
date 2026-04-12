@@ -3608,6 +3608,138 @@ function QuickInfoSection() {
 }
 
 /* ────────────────────────────────────────────
+   Tournament Info Section (Tentang Turnamen)
+   Displays title, description, and feature cards
+   ──────────────────────────────────────────── */
+
+interface TournamentInfoData {
+  title: string;
+  description: string;
+  features: Array<{ icon: string; label: string; value: string }>;
+}
+
+const DEFAULT_TOURNAMENT_INFO: TournamentInfoData = {
+  title: 'Tentang Turnamen',
+  description: 'IDOL META adalah platform turnamen esports yang mengadakan kompetisi mingguan untuk pemain dari berbagai tingkat kemampuan. Bergabunglah dengan komunitas kami dan buktikan kemampuanmu!',
+  features: [
+    { icon: 'Trophy', label: 'Hadiah Mingguan', value: 'Prize pool dari donasi & sawer' },
+    { icon: 'Users', label: 'Komunitas Aktif', value: 'Bergabung dengan club dan bertanding' },
+    { icon: 'Zap', label: 'ELO Rating', value: 'Sistem ranking berbasis kemampuan' },
+  ],
+};
+
+const TOURNAMENT_FEATURE_ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }>> = {
+  Trophy, Users, Zap, Shield, Star, Swords, Coins, Heart, Gamepad2, Info,
+};
+
+function TournamentInfoSection() {
+  const [info, setInfo] = useState<TournamentInfoData>(DEFAULT_TOURNAMENT_INFO);
+  const [loaded, setLoaded] = useState(false);
+
+  // Fetch data
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/landing-content')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!cancelled && data?.success) {
+          if (data.tournamentInfo) setInfo(data.tournamentInfo);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Real-time update from admin panel
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const channel = new BroadcastChannel('idm-landing-content');
+    const handler = () => {
+      fetch('/api/admin/landing-content')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.success) {
+            if (data.tournamentInfo) setInfo(data.tournamentInfo);
+          }
+        })
+        .catch(() => {});
+    };
+    channel.addEventListener('message', handler);
+    return () => channel.removeEventListener('message', handler);
+  }, []);
+
+  if (!loaded) return null;
+
+  return (
+    <motion.div variants={itemVariants} className="w-full max-w-full">
+      {/* Section Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <div
+          className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,107,53,0.18) 0%, rgba(255,107,53,0.06) 100%)',
+            border: '1px solid rgba(255,107,53,0.18)',
+            boxShadow: '0 0 12px rgba(255,107,53,0.06)',
+          }}
+        >
+          <Trophy className="w-4 h-4 text-orange-400" />
+        </div>
+        <h2 className="text-[15px] font-bold text-white/80 tracking-wide">{info.title}</h2>
+      </div>
+
+      {/* Description */}
+      <p className="text-[12px] text-white/40 leading-relaxed mb-5 px-1">{info.description}</p>
+
+      {/* Feature Cards */}
+      <div className="flex gap-3 overflow-x-auto scroll-smooth pb-2 -mx-1 px-1 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible" style={{ scrollbarWidth: 'none' }}>
+        <style>{`.flex.gap-3::-webkit-scrollbar{display:none}`}</style>
+        {info.features.map((feature, idx) => {
+          const IconComponent = TOURNAMENT_FEATURE_ICON_MAP[feature.icon] || Trophy;
+          // Feature-specific accent colors based on index
+          const featureAccents = [
+            { bg: 'rgba(255,107,53,0.05)', border: 'rgba(255,107,53,0.10)', iconBg: 'linear-gradient(135deg, rgba(255,107,53,0.18) 0%, rgba(255,107,53,0.06) 100%)', iconColor: 'rgb(255,107,53)', hoverBorder: 'rgba(255,107,53,0.20)' },
+            { bg: 'rgba(115,255,0,0.04)', border: 'rgba(115,255,0,0.08)', iconBg: 'linear-gradient(135deg, rgba(115,255,0,0.18) 0%, rgba(115,255,0,0.06) 100%)', iconColor: 'rgb(115,255,0)', hoverBorder: 'rgba(115,255,0,0.18)' },
+            { bg: 'rgba(56,189,248,0.04)', border: 'rgba(56,189,248,0.08)', iconBg: 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(56,189,248,0.06) 100%)', iconColor: 'rgb(56,189,248)', hoverBorder: 'rgba(56,189,248,0.18)' },
+          ];
+          const accent = featureAccents[idx % featureAccents.length];
+
+          return (
+            <motion.div
+              key={idx}
+              className="flex-shrink-0 w-[260px] md:w-auto rounded-2xl p-4"
+              style={{
+                background: `linear-gradient(135deg, ${accent.bg} 0%, rgba(255,255,255,0.01) 100%)`,
+                border: `1px solid ${accent.border}`,
+              }}
+              whileHover={{
+                borderColor: accent.hoverBorder,
+                y: -2,
+              }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+                style={{
+                  background: accent.iconBg,
+                }}
+              >
+                <IconComponent className="w-4 h-4" style={{ color: accent.iconColor }} strokeWidth={2} />
+              </div>
+              <h3 className="text-[13px] font-bold text-white/80 mb-1.5">{feature.label}</h3>
+              <p className="text-[11px] text-white/35 leading-relaxed">{feature.value}</p>
+            </motion.div>
+          );
+        })}
+        {info.features.length === 0 && (
+          <p className="text-[12px] text-white/20 text-center py-4 w-full">Belum ada info turnamen</p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────
    Informasi Terbaru Section (News Feed)
    Combines: club transfers, match results, achievements, win streaks
    ──────────────────────────────────────────── */
@@ -5401,13 +5533,29 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         {/* ═══ Premium Animated Section Divider ═══ */}
         <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,215,0,0.15) 25%, rgba(115,255,0,0.10) 50%, rgba(255,215,0,0.15) 75%, transparent 95%)', animation: 'shimmerLine 3s ease-in-out infinite' }} />
 
+        {/* ═══ TOURNAMENT INFO (Tentang Turnamen) ═══ */}
+        <SectionReveal className="w-full mb-10 md:mb-16">
+          <TournamentInfoSection />
+        </SectionReveal>
+
+        {/* ═══ Premium Animated Section Divider ═══ */}
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,107,53,0.12) 25%, rgba(115,255,0,0.10) 50%, rgba(255,107,53,0.12) 75%, transparent 95%)', animation: 'shimmerLine 4s ease-in-out infinite' }} />
+
+        {/* ═══ QUICK INFO CARDS ═══ */}
+        <SectionReveal className="w-full mb-10 md:mb-16">
+          <QuickInfoSection />
+        </SectionReveal>
+
+        {/* ═══ Premium Animated Section Divider ═══ */}
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(56,189,248,0.12) 25%, rgba(244,114,182,0.10) 50%, rgba(56,189,248,0.12) 75%, transparent 95%)', animation: 'shimmerLine 5s ease-in-out infinite' }} />
+
         {/* ═══ AKTIVITAS TERBARU (Tabbed) ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16">
           <AktivitasSection data={activeData} onPlayerClick={handlePlayerClick} />
         </SectionReveal>
 
         {/* ═══ Premium Animated Section Divider ═══ */}
-        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(56,189,248,0.12) 25%, rgba(244,114,182,0.10) 50%, rgba(56,189,248,0.12) 75%, transparent 95%)', animation: 'shimmerLine 4.5s ease-in-out infinite' }} />
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,215,0,0.15) 25%, rgba(255,107,53,0.10) 50%, rgba(255,215,0,0.15) 75%, transparent 95%)', animation: 'shimmerLine 3.5s ease-in-out infinite' }} />
 
         {/* ═══ RULES (Collapsible) ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16">
