@@ -322,19 +322,6 @@ function TopNavBar({
               <span className="text-[10px] font-bold text-white/60">{totalPlayers}</span>
             </div>
 
-            {/* Wallet button */}
-            <motion.button
-              onClick={onOpenWallet}
-              className="flex items-center justify-center w-10 h-10 rounded-xl cursor-pointer"
-              style={{
-                background: 'rgba(115,255,0,0.06)',
-                border: '1px solid rgba(115,255,0,0.12)',
-              }}
-              whileTap={{ scale: 0.88 }}
-            >
-              <Wallet className="w-4 h-4" style={{ color: 'rgb(115,255,0)' }} />
-            </motion.button>
-
             {/* Share button */}
             <ShareButton
               text={settings.app_share_text}
@@ -601,6 +588,16 @@ function TopNavBar({
           >
             <TrendingUp className="w-5 h-5 text-white/30" />
             <span className="text-[9px] font-bold text-white/30 uppercase">Board</span>
+          </motion.button>
+
+          {/* Wallet tab */}
+          <motion.button
+            onClick={onOpenWallet}
+            className="flex flex-col items-center gap-0.5 py-1.5 px-3 min-w-[52px] min-h-[44px] justify-center rounded-xl cursor-pointer"
+            whileTap={{ scale: 0.88 }}
+          >
+            <Wallet className="w-5 h-5 text-white/30" />
+            <span className="text-[9px] font-bold text-white/30 uppercase">Wallet</span>
           </motion.button>
         </div>
       </div>
@@ -3707,7 +3704,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
   return (
     <motion.div
       variants={itemVariants}
-      className="w-full max-w-full mt-4 md:mt-8 mb-4 md:mb-10"
+      className="w-full max-w-full mt-1 md:mt-8 mb-4 md:mb-10"
     >
       <motion.div
         initial={{ opacity: 0, y: -6 }}
@@ -3993,7 +3990,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-10 xl:px-16 pt-1 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
+        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-10 xl:px-16 pt-0 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
       >
         {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
         <div className="w-full">
