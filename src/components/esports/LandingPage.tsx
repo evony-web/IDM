@@ -5088,11 +5088,6 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         {/* ═══ SECTION DIVIDER ═══ */}
         <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
-        {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full mb-10 md:mb-16">
-          <ClubsCarousel clubs={activeData.clubs} />
-        </div>
-
         {/* ═══ RULES (Collapsible) ═══ */}
         <div id="info-section" className="w-full mb-10 md:mb-16">
           <LandingContentSection />
@@ -5101,19 +5096,19 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         {/* ═══ FOOTER ═══ */}
         <motion.footer
           variants={itemVariants}
-          className="mt-auto pt-8 pb-20 md:pb-4 flex flex-col items-center gap-3 w-full"
+          className="mt-auto pt-4 pb-24 md:pb-4 flex flex-col items-center gap-1.5 w-full"
         >
-          <p className="text-[11px] text-white/20 hover:text-white/40 transition-colors cursor-pointer tracking-wide"
+          <p className="text-[10px] text-white/15 hover:text-white/35 transition-colors cursor-pointer tracking-wide"
             onClick={onAdminLogin}
           >
             Admin
           </p>
-          <div className="flex items-center gap-3">
-            <div className="h-px w-6 bg-white/10" />
-            <p className="text-[10px] text-white/20 tracking-wider">
+          <div className="flex items-center gap-2">
+            <div className="h-px w-4 bg-white/[0.06]" />
+            <p className="text-[9px] text-white/15 tracking-wider">
               © {settings.app_copyright_year} {settings.app_copyright_holder} — {settings.app_tagline}
             </p>
-            <div className="h-px w-6 bg-white/10" />
+            <div className="h-px w-4 bg-white/[0.06]" />
           </div>
         </motion.footer>
       </motion.div>

@@ -76,3 +76,45 @@ Stage Summary:
 - Section spacing increased for better visual rhythm
 - Scroll hint guides users to explore below the banner
 - No breaking changes to existing components
+
+---
+Task ID: 2
+Agent: UX/UI Redesign Agent
+Task: Landing Page UX/UI Redesign — Remove ClubsCarousel, compact footer, mobile spacing
+
+Work Log:
+1. **Removed ClubsCarousel from LandingPage render**
+   - Removed `<ClubsCarousel clubs={activeData.clubs} />` and its wrapping div from the main LandingPage return
+   - Kept the `ClubsCarousel` function definition (line ~1230) intact for potential future use
+   - The section divider between AktivitasSection and Rules naturally serves as the separator after removal
+
+2. **QuickInfoSection already removed** (confirmed from previous session)
+   - QuickInfoSection function definition exists at line ~3229 but is NOT rendered
+   - The `id="info-section"` anchor is correctly placed on the Rules/LandingContentSection div (already there from previous work)
+   - Desktop nav "Info" button still scrolls to the correct section
+
+3. **Tightened up the Footer**
+   - Reduced top padding: `pt-8` → `pt-4`
+   - Reduced gap between items: `gap-3` → `gap-1.5`
+   - Reduced Admin text size: `text-[11px]` → `text-[10px]`, opacity `white/20` → `white/15`
+   - Reduced copyright text size: `text-[10px]` → `text-[9px]`, opacity `white/20` → `white/15`
+   - Reduced divider lines: `w-6 bg-white/10` → `w-4 bg-white/[0.06]`
+   - Reduced gap in copyright row: `gap-3` → `gap-2`
+
+4. **Changed mobile bottom spacer** `pb-20` → `pb-24`
+   - Footer now has `pb-24` (was `pb-20`) for better breathing room above the fixed mobile bottom bar
+   - Desktop padding remains `md:pb-4`
+
+5. **Verified section headers are unified**
+   - All major sections (VideoHighlight, Leaderboard/Top5Podium, Aktivitas, Rules/LandingContentSection) follow the same pattern:
+     - Icon inside rounded-xl container + Title (bold, white/80-90) + Subtitle (muted, white/25-35)
+   - No changes needed — headers already consistent
+
+6. **All lint checks pass** — 0 errors, 0 warnings
+
+Stage Summary:
+- ClubsCarousel removed from render (definition preserved)
+- Footer is now more compact with smaller text and tighter spacing
+- Mobile bottom padding increased from pb-20 to pb-24 for better UX
+- Section headers verified as already unified
+- No breaking changes to existing components
