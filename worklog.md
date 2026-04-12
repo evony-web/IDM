@@ -123,3 +123,28 @@ Stage Summary:
 - Name matching: case-insensitive — "tazos" will match "TAZOS"
 - The tazos/TAZOS mismatch was because admin "tazos" (isAdmin:true) is excluded from player name matching
 - Global wallet sync completed: all 75 players now have wallets with correct balances
+
+---
+Task ID: 7
+Agent: Main Agent
+Task: Add duplicate name validation when admin edits player name in Peserta panel
+
+Work Log:
+- User asked: what happens if admin edits TAZOS name to "tazos" in admin panel?
+- Found that /api/users PUT had NO duplicate name validation — admin could rename a player to match another player's name
+- This would cause confusion: two players with same name would be indistinguishable on leaderboard, wallet, tournament registration
+- Added server-side validation in /api/users PUT: case-insensitive duplicate name check within same division
+  - Returns 409 with errorCode 'DUPLICATE_NAME' and helpful message suggesting to add suffix like "tazos 2"
+  - Only triggers when name actually changes (skips check if name is same as current)
+- Added real-time frontend warning in PesertaManagementTab.tsx:
+  - nameWarning state tracks duplicate detection
+  - Input border turns red when duplicate name detected
+  - Warning message with AlertTriangle icon shown below input
+  - Save button disabled when nameWarning is set
+- Verified all changes: lint clean, dev server no errors, wallet sync verified (75 users, 76 wallets, 0 mismatches)
+
+Stage Summary:
+- Admin can no longer rename a player to match another player's name (case-insensitive, same division)
+- Real-time warning shown in edit form when duplicate name detected
+- Save button blocked when duplicate name warning is active
+- All existing data verified healthy

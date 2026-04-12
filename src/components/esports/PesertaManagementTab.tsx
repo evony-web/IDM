@@ -84,6 +84,7 @@ export function PesertaManagementTab({
   const [mvpDialogUserId, setMvpDialogUserId] = useState<string | null>(null);
   const [mvpScoreInput, setMvpScoreInput] = useState('0');
   const [mvpSaving, setMvpSaving] = useState(false);
+  const [nameWarning, setNameWarning] = useState<string | null>(null);
 
   // Season points state
   const [seasonPoints, setSeasonPoints] = useState<Array<{ id: string; season: number; points: number }>>([]);
@@ -159,6 +160,7 @@ export function PesertaManagementTab({
       points: user.points,
     });
     setAvatarChanged(false);
+    setNameWarning(null);
     setShowSeasonPanel(false);
     setNewSeason('');
     setNewSeasonPoints('');
@@ -497,9 +499,41 @@ export function PesertaManagementTab({
                     <input
                       type="text"
                       value={editForm.name}
-                      onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/90 text-[13px] focus:outline-none focus:border-white/25"
+                      onChange={(e) => {
+                        const newName = e.target.value;
+                        setEditForm((prev) => ({ ...prev, name: newName }));
+                        // Real-time duplicate name check (case-insensitive, same division)
+                        if (editingUser && newName.trim()) {
+                          const normalized = newName.trim().toLowerCase();
+                          const currentName = editingUser.name.trim().toLowerCase();
+                          if (normalized !== currentName) {
+                            const dup = users.find(
+                              (u) => u.id !== editingUser.id && u.name.trim().toLowerCase() === normalized
+                            );
+                            if (dup) {
+                              setNameWarning(`Nama "${newName}" sudah digunakan oleh pemain lain!`);
+                            } else {
+                              setNameWarning(null);
+                            }
+                          } else {
+                            setNameWarning(null);
+                          }
+                        } else {
+                          setNameWarning(null);
+                        }
+                      }}
+                      className={`w-full bg-white/5 border rounded-lg px-3 py-2 text-white/90 text-[13px] focus:outline-none transition-colors ${
+                        nameWarning
+                          ? 'border-red-500/40 focus:border-red-500/60'
+                          : 'border-white/10 focus:border-white/25'
+                      }`}
                     />
+                    {nameWarning && (
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <AlertTriangle className="w-3 h-3 text-red-400 flex-shrink-0" />
+                        <p className="text-[10px] text-red-400 font-medium">{nameWarning}</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Tier & Points */}
@@ -694,9 +728,9 @@ export function PesertaManagementTab({
                   <div className="flex gap-2 pt-1">
                     <button
                       onClick={saveUser}
-                      disabled={saving || !editForm.name.trim()}
+                      disabled={saving || !editForm.name.trim() || !!nameWarning}
                       className={`flex-1 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
-                        saving || !editForm.name.trim()
+                        saving || !editForm.name.trim() || !!nameWarning
                           ? 'bg-white/5 text-white/30'
                           : 'bg-purple-500/15 text-purple-400 border border-purple-500/20 hover:bg-purple-500/25'
                       }`}

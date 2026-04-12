@@ -351,6 +351,30 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Validate name uniqueness if name is being changed
+    if (name && name.trim().toLowerCase() !== existingUser.name.trim().toLowerCase()) {
+      const normalizedName = name.trim().toLowerCase();
+      const existingGender = existingUser.gender;
+      // Check for duplicate name in same division (case-insensitive)
+      const usersInSameDivision = await db.user.findMany({
+        where: { gender: existingGender },
+        select: { id: true, name: true },
+      });
+      const duplicate = usersInSameDivision.find(
+        (u) => u.id !== userId && u.name.trim().toLowerCase() === normalizedName
+      );
+      if (duplicate) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Nama "${name}" sudah digunakan oleh pemain lain di divisi yang sama. Gunakan nama yang berbeda atau tambahkan penanda (misal: "${name} 2").`,
+            errorCode: 'DUPLICATE_NAME',
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     const updateData: Record<string, string | number | boolean | undefined | null> = {};
     if (tier) updateData.tier = tier;
     if (points !== undefined) updateData.points = points;
