@@ -20,6 +20,15 @@ export function middleware(request: NextRequest) {
     return response
   }
 
+  // ── Video assets — long cache with revalidation ──
+  if (
+    pathname.match(/\.(mp4|webm|ogg)$/) &&
+    !pathname.startsWith('/api/')
+  ) {
+    response.headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800')
+    return response
+  }
+
   // ── Static assets — long cache ──
   if (
     pathname.match(/\.(svg|png|jpg|jpeg|webp|ico|woff2?)$/) &&

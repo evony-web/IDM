@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   logo_url: process.env.NEXT_PUBLIC_LOGO_URL || DEFAULT_LOGO_URL,
   banner_male_url: '',
   banner_female_url: '',
+  loading_video_url: '',
 
   // Theme
   default_theme: 'dark',
@@ -54,6 +55,9 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   // AI
   ai_system_prompt: 'You are an AI Tournament Assistant for an esports tournament platform. Help users with tournament info, player stats, and match results. Be friendly and concise.',
 
+  // Loading screen video (Cloudinary CDN or local path)
+  loading_video_url: process.env.NEXT_PUBLIC_LOADING_VIDEO_URL || '',
+
   // OG Image
   og_base_url: process.env.NEXTAUTH_URL || '',
 };
@@ -79,6 +83,7 @@ export async function GET() {
     if (process.env.WHATSAPP_BOT_URL) merged.whatsapp_bot_url = process.env.WHATSAPP_BOT_URL;
     if (process.env.DISCORD_BOT_URL) merged.discord_bot_url = process.env.DISCORD_BOT_URL;
     if (process.env.NEXTAUTH_URL) merged.og_base_url = process.env.NEXTAUTH_URL;
+    if (process.env.NEXT_PUBLIC_LOADING_VIDEO_URL) merged.loading_video_url = process.env.NEXT_PUBLIC_LOADING_VIDEO_URL;
 
     return NextResponse.json({
       success: true,

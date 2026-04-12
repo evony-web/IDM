@@ -25,6 +25,7 @@ export interface AppSettings {
   logo_url: string;
   banner_male_url: string;
   banner_female_url: string;
+  loading_video_url: string;
 
   // Theme
   default_theme: string;
@@ -65,6 +66,7 @@ const FALLBACK: AppSettings = {
   logo_url: 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png',
   banner_male_url: '',
   banner_female_url: '',
+  loading_video_url: '',
   default_theme: 'dark',
   bank_name: '',
   bank_code: '',

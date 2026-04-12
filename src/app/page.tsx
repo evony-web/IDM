@@ -809,6 +809,24 @@ export default function IDOLMETAApp() {
               className="absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden text-white"
               style={{ background: '#050507' }}
             >
+              {/* ── Video Background ── */}
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ opacity: 0.35 }}
+              >
+                <source src={settings.loading_video_url || '/videos/loading.mp4'} type="video/mp4" />
+              </video>
+              {/* Dark overlay on top of video for text readability */}
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(180deg, rgba(5,5,7,0.65) 0%, rgba(5,5,7,0.50) 40%, rgba(5,5,7,0.55) 60%, rgba(5,5,7,0.80) 100%)' }}
+              />
+
               {/* Diamond pattern */}
               <div
                 className="absolute inset-0 opacity-[0.03]"
@@ -820,17 +838,17 @@ export default function IDOLMETAApp() {
               {/* Green glow */}
               <div
                 className="absolute -top-20 left-1/4 w-[400px] h-[400px]"
-                style={{ background: 'radial-gradient(circle, rgba(115,255,0,0.04) 0%, transparent 60%)' }}
+                style={{ background: 'radial-gradient(circle, rgba(115,255,0,0.06) 0%, transparent 60%)' }}
               />
               {/* Blue glow */}
               <div
                 className="absolute bottom-[20%] right-0 w-[400px] h-[400px]"
-                style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.035) 0%, transparent 60%)' }}
+                style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.05) 0%, transparent 60%)' }}
               />
               {/* Gold glow center */}
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px]"
-                style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.03) 0%, transparent 60%)' }}
+                style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 60%)' }}
               />
 
               {/* Logo with glow — CSS-only animation, visible without JS */}
