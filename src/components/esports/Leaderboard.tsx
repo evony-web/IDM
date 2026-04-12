@@ -226,15 +226,15 @@ function PodiumCard({
       whileTap={player && onPlayerClick ? { scale: 0.97 } : {}}
     >
       {/* Floating icon above avatar */}
-      <div className="mb-2 sm:mb-3 relative" style={{ height: rank === 1 ? 30 : 24 }}>
+      <div className="mb-1 sm:mb-2 relative flex items-end justify-center" style={{ height: rank === 1 ? 44 : 34 }}>
         {rank === 1 ? (
           <div
-            className="animate-float"
+            className="animate-float -mt-1"
             style={{
                 filter: `drop-shadow(0 0 16px ${dt.accentBg(0.6)})`
               }}
           >
-            <Crown className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 ${accent.text}`} />
+            <Crown className={`w-8 h-8 sm:w-9 sm:h-9 lg:w-11 lg:h-11 ${accent.text}`} />
           </div>
         ) : (
           <div>

@@ -164,7 +164,7 @@ export function AllRankingsModal({
                           animate={{ y: [0, -3, 0] }}
                           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                         >
-                          <Crown className={`w-5 h-5 ${accentColor} mb-1`} />
+                          <Crown className={`w-6 h-6 ${accentColor} mb-2`} />
                         </motion.div>
                         <div className={avatarRingClass}>
                           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center overflow-hidden">

@@ -1109,12 +1109,12 @@ export function Dashboard({
 
                 {/* 1st Place - Center (Tallest) */}
                 <div className="flex flex-col items-center flex-1 max-w-[100px] sm:max-w-[115px] lg:max-w-[140px] -mt-4 sm:-mt-5">
-                  {/* Crown */}
+                  {/* Crown — spaced above avatar */}
                   <motion.div
                     animate={{ y: [0, -4, 0] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   >
-                    <Crown className={`w-5 h-5 sm:w-6 sm:h-6 ${accentColor} mb-1.5`} />
+                    <Crown className={`w-6 h-6 sm:w-7 sm:h-7 ${accentColor} mb-2`} />
                   </motion.div>
                   
                   {/* Avatar */}

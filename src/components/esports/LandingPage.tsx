@@ -2765,15 +2765,15 @@ function PodiumCard({ player, rank, selectedSeason, onPlayerClick }: {
           )}
         </div>
 
-        {/* Crown for #1 */}
+        {/* Crown for #1 — positioned above avatar so it doesn't overlap */}
         {isGold && (
           <motion.div
-            className="absolute -top-3 left-1/2 -translate-x-1/2 z-20"
-            initial={{ y: -10, opacity: 0 }}
+            className="absolute -top-6 sm:-top-7 left-1/2 -translate-x-1/2 z-20"
+            initial={{ y: -14, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Crown className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: '#FFD700', filter: 'drop-shadow(0 2px 6px rgba(255,215,0,0.5))' }} fill="#FFD700" />
+            <Crown className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: '#FFD700', filter: 'drop-shadow(0 2px 6px rgba(255,215,0,0.5))' }} fill="#FFD700" />
           </motion.div>
         )}
       </div>
@@ -5239,16 +5239,16 @@ function ChampionCarouselBanner({ data, stats }: { data: LandingData; stats?: { 
                       transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       className="flex flex-col items-center text-center"
                     >
-                      {/* Crown Icon */}
+                      {/* Crown Icon — spaced above avatar */}
                       <motion.div
                         animate={{ y: [0, -4, 0], rotate: [0, -3, 3, 0] }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 3 }}
                       >
-                        <Crown className="w-6 h-6 sm:w-8 sm:h-8 md:w-11 md:h-11 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
+                        <Crown className="w-7 h-7 sm:w-9 sm:h-9 md:w-12 md:h-12 text-yellow-400 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.4))' }} strokeWidth={1.5} />
                       </motion.div>
 
                       {/* Champion Avatar */}
-                      <div className="relative mt-2">
+                      <div className="relative mt-3 sm:mt-4">
                         <div
                           className="w-14 h-14 sm:w-16 sm:h-16 md:w-22 md:h-22 rounded-full flex items-center justify-center overflow-hidden"
                           style={{
