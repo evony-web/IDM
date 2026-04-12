@@ -5308,8 +5308,12 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           </motion.div>
         </SectionReveal>
 
+        {/* ═══ CLUB PESERTA ═══ */}
+        <SectionReveal className="w-full mb-10 md:mb-16">
+          <ClubsCarousel clubs={activeData.clubs} />
+        </SectionReveal>
+
         {/* ═══ Premium Animated Section Divider ═══ */}
-        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(115,255,0,0.12) 20%, rgba(255,215,0,0.18) 50%, rgba(56,189,248,0.12) 80%, transparent 95%)', animation: 'shimmerLine 4s ease-in-out infinite' }} />
 
         {/* ═══ VIDEO HIGHLIGHT ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16">
