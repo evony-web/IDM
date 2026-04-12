@@ -1064,7 +1064,7 @@ function DivisionCard({
             <span className="text-[10px] text-white/25">{data.topPlayers.length} pemain</span>
           </div>
           <div className="space-y-0.5 max-h-64 sm:max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBg(0.12)} transparent` }}>
-            {data.topPlayers.map((player) => (
+            {data.topPlayers.slice(0, 5).map((player) => (
               <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
             ))}
           </div>
