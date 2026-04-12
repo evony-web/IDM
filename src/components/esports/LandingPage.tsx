@@ -1061,13 +1061,10 @@ function DivisionCard({
                 Top Players
               </p>
             </div>
-            <span className="text-[10px] text-white/25">Top 5</span>
+            <span className="text-[10px] text-white/25">{data.topPlayers.length} pemain</span>
           </div>
-          <div className="space-y-0.5 max-h-48 sm:max-h-64 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBg(0.12)} transparent` }}>
-            {data.topPlayers.slice(0, 3).map((player) => (
-              <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
-            ))}
-            {data.topPlayers.slice(3, 5).map((player) => (
+          <div className="space-y-0.5 max-h-64 sm:max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBg(0.12)} transparent` }}>
+            {data.topPlayers.map((player) => (
               <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
             ))}
           </div>
