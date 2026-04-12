@@ -852,7 +852,7 @@ export default function IDOLMETAApp() {
               />
 
               {/* Logo with glow — CSS-only animation, visible without JS */}
-              <div className="relative z-10 idm-logo-anim">
+              <div className="relative z-10 idm-logo-anim mt-8">
                 {/* Animated glow ring */}
                 <div
                   className="absolute inset-0 rounded-3xl idm-glow-ring"
@@ -890,41 +890,10 @@ export default function IDOLMETAApp() {
                 {settings.app_subtitle}
               </p>
 
-              {/* Loading spinner — CSS animation, visible without JS */}
-              <div className="relative z-10 mt-8 idm-spinner-anim">
-                <div className="relative w-12 h-12">
-                  {/* Outer ring */}
-                  <div
-                    className="absolute inset-0 rounded-full idm-outer-ring"
-                    style={{
-                      border: '2px solid transparent',
-                      borderTopColor: '#73FF00',
-                      borderRightColor: 'rgba(115, 255, 0, 0.3)',
-                    }}
-                  />
-                  {/* Inner ring */}
-                  <div
-                    className="absolute inset-2 rounded-full idm-inner-ring"
-                    style={{
-                      border: '1.5px solid transparent',
-                      borderBottomColor: '#38BDF8',
-                      borderLeftColor: 'rgba(56, 189, 248, 0.2)',
-                    }}
-                  />
-                  {/* Center dot */}
-                  <div className="absolute inset-0 flex items-center justify-center idm-center-dot">
-                    <div
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{
-                        background: 'linear-gradient(135deg, #73FF00, #FFD700, #38BDF8)',
-                      }}
-                    />
-                  </div>
-                </div>
-                <p className="mt-4 text-[11px] tracking-wider text-white/30 text-center">
-                  Loading...
-                </p>
-              </div>
+              {/* Simple loading text */}
+              <p className="relative z-10 mt-8 text-[11px] tracking-wider text-white/30 text-center idm-spinner-anim">
+                Loading...
+              </p>
 
               {/* Footer — CSS animation, visible without JS */}
               <div className="absolute bottom-6 left-0 right-0 z-10 flex flex-col items-center idm-footer-anim">
