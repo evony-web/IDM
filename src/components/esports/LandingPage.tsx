@@ -1217,6 +1217,10 @@ const fireGlowKeyframes = `
   33% { box-shadow: 0 0 35px rgba(255,107,53,0.35), 0 0 70px rgba(244,114,182,0.20), 0 0 100px rgba(255,215,0,0.12), inset 0 0 20px rgba(255,107,53,0.10); }
   66% { box-shadow: 0 0 30px rgba(255,69,0,0.30), 0 0 60px rgba(244,114,182,0.18), 0 0 90px rgba(255,165,0,0.10), inset 0 0 18px rgba(255,69,0,0.08); }
 }
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
 `;
 
 /* ────────────────────────────────────────────
@@ -2344,6 +2348,734 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
               </motion.button>
             </div>
           )}
+        </>
+      )}
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────
+   TOP 5 PODIUM SECTION — Podium + expandable full leaderboard
+   ──────────────────────────────────────────── */
+
+// ── Podium Player Card (Desktop — vertical card in podium layout) ──
+function PodiumCard({ player, rank, selectedSeason, onPlayerClick }: {
+  player: SeasonLeaderboardPlayer;
+  rank: number;
+  selectedSeason: number | 'all';
+  onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void;
+}) {
+  const pDt = createDivisionTheme(player.gender as 'male' | 'female');
+  const displayPoints = selectedSeason === 'all'
+    ? player.totalSeasonPoints
+    : (player.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0);
+
+  const isGold = rank === 1;
+  const isSilver = rank === 2;
+  const isBronze = rank === 3;
+  const isTop3 = rank <= 3;
+
+  const borderColor = isGold
+    ? 'linear-gradient(135deg, #FFD700, #FFA500, #FFD700)'
+    : isSilver
+      ? 'linear-gradient(135deg, #C0C0C0, #E8E8E8, #C0C0C0)'
+      : isBronze
+        ? 'linear-gradient(135deg, #CD7F32, #E8A862, #CD7F32)'
+        : 'none';
+
+  const avatarSize = isGold
+    ? 'w-16 h-16 sm:w-20 sm:h-20'
+    : isTop3
+      ? 'w-13 h-13 sm:w-16 sm:h-16'
+      : 'w-11 h-11 sm:w-13 sm:h-13';
+
+  const nameSize = isGold
+    ? 'text-[15px] sm:text-[17px]'
+    : isTop3
+      ? 'text-[13px] sm:text-[15px]'
+      : 'text-[12px] sm:text-[14px]';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, delay: rank * 0.08, ease: [0.16, 1, 0.3, 1] }}
+      className={`flex flex-col items-center ${player.id ? 'cursor-pointer' : ''}`}
+      onClick={player.id && onPlayerClick ? () => onPlayerClick(player.id, player.gender as 'male' | 'female') : undefined}
+      whileHover={player.id ? { scale: 1.03, y: -2 } : undefined}
+      whileTap={player.id ? { scale: 0.97 } : undefined}
+    >
+      {/* Avatar container with border + glow */}
+      <div className="relative">
+        {/* Outer glow ring for #1 */}
+        {isGold && (
+          <motion.div
+            className="absolute inset-[-6px] rounded-full"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,165,0,0.10))',
+              boxShadow: '0 0 28px rgba(255,215,0,0.25)',
+            }}
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        )}
+
+        {/* Avatar with border */}
+        <div
+          className={`${avatarSize} rounded-full overflow-hidden flex items-center justify-center relative z-10`}
+          style={{
+            background: player.avatar
+              ? `url(${player.avatar}) center/cover`
+              : `linear-gradient(135deg, ${pDt.accentBg(0.25)}, ${pDt.accentBg(0.08)})`,
+            border: isTop3
+              ? `3px solid transparent`
+              : `2px solid ${pDt.accentBorder(0.20)}`,
+            ...(isTop3 ? {
+              borderImage: borderColor,
+              borderImageSlice: 1,
+              // Fallback for rounded borders - use box-shadow outline instead
+              border: 'none',
+              boxShadow: isGold
+                ? '0 0 0 3px #FFD700, 0 0 20px rgba(255,215,0,0.30)'
+                : isSilver
+                  ? '0 0 0 3px #C0C0C0, 0 0 16px rgba(192,192,192,0.20)'
+                  : '0 0 0 3px #CD7F32, 0 0 14px rgba(205,127,50,0.20)',
+            } : {}),
+          }}
+        >
+          {!player.avatar && (
+            <span className={`${isGold ? 'text-[20px] sm:text-[24px]' : isTop3 ? 'text-[16px] sm:text-[20px]' : 'text-[14px] sm:text-[16px]'} font-black`} style={{ color: pDt.accent }}>
+              {player.name.charAt(0).toUpperCase()}
+            </span>
+          )}
+        </div>
+
+        {/* Crown for #1 */}
+        {isGold && (
+          <motion.div
+            className="absolute -top-3 left-1/2 -translate-x-1/2 z-20"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Crown className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: '#FFD700', filter: 'drop-shadow(0 2px 6px rgba(255,215,0,0.5))' }} fill="#FFD700" />
+          </motion.div>
+        )}
+      </div>
+
+      {/* Name + Badge */}
+      <div className="mt-2 text-center min-w-0 max-w-[120px] sm:max-w-[140px]">
+        <p className={`${nameSize} font-bold text-white/90 truncate`}>{player.name}</p>
+
+        {/* Rank / JUARA badge */}
+        {isGold && (
+          <span
+            className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wider uppercase"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,165,0,0.10))',
+              color: '#FFD700',
+              border: '1px solid rgba(255,215,0,0.30)',
+              boxShadow: '0 0 12px rgba(255,215,0,0.15)',
+            }}
+          >
+            <Crown className="w-3 h-3" /> JUARA
+          </span>
+        )}
+        {isSilver && (
+          <span
+            className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase"
+            style={{ background: 'rgba(192,192,192,0.12)', color: '#C0C0C0', border: '1px solid rgba(192,192,192,0.20)' }}
+          >
+            #2
+          </span>
+        )}
+        {isBronze && (
+          <span
+            className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase"
+            style={{ background: 'rgba(205,127,50,0.12)', color: '#CD7F32', border: '1px solid rgba(205,127,50,0.20)' }}
+          >
+            #3
+          </span>
+        )}
+
+        {/* Tier + Club */}
+        <div className="flex items-center justify-center gap-1.5 mt-1">
+          <span
+            className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+            style={{
+              background: player.tier === 'S' ? goldRgba(0.12) : player.tier === 'A' ? pDt.accentBg(0.10) : 'var(--surface-4)',
+              color: player.tier === 'S' ? 'var(--gold)' : player.tier === 'A' ? pDt.accent : 'var(--text-quaternary)',
+            }}
+          >
+            Tier {player.tier}
+          </span>
+          {player.isMVP && (
+            <span
+              className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+              style={{ background: goldRgba(0.15), color: 'var(--gold)', border: `1px solid ${goldRgba(0.25)}` }}
+            >
+              MVP
+            </span>
+          )}
+        </div>
+
+        {/* Points */}
+        <p
+          className={`mt-1.5 font-black leading-none ${isGold ? 'text-[20px] sm:text-[24px]' : isTop3 ? 'text-[16px] sm:text-[20px]' : 'text-[14px] sm:text-[16px]'}`}
+          style={{
+            background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          {displayPoints.toLocaleString()}
+        </p>
+        <p className="text-[9px] sm:text-[10px] text-white/30 mt-0.5">
+          {selectedSeason === 'all' ? 'total pts' : `S${selectedSeason} pts`}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function Top5PodiumSection({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
+  const [seasonPlayers, setSeasonPlayers] = useState<SeasonLeaderboardPlayer[]>([]);
+  const [seasons, setSeasons] = useState<number[]>([]);
+  const [currentSeason, setCurrentSeason] = useState<number>(1);
+  const [seasonLoaded, setSeasonLoaded] = useState(false);
+  const [filterGender, setFilterGender] = useState<'all' | 'male' | 'female'>('all');
+  const [selectedSeason, setSelectedSeason] = useState<number | 'all'>(1);
+  const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
+  const [showFullBoard, setShowFullBoard] = useState(false);
+  const seasonDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Helper to process API response
+  const processSeasonData = (json: { success?: boolean; data?: { players?: SeasonLeaderboardPlayer[]; seasons?: number[]; currentSeason?: number } } | null) => {
+    if (json?.success && json.data) {
+      const players = json.data.players || [];
+      const seasonList = json.data.seasons || [];
+      const cs = json.data.currentSeason || 1;
+      setSeasonPlayers(players);
+      setSeasons(seasonList);
+      setCurrentSeason(cs);
+      return { players, seasonList, cs };
+    }
+    return null;
+  };
+
+  // Fetch season data on mount + gender change
+  useEffect(() => {
+    let cancelled = false;
+    const genderParam = filterGender === 'all' ? '' : `?gender=${filterGender}`;
+    fetch(`/api/season-leaderboard${genderParam}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(json => {
+        if (!cancelled) {
+          const result = processSeasonData(json);
+          if (result) {
+            setSelectedSeason(result.cs);
+          }
+          setSeasonLoaded(true);
+        }
+      })
+      .catch(() => { if (!cancelled) setSeasonLoaded(true); });
+    return () => { cancelled = true; };
+  }, [filterGender]);
+
+  // Real-time update from admin panel
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const channel = new BroadcastChannel('idm-player-seasons');
+    const handler = () => {
+      const genderParam = filterGender === 'all' ? '' : `?gender=${filterGender}`;
+      fetch(`/api/season-leaderboard${genderParam}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(json => {
+          processSeasonData(json);
+        })
+        .catch(() => {});
+    };
+    channel.addEventListener('message', handler);
+    return () => channel.removeEventListener('message', handler);
+  }, [filterGender]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (seasonDropdownRef.current && !seasonDropdownRef.current.contains(e.target as Node)) {
+        setSeasonDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  // Compute season-filtered players
+  const displaySeasonPlayers = useMemo(() => {
+    if (selectedSeason === 'all') {
+      return [...seasonPlayers].sort((a, b) => b.totalSeasonPoints - a.totalSeasonPoints);
+    }
+    return [...seasonPlayers].sort((a, b) => {
+      const aSP = a.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0;
+      const bSP = b.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0;
+      return bSP - aSP;
+    });
+  }, [seasonPlayers, selectedSeason]);
+
+  // Top 5 for podium
+  const top5 = displaySeasonPlayers.slice(0, 5);
+
+  const genderFilters = [
+    { key: 'all' as const, label: 'Semua', color: 'var(--gold)' },
+    { key: 'male' as const, label: 'Male', color: ACCENT.male.primary },
+    { key: 'female' as const, label: 'Female', color: ACCENT.female.primary },
+  ];
+
+  return (
+    <motion.div variants={itemVariants} className="w-full max-w-full">
+      {/* ═══ Section Header ═══ */}
+      <div className="flex flex-col gap-4 mb-5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{
+              background: `linear-gradient(135deg, ${goldRgba(0.18)} 0%, ${goldRgba(0.06)} 100%)`,
+              border: `1px solid ${goldRgba(0.22)}`,
+            }}
+          >
+            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--gold)' }} />
+          </div>
+          <div>
+            <h2 className="text-[19px] sm:text-[22px] font-black text-white/90 tracking-tight">Leaderboard</h2>
+            <p className="text-[11px] sm:text-[12px] text-white/35 mt-0.5">
+              {seasonLoaded
+                ? `${displaySeasonPlayers.length} pemain • Season ${currentSeason} sedang berjalan`
+                : 'Memuat data...'}
+            </p>
+          </div>
+        </div>
+
+        {/* ═══ Season Selector + Gender Filter ═══ */}
+        <div className="flex flex-row items-center gap-2 sm:gap-3">
+          {/* Season Dropdown */}
+          <div className="relative min-w-0" ref={seasonDropdownRef}>
+            <motion.button
+              onClick={() => setSeasonDropdownOpen(!seasonDropdownOpen)}
+              className="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl cursor-pointer focus-glow"
+              style={{
+                background: `linear-gradient(135deg, ${goldRgba(0.08)} 0%, ${goldRgba(0.03)} 100%)`,
+                border: `1px solid ${goldRgba(0.15)}`,
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-center gap-1.5 sm:gap-2.5">
+                <div
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: selectedSeason === 'all'
+                      ? 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,215,0,0.08))'
+                      : selectedSeason === currentSeason
+                        ? 'linear-gradient(135deg, rgba(115,255,0,0.20), rgba(115,255,0,0.08))'
+                        : 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${selectedSeason === 'all' ? 'rgba(255,215,0,0.25)' : selectedSeason === currentSeason ? 'rgba(115,255,0,0.25)' : 'rgba(255,255,255,0.10)'}`,
+                  }}
+                >
+                  {selectedSeason === 'all' ? (
+                    <Medal className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--gold)' }} />
+                  ) : (
+                    <span className="text-[10px] sm:text-[12px] font-black" style={{ color: selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.5)' }}>S{selectedSeason}</span>
+                  )}
+                </div>
+                <div className="text-left min-w-0">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <p className="text-[12px] sm:text-[14px] font-bold truncate" style={{ color: selectedSeason === 'all' ? 'var(--gold)' : selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.6)' }}>
+                      {selectedSeason === 'all' ? 'All' : `S${selectedSeason}`}
+                    </p>
+                    {selectedSeason === currentSeason && (
+                      <span className="text-[7px] sm:text-[9px] font-bold px-1 sm:px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(115,255,0,0.12)', color: '#73FF00', border: '1px solid rgba(115,255,0,0.20)' }}>AKTIF</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <motion.div animate={{ rotate: seasonDropdownOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/30" />
+              </motion.div>
+            </motion.button>
+
+            {/* Dropdown Menu */}
+            <AnimatePresence>
+              {seasonDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute top-full left-0 mt-2 rounded-xl overflow-hidden z-30 min-w-[200px] sm:min-w-[260px]"
+                  style={{
+                    background: 'rgba(18,18,22,0.98)',
+                    border: '1px solid rgba(255,215,0,0.15)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,215,0,0.05)',
+                    backdropFilter: 'blur(20px)',
+                  }}
+                >
+                  <button
+                    onClick={() => { setSelectedSeason('all'); setSeasonDropdownOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                    style={{
+                      background: selectedSeason === 'all' ? 'rgba(255,215,0,0.08)' : 'transparent',
+                      borderLeft: selectedSeason === 'all' ? '3px solid #FFD700' : '3px solid transparent',
+                    }}
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,215,0,0.10)', border: '1px solid rgba(255,215,0,0.18)' }}>
+                      <Medal className="w-4 h-4" style={{ color: 'var(--gold)' }} />
+                    </div>
+                    <div className="text-left flex-1">
+                      <p className="text-[13px] font-bold" style={{ color: selectedSeason === 'all' ? 'var(--gold)' : 'rgba(255,255,255,0.7)' }}>All Seasons (Total)</p>
+                      <p className="text-[10px] text-white/25">Akumulasi semua season</p>
+                    </div>
+                    {selectedSeason === 'all' && <div className="w-2 h-2 rounded-full" style={{ background: 'var(--gold)', boxShadow: '0 0 6px rgba(255,215,0,0.5)' }} />}
+                  </button>
+
+                  <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+
+                  <div className="max-h-60 overflow-y-auto py-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}>
+                    {seasons.map(s => {
+                      const playerCount = seasonPlayers.filter(p => {
+                        const sp = p.seasonPoints.find(sp => sp.season === s);
+                        return sp && sp.points > 0;
+                      }).length;
+                      const totalInSeason = seasonPlayers.length;
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => { setSelectedSeason(s); setSeasonDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                          style={{
+                            background: selectedSeason === s ? 'rgba(115,255,0,0.06)' : 'transparent',
+                            borderLeft: selectedSeason === s ? '3px solid #73FF00' : '3px solid transparent',
+                          }}
+                        >
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(115,255,0,0.08)', border: '1px solid rgba(115,255,0,0.12)' }}>
+                            <span className="text-[12px] font-black" style={{ color: '#73FF00' }}>S{s}</span>
+                          </div>
+                          <div className="text-left flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[13px] font-bold" style={{ color: selectedSeason === s ? '#73FF00' : 'rgba(255,255,255,0.7)' }}>Season {s}</p>
+                              {s === currentSeason && (
+                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(115,255,0,0.12)', color: '#73FF00', border: '1px solid rgba(115,255,0,0.20)' }}>AKTIF</span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-white/25">{totalInSeason} pemain • {playerCount} berpoints</p>
+                          </div>
+                          {selectedSeason === s && <div className="w-2 h-2 rounded-full" style={{ background: '#73FF00', boxShadow: '0 0 6px rgba(115,255,0,0.5)' }} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Gender Filter */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            {genderFilters.map(f => (
+              <button
+                key={f.key}
+                onClick={() => { setFilterGender(f.key); setShowFullBoard(false); }}
+                className="px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer press-scale focus-glow"
+                style={{
+                  background: filterGender === f.key ? `${f.color}15` : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${filterGender === f.key ? `${f.color}28` : 'rgba(255,255,255,0.06)'}`,
+                  color: filterGender === f.key ? f.color : 'rgba(255,255,255,0.35)',
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ Podium Content ═══ */}
+      {!seasonLoaded ? (
+        /* Skeleton */
+        <div className="flex flex-col items-center gap-4 py-8">
+          <div className="flex items-end justify-center gap-4 sm:gap-6">
+            {[2, 1, 3].map(rank => (
+              <div key={rank} className="flex flex-col items-center gap-2">
+                <div
+                  className={`${rank === 1 ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-13 h-13 sm:w-16 sm:h-16'} rounded-full skeleton-shimmer`}
+                  style={{ background: 'var(--surface-2)' }}
+                />
+                <div className="h-3 w-16 rounded skeleton-shimmer" style={{ background: 'var(--surface-2)' }} />
+                <div className="h-4 w-12 rounded skeleton-shimmer" style={{ background: 'var(--surface-2)' }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : top5.length === 0 ? (
+        /* Empty state */
+        <div
+          className="rounded-2xl flex flex-col items-center justify-center py-16 px-4"
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,215,0,0.06)',
+          }}
+        >
+          <BarChart3 className="w-12 h-12 text-white/10 mb-3" />
+          <p className="text-[14px] text-white/25 text-center font-medium">Belum ada data season points</p>
+          <p className="text-[12px] text-white/15 mt-1 text-center">Tambahkan dari panel admin tab Peserta</p>
+        </div>
+      ) : (
+        <>
+          {/* ── Desktop Podium Layout ── */}
+          <div
+            className="hidden sm:block rounded-2xl p-6 sm:p-8"
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,215,0,0.08)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+            }}
+          >
+            {/* Top accent line */}
+            <div className="h-[2px] mb-6 sm:mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.25), transparent)' }} />
+
+            {/* Top 3 Podium Row */}
+            <div className="flex items-end justify-center gap-5 sm:gap-8 md:gap-12">
+              {/* #2 Silver — Left */}
+              {top5[1] && (
+                <div className="flex flex-col items-center" style={{ marginTop: '24px' }}>
+                  <PodiumCard player={top5[1]} rank={2} selectedSeason={selectedSeason} onPlayerClick={onPlayerClick} />
+                  {/* Podium step */}
+                  <div
+                    className="w-24 sm:w-28 mt-3 rounded-t-lg"
+                    style={{
+                      height: '48px',
+                      background: 'linear-gradient(180deg, rgba(192,192,192,0.18) 0%, rgba(192,192,192,0.06) 100%)',
+                      border: '1px solid rgba(192,192,192,0.12)',
+                      borderBottom: 'none',
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* #1 Gold — Center (elevated) */}
+              {top5[0] && (
+                <div className="flex flex-col items-center">
+                  <PodiumCard player={top5[0]} rank={1} selectedSeason={selectedSeason} onPlayerClick={onPlayerClick} />
+                  {/* Podium step */}
+                  <div
+                    className="w-28 sm:w-32 mt-3 rounded-t-lg"
+                    style={{
+                      height: '72px',
+                      background: 'linear-gradient(180deg, rgba(255,215,0,0.22) 0%, rgba(255,215,0,0.06) 100%)',
+                      border: '1px solid rgba(255,215,0,0.15)',
+                      borderBottom: 'none',
+                      boxShadow: '0 0 20px rgba(255,215,0,0.08)',
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* #3 Bronze — Right */}
+              {top5[2] && (
+                <div className="flex flex-col items-center" style={{ marginTop: '36px' }}>
+                  <PodiumCard player={top5[2]} rank={3} selectedSeason={selectedSeason} onPlayerClick={onPlayerClick} />
+                  {/* Podium step */}
+                  <div
+                    className="w-24 sm:w-28 mt-3 rounded-t-lg"
+                    style={{
+                      height: '36px',
+                      background: 'linear-gradient(180deg, rgba(205,127,50,0.18) 0%, rgba(205,127,50,0.06) 100%)',
+                      border: '1px solid rgba(205,127,50,0.12)',
+                      borderBottom: 'none',
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* #4 and #5 Row */}
+            {(top5[3] || top5[4]) && (
+              <div className="flex items-start justify-center gap-5 sm:gap-8 md:gap-12 mt-6">
+                {top5[3] && (
+                  <div className="flex flex-col items-center">
+                    <PodiumCard player={top5[3]} rank={4} selectedSeason={selectedSeason} onPlayerClick={onPlayerClick} />
+                  </div>
+                )}
+                {top5[4] && (
+                  <div className="flex flex-col items-center">
+                    <PodiumCard player={top5[4]} rank={5} selectedSeason={selectedSeason} onPlayerClick={onPlayerClick} />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Mobile Podium Layout (vertical list) ── */}
+          <div className="sm:hidden space-y-3">
+            {top5.map((player, idx) => {
+              const rank = idx + 1;
+              const pDt = createDivisionTheme(player.gender as 'male' | 'female');
+              const displayPoints = selectedSeason === 'all'
+                ? player.totalSeasonPoints
+                : (player.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0);
+              const isGold = rank === 1;
+              const isTop3 = rank <= 3;
+
+              return (
+                <motion.div
+                  key={player.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className={`flex items-center gap-3 p-3 rounded-2xl ${player.id ? 'cursor-pointer' : ''}`}
+                  style={{
+                    background: isGold
+                      ? 'linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.04))'
+                      : isTop3
+                        ? 'rgba(255,255,255,0.03)'
+                        : 'rgba(255,255,255,0.015)',
+                    border: `1px solid ${isGold ? 'rgba(255,215,0,0.20)' : isTop3 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)'}`,
+                    boxShadow: isGold ? '0 0 20px rgba(255,215,0,0.12)' : 'none',
+                  }}
+                  onClick={player.id && onPlayerClick ? () => onPlayerClick(player.id, player.gender as 'male' | 'female') : undefined}
+                  whileTap={player.id ? { scale: 0.98 } : undefined}
+                >
+                  {/* Rank badge */}
+                  <div
+                    className={`flex items-center justify-center ${isGold ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg flex-shrink-0`}
+                    style={{
+                      background: rank === 1
+                        ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                        : rank === 2
+                          ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
+                          : rank === 3
+                            ? 'linear-gradient(135deg, #CD7F32, #B87333)'
+                            : pDt.accentBg(0.08),
+                      color: isTop3 ? '#000' : pDt.accent,
+                    }}
+                  >
+                    {isTop3 ? <Crown className={isGold ? 'w-5 h-5' : 'w-4 h-4'} strokeWidth={2.5} /> : <span className="text-[12px] font-black">{rank}</span>}
+                  </div>
+
+                  {/* Avatar */}
+                  <div
+                    className={`${isGold ? 'w-13 h-13' : isTop3 ? 'w-11 h-11' : 'w-9 h-9'} rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center`}
+                    style={{
+                      background: player.avatar
+                        ? `url(${player.avatar}) center/cover`
+                        : `linear-gradient(135deg, ${pDt.accentBg(0.25)}, ${pDt.accentBg(0.08)})`,
+                      boxShadow: isGold
+                        ? '0 0 0 2.5px #FFD700, 0 0 16px rgba(255,215,0,0.25)'
+                        : rank === 2
+                          ? '0 0 0 2px #C0C0C0, 0 0 10px rgba(192,192,192,0.15)'
+                          : rank === 3
+                            ? '0 0 0 2px #CD7F32, 0 0 10px rgba(205,127,50,0.15)'
+                            : `0 0 0 1.5px ${pDt.accentBorder(0.20)}`,
+                    }}
+                  >
+                    {!player.avatar && (
+                      <span className={`${isGold ? 'text-[16px]' : 'text-[12px]'} font-bold`} style={{ color: pDt.accent }}>
+                        {player.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Name + Meta */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className={`${isGold ? 'text-[14px]' : 'text-[13px]'} font-bold text-white/90 truncate`}>{player.name}</p>
+                      {isGold && (
+                        <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: goldRgba(0.15), color: '#FFD700', border: `1px solid ${goldRgba(0.25)}` }}>JUARA</span>
+                      )}
+                      {player.isMVP && (
+                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: goldRgba(0.15), color: 'var(--gold)', border: `1px solid ${goldRgba(0.25)}` }}>MVP</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span
+                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-md"
+                        style={{
+                          background: player.tier === 'S' ? goldRgba(0.12) : player.tier === 'A' ? pDt.accentBg(0.10) : 'var(--surface-4)',
+                          color: player.tier === 'S' ? 'var(--gold)' : player.tier === 'A' ? pDt.accent : 'var(--text-quaternary)',
+                        }}
+                      >
+                        Tier {player.tier}
+                      </span>
+                      {player.clubName && (
+                        <span className="text-[10px] text-white/30 truncate">{player.clubName}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Points */}
+                  <div className="text-right flex-shrink-0">
+                    <p
+                      className={`${isGold ? 'text-[18px]' : 'text-[15px]'} font-black leading-none`}
+                      style={{
+                        background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      {displayPoints.toLocaleString()}
+                    </p>
+                    <p className="text-[9px] text-white/30 mt-0.5">pts</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* ═══ Lihat Papan Lengkap CTA ═══ */}
+          {displaySeasonPlayers.length > 5 && (
+            <div className="flex justify-center mt-4">
+              <motion.button
+                onClick={() => setShowFullBoard(prev => !prev)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200"
+                style={{
+                  background: showFullBoard ? 'rgba(255,255,255,0.04)' : `linear-gradient(135deg, ${goldRgba(0.10)}, ${goldRgba(0.04)})`,
+                  border: `1px solid ${showFullBoard ? 'rgba(255,255,255,0.08)' : goldRgba(0.18)}`,
+                  color: showFullBoard ? 'rgba(255,255,255,0.50)' : 'var(--gold)',
+                }}
+                whileTap={{ scale: 0.96 }}
+              >
+                {showFullBoard ? (
+                  <>
+                    <ChevronUp className="w-3.5 h-3.5" />
+                    <span>Ciutkan</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Lihat Papan Lengkap</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-normal opacity-60">({displaySeasonPlayers.length - 5} lagi)</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
+          )}
+
+          {/* ═══ Expandable Full Leaderboard ═══ */}
+          <AnimatePresence>
+            {showFullBoard && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4">
+                  <UnifiedLeaderboard data={data} onPlayerClick={onPlayerClick} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </motion.div>
@@ -4296,13 +5028,24 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           }} />
         </div>
 
+        {/* ═══ Scroll Hint ═══ */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 0.8 }}
+          className="text-white/15 text-[10px] text-center tracking-widest uppercase mt-2 mb-4 md:mb-6"
+          style={{ animation: 'bounce-subtle 2s ease-in-out infinite' }}
+        >
+          Scroll untuk melihat lebih banyak ↓
+        </motion.p>
+
         {/* ═══ AD SLOT ═══ */}
         <AdSlot slot="landing" />
 
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-8 md:mb-14"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-10 md:mb-16"
         >
           <DivisionCard
             division="male"
@@ -4319,39 +5062,39 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         </motion.div>
 
         {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ VIDEO HIGHLIGHT ═══ */}
-        <div className="w-full mb-8 md:mb-14">
+        <div className="w-full mb-10 md:mb-16">
           <VideoHighlightSection />
         </div>
 
         {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
-        {/* ═══ LEADERBOARD ═══ */}
-        <div id="leaderboard-section" className="w-full mb-8 md:mb-14">
-          <UnifiedLeaderboard data={activeData} onPlayerClick={handlePlayerClick} />
+        {/* ═══ LEADERBOARD (Top 5 Podium) ═══ */}
+        <div id="leaderboard-section" className="w-full mb-10 md:mb-16">
+          <Top5PodiumSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ AKTIVITAS TERBARU (Tabbed) ═══ */}
-        <div className="w-full mb-8 md:mb-14">
+        <div className="w-full mb-10 md:mb-16">
           <AktivitasSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full mb-8 md:mb-14">
+        <div className="w-full mb-10 md:mb-16">
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
         {/* ═══ RULES (Collapsible) ═══ */}
-        <div id="info-section" className="w-full mb-8 md:mb-14">
+        <div id="info-section" className="w-full mb-10 md:mb-16">
           <LandingContentSection />
         </div>
 
