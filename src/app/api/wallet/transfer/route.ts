@@ -73,24 +73,32 @@ export async function POST(request: NextRequest) {
     const senderWallet = await ensureWallet(senderId, sender.points || 0)
     const receiverWallet = await ensureWallet(receiverId, receiver.points || 0)
 
-    // Check sufficient balance
-    if (senderWallet.balance < (amount as number)) {
-      return apiError(
-        `Saldo tidak mencukupi. Saldo Anda: ${senderWallet.balance.toLocaleString('id-ID')} poin.`,
-        ErrorCodes.INSUFFICIENT_BALANCE,
-        400
-      )
-    }
+    // Execute transfer in a transaction (balance check INSIDE to prevent race condition)
+    const transferAmount = amount as number
+    const transferReason = (reason as string) || null
 
-    // Execute transfer in a transaction
     const result = await db.$transaction(async (tx) => {
+      // Re-read sender wallet inside transaction to get latest balance
+      const currentSenderWallet = await tx.wallet.findUnique({
+        where: { id: senderWallet.id },
+      })
+
+      if (!currentSenderWallet) {
+        throw new Error('SENDER_WALLET_NOT_FOUND')
+      }
+
+      // Check sufficient balance (inside transaction — prevents race condition)
+      if (currentSenderWallet.balance < transferAmount) {
+        throw new Error('INSUFFICIENT_BALANCE')
+      }
+
       // Create transfer record
       const transfer = await tx.walletTransfer.create({
         data: {
           senderId,
           receiverId,
-          amount: amount as number,
-          reason: (reason as string) || null,
+          amount: transferAmount,
+          reason: transferReason,
           status: 'completed',
         },
       })
@@ -100,10 +108,10 @@ export async function POST(request: NextRequest) {
         data: {
           walletId: senderWallet.id,
           type: 'debit',
-          amount: amount as number,
+          amount: transferAmount,
           category: 'transfer',
-          description: reason
-            ? `Transfer ke ${receiver.name}: ${reason}`
+          description: transferReason
+            ? `Transfer ke ${receiver.name}: ${transferReason}`
             : `Transfer ke ${receiver.name}`,
           referenceId: transfer.id,
         },
@@ -114,10 +122,10 @@ export async function POST(request: NextRequest) {
         data: {
           walletId: receiverWallet.id,
           type: 'credit',
-          amount: amount as number,
+          amount: transferAmount,
           category: 'transfer',
-          description: reason
-            ? `Transfer dari ${sender.name}: ${reason}`
+          description: transferReason
+            ? `Transfer dari ${sender.name}: ${transferReason}`
             : `Transfer dari ${sender.name}`,
           referenceId: transfer.id,
         },
@@ -127,8 +135,8 @@ export async function POST(request: NextRequest) {
       await tx.wallet.update({
         where: { id: senderWallet.id },
         data: {
-          balance: { decrement: amount as number },
-          totalOut: { increment: amount as number },
+          balance: { decrement: transferAmount },
+          totalOut: { increment: transferAmount },
         },
       })
 
@@ -136,19 +144,34 @@ export async function POST(request: NextRequest) {
       await tx.wallet.update({
         where: { id: receiverWallet.id },
         data: {
-          balance: { increment: amount as number },
-          totalIn: { increment: amount as number },
+          balance: { increment: transferAmount },
+          totalIn: { increment: transferAmount },
         },
       })
 
-      return { transfer }
+      return { transfer, senderBalance: currentSenderWallet.balance - transferAmount }
     })
 
     return NextResponse.json({
       success: true,
       transfer: result.transfer,
+      senderBalance: result.senderBalance,
     })
   } catch (error) {
+    // Handle custom business-logic errors thrown inside transaction
+    if (error instanceof Error) {
+      if (error.message === 'INSUFFICIENT_BALANCE') {
+        const senderWallet = await db.wallet.findUnique({ where: { userId: session.user.id } })
+        return apiError(
+          `Saldo tidak mencukupi. Saldo Anda: ${(senderWallet?.balance ?? 0).toLocaleString('id-ID')} poin.`,
+          ErrorCodes.INSUFFICIENT_BALANCE,
+          400
+        )
+      }
+      if (error.message === 'SENDER_WALLET_NOT_FOUND') {
+        return apiError('Wallet pengirim tidak ditemukan.', ErrorCodes.USER_NOT_FOUND, 404)
+      }
+    }
     return handlePrismaError(error)
   }
 }

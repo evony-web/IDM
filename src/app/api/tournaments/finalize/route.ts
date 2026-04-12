@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import pusher, { globalChannel, tournamentChannel } from '@/lib/pusher';
 import { requireAdmin } from '@/lib/admin-guard';
 import { ensureWallet } from '@/lib/wallet-utils';
+import { apiError, ErrorCodes, handlePrismaError, safeParseBody } from '@/lib/api-utils';
 
 // ═══════════════════════════════════════════════════════════════════════
 // POST /api/tournaments/finalize
@@ -41,15 +42,14 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   try {
-    const body = await request.json();
+    const { data: body, error: parseError } = await safeParseBody(request);
+    if (parseError || !body) return parseError!;
+
     const { tournamentId } = body;
 
     // ── Input validation ──
     if (!isValidTournamentId(tournamentId)) {
-      return NextResponse.json(
-        { success: false, error: 'tournamentId wajib diisi', errorCode: 'VALIDATION_ERROR' },
-        { status: 400 }
-      );
+      return apiError('tournamentId wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
     }
 
     const tournament = await db.tournament.findUnique({
@@ -69,30 +69,25 @@ export async function POST(request: NextRequest) {
     });
 
     if (!tournament) {
-      return NextResponse.json(
-        { success: false, error: 'Turnamen tidak ditemukan', errorCode: 'NOT_FOUND' },
-        { status: 404 }
-      );
+      return apiError('Turnamen tidak ditemukan.', ErrorCodes.NOT_FOUND, 404);
     }
 
     // ── Idempotency guard: prevent double-finalize ──
     if (tournament.status === 'completed') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Turnamen sudah pernah difinalisasi. Tidak dapat finalize ulang.',
-          errorCode: 'ALREADY_COMPLETED',
-        },
-        { status: 409 }
+      return apiError(
+        'Turnamen sudah pernah difinalisasi. Tidak dapat finalize ulang.',
+        ErrorCodes.ALREADY_COMPLETED,
+        409
       );
     }
 
     // Find champion (winner of final match)
     const finalMatch = tournament.matches[0];
     if (!finalMatch || !finalMatch.winnerId) {
-      return NextResponse.json(
-        { success: false, error: 'Final match belum selesai. Tentukan pemenang terlebih dahulu.', errorCode: 'FINAL_NOT_COMPLETED' },
-        { status: 400 }
+      return apiError(
+        'Final match belum selesai. Tentukan pemenang terlebih dahulu.',
+        ErrorCodes.VALIDATION_ERROR,
+        400
       );
     }
 
@@ -368,9 +363,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Pusher broadcast
-    pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'tournament-update', { action: 'finalized', tournamentId, division: tournament.division }).catch(() => {});
-    pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'announcement', { message: 'Tournament completed!', type: 'success', tournamentId }).catch(() => {});
+    // Pusher broadcast (safe — pusher may be null if not configured)
+    if (pusher) {
+      pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'tournament-update', { action: 'finalized', tournamentId, division: tournament.division }).catch(() => {});
+      pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'announcement', { message: 'Tournament completed!', type: 'success', tournamentId }).catch(() => {});
+    }
 
     console.log(`[Finalize] Tournament ${tournament.name} finalized. Season ${targetSeason}. ${userPointsMap.size} players awarded.`);
 
@@ -385,10 +382,6 @@ export async function POST(request: NextRequest) {
       results,
     });
   } catch (error) {
-    console.error('[Finalize] Error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Gagal mengfinalisasi turnamen. Coba lagi.', errorCode: 'INTERNAL_ERROR' },
-      { status: 500 }
-    );
+    return handlePrismaError(error);
   }
 }

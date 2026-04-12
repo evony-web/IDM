@@ -1,39 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { ensureWallet } from '@/lib/wallet-utils';
+import { hashPin, normalizePhone } from '@/lib/auth-utils';
 import { apiError, ErrorCodes, handlePrismaError, safeParseBody, validateLength } from '@/lib/api-utils';
-
-/** Hash a PIN string with SHA-256 */
-function hashPin(pin: string): string {
-  return createHash('sha256').update(pin).digest('hex');
-}
-
-/**
- * Normalize Indonesian phone number to local format (08xxxxxxxxxx)
- * Handles: +6281xxx → 081xxx, 6281xxx → 081xxx, 081xxx → 081xxx
- * This ensures consistent matching regardless of input format.
- */
-function normalizePhone(phone: string): string {
-  let p = phone.trim().replace(/[\s\-()]/g, ''); // remove spaces, dashes, parens
-
-  // +6281xxx → 081xxx (international format with +)
-  if (p.startsWith('+62')) {
-    p = '0' + p.slice(3);
-  }
-  // 6281xxx → 081xxx (international format without +)
-  else if (p.startsWith('62') && p.length >= 10) {
-    p = '0' + p.slice(2);
-  }
-  // 081xxx → 081xxx (already local format, no change)
-  // 81xxx → 081xxx (missing leading 0)
-  else if (/^[1-9]/.test(p)) {
-    p = '0' + p;
-  }
-
-  return p;
-}
 
 /** Shape of user data returned in responses */
 function userResponseData(user: {
@@ -64,21 +34,21 @@ function userResponseData(user: {
 
 /**
  * Ensure a user has a Ranking record and a Wallet (synced with User.points)
+ * Uses upsert to prevent race conditions on concurrent requests.
  */
 async function ensureUserRecords(userId: string, userPoints: number) {
-  // Ensure Ranking record
-  const existingRanking = await db.ranking.findUnique({ where: { userId } });
-  if (!existingRanking) {
-    await db.ranking.create({
-      data: {
-        id: uuidv4(),
-        userId,
-        points: 0,
-        wins: 0,
-        losses: 0,
-      },
-    });
-  }
+  // Ensure Ranking record — upsert prevents race condition
+  await db.ranking.upsert({
+    where: { userId },
+    update: {},
+    create: {
+      id: uuidv4(),
+      userId,
+      points: 0,
+      wins: 0,
+      losses: 0,
+    },
+  });
 
   // Ensure Wallet record — uses shared utility
   await ensureWallet(userId, userPoints);
@@ -203,19 +173,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create Ranking record
-    await db.ranking.create({
-      data: {
-        id: uuidv4(),
-        userId: newUser.id,
-        points: 0,
-        wins: 0,
-        losses: 0,
-      },
-    });
-
-    // Create Wallet record — uses shared utility
-    await ensureWallet(newUser.id, 0);
+    // Create Ranking + Wallet records — uses shared utility (upsert-safe)
+    await ensureUserRecords(newUser.id, 0);
 
     return NextResponse.json({
       success: true,
@@ -288,13 +247,13 @@ export async function PUT(request: NextRequest) {
 
     // 8. If the phone in DB is not normalized, fix it now
     if (matchedUser.phone !== normalizedPhone) {
-      await db.user.update({
+      matchedUser = await db.user.update({
         where: { id: matchedUser.id },
         data: { phone: normalizedPhone },
       });
     }
 
-    // Success
+    // Success — return fresh user data (phone may have been normalized)
     return NextResponse.json({
       success: true,
       user: userResponseData(matchedUser),

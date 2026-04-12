@@ -1,28 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { db } from '@/lib/db';
-import { createHash } from 'crypto';
-
-/** Hash a PIN string with SHA-256 */
-function hashPin(pin: string): string {
-  return createHash('sha256').update(pin).digest('hex');
-}
-
-/**
- * Normalize Indonesian phone number to local format (08xxxxxxxxxx)
- * Handles: +6281xxx → 081xxx, 6281xxx → 081xxx, 081xxx → 081xxx
- */
-function normalizePhone(phone: string): string {
-  let p = phone.trim().replace(/[\s\-()]/g, '');
-  if (p.startsWith('+62')) {
-    p = '0' + p.slice(3);
-  } else if (p.startsWith('62') && p.length >= 10) {
-    p = '0' + p.slice(2);
-  } else if (/^[1-9]/.test(p)) {
-    p = '0' + p;
-  }
-  return p;
-}
+import { hashPin, normalizePhone } from '@/lib/auth-utils';
 
 export const authOptions: NextAuthOptions = {
   providers: [

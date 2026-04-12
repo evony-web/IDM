@@ -4,12 +4,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { triggerRegistrationUpdate } from '@/lib/pusher';
 import { requireAdmin } from '@/lib/admin-guard';
 import { ensureWallet } from '@/lib/wallet-utils';
+import { apiError, ErrorCodes, handlePrismaError, safeParseBody } from '@/lib/api-utils';
 
 // POST - Register user for tournament
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const { data: body, error: parseError } = await safeParseBody(request);
+    if (parseError || !body) return parseError!;
+
     const { userId, tournamentId } = body;
+
+    // Input validation
+    if (!userId || typeof userId !== 'string') {
+      return apiError('User ID wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
+    }
+    if (!tournamentId || typeof tournamentId !== 'string') {
+      return apiError('Tournament ID wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
+    }
 
     // Check if already registered
     const existing = await db.registration.findUnique({
@@ -19,10 +30,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { success: false, error: 'Already registered for this tournament' },
-        { status: 400 }
-      );
+      return apiError('Sudah terdaftar di turnamen ini.', ErrorCodes.ALREADY_REGISTERED, 400);
     }
 
     // Get user info
@@ -31,10 +39,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
+      return apiError('User tidak ditemukan.', ErrorCodes.USER_NOT_FOUND, 404);
     }
 
     // ═══ Auto-create wallet if not exists ═══
@@ -57,11 +62,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, registration });
   } catch (error) {
-    console.error('Error registering:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to register' },
-      { status: 500 }
-    );
+    return handlePrismaError(error);
   }
 }
 
@@ -71,7 +72,9 @@ export async function PUT(request: NextRequest) {
   if (denied) return denied;
 
   try {
-    const body = await request.json();
+    const { data: body, error: parseError } = await safeParseBody(request);
+    if (parseError || !body) return parseError!;
+
     const { registrationId, status, tierAssigned } = body;
 
     // First get the registration to check user's current tier
@@ -81,10 +84,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!existingReg) {
-      return NextResponse.json(
-        { success: false, error: 'Registration not found' },
-        { status: 404 }
-      );
+      return apiError('Pendaftaran tidak ditemukan.', ErrorCodes.NOT_FOUND, 404);
     }
 
     // Determine the new tier to assign
@@ -124,11 +124,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true, registration });
   } catch (error) {
-    console.error('Error updating registration:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to update registration' },
-      { status: 500 }
-    );
+    return handlePrismaError(error);
   }
 }
 
@@ -146,10 +142,7 @@ export async function DELETE(request: NextRequest) {
     if (deleteAllRejected === 'true') {
       const tournamentId = searchParams.get('tournamentId');
       if (!tournamentId) {
-        return NextResponse.json(
-          { success: false, error: 'tournamentId required' },
-          { status: 400 }
-        );
+        return apiError('Tournament ID wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
       }
 
       const result = await db.registration.deleteMany({
@@ -168,10 +161,7 @@ export async function DELETE(request: NextRequest) {
 
     // Delete single registration
     if (!registrationId) {
-      return NextResponse.json(
-        { success: false, error: 'Registration ID required' },
-        { status: 400 }
-      );
+      return apiError('Registration ID wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
     }
 
     const registration = await db.registration.findUnique({
@@ -180,10 +170,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!registration) {
-      return NextResponse.json(
-        { success: false, error: 'Pendaftaran tidak ditemukan' },
-        { status: 404 }
-      );
+      return apiError('Pendaftaran tidak ditemukan.', ErrorCodes.NOT_FOUND, 404);
     }
 
     await db.registration.delete({
@@ -195,10 +182,6 @@ export async function DELETE(request: NextRequest) {
       message: `Pendaftaran ${registration.user.name} telah dihapus`,
     });
   } catch (error) {
-    console.error('Error deleting registration:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to delete registration' },
-      { status: 500 }
-    );
+    return handlePrismaError(error);
   }
 }

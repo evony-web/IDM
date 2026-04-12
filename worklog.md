@@ -167,3 +167,28 @@ Stage Summary:
 - JSON parse errors handled gracefully (no more 500 on malformed request body)
 - Security fix: removed error.message leakage in player-auth 500 responses
 - Data validation: amount bounds, category whitelist, field length limits
+
+---
+Task ID: 12
+Agent: Main Agent
+Task: Full backend code audit and bug fixes — pusher null crash, transfer race condition, DRY auth utils, stale login data, ranking race condition
+
+Work Log:
+- Audited all wallet, auth, tournament API routes for bugs
+- **C1 Fix**: pusher.trigger() null crash in finalize route — added `if (pusher)` guard (pusher is null when env vars missing)
+- **C2 Fix**: Transfer race condition — moved balance check inside $transaction, re-read wallet balance in tx, throw custom errors for catch block to handle
+- **C5 Fix**: Extracted hashPin + normalizePhone to /lib/auth-utils.ts — single source of truth, removed 3 duplicate copies from auth.ts, player-auth/route.ts, wallet/setup-pin/route.ts
+- **M2 Fix**: Added safeParseBody to tournaments/register and tournaments/finalize routes (was using raw request.json() with no error handling)
+- **M2 Fix**: Migrated tournaments/register and tournaments/finalize to use apiError/ErrorCodes/handlePrismaError (was using manual NextResponse.json)
+- **M7 Fix**: Login returns stale phone data — now re-assigns matchedUser after phone normalization update so response has fresh data
+- **M8 Fix**: Ranking create race condition in player-auth — replaced findUnique+create with upsert in ensureUserRecords()
+- **M8 Fix**: New user signup also uses ensureUserRecords() instead of separate ranking.create + ensureWallet() calls
+- Lint: passes clean
+- Dev server: running normally, all APIs 200
+
+Stage Summary:
+- 6 bugs fixed (1 critical crash, 1 race condition, 1 DRY violation, 1 stale data, 2 missing validation)
+- /lib/auth-utils.ts created as single source of truth for hashPin + normalizePhone
+- All tournament + wallet routes now use consistent error handling (safeParseBody, apiError, handlePrismaError)
+- No more raw request.json() without error handling in any wallet/auth/tournament route
+- Transfer balance check is now inside transaction — prevents negative balances under concurrency

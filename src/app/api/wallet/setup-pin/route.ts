@@ -1,28 +1,8 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash } from 'crypto'
 import { ensureWallet } from '@/lib/wallet-utils'
+import { hashPin, normalizePhone } from '@/lib/auth-utils'
 import { apiError, ErrorCodes, handlePrismaError, safeParseBody, validateLength } from '@/lib/api-utils'
-
-/** Hash a PIN string with SHA-256 */
-function hashPin(pin: string): string {
-  return createHash('sha256').update(pin).digest('hex')
-}
-
-/**
- * Normalize Indonesian phone number to local format (08xxxxxxxxxx)
- */
-function normalizePhone(phone: string): string {
-  let p = phone.trim().replace(/[\s\-()]/g, '')
-  if (p.startsWith('+62')) {
-    p = '0' + p.slice(3)
-  } else if (p.startsWith('62') && p.length >= 10) {
-    p = '0' + p.slice(2)
-  } else if (/^[1-9]/.test(p)) {
-    p = '0' + p
-  }
-  return p
-}
 
 // ═══════════════════════════════════════════════════════════════════════
 // POST /api/wallet/setup-pin
