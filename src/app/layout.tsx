@@ -23,14 +23,34 @@ const geistMono = Geist_Mono({
   adjustFontFallback: true,
 });
 
-// Metadata — app_name is derived from settings API at runtime for the page title,
-// but Next.js Metadata API is static. Fallback to env or generic name.
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Esports Tournament Platform";
+// ── Dynamic Configuration ──
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "IDOL META";
+const APP_URL = process.env.NEXTAUTH_URL || "https://idm-tournament.vercel.app";
+const LOGO_URL =
+  process.env.NEXT_PUBLIC_LOGO_URL ||
+  "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png";
+const OG_IMAGE_URL = `${APP_URL}/api/og`;
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#050507" },
+  ],
+};
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} | Esports Tournament Platform`,
+  // ── Basic SEO ──
+  title: {
+    default: `${APP_NAME} — TARKAM Fan Made Tournament`,
+    template: `%s | ${APP_NAME}`,
+  },
   description:
-    "Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.",
+    "Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience. Join the community!",
+
+  // ── Keywords ──
   keywords: [
     "esports",
     "tournament",
@@ -38,15 +58,85 @@ export const metadata: Metadata = {
     "competitive",
     "leaderboard",
     "bracket",
+    "IDOL META",
+    "TARKAM",
+    "fan made",
+    "mobile legends",
   ],
-};
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-  themeColor: "#0B0B0F",
+  // ── Authors & Creator ──
+  authors: [{ name: APP_NAME, url: APP_URL }],
+  creator: APP_NAME,
+  publisher: APP_NAME,
+
+  // ── Robots / Crawlers ──
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+
+  // ── Open Graph ──
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: APP_URL,
+    siteName: APP_NAME,
+    title: `${APP_NAME} — TARKAM Fan Made Tournament`,
+    description:
+      "Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.",
+    images: [
+      {
+        url: OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: `${APP_NAME} Tournament Platform`,
+        type: "image/svg+xml",
+      },
+    ],
+  },
+
+  // ── Twitter Card ──
+  twitter: {
+    card: "summary_large_image",
+    title: `${APP_NAME} — TARKAM Fan Made Tournament`,
+    description:
+      "Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.",
+    images: [OG_IMAGE_URL],
+  },
+
+  // ── Icons ──
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: LOGO_URL, type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192" }],
+  },
+
+  // ── App Links ──
+  alternates: {
+    canonical: APP_URL,
+  },
+
+  // ── PWA ──
+  manifest: "/api/manifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: APP_NAME,
+  },
+
+  // ── Format Detection ──
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
@@ -55,17 +145,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="id" className="dark" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#0B0B0F" />
-        <link rel="manifest" href="/api/manifest" />
-        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#050507" />
+        {/* Preconnect to Cloudinary CDN for faster image loading */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* Preconnect to Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        style={{ background: '#050507' }}
       >
         <AuthProvider>
           <AppSettingsProvider>

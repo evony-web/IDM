@@ -207,7 +207,7 @@ export function PWAInstallPrompt() {
                         }}
                       >
                         <img
-                          src={settings.logo_url || '/logo.svg'}
+                          src={settings.logo_url || 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png'}
                           alt={settings.app_name}
                           className="w-10 h-10"
                           loading="lazy"
@@ -344,7 +344,7 @@ export function PWAInstallPrompt() {
                       }}
                     >
                       <img
-                        src={settings.logo_url || '/logo.svg'}
+                        src={settings.logo_url || 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png'}
                         alt={settings.app_name}
                         className="w-10 h-10"
                         loading="lazy"
