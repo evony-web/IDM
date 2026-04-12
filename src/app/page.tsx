@@ -257,13 +257,13 @@ export default function IDOLMETAApp() {
     let landed = false;
     const startTime = Date.now();
 
-    // Safety: force transition after 5s even if API fails
+    // Safety: force transition after 8s even if API fails
     const safetyTimeout = setTimeout(() => {
       if (!landed) {
         landed = true;
         setView('landing');
       }
-    }, 5000);
+    }, 8000);
 
     (async () => {
       try {
@@ -273,12 +273,12 @@ export default function IDOLMETAApp() {
           if (json.success) setLandingData(json.data);
         }
       } catch { /* silent */ }
-      // Transition to landing after data ready (min 1.8s for loading feel)
+      // Transition to landing after data ready (min 5s to showcase video background)
       if (!landed) {
         landed = true;
         clearTimeout(safetyTimeout);
         const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, 1800 - elapsed);
+        const remaining = Math.max(0, 5000 - elapsed);
         setTimeout(() => setView('landing'), remaining);
       }
     })();
