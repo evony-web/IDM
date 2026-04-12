@@ -423,8 +423,8 @@ function TopNavBar({
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200"
                   style={{
                     color: link.color,
-                    background: 'transparent',
-                    border: '1px solid transparent',
+                    background: 'rgba(0,0,0,0)',
+                    border: '1px solid rgba(0,0,0,0)',
                   }}
                   whileHover={{
                     background: `${link.color}12`,
@@ -445,8 +445,8 @@ function TopNavBar({
               }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200 text-white/50"
               style={{
-                background: 'transparent',
-                border: '1px solid transparent',
+                background: 'rgba(0,0,0,0)',
+                border: '1px solid rgba(0,0,0,0)',
               }}
               whileHover={{
                 color: 'var(--gold)',
@@ -466,8 +466,8 @@ function TopNavBar({
               }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200 text-white/50"
               style={{
-                background: 'transparent',
-                border: '1px solid transparent',
+                background: 'rgba(0,0,0,0)',
+                border: '1px solid rgba(0,0,0,0)',
               }}
               whileHover={{
                 color: 'var(--gold)',

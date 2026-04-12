@@ -62,7 +62,7 @@ const FALLBACK: AppSettings = {
   app_copyright_holder: 'IDOL META',
   app_description: 'Esports Tournament Platform',
   app_share_text: 'Esports Tournament',
-  logo_url: '',
+  logo_url: 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png',
   banner_male_url: '',
   banner_female_url: '',
   default_theme: 'dark',

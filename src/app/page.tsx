@@ -211,9 +211,6 @@ export default function IDOLMETAApp() {
   const isInitialMount = useRef(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // ── Loading Screen Audio ──
-  const loadingAudioRef = useRef<HTMLAudioElement | null>(null);
-
   // ── Landing Page state ──
   const [view, setView] = useState<'loading' | 'landing' | 'app'>('loading');
   const [landingData, setLandingData] = useState<any>(null);
@@ -260,12 +257,6 @@ export default function IDOLMETAApp() {
     let landed = false;
     const startTime = Date.now();
 
-    // Play loading audio
-    if (loadingAudioRef.current) {
-      loadingAudioRef.current.volume = 0.4;
-      loadingAudioRef.current.play().catch(() => { /* audio autoplay blocked */ });
-    }
-
     // Safety: force transition after 5s even if API fails
     const safetyTimeout = setTimeout(() => {
       if (!landed) {
@@ -294,31 +285,6 @@ export default function IDOLMETAApp() {
 
     return () => { controller.abort(); landed = true; clearTimeout(safetyTimeout); };
   }, []);
-
-  // ── Stop loading audio when leaving loading screen ──
-  useEffect(() => {
-    if (view !== 'loading' && loadingAudioRef.current) {
-      // Fade out audio over 500ms
-      const audio = loadingAudioRef.current;
-      const startVolume = audio.volume;
-      const fadeInterval = setInterval(() => {
-        if (audio.volume > 0.05) {
-          audio.volume = Math.max(0, audio.volume - startVolume / 15);
-        } else {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.volume = startVolume;
-          clearInterval(fadeInterval);
-        }
-      }, 33);
-      // Safety: force stop after 600ms
-      setTimeout(() => {
-        clearInterval(fadeInterval);
-        audio.pause();
-        audio.currentTime = 0;
-      }, 600);
-    }
-  }, [view]);
 
   // Listen for admin auth changes (e.g., 401 response triggers logout)
   useEffect(() => {

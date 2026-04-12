@@ -36,8 +36,8 @@ export function middleware(request: NextRequest) {
   }
 
   // ── Security headers for all pages ──
+  // Note: X-Frame-Options removed to allow iframe embedding (preview panel)
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 
   return response
