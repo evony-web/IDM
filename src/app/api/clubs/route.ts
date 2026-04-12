@@ -8,12 +8,20 @@ async function processLogo(logoUrl: string | null | undefined): Promise<string |
   if (!logoUrl || logoUrl.trim().length === 0) return null;
   if (logoUrl.startsWith('https://res.cloudinary.com')) return logoUrl;
   if (logoUrl.startsWith('data:image/')) {
-    const result = await uploadBase64ToCloudinary(logoUrl, 'idm/logos', {
-      maxWidth: 512,
-      maxHeight: 512,
-      quality: 'auto:best',
-    });
-    return result ? result.url : null;
+    try {
+      const result = await uploadBase64ToCloudinary(logoUrl, 'idm/logos', {
+        maxWidth: 512,
+        maxHeight: 512,
+        quality: 'auto:best',
+      });
+      if (result) return result.url;
+      // Cloudinary upload failed — fallback: store base64 directly in DB
+      console.warn('[Clubs API] Cloudinary upload failed, storing base64 logo directly in DB');
+      return logoUrl;
+    } catch (error) {
+      console.warn('[Clubs API] Cloudinary upload error, storing base64 logo directly in DB:', error instanceof Error ? error.message : error);
+      return logoUrl;
+    }
   }
   return logoUrl;
 }
