@@ -2,9 +2,12 @@ import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePlayerAuth } from '@/lib/session'
 
+// ═══════════════════════════════════════════════════════════════════════
 // GET /api/wallet
 // Get authenticated user's wallet (auto-create if not exists) with last 50 transactions
+// Also returns leaderboard points (User.points) for display
 // Session-based: uses NextAuth httpOnly cookie for authentication
+// ═══════════════════════════════════════════════════════════════════════
 export async function GET(request: NextRequest) {
   try {
     // Verify session — user must be authenticated
@@ -18,8 +21,20 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id
 
-    // Verify user exists
-    const user = await db.user.findUnique({ where: { id: userId } })
+    // Verify user exists — also get leaderboard points
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        points: true,
+        wins: true,
+        losses: true,
+        eloRating: true,
+        eloTier: true,
+        gender: true,
+      },
+    })
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -27,20 +42,36 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Auto-create wallet if not exists
+    // Auto-create wallet if not exists — initialize with User.points as starting balance
     let wallet = await db.wallet.findUnique({
       where: { userId },
     })
 
     if (!wallet) {
+      // First time wallet creation: sync balance with leaderboard points
+      // This ensures existing players see their earned points in the wallet
+      const initialBalance = user.points || 0
       wallet = await db.wallet.create({
         data: {
           userId,
-          balance: 0,
-          totalIn: 0,
+          balance: initialBalance,
+          totalIn: initialBalance,
           totalOut: 0,
         },
       })
+
+      // Create initial transaction record for the sync
+      if (initialBalance > 0) {
+        await db.walletTransaction.create({
+          data: {
+            walletId: wallet.id,
+            type: 'credit',
+            amount: initialBalance,
+            category: 'prize',
+            description: 'Sinkronisasi poin leaderboard ke wallet',
+          },
+        })
+      }
     }
 
     // Get last 50 transactions sorted by createdAt DESC
@@ -59,6 +90,16 @@ export async function GET(request: NextRequest) {
         totalIn: wallet.totalIn,
         totalOut: wallet.totalOut,
       },
+      // Leaderboard points (from tournament earnings)
+      leaderboardPoints: user.points,
+      // Player stats for display
+      playerStats: {
+        wins: user.wins,
+        losses: user.losses,
+        eloRating: user.eloRating,
+        eloTier: user.eloTier,
+        gender: user.gender,
+      },
       transactions,
     })
   } catch (error) {
@@ -70,8 +111,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════
 // POST /api/wallet
 // Top up wallet — requires authentication (session-based)
+// ═══════════════════════════════════════════════════════════════════════
 export async function POST(request: NextRequest) {
   try {
     // Verify session
@@ -112,17 +155,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Auto-create wallet if not exists
+    // Auto-create wallet if not exists — sync with leaderboard points
     let wallet = await db.wallet.findUnique({ where: { userId } })
     if (!wallet) {
+      const initialBalance = user.points || 0
       wallet = await db.wallet.create({
         data: {
           userId,
-          balance: 0,
-          totalIn: 0,
+          balance: initialBalance,
+          totalIn: initialBalance,
           totalOut: 0,
         },
       })
+      if (initialBalance > 0) {
+        await db.walletTransaction.create({
+          data: {
+            walletId: wallet.id,
+            type: 'credit',
+            amount: initialBalance,
+            category: 'prize',
+            description: 'Sinkronisasi poin leaderboard ke wallet',
+          },
+        })
+      }
     }
 
     // Create credit transaction and update wallet in a transaction
@@ -133,7 +188,7 @@ export async function POST(request: NextRequest) {
           type: 'credit',
           amount,
           category,
-          description: description || `Top up ${amount} points`,
+          description: description || `Top up ${amount} poin`,
         },
       })
 

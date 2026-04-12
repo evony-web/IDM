@@ -21,7 +21,11 @@ import {
   Clock,
   Send,
   LogOut,
+  Star,
+  Swords,
+  Target,
 } from 'lucide-react';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
 
 // ═══════════════════════════════════════════════════════════════════════
 // BOUNTIE-STYLE WALLET TAB — Dark glassmorphism, Indonesian labels
@@ -52,6 +56,14 @@ interface Transaction {
   description: string | null;
   referenceId: string | null;
   createdAt: string;
+}
+
+interface PlayerStats {
+  wins: number;
+  losses: number;
+  eloRating: number;
+  eloTier: string;
+  gender: string;
 }
 
 interface SearchedUser {
@@ -96,24 +108,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   transfer: 'Transfer',
 };
 
-function getAccent(division: 'male' | 'female') {
-  return division === 'male'
-    ? {
-        text: 'text-[#73FF00]',
-        bg: 'bg-[#73FF00]',
-        glowRGB: '115,255,0',
-        gradient: 'from-[#73FF00] via-[#8CFF33] to-[#5FD400]',
-        ring: 'ring-[#73FF00]/30',
-      }
-    : {
-        text: 'text-[#38BDF8]',
-        bg: 'bg-[#38BDF8]',
-        glowRGB: '56,189,248',
-        gradient: 'from-[#38BDF8] via-[#7DD3FC] to-[#0EA5E9]',
-        ring: 'ring-[#38BDF8]/30',
-      };
-}
-
 // Animated counter hook
 function useAnimatedCounter(target: number, duration = 800) {
   const [current, setCurrent] = useState(0);
@@ -152,9 +146,11 @@ function useAnimatedCounter(target: number, duration = 800) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function WalletTab({ division, currentUserId, onLoginClick, onLogout, currentPlayerName }: WalletTabProps) {
-  const accent = getAccent(division);
+  const dt = useDivisionTheme(division);
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [leaderboardPoints, setLeaderboardPoints] = useState(0);
+  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showTopUp, setShowTopUp] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
@@ -174,6 +170,7 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
   const [selectedUser, setSelectedUser] = useState<SearchedUser | null>(null);
 
   const animatedBalance = useAnimatedCounter(wallet?.balance ?? 0);
+  const animatedLeaderboard = useAnimatedCounter(leaderboardPoints);
 
   const fetchWallet = useCallback(async () => {
     if (!currentUserId) {
@@ -188,11 +185,15 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         if (data.success) {
           setWallet(data.wallet);
           setTransactions(data.transactions || []);
+          setLeaderboardPoints(data.leaderboardPoints || 0);
+          setPlayerStats(data.playerStats || null);
         }
       } else if (res.status === 401) {
         // Session expired or invalid — clear local state
         setWallet(null);
         setTransactions([]);
+        setLeaderboardPoints(0);
+        setPlayerStats(null);
       }
     } catch { /* silent */ }
     setIsLoading(false);
@@ -314,6 +315,12 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
   };
 
+  const winRate = playerStats
+    ? playerStats.wins + playerStats.losses > 0
+      ? Math.round((playerStats.wins / (playerStats.wins + playerStats.losses)) * 100)
+      : 0
+    : 0;
+
   // ── Loading skeleton ──
   if (isLoading) {
     return (
@@ -337,11 +344,11 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
           style={{
-            background: `linear-gradient(135deg, rgba(${accent.glowRGB},0.12) 0%, rgba(${accent.glowRGB},0.04) 100%)`,
-            border: `1px solid rgba(${accent.glowRGB},0.15)`,
+            background: `linear-gradient(135deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 100%)`,
+            border: `1px solid ${dt.accentBorder(0.15)}`,
           }}
         >
-          <WalletIcon className="w-9 h-9" style={{ color: `rgb(${accent.glowRGB})` }} />
+          <WalletIcon className="w-9 h-9" style={{ color: dt.accent }} />
         </motion.div>
         <h3 className="text-lg font-bold text-white/80 mb-1">Wallet Belum Tersedia</h3>
         <p className="text-sm text-white/35 mb-6 max-w-[260px]">
@@ -354,9 +361,9 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
             whileTap={{ scale: 0.97 }}
             className="px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2"
             style={{
-              background: `linear-gradient(135deg, rgba(${accent.glowRGB},0.20) 0%, rgba(${accent.glowRGB},0.08) 100%)`,
-              border: `1.5px solid rgba(${accent.glowRGB},0.30)`,
-              color: `rgb(${accent.glowRGB})`,
+              background: `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.08)} 100%)`,
+              border: `1.5px solid ${dt.accentBorder(0.30)}`,
+              color: dt.accent,
             }}
           >
             <WalletIcon className="w-4 h-4" />
@@ -386,9 +393,9 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden text-sm font-bold"
               style={{
-                background: `rgba(${accent.glowRGB},0.12)`,
-                border: `1px solid rgba(${accent.glowRGB},0.20)`,
-                color: `rgb(${accent.glowRGB})`,
+                background: dt.accentBg(0.12),
+                border: `1px solid ${dt.accentBorder(0.20)}`,
+                color: dt.accent,
               }}
             >
               {currentPlayerName.charAt(0).toUpperCase()}
@@ -420,14 +427,14 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative overflow-hidden rounded-2xl p-6"
         style={{
-          background: `linear-gradient(135deg, rgba(${accent.glowRGB},0.12) 0%, rgba(${accent.glowRGB},0.04) 50%, rgba(20,20,25,0.95) 100%)`,
-          border: `1px solid rgba(${accent.glowRGB},0.15)`,
+          background: `linear-gradient(135deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 50%, rgba(20,20,25,0.95) 100%)`,
+          border: `1px solid ${dt.accentBorder(0.15)}`,
         }}
       >
         {/* Ambient glow */}
         <div
           className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none"
-          style={{ background: `radial-gradient(circle, rgba(${accent.glowRGB},0.15) 0%, transparent 70%)` }}
+          style={{ background: `radial-gradient(circle, ${dt.accentBg(0.15)} 0%, transparent 70%)` }}
         />
 
         {/* Background pattern */}
@@ -442,8 +449,8 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         <div className="relative z-10">
           {/* Label */}
           <div className="flex items-center gap-2 mb-3">
-            <WalletIcon className={`w-4 h-4 ${accent.text}`} />
-            <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Saldo Anda</span>
+            <WalletIcon className="w-4 h-4" style={{ color: dt.accent }} />
+            <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Saldo Wallet</span>
           </div>
 
           {/* Balance */}
@@ -451,7 +458,7 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
             <p
               className="text-4xl sm:text-5xl font-black tabular-nums tracking-tight"
               style={{
-                background: `linear-gradient(135deg, #${accent.glowRGB.replace(/,/g, '') === '115,255,0' ? '73FF00' : '38BDF8'} 0%, rgba(255,255,255,0.9) 100%)`,
+                background: `linear-gradient(135deg, ${dt.accent} 0%, rgba(255,255,255,0.9) 100%)`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -479,6 +486,86 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
       </motion.div>
 
       {/* ═══════════════════════════════════════
+          Leaderboard Points + Stats Card
+          ═══════════════════════════════════════ */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05, duration: 0.4 }}
+        className="rounded-2xl p-4"
+        style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '0.5px solid var(--border-subtle)',
+        }}
+      >
+        <div className="grid grid-cols-3 gap-3">
+          {/* Leaderboard Points */}
+          <div className="flex flex-col items-center text-center">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center mb-1.5"
+              style={{
+                background: dt.accentBg(0.10),
+                border: `0.5px solid ${dt.accentBorder(0.15)}`,
+              }}
+            >
+              <Swords className="w-4 h-4" style={{ color: dt.accent }} />
+            </div>
+            <p
+              className="text-lg font-black tabular-nums"
+              style={{ color: dt.accent }}
+            >
+              {animatedLeaderboard.toLocaleString()}
+            </p>
+            <p className="text-[9px] font-medium text-white/30 uppercase tracking-wider">Poin Board</p>
+          </div>
+
+          {/* Win Rate */}
+          <div className="flex flex-col items-center text-center">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center mb-1.5"
+              style={{
+                background: 'rgba(48,209,88,0.10)',
+                border: '0.5px solid rgba(48,209,88,0.15)',
+              }}
+            >
+              <Target className="w-4 h-4 text-green-400" />
+            </div>
+            <p className="text-lg font-black tabular-nums text-green-400">{winRate}%</p>
+            <p className="text-[9px] font-medium text-white/30 uppercase tracking-wider">Win Rate</p>
+          </div>
+
+          {/* ELO Tier */}
+          <div className="flex flex-col items-center text-center">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center mb-1.5"
+              style={{
+                background: 'rgba(255,214,10,0.10)',
+                border: '0.5px solid rgba(255,214,10,0.15)',
+              }}
+            >
+              <Star className="w-4 h-4 text-amber-400" />
+            </div>
+            <p className="text-[13px] font-black text-amber-400">{playerStats?.eloTier || 'Bronze'}</p>
+            <p className="text-[9px] font-medium text-white/30 uppercase tracking-wider">{playerStats?.eloRating || 1000} ELO</p>
+          </div>
+        </div>
+
+        {/* Win/Loss detail */}
+        <div
+          className="flex items-center justify-center gap-4 mt-3 pt-3"
+          style={{ borderTop: '0.5px solid var(--border-subtle)' }}
+        >
+          <span className="text-[10px] text-white/30">
+            <span className="text-green-400 font-bold">{playerStats?.wins || 0}</span> Menang
+          </span>
+          <span className="text-[10px] text-white/15">•</span>
+          <span className="text-[10px] text-white/30">
+            <span className="text-red-400 font-bold">{playerStats?.losses || 0}</span> Kalah
+          </span>
+        </div>
+      </motion.div>
+
+      {/* ═══════════════════════════════════════
           Quick Actions Row
           ═══════════════════════════════════════ */}
       <motion.div
@@ -491,7 +578,10 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
           onClick={() => setShowTopUp(true)}
           className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] transition-colors"
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent.text}`} style={{ background: `rgba(${accent.glowRGB},0.10)` }}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: dt.accentBg(0.10), color: dt.accent }}
+          >
             <Plus className="w-5 h-5" />
           </div>
           <span className="text-xs font-semibold text-white/60">Top Up</span>
@@ -501,7 +591,10 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
           onClick={() => setShowTransfer(true)}
           className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] transition-colors"
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent.text}`} style={{ background: `rgba(${accent.glowRGB},0.10)` }}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: dt.accentBg(0.10), color: dt.accent }}
+          >
             <Send className="w-5 h-5" />
           </div>
           <span className="text-xs font-semibold text-white/60">Transfer</span>
@@ -510,7 +603,10 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         <button
           className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] transition-colors"
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent.text}`} style={{ background: `rgba(${accent.glowRGB},0.10)` }}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: dt.accentBg(0.10), color: dt.accent }}
+          >
             <History className="w-5 h-5" />
           </div>
           <span className="text-xs font-semibold text-white/60">Riwayat</span>
@@ -544,7 +640,10 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
             <p className="text-xs text-white/20 mt-1">Top up untuk mulai bertransaksi</p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-96 overflow-y-auto pr-0.5" style={{ scrollbarWidth: 'thin', scrollbarColor: `rgba(${accent.glowRGB},0.12) transparent` }}>
+          <div
+            className="space-y-2 max-h-96 overflow-y-auto pr-0.5"
+            style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBorder(0.12)} transparent` }}
+          >
             {transactions.map((tx, idx) => {
               const IconComp = CATEGORY_ICONS[tx.category] || WalletIcon;
               const colorClass = CATEGORY_COLORS[tx.category] || 'text-white/50 bg-white/5';
@@ -621,7 +720,7 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
               <div className="p-5 border-b border-white/10">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                    <Plus className={`w-5 h-5 ${accent.text}`} />
+                    <Plus className="w-5 h-5" style={{ color: dt.accent }} />
                     Top Up Saldo
                   </h3>
                   <button onClick={() => setShowTopUp(false)} className="text-white/30 hover:text-white transition-colors">
@@ -642,9 +741,12 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
                         onClick={() => setTopupAmount(String(amount))}
                         className={`py-2.5 rounded-xl text-sm font-bold transition-all ${
                           topupAmount === String(amount)
-                            ? `bg-gradient-to-r ${accent.gradient} text-black`
+                            ? 'text-black'
                             : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'
                         }`}
+                        style={topupAmount === String(amount) ? {
+                          background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
+                        } : undefined}
                       >
                         {amount.toLocaleString()}
                       </button>
@@ -680,11 +782,11 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
                 <button
                   onClick={handleTopUp}
                   disabled={!topupAmount || Number(topupAmount) <= 0 || isToppingUp}
-                  className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                    division === 'male'
-                      ? 'bg-[#73FF00] text-black hover:bg-[#5FD400]'
-                      : 'bg-[#38BDF8] text-black hover:bg-[#0EA5E9]'
-                  }`}
+                  className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
+                    color: dt.accentForeground,
+                  }}
                 >
                   {isToppingUp ? (
                     <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />
@@ -728,7 +830,7 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
               <div className="p-5 border-b border-white/10">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                    <Send className={`w-5 h-5 ${accent.text}`} />
+                    <Send className="w-5 h-5" style={{ color: dt.accent }} />
                     Transfer Poin
                   </h3>
                   <button
@@ -747,7 +849,7 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
                 {wallet && (
                   <div className="mt-2 flex items-center gap-1.5 text-[11px] text-white/30">
                     <span>Saldo:</span>
-                    <span className={`font-bold ${accent.text}`}>{wallet.balance.toLocaleString()}</span>
+                    <span className="font-bold" style={{ color: dt.accent }}>{wallet.balance.toLocaleString()}</span>
                     <span>poin</span>
                   </div>
                 )}
@@ -814,7 +916,7 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
                         {selectedUser.avatar ? <img src={selectedUser.avatar} alt="" className="w-full h-full object-cover" /> : selectedUser.name.charAt(0).toUpperCase()}
                       </div>
                       <span className="text-sm font-medium text-white">{selectedUser.name}</span>
-                      <span className={`text-[10px] font-semibold ${accent.text}`}>✓</span>
+                      <span className="text-[10px] font-semibold" style={{ color: dt.accent }}>✓</span>
                     </div>
                   )}
                 </div>
@@ -847,11 +949,11 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
                 <button
                   onClick={handleTransfer}
                   disabled={!transferTarget || !transferAmount || Number(transferAmount) <= 0 || isTransferring}
-                  className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                    division === 'male'
-                      ? 'bg-[#73FF00] text-black hover:bg-[#5FD400]'
-                      : 'bg-[#38BDF8] text-black hover:bg-[#0EA5E9]'
-                  }`}
+                  className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
+                    color: dt.accentForeground,
+                  }}
                 >
                   {isTransferring ? (
                     <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />

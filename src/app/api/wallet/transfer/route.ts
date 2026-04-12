@@ -65,19 +65,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Auto-create wallets if not exists
+    // Auto-create wallets if not exists — sync with leaderboard points
     let senderWallet = await db.wallet.findUnique({ where: { userId: senderId } })
     if (!senderWallet) {
+      const senderUser = await db.user.findUnique({ where: { id: senderId }, select: { points: true } })
+      const initialBalance = senderUser?.points || 0
       senderWallet = await db.wallet.create({
-        data: { userId: senderId, balance: 0, totalIn: 0, totalOut: 0 },
+        data: { userId: senderId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
       })
+      if (initialBalance > 0) {
+        await db.walletTransaction.create({
+          data: {
+            walletId: senderWallet.id,
+            type: 'credit',
+            amount: initialBalance,
+            category: 'prize',
+            description: 'Sinkronisasi poin leaderboard ke wallet',
+          },
+        })
+      }
     }
 
     let receiverWallet = await db.wallet.findUnique({ where: { userId: receiverId } })
     if (!receiverWallet) {
+      const receiverUser = await db.user.findUnique({ where: { id: receiverId }, select: { points: true } })
+      const initialBalance = receiverUser?.points || 0
       receiverWallet = await db.wallet.create({
-        data: { userId: receiverId, balance: 0, totalIn: 0, totalOut: 0 },
+        data: { userId: receiverId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
       })
+      if (initialBalance > 0) {
+        await db.walletTransaction.create({
+          data: {
+            walletId: receiverWallet.id,
+            type: 'credit',
+            amount: initialBalance,
+            category: 'prize',
+            description: 'Sinkronisasi poin leaderboard ke wallet',
+          },
+        })
+      }
     }
 
     // Check sufficient balance

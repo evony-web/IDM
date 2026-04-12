@@ -192,15 +192,96 @@ export async function POST(request: NextRequest) {
       ? [db.user.update({ where: { id: finalMatch.mvpId }, data: { isMVP: true } })]
       : [];
 
-    await db.$transaction([
-      ...userUpdateOps,
-      ...rankingUpdateOps,
-      ...mvpUpdateOp,
-      db.tournament.update({
+    // ── Credit wallets for tournament earnings ──
+    // For each player who earned points, ensure they have a wallet and credit it
+    const walletOps = await Promise.all(
+      Array.from(userPointsMap.entries()).map(async ([userId, data]) => {
+        // Find or create wallet
+        let wallet = await db.wallet.findUnique({ where: { userId } });
+        if (!wallet) {
+          // Get user's current points to set as initial balance, then subtract what we're adding now
+          const user = await db.user.findUnique({ where: { id: userId }, select: { points: true } });
+          const currentPoints = user?.points || 0;
+          // Initial balance should be currentPoints minus what we're about to add (to avoid double counting)
+          // since the userUpdateOps will increment points by data.points too
+          const initialBalance = Math.max(0, currentPoints);
+          wallet = await db.wallet.create({
+            data: { userId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
+          });
+          if (initialBalance > 0) {
+            await db.walletTransaction.create({
+              data: {
+                walletId: wallet.id,
+                type: 'credit',
+                amount: initialBalance,
+                category: 'prize',
+                description: 'Sinkronisasi poin leaderboard ke wallet',
+              },
+            });
+          }
+        }
+
+        // Create wallet transaction for tournament earnings
+        const roleLabel = data.roles.length === 1
+          ? data.roles[0] === 'champion' ? 'Juara'
+            : data.roles[0] === 'runner-up' ? 'Runner-up'
+            : data.roles[0] === 'third' ? 'Juara 3'
+            : data.roles[0] === 'mvp' ? 'MVP'
+            : 'Partisipasi'
+          : data.roles.map(r => r === 'champion' ? 'Juara' : r === 'runner-up' ? 'Runner-up' : r === 'third' ? 'Juara 3' : r === 'mvp' ? 'MVP' : 'Partisipasi').join(' + ');
+
+        return {
+          walletId: wallet.id,
+          userId,
+          points: data.points,
+          roleLabel,
+        };
+      })
+    );
+
+    await db.$transaction(async (tx) => {
+      // Update User.points (leaderboard)
+      for (const op of userUpdateOps) {
+        await op;
+      }
+      // Update Rankings
+      for (const op of rankingUpdateOps) {
+        await op;
+      }
+      // MVP flag
+      for (const op of mvpUpdateOp) {
+        await op;
+      }
+
+      // Credit wallets for tournament earnings
+      for (const wo of walletOps) {
+        // Create wallet transaction
+        await tx.walletTransaction.create({
+          data: {
+            walletId: wo.walletId,
+            type: 'credit',
+            amount: wo.points,
+            category: 'prize',
+            description: `Hadiah turnamen (${wo.roleLabel}): ${tournament.name}`,
+            referenceId: tournamentId,
+          },
+        });
+        // Update wallet balance
+        await tx.wallet.update({
+          where: { id: wo.walletId },
+          data: {
+            balance: { increment: wo.points },
+            totalIn: { increment: wo.points },
+          },
+        });
+      }
+
+      // Mark tournament as completed
+      await tx.tournament.update({
         where: { id: tournamentId },
         data: { status: 'completed' },
-      }),
-    ]);
+      });
+    });
 
     // Log tournament_win activity for champion members
     if (champion) {
