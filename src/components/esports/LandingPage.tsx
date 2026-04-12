@@ -1740,9 +1740,6 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
   const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
   const seasonDropdownRef = useRef<HTMLDivElement>(null);
 
-  const [showAll, setShowAll] = useState(false);
-  const VISIBLE_COUNT = 10;
-
   // Helper to process API response
   const processSeasonData = (json: any) => {
     if (json?.success && json.data) {
@@ -1820,8 +1817,8 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
     });
   }, [seasonPlayers, selectedSeason]);
 
-  const visiblePlayers = showAll ? displaySeasonPlayers : displaySeasonPlayers.slice(0, VISIBLE_COUNT);
-  const hasMore = displaySeasonPlayers.length > VISIBLE_COUNT;
+  const visiblePlayers = displaySeasonPlayers;
+  const hasMore = false;
 
   const genderFilters = [
     { key: 'all' as const, label: 'Semua', color: 'var(--gold)' },
@@ -2225,45 +2222,6 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
               })}
             </div>
 
-            {/* CTA Lihat Semua / Ciutkan */}
-            {hasMore && !showAll && (
-              <div className="p-3 sm:p-4">
-                <motion.button
-                  onClick={() => setShowAll(true)}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] sm:text-[13px] font-semibold tracking-wide cursor-pointer transition-colors"
-                  style={{
-                    background: 'rgba(255,215,0,0.06)',
-                    border: '1px solid rgba(255,215,0,0.12)',
-                    color: 'var(--gold)',
-                  }}
-                  whileHover={{
-                    background: 'rgba(255,215,0,0.10)',
-                    borderColor: 'rgba(255,215,0,0.20)',
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Lihat Semua Pemain ({displaySeasonPlayers.length})
-                  <ChevronDown className="w-4 h-4" />
-                </motion.button>
-              </div>
-            )}
-            {showAll && (
-              <div className="p-3 sm:p-4">
-                <motion.button
-                  onClick={() => setShowAll(false)}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] sm:text-[13px] font-semibold tracking-wide cursor-pointer transition-colors"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: 'rgba(255,255,255,0.4)',
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Ciutkan
-                  <ChevronUp className="w-4 h-4" />
-                </motion.button>
-              </div>
-            )}
           </div>
         </>
       )}
