@@ -246,8 +246,8 @@ function TopNavBar({
         className="md:hidden sticky top-0 z-40 w-full"
         style={{
           background: scrolled
-            ? 'rgba(5,5,7,0.92)'
-            : 'rgba(5,5,7,0.60)',
+            ? 'rgba(10,14,22,0.92)'
+            : 'rgba(10,14,22,0.60)',
           backdropFilter: 'blur(28px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
           borderBottom: `1px solid ${scrolled ? 'var(--border-default)' : 'var(--border-subtle)'}`,
@@ -354,8 +354,8 @@ function TopNavBar({
         className="sticky top-0 z-40 w-full hidden md:block"
         style={{
           background: scrolled
-            ? 'rgba(5,5,7,0.85)'
-            : 'rgba(5,5,7,0.50)',
+            ? 'rgba(10,14,22,0.85)'
+            : 'rgba(10,14,22,0.50)',
           backdropFilter: 'blur(24px) saturate(1.6)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
           borderBottom: `1px solid ${scrolled ? 'var(--border-light)' : 'var(--border-subtle)'}`,
@@ -540,7 +540,7 @@ function TopNavBar({
           ═══════════════════════════════════════════════════════════ */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40"
         style={{
-          background: 'rgba(5,5,7,0.92)',
+          background: 'rgba(10,14,22,0.92)',
           backdropFilter: 'blur(28px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
           borderTop: '1px solid var(--border-light)',
@@ -812,14 +812,24 @@ function SectionReveal({ children, className = '' }: { children: React.ReactNode
 
 function PremiumAmbientParticles() {
   const particles = useMemo(() =>
-    Array.from({ length: 18 }, (_, i) => ({
-      id: i,
-      left: `${(i * 5.5 + 3) % 100}%`,
-      size: 2 + (i % 4) * 1.2,
-      duration: 18 + (i % 6) * 5,
-      delay: (i % 8) * 2,
-      opacity: 0.03 + (i % 5) * 0.015,
-    })), []
+    Array.from({ length: 35 }, (_, i) => {
+      const colorSet = [
+        'rgba(115,255,0,0.15)',   // Male green
+        'rgba(56,189,248,0.12)',  // Female blue
+        'rgba(255,215,0,0.10)',   // Gold
+        'rgba(244,114,182,0.08)', // Pink
+        'rgba(255,107,53,0.08)',  // Orange
+      ];
+      return {
+        id: i,
+        left: `${(i * 2.85 + 1) % 100}%`,
+        size: 3 + (i % 6) * 2.5,
+        duration: 14 + (i % 7) * 4,
+        delay: (i % 10) * 1.8,
+        opacity: 0.12 + (i % 5) * 0.06,
+        color: colorSet[i % colorSet.length],
+      };
+    }), []
   );
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
@@ -829,12 +839,77 @@ function PremiumAmbientParticles() {
           className="absolute rounded-full"
           style={{
             left: p.left,
-            bottom: '-10px',
+            bottom: '-20px',
             width: `${p.size}px`,
             height: `${p.size}px`,
-            background: 'var(--gold)',
+            background: p.color,
             opacity: p.opacity,
             animation: `floatUp ${p.duration}s ${p.delay}s ease-in infinite`,
+            filter: `blur(${p.size > 8 ? 1 : 0}px)`,
+            boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────
+   Premium Gradient Mesh Orbs — Large animated background orbs
+   ──────────────────────────────────────────── */
+
+function PremiumGradientMeshOrbs() {
+  const orbs = useMemo(() => [
+    {
+      id: 'orb-male',
+      gradient: 'radial-gradient(circle, rgba(115,255,0,0.12) 0%, rgba(115,255,0,0.04) 40%, transparent 70%)',
+      size: 'clamp(300px, 40vw, 600px)',
+      top: '-5%',
+      left: '-5%',
+      animDuration: 25,
+    },
+    {
+      id: 'orb-female',
+      gradient: 'radial-gradient(circle, rgba(56,189,248,0.10) 0%, rgba(56,189,248,0.03) 40%, transparent 70%)',
+      size: 'clamp(250px, 35vw, 500px)',
+      top: '15%',
+      right: '-8%',
+      animDuration: 30,
+    },
+    {
+      id: 'orb-gold',
+      gradient: 'radial-gradient(circle, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.02) 40%, transparent 70%)',
+      size: 'clamp(200px, 30vw, 450px)',
+      bottom: '5%',
+      left: '25%',
+      animDuration: 22,
+    },
+    {
+      id: 'orb-pink',
+      gradient: 'radial-gradient(circle, rgba(244,114,182,0.07) 0%, rgba(244,114,182,0.02) 40%, transparent 70%)',
+      size: 'clamp(200px, 25vw, 400px)',
+      bottom: '25%',
+      right: '10%',
+      animDuration: 28,
+    },
+  ], []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+      {orbs.map((orb) => (
+        <div
+          key={orb.id}
+          className="absolute"
+          style={{
+            width: orb.size,
+            height: orb.size,
+            top: orb.top,
+            left: orb.left,
+            right: orb.right,
+            bottom: orb.bottom,
+            background: orb.gradient,
+            filter: 'blur(40px)',
+            animation: `orbFloat${orbs.indexOf(orb) % 2 === 0 ? 'A' : 'B'} ${orb.animDuration}s ease-in-out infinite`,
           }}
         />
       ))}
@@ -864,22 +939,31 @@ function StatCard({
       variants={itemVariants}
       className="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, rgba(${color},0.08) 0%, rgba(${color},0.02) 100%)`,
-        border: `1px solid rgba(${color},0.12)`,
+        background: `linear-gradient(135deg, rgba(${color},0.14) 0%, rgba(${color},0.04) 100%)`,
+        border: `1px solid rgba(${color},0.20)`,
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: `0 0 20px rgba(${color},0.06), inset 0 1px 0 rgba(255,255,255,0.04)`,
       }}
     >
+      {/* Subtle corner glow */}
+      <div
+        className="absolute -top-4 -right-4 w-20 h-20 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, rgba(${color},0.08) 0%, transparent 70%)`,
+        }}
+      />
       <div
         className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex-shrink-0"
         style={{
-          background: `linear-gradient(135deg, rgba(${color},0.20) 0%, rgba(${color},0.08) 100%)`,
+          background: `linear-gradient(135deg, rgba(${color},0.28) 0%, rgba(${color},0.12) 100%)`,
+          boxShadow: `0 0 12px rgba(${color},0.10)`,
         }}
       >
         <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: `rgb(${color})` }} strokeWidth={2} />
       </div>
       <div className="min-w-0">
-        <p className="text-[9px] sm:text-[11px] font-medium text-white/40 tracking-wide uppercase truncate">
+        <p className="text-[9px] sm:text-[11px] font-medium text-white/50 tracking-wide uppercase truncate">
           {label}
         </p>
         <p className="text-[12px] sm:text-sm font-bold text-white/90 truncate">
@@ -1026,29 +1110,37 @@ function DivisionCard({
       variants={cardVariants}
       className="relative rounded-3xl overflow-hidden flex flex-col"
       style={{
-        background: 'linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%)',
-        border: `1px solid ${dt.accentBorder(0.12)}`,
+        background: `linear-gradient(180deg, ${dt.accentBg(0.06)} 0%, rgba(12,14,20,0.95) 40%, rgba(10,12,18,0.98) 100%)`,
+        border: `1px solid ${dt.accentBorder(0.18)}`,
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
+        boxShadow: `0 0 30px ${dt.accentBg(0.06)}, 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)`,
         transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
         transition: 'transform 0.15s ease-out',
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Top gradient accent bar */}
+      {/* Top gradient accent bar — brighter */}
       <div
         className="h-[2px]"
         style={{
-          background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.5)}, transparent)`,
+          background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.7)}, transparent)`,
         }}
       />
 
-      {/* Corner glow */}
+      {/* Corner glow — much bigger and brighter */}
       <div
-        className="absolute top-0 right-0 w-32 h-32 pointer-events-none"
+        className="absolute top-0 right-0 w-48 h-48 pointer-events-none"
         style={{
-          background: `radial-gradient(circle at top right, ${dt.accentBg(0.08)} 0%, transparent 70%)`,
+          background: `radial-gradient(circle at top right, ${dt.accentBg(0.12)} 0%, transparent 70%)`,
+        }}
+      />
+      {/* Bottom-left subtle glow */}
+      <div
+        className="absolute bottom-0 left-0 w-36 h-36 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at bottom left, ${dt.accentBg(0.06)} 0%, transparent 70%)`,
         }}
       />
 
@@ -1059,8 +1151,9 @@ function DivisionCard({
             <div
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center"
               style={{
-                background: `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.06)} 100%)`,
-                border: `1px solid ${dt.accentBorder(0.18)}`,
+                background: `linear-gradient(135deg, ${dt.accentBg(0.28)} 0%, ${dt.accentBg(0.10)} 100%)`,
+                border: `1px solid ${dt.accentBorder(0.25)}`,
+                boxShadow: `0 0 16px ${dt.accentBg(0.10)}`,
               }}
             >
               <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" style={{ color: dt.accent }} strokeWidth={2} />
@@ -1108,8 +1201,9 @@ function DivisionCard({
           <div
             className="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 md:mb-4"
             style={{
-              background: `linear-gradient(135deg, ${dt.accentBg(0.06)} 0%, ${dt.accentBg(0.02)} 100%)`,
-                border: `1px solid ${dt.accentBorder(0.08)}`,
+              background: `linear-gradient(135deg, ${dt.accentBg(0.10)} 0%, ${dt.accentBg(0.03)} 100%)`,
+                border: `1px solid ${dt.accentBorder(0.15)}`,
+                boxShadow: `0 0 16px ${dt.accentBg(0.04)}`,
             }}
           >
             <p className="text-[12px] sm:text-[14px] font-bold text-white/90 mb-1.5 sm:mb-2">{data.tournament.name}</p>
@@ -1180,13 +1274,15 @@ function DivisionCard({
           onClick={onEnter}
           className="w-full mt-3 md:mt-4 flex items-center justify-center gap-2 py-2.5 sm:py-3 md:py-3.5 rounded-xl font-bold text-[11px] sm:text-[12px] md:text-[13px] tracking-wide uppercase cursor-pointer outline-none focus-glow"
           style={{
-            background: `linear-gradient(135deg, ${dt.accentBg(0.18)} 0%, ${dt.accentBg(0.08)} 100%)`,
-            border: `1.5px solid ${dt.accentBorder(0.25)}`,
+            background: `linear-gradient(135deg, ${dt.accentBg(0.22)} 0%, ${dt.accentBg(0.10)} 100%)`,
+            border: `1.5px solid ${dt.accentBorder(0.35)}`,
             color: dt.accent,
+            boxShadow: `0 0 20px ${dt.accentBg(0.08)}`,
           }}
           whileHover={{
-            background: `linear-gradient(135deg, ${dt.accentBg(0.25)} 0%, ${dt.accentBg(0.12)} 100%)`,
-            border: `1.5px solid ${dt.accentBorder(0.35)}`,
+            background: `linear-gradient(135deg, ${dt.accentBg(0.30)} 0%, ${dt.accentBg(0.15)} 100%)`,
+            border: `1.5px solid ${dt.accentBorder(0.45)}`,
+            boxShadow: `0 0 30px ${dt.accentBg(0.15)}`,
           }}
           whileTap={{ scale: 0.97 }}
           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
@@ -1328,17 +1424,37 @@ const fireGlowKeyframes = `
 }
 @keyframes floatUp {
   0% { transform: translateY(0); opacity: 0; }
-  10% { opacity: 0.06; }
-  90% { opacity: 0.04; }
+  8% { opacity: 0.25; }
+  85% { opacity: 0.18; }
   100% { transform: translateY(-110vh); opacity: 0; }
 }
+@keyframes orbFloatA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-15px, 15px) scale(0.98); }
+  75% { transform: translate(20px, 25px) scale(1.03); }
+}
+@keyframes orbFloatB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-25px, 15px) scale(1.03); }
+  50% { transform: translate(20px, -25px) scale(1.06); }
+  75% { transform: translate(-15px, -10px) scale(0.97); }
+}
 @keyframes shimmerLine {
-  0%, 100% { opacity: 0.15; transform: scaleX(0.8); }
-  50% { opacity: 0.4; transform: scaleX(1); }
+  0%, 100% { opacity: 0.2; transform: scaleX(0.8); }
+  50% { opacity: 0.6; transform: scaleX(1); }
 }
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
 }
 `;
 
@@ -1424,8 +1540,17 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
     <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Users className="w-4 h-4" style={{ color: '#38BDF8' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Club Terdaftar</h2>
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(56,189,248,0.06) 100%)',
+              border: '1px solid rgba(56,189,248,0.18)',
+              boxShadow: '0 0 12px rgba(56,189,248,0.06)',
+            }}
+          >
+            <Users className="w-3.5 h-3.5" style={{ color: '#38BDF8' }} />
+          </div>
+          <h2 className="text-[15px] font-bold text-white/85 tracking-wide">Club Terdaftar</h2>
           <span className="text-[11px] text-white/25 ml-1">{clubs.length} club</span>
         </div>
         <div className="flex items-center gap-2">
@@ -1724,18 +1849,19 @@ function VideoHighlightSection() {
         variants={cardVariants}
         className="relative rounded-3xl overflow-hidden flex flex-col"
         style={{
-          background: 'linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%)',
-          border: `1px solid ${dt.accentBorder(0.12)}`,
+          background: `linear-gradient(180deg, ${dt.accentBg(0.06)} 0%, rgba(12,14,20,0.95) 40%, rgba(10,12,18,0.98) 100%)`,
+          border: `1px solid ${dt.accentBorder(0.18)}`,
           backdropFilter: 'blur(24px)',
+          boxShadow: `0 0 25px ${dt.accentBg(0.05)}, 0 4px 16px rgba(0,0,0,0.3)`,
         }}
       >
         {/* Top accent bar */}
-        <div className="h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.5)}, transparent)` }} />
+        <div className="h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.6)}, transparent)` }} />
 
         {/* Corner glow */}
         <div
-          className="absolute top-0 right-0 w-32 h-32 pointer-events-none"
-          style={{ background: `radial-gradient(circle at top right, ${dt.accentBg(0.08)} 0%, transparent 70%)` }}
+          className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
+          style={{ background: `radial-gradient(circle at top right, ${dt.accentBg(0.10)} 0%, transparent 70%)` }}
         />
 
         <div className="relative p-3 sm:p-4 md:p-5 flex flex-col flex-1">
@@ -1745,8 +1871,9 @@ function VideoHighlightSection() {
               <div
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center"
                 style={{
-                  background: `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.06)} 100%)`,
-                  border: `1px solid ${dt.accentBorder(0.18)}`,
+                  background: `linear-gradient(135deg, ${dt.accentBg(0.25)} 0%, ${dt.accentBg(0.08)} 100%)`,
+                  border: `1px solid ${dt.accentBorder(0.22)}`,
+                  boxShadow: `0 0 14px ${dt.accentBg(0.08)}`,
                 }}
               >
                 <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" style={{ color: dt.accent }} strokeWidth={2} />
@@ -1900,15 +2027,16 @@ function VideoHighlightSection() {
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,107,53,0.05) 100%)',
-            border: '1px solid rgba(255,107,53,0.12)',
+            background: 'linear-gradient(135deg, rgba(255,107,53,0.22) 0%, rgba(255,107,53,0.08) 100%)',
+            border: '1px solid rgba(255,107,53,0.18)',
+            boxShadow: '0 0 16px rgba(255,107,53,0.08)',
           }}
         >
           <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
         </div>
         <div>
-          <h2 className="text-[15px] sm:text-[17px] font-bold text-white/80 tracking-wide">Video Highlight</h2>
-          <p className="text-[10px] text-white/30 mt-0.5">{maleHighlights.length + femaleHighlights.length} video tersedia</p>
+          <h2 className="text-[15px] sm:text-[17px] font-bold text-white/85 tracking-wide">Video Highlight</h2>
+          <p className="text-[10px] text-white/35 mt-0.5">{maleHighlights.length + femaleHighlights.length} video tersedia</p>
         </div>
       </div>
 
@@ -2759,8 +2887,9 @@ function Top5PodiumSection({ data, onPlayerClick }: { data: LandingData; onPlaye
           <div
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: `linear-gradient(135deg, ${goldRgba(0.18)} 0%, ${goldRgba(0.06)} 100%)`,
-              border: `1px solid ${goldRgba(0.22)}`,
+              background: `linear-gradient(135deg, ${goldRgba(0.22)} 0%, ${goldRgba(0.08)} 100%)`,
+              border: `1px solid ${goldRgba(0.28)}`,
+              boxShadow: `0 0 18px ${goldRgba(0.08)}`,
             }}
           >
             <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--gold)' }} />
@@ -2953,13 +3082,13 @@ function Top5PodiumSection({ data, onPlayerClick }: { data: LandingData; onPlaye
           <div
             className="hidden sm:block rounded-2xl p-6 sm:p-8"
             style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,215,0,0.08)',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,215,0,0.12)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.25), 0 0 30px rgba(255,215,0,0.04)',
             }}
           >
             {/* Top accent line */}
-            <div className="h-[2px] mb-6 sm:mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.25), transparent)' }} />
+            <div className="h-[2px] mb-6 sm:mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.35), transparent)' }} />
 
             {/* Top 3 Podium Row */}
             <div className="flex items-end justify-center gap-5 sm:gap-8 md:gap-12">
@@ -3157,9 +3286,10 @@ function Top5PodiumSection({ data, onPlayerClick }: { data: LandingData; onPlaye
                 onClick={() => setShowFullBoard(prev => !prev)}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200"
                 style={{
-                  background: showFullBoard ? 'rgba(255,255,255,0.04)' : `linear-gradient(135deg, ${goldRgba(0.10)}, ${goldRgba(0.04)})`,
-                  border: `1px solid ${showFullBoard ? 'rgba(255,255,255,0.08)' : goldRgba(0.18)}`,
+                  background: showFullBoard ? 'rgba(255,255,255,0.05)' : `linear-gradient(135deg, ${goldRgba(0.14)}, ${goldRgba(0.06)})`,
+                  border: `1px solid ${showFullBoard ? 'rgba(255,255,255,0.10)' : goldRgba(0.25)}`,
                   color: showFullBoard ? 'rgba(255,255,255,0.50)' : 'var(--gold)',
+                  boxShadow: showFullBoard ? 'none' : `0 0 16px ${goldRgba(0.06)}`,
                 }}
                 whileTap={{ scale: 0.96 }}
               >
@@ -3273,8 +3403,9 @@ function LandingContentSection() {
         <div
           className="rounded-2xl overflow-hidden"
           style={{
-            background: 'linear-gradient(180deg, rgba(255,107,53,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-            border: '1px solid rgba(255,107,53,0.08)',
+            background: 'linear-gradient(180deg, rgba(255,107,53,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+            border: '1px solid rgba(255,107,53,0.12)',
+            boxShadow: '0 0 20px rgba(255,107,53,0.03)',
           }}
         >
           {/* Header — clickable to toggle */}
@@ -3287,14 +3418,15 @@ function LandingContentSection() {
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(255,107,53,0.04) 100%)',
-                  border: '1px solid rgba(255,107,53,0.10)',
+                  background: 'linear-gradient(135deg, rgba(255,107,53,0.18) 0%, rgba(255,107,53,0.06) 100%)',
+                  border: '1px solid rgba(255,107,53,0.18)',
+                  boxShadow: '0 0 12px rgba(255,107,53,0.06)',
                 }}
               >
                 <ListChecks className="w-4 h-4 text-orange-400" />
               </div>
               <div className="text-left">
-                <h2 className="text-[14px] font-bold text-white/80 tracking-wide">{rules.title}</h2>
+                <h2 className="text-[14px] font-bold text-white/85 tracking-wide">{rules.title}</h2>
                 <p className="text-[10px] text-white/25 mt-0.5">{rules.items.length} peraturan</p>
               </div>
             </div>
@@ -3854,16 +3986,26 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
     <motion.div variants={itemVariants} className="w-full max-w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Heart className="w-4 h-4" style={{ color: '#F472B6' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Dukungan & Sawer</h2>
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(244,114,182,0.18) 0%, rgba(244,114,182,0.06) 100%)',
+              border: '1px solid rgba(244,114,182,0.18)',
+              boxShadow: '0 0 12px rgba(244,114,182,0.06)',
+            }}
+          >
+            <Heart className="w-4 h-4" style={{ color: '#F472B6' }} />
+          </div>
+          <h2 className="text-[15px] font-bold text-white/85 tracking-wide">Dukungan & Sawer</h2>
         </div>
         {/* Total fund raised */}
         <motion.div
           className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(244,114,182,0.10) 0%, rgba(255,215,0,0.05) 100%)',
-            border: '1px solid rgba(244,114,182,0.15)',
+            background: 'linear-gradient(135deg, rgba(244,114,182,0.14) 0%, rgba(255,215,0,0.06) 100%)',
+            border: '1px solid rgba(244,114,182,0.20)',
+            boxShadow: '0 0 16px rgba(244,114,182,0.06)',
           }}
           whileHover={{ scale: 1.02 }}
         >
@@ -4544,13 +4686,13 @@ function AktivitasSection({ data, onPlayerClick }: { data: LandingData; onPlayer
         <div className="flex items-center gap-2.5">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.04) 100%)', border: '1px solid rgba(255,215,0,0.12)' }}
+            style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.18) 0%, rgba(255,215,0,0.06) 100%)', border: '1px solid rgba(255,215,0,0.18)', boxShadow: '0 0 14px rgba(255,215,0,0.08)' }}
           >
             <Zap className="w-4 h-4" style={{ color: 'var(--gold)' }} />
           </div>
           <div>
-            <h2 className="text-[15px] sm:text-[17px] font-bold text-white/80 tracking-wide">Aktivitas Terbaru</h2>
-            <p className="text-[10px] text-white/30 mt-0.5">{tabs[0].count} aktivitas</p>
+            <h2 className="text-[15px] sm:text-[17px] font-bold text-white/85 tracking-wide">Aktivitas Terbaru</h2>
+            <p className="text-[10px] text-white/35 mt-0.5">{tabs[0].count} aktivitas</p>
           </div>
         </div>
         {totalDana > 0 && (
@@ -4569,9 +4711,10 @@ function AktivitasSection({ data, onPlayerClick }: { data: LandingData; onPlayer
             onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer flex-shrink-0"
             style={{
-              background: activeTab === tab.key ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${activeTab === tab.key ? 'rgba(255,215,0,0.18)' : 'rgba(255,255,255,0.06)'}`,
-              color: activeTab === tab.key ? 'var(--gold)' : 'rgba(255,255,255,0.35)',
+              background: activeTab === tab.key ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${activeTab === tab.key ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.08)'}`,
+              color: activeTab === tab.key ? 'var(--gold)' : 'rgba(255,255,255,0.40)',
+              boxShadow: activeTab === tab.key ? '0 0 12px rgba(255,215,0,0.06)' : 'none',
             }}
           >
             {tab.label}
@@ -4583,9 +4726,9 @@ function AktivitasSection({ data, onPlayerClick }: { data: LandingData; onPlayer
       {/* Content */}
       <div
         className="rounded-2xl overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 0 20px rgba(255,215,0,0.03)' }}
       >
-        <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.20), transparent)' }} />
+        <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.30), transparent)' }} />
 
         {activeTab === 'donasi' ? (
           /* Donasi Tab Content */
@@ -5006,7 +5149,7 @@ function ChampionCarouselBanner({ data, stats }: { data: LandingData; stats?: { 
               </div>
             )}
             {/* Top subtle glow line */}
-            <div className="absolute top-0 left-[15%] right-[15%] h-px pointer-events-none z-20" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.12) 50%, transparent)' }} />
+            <div className="absolute top-0 left-[15%] right-[15%] h-px pointer-events-none z-20" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.20) 50%, transparent)' }} />
             {/* Inner border */}
             <div className="absolute inset-0 pointer-events-none z-20" style={{ borderRadius: '20px', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)' }} />
           </div>
@@ -5094,41 +5237,72 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
     <style>{fireGlowKeyframes}</style>
     <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} onOpenWallet={onOpenWallet} activeData={activeData} />
     <PremiumAmbientParticles />
+    <PremiumGradientMeshOrbs />
     <div className="h-full relative overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
-      {/* ── Background ── */}
+      {/* ── Premium Vibrant Background ── */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ background: '#050507' }} />
-        {/* Dark overlay */}
-        <div className="absolute inset-0" style={{ background: 'rgba(5,5,7,0.95)' }} />
-        {/* Green glow (Male) */}
+        {/* Rich dark gradient base — not flat black! */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(160deg, #0a0f1a 0%, #0d1117 25%, #0a0e14 50%, #0f0d14 75%, #0d0f14 100%)',
+        }} />
+        {/* Subtle noise texture for depth */}
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E")`,
+        }} />
+        {/* Animated gradient mesh — top left green glow (Male) */}
         <div
-          className="absolute -top-20 left-1/4 w-[500px] h-[500px]"
+          className="absolute -top-20 -left-10 w-[600px] h-[600px]"
           style={{
-            background: 'radial-gradient(circle, rgba(115,255,0,0.04) 0%, transparent 60%)',
+            background: 'radial-gradient(circle, rgba(115,255,0,0.08) 0%, rgba(115,255,0,0.03) 35%, transparent 65%)',
+            animation: 'orbFloatA 25s ease-in-out infinite',
           }}
         />
-        {/* Blue glow (Female) */}
+        {/* Animated gradient mesh — top right blue glow (Female) */}
         <div
-          className="absolute top-[20%] right-0 w-[500px] h-[500px]"
+          className="absolute top-[10%] -right-10 w-[550px] h-[550px]"
           style={{
-            background: 'radial-gradient(circle, rgba(56,189,248,0.035) 0%, transparent 60%)',
+            background: 'radial-gradient(circle, rgba(56,189,248,0.07) 0%, rgba(56,189,248,0.025) 35%, transparent 65%)',
+            animation: 'orbFloatB 30s ease-in-out infinite',
           }}
         />
-        {/* Gold glow (center bottom) */}
+        {/* Animated gradient mesh — center gold glow */}
         <div
-          className="absolute bottom-[10%] left-1/3 w-[400px] h-[400px]"
+          className="absolute bottom-[15%] left-[20%] w-[500px] h-[500px]"
           style={{
-            background: 'radial-gradient(circle, rgba(255,215,0,0.02) 0%, transparent 60%)',
+            background: 'radial-gradient(circle, rgba(255,215,0,0.05) 0%, rgba(255,215,0,0.015) 35%, transparent 65%)',
+            animation: 'orbFloatA 22s ease-in-out infinite',
           }}
         />
-        {/* Diamond pattern */}
+        {/* Animated gradient mesh — bottom right pink glow */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute bottom-[5%] right-[5%] w-[450px] h-[450px]"
+          style={{
+            background: 'radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(244,114,182,0.015) 35%, transparent 65%)',
+            animation: 'orbFloatB 28s ease-in-out infinite',
+          }}
+        />
+        {/* Teal accent glow — mid-page */}
+        <div
+          className="absolute top-[45%] left-[50%] w-[400px] h-[400px]"
+          style={{
+            background: 'radial-gradient(circle, rgba(20,184,166,0.04) 0%, transparent 55%)',
+            animation: 'orbFloatA 35s ease-in-out infinite',
+          }}
+        />
+        {/* Diamond pattern — slightly more visible */}
+        <div
+          className="absolute inset-0 opacity-[0.035]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='0.5'/%3E%3C/svg%3E")`,
             backgroundSize: '60px 60px',
           }}
         />
+        {/* Animated top-to-bottom gradient sweep */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(180deg, rgba(115,255,0,0.015) 0%, transparent 15%, transparent 85%, rgba(56,189,248,0.015) 100%)',
+          animation: 'gradientShift 15s ease-in-out infinite',
+          backgroundSize: '200% 200%',
+        }} />
       </div>
 
       {/* ── Content ── */}
@@ -5150,7 +5324,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           <div
             className="h-[2px] w-full mt-1"
             style={{
-              background: 'linear-gradient(90deg, transparent, var(--gold), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(115,255,0,0.25), rgba(255,215,0,0.35), rgba(56,189,248,0.25), transparent)',
               animation: 'shimmerLine 3s ease-in-out infinite',
             }}
           />
@@ -5161,7 +5335,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.8 }}
-          className="text-white/15 text-[10px] text-center tracking-widest uppercase mt-2 mb-4 md:mb-6"
+          className="text-white/25 text-[10px] text-center tracking-widest uppercase mt-2 mb-4 md:mb-6"
           style={{ animation: 'bounce-subtle 2s ease-in-out infinite' }}
         >
           Scroll untuk melihat lebih banyak ↓
@@ -5191,16 +5365,16 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           </motion.div>
         </SectionReveal>
 
-        {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        {/* ═══ Premium Animated Section Divider ═══ */}
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(115,255,0,0.12) 20%, rgba(255,215,0,0.18) 50%, rgba(56,189,248,0.12) 80%, transparent 95%)', animation: 'shimmerLine 4s ease-in-out infinite' }} />
 
         {/* ═══ VIDEO HIGHLIGHT ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16">
           <VideoHighlightSection />
         </SectionReveal>
 
-        {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        {/* ═══ Premium Animated Section Divider ═══ */}
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,107,53,0.12) 20%, rgba(255,215,0,0.15) 50%, rgba(244,114,182,0.12) 80%, transparent 95%)', animation: 'shimmerLine 5s ease-in-out infinite' }} />
 
         {/* ═══ LEADERBOARD (Top 5 Podium) ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16" >
@@ -5209,16 +5383,16 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           </div>
         </SectionReveal>
 
-        {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        {/* ═══ Premium Animated Section Divider ═══ */}
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,215,0,0.15) 25%, rgba(115,255,0,0.10) 50%, rgba(255,215,0,0.15) 75%, transparent 95%)', animation: 'shimmerLine 3s ease-in-out infinite' }} />
 
         {/* ═══ AKTIVITAS TERBARU (Tabbed) ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16">
           <AktivitasSection data={activeData} onPlayerClick={handlePlayerClick} />
         </SectionReveal>
 
-        {/* ═══ SECTION DIVIDER ═══ */}
-        <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+        {/* ═══ Premium Animated Section Divider ═══ */}
+        <div className="w-full mb-10 md:mb-16 relative h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(56,189,248,0.12) 25%, rgba(244,114,182,0.10) 50%, rgba(56,189,248,0.12) 75%, transparent 95%)', animation: 'shimmerLine 4.5s ease-in-out infinite' }} />
 
         {/* ═══ RULES (Collapsible) ═══ */}
         <SectionReveal className="w-full mb-10 md:mb-16">
