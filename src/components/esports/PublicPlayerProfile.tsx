@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDivisionTheme, createDivisionTheme } from '@/hooks/useDivisionTheme';
+import { GOLD, goldRgba } from '@/lib/theme-tokens';
 
 /* ── Interfaces ── */
 interface ClubInfo {
@@ -265,8 +267,9 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
 
   const isMale = player.gender === 'male';
   const tier = tierConfig[player.tier] || tierConfig.B;
-  const accentColor = isMale ? '#73FF00' : '#38BDF8';
-  const accentColorMuted = isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)';
+  const dt = createDivisionTheme(isMale ? 'male' : 'female');
+  const accentColor = dt.accent;
+  const accentColorMuted = dt.accentBg(0.10);
 
   return (
     <div className="min-h-screen relative" style={{ background: isMale ? '#0a0f0d' : '#0d0a10' }}>
@@ -284,14 +287,14 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
         <div
           className="absolute -top-40 left-1/3 w-[500px] h-[500px]"
           style={{
-            background: `radial-gradient(circle, ${isMale ? 'rgba(115,255,0,0.04)' : 'rgba(56,189,248,0.04)'} 0%, transparent 60%)`,
+            background: `radial-gradient(circle, ${dt.accentBg(0.04)} 0%, transparent 60%)`,
           }}
         />
         {/* Accent glow bottom-right */}
         <div
           className="absolute bottom-0 right-0 w-[400px] h-[400px]"
           style={{
-            background: `radial-gradient(circle, ${isMale ? 'rgba(115,255,0,0.03)' : 'rgba(56,189,248,0.03)'} 0%, transparent 60%)`,
+            background: `radial-gradient(circle, ${dt.accentBg(0.03)} 0%, transparent 60%)`,
           }}
         />
       </div>
@@ -325,8 +328,8 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
               className="absolute -inset-4 rounded-full blur-xl opacity-60"
               style={{
                 background: isMale
-                  ? 'radial-gradient(circle, rgba(115,255,0,0.3) 0%, rgba(115,255,0,0.05) 60%, transparent 80%)'
-                  : 'radial-gradient(circle, rgba(56,189,248,0.3) 0%, rgba(56,189,248,0.05) 60%, transparent 80%)',
+                  ? `radial-gradient(circle, ${dt.accentBg(0.3)} 0%, ${dt.accentBg(0.05)} 60%, transparent 80%)`
+                  : `radial-gradient(circle, ${dt.accentBg(0.3)} 0%, ${dt.accentBg(0.05)} 60%, transparent 80%)`,
               }}
             />
             <div className={`relative ${isMale ? 'avatar-ring-gold' : 'avatar-ring-pink'}`}>
@@ -495,7 +498,7 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
               <span className="capitalize flex items-center gap-1.5">
                 <span
                   className="w-2 h-2 rounded-full"
-                  style={{ background: isMale ? '#73FF00' : '#38BDF8' }}
+                  style={{ background: dt.accent }}
                 />
                 {isMale ? 'Putra' : 'Putri'}
               </span>
@@ -761,7 +764,7 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
         <motion.div variants={itemVariants} className="text-center pt-4 pb-6">
           <p className="text-[11px] font-bold tracking-[0.15em] uppercase"
             style={{
-              background: 'linear-gradient(135deg, #ffd700 0%, #ffec8b 50%, #ffd700 100%)',
+              background: `linear-gradient(135deg, ${GOLD.primary} 0%, ${GOLD.light} 50%, ${GOLD.primary} 100%)`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',

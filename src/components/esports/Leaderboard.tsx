@@ -18,6 +18,8 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
+import { ELO_TIER_COLORS as THEME_ELO_TIER_COLORS, RANK_COLORS, GOLD, goldRgba, createDivisionTheme } from '@/lib/theme-tokens';
 
 /* ================================================================
    Interfaces — preserved from parent component
@@ -68,28 +70,16 @@ interface EloPlayer {
 }
 
 /* ================================================================
-   ELO Tier Colors & Helpers
+   ELO Tier Colors — now uses theme-tokens ELO_TIER_COLORS
    ================================================================ */
 
-const ELO_TIER_COLORS: Record<string, string> = {
-  Bronze: '#CD7F32',
-  Silver: '#C0C0C0',
-  Gold: '#FFD700',
-  Platinum: '#E5E4E2',
-  Diamond: '#B9F2FF',
-  Master: '#FF6B6B',
-  Grandmaster: '#FF4500',
-};
+const ELO_TIER_COLORS: Record<string, string> = Object.fromEntries(
+  Object.entries(THEME_ELO_TIER_COLORS).map(([k, v]) => [k, v.color])
+);
 
-const ELO_TIER_BG: Record<string, string> = {
-  Bronze: 'bg-orange-800/20 text-orange-400 border-orange-600/30',
-  Silver: 'bg-gray-400/10 text-gray-300 border-gray-400/20',
-  Gold: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-  Platinum: 'bg-gray-200/10 text-gray-200 border-gray-300/20',
-  Diamond: 'bg-cyan-300/10 text-cyan-300 border-cyan-300/20',
-  Master: 'bg-red-400/10 text-red-400 border-red-400/20',
-  Grandmaster: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
-};
+const ELO_TIER_BG: Record<string, string> = Object.fromEntries(
+  Object.entries(THEME_ELO_TIER_COLORS).map(([k, v]) => [k, `bg-opacity-10 ${v.border} text-[color:${v.color}]`])
+);
 
 function getEloTierIcon(tier: string): string {
   switch (tier) {
@@ -165,9 +155,8 @@ function getTierClass(tier: string): string {
 }
 
 function getAccent(division: 'male' | 'female') {
-  return division === 'male'
-    ? { text: 'text-[#73FF00]', bg: 'bg-[#73FF00]', ring: 'avatar-ring-gold', gradient: 'gradient-gold' }
-    : { text: 'text-[#38BDF8]', bg: 'bg-[#0EA5E9]', ring: 'avatar-ring-pink', gradient: 'gradient-pink' };
+  const dt = createDivisionTheme(division);
+  return { text: dt.isMale ? 'text-[#73FF00]' : 'text-[#38BDF8]', bg: dt.isMale ? 'bg-[#73FF00]' : 'bg-[#0EA5E9]', ring: dt.isMale ? 'avatar-ring-gold' : 'avatar-ring-pink', gradient: dt.isMale ? 'gradient-gold' : 'gradient-pink', dt };
 }
 
 /* ================================================================
@@ -192,6 +181,7 @@ function PodiumCard({
   onPlayerClick?: (playerId: string) => void;
 }) {
   const accent = getAccent(division);
+  const dt = useDivisionTheme(division);
   const tierClass = player ? getTierClass(player.tier) : 'tier-b';
   const avatarSizeClass = rank === 1
     ? 'w-[76px] h-[76px] lg:w-24 lg:h-24'
@@ -241,10 +231,8 @@ function PodiumCard({
           <div
             className="animate-float"
             style={{
-              filter: division === 'male'
-                ? 'drop-shadow(0 0 16px rgba(115,255,0,0.6))'
-                : 'drop-shadow(0 0 16px rgba(244,114,182,0.6))',
-            }}
+                filter: `drop-shadow(0 0 16px ${dt.accentBg(0.6)})`
+              }}
           >
             <Crown className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 ${accent.text}`} />
           </div>
@@ -326,12 +314,12 @@ function PodiumCard({
               <div
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md"
                 style={{
-                  background: 'rgba(255,215,0,0.10)',
-                  border: '1px solid rgba(255,215,0,0.15)',
+                  background: goldRgba(0.10),
+                  border: `1px solid ${goldRgba(0.15)}`,
                 }}
               >
-                <Trophy className="w-2.5 h-2.5" style={{ color: '#FFD700' }} />
-                <span className="text-[8px] font-bold" style={{ color: '#FFD700' }}>
+                <Trophy className="w-2.5 h-2.5" style={{ color: 'var(--gold)' }} />
+                <span className="text-[8px] font-bold" style={{ color: 'var(--gold)' }}>
                   {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()} total
                 </span>
               </div>
@@ -341,8 +329,8 @@ function PodiumCard({
                     key={sp.season}
                     className="text-[7px] font-semibold px-1 py-[1px] rounded"
                     style={{
-                      background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                      color: division === 'male' ? 'rgba(115,255,0,0.5)' : 'rgba(56,189,248,0.5)',
+                      background: dt.accentBg(0.08),
+                      color: dt.accentBorder(0.5),
                     }}
                   >
                     S{sp.season}:{sp.points}
@@ -358,8 +346,8 @@ function PodiumCard({
               boxShadow:
                 rank === 1
                   ? division === 'male'
-                    ? '0 3px 16px rgba(115,255,0,0.5)'
-                    : '0 3px 16px rgba(244,114,182,0.5)'
+                    ? `0 3px 16px ${dt.accentBg(0.5)}`
+                    : `0 3px 16px ${dt.accentBg(0.5)}`
                   : '0 2px 10px rgba(0,0,0,0.4)',
             }}
           >
@@ -373,8 +361,8 @@ function PodiumCard({
               className="w-full h-full"
               style={{
                 background: division === 'male'
-                  ? 'linear-gradient(180deg, transparent, rgba(115,255,0,0.05))'
-                  : 'linear-gradient(180deg, transparent, rgba(244,114,182,0.05))',
+                  ? `linear-gradient(180deg, transparent, ${dt.accentBg(0.05)})`
+                  : `linear-gradient(180deg, transparent, ${dt.accentBg(0.05)})`,
               }}
             />
           </div>
@@ -404,6 +392,7 @@ function PlayerRow({
   onPlayerClick?: (playerId: string) => void;
 }) {
   const accent = getAccent(division);
+  const dt = useDivisionTheme(division);
   const tierClass = getTierClass(player.tier);
 
   const rankBadgeClass =
@@ -443,8 +432,8 @@ function PlayerRow({
                   boxShadow:
                     rank === 1
                       ? division === 'male'
-                        ? '0 2px 10px rgba(255,214,10,0.4)'
-                        : '0 2px 10px rgba(56, 189, 248,0.4)'
+                        ? `0 2px 10px ${goldRgba(0.4)}`
+                        : `0 2px 10px ${dt.accentBg(0.4)}`
                       : '0 2px 8px rgba(0,0,0,0.3)',
                 }
           }
@@ -494,12 +483,12 @@ function PlayerRow({
               <div
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md"
                 style={{
-                  background: 'rgba(255,215,0,0.10)',
-                  border: '1px solid rgba(255,215,0,0.15)',
+                  background: goldRgba(0.10),
+                  border: `1px solid ${goldRgba(0.15)}`,
                 }}
               >
-                <Trophy className="w-2.5 h-2.5" style={{ color: '#FFD700' }} />
-                <span className="text-[9px] font-bold" style={{ color: '#FFD700' }}>
+                <Trophy className="w-2.5 h-2.5" style={{ color: 'var(--gold)' }} />
+                <span className="text-[9px] font-bold" style={{ color: 'var(--gold)' }}>
                   {player.seasonPoints.reduce((sum, sp) => sum + sp.points, 0).toLocaleString()} total
                 </span>
               </div>
@@ -509,8 +498,8 @@ function PlayerRow({
                     key={sp.season}
                     className="text-[7px] font-semibold px-1 py-[1px] rounded"
                     style={{
-                      background: division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                      color: division === 'male' ? 'rgba(115,255,0,0.6)' : 'rgba(56,189,248,0.6)',
+                      background: dt.accentBg(0.08),
+                      color: dt.accentBorder(0.6),
                     }}
                   >
                     S{sp.season}:{sp.points}
@@ -778,8 +767,8 @@ export function Leaderboard({ division, players, currentUserId, onPlayerClick }:
           className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-[70px] pointer-events-none"
           style={{
             background: division === 'male'
-              ? 'radial-gradient(circle, rgba(255,215,0,0.12) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(56, 189, 248,0.12) 0%, transparent 70%)',
+              ? `radial-gradient(circle, ${goldRgba(0.12)} 0%, transparent 70%)`
+              : `radial-gradient(circle, ${dt.accentBg(0.12)} 0%, transparent 70%)`,
           }}
         />
 
@@ -955,7 +944,7 @@ export function Leaderboard({ division, players, currentUserId, onPlayerClick }:
           {!eloLoading && filteredEloPlayers.length > 0 && (
             <div
               className="space-y-2 max-h-[600px] overflow-y-auto pr-0.5"
-              style={{ scrollbarWidth: 'thin', scrollbarColor: division === 'male' ? 'rgba(115,255,0,0.12) transparent' : 'rgba(56,189,248,0.12) transparent' }}
+              style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBorder(0.12)} transparent` }}
             >
               <AnimatePresence mode="popLayout">
                 {filteredEloPlayers.map((player, index) => (
@@ -1134,7 +1123,7 @@ export function Leaderboard({ division, players, currentUserId, onPlayerClick }:
           initial="hidden"
           animate="visible"
           className="space-y-2 max-h-[600px] overflow-y-auto pr-0.5"
-          style={{ scrollbarWidth: 'thin', scrollbarColor: division === 'male' ? 'rgba(115,255,0,0.12) transparent' : 'rgba(56,189,248,0.12) transparent' }}
+          style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBorder(0.12)} transparent` }}
         >
           <div className="hidden lg:flex items-center gap-4 px-6 py-3">
             <div className="w-10 h-10" />

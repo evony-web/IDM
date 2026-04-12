@@ -25,6 +25,8 @@ import {
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { ZoomPanWrapper } from '@/components/ui/zoom-pan-wrapper';
 import { MatchDetailPopup } from '@/components/esports/MatchDetailPopup';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
+import { createDivisionTheme, goldRgba } from '@/lib/theme-tokens';
 
 /* ================================================================
    Interfaces
@@ -69,47 +71,38 @@ interface BracketProps {
 
 /* ================================================================
    Design Tokens — Challonge Bracket Style
+   Now uses createDivisionTheme / useDivisionTheme for division colors.
+   Non-division colors (losers, grand, live) remain as constants.
    ================================================================ */
 
-const CHALLONGE_COLORS = {
-  male: {
-    accent: '#73FF00',
-    accentLight: '#A5FF55',
-    accentDim: 'rgba(115,255,0,0.10)',
-    accentBorder: 'rgba(115,255,0,0.25)',
-    accentText: '#73FF00',
-    accentLine: 'rgba(115,255,0,0.30)',
-    accentGlow: 'rgba(115,255,0,0.15)',
-    bg: '#0B0B0F',
-    cardBg: 'rgba(255,255,255,0.03)',
-    cardBorder: 'rgba(255,255,255,0.08)',
-    cardBorderWinner: 'rgba(115,255,0,0.35)',
-    losersBorder: 'rgba(239,68,68,0.25)',
-    grandBorder: 'rgba(234,179,8,0.50)',
-    grandGlow: 'rgba(234,179,8,0.15)',
-    liveBorder: 'rgba(239,68,68,0.70)',
-  },
-  female: {
-    accent: '#38BDF8',
-    accentLight: '#7DD3FC',
-    accentDim: 'rgba(56,189,248,0.10)',
-    accentBorder: 'rgba(56,189,248,0.25)',
-    accentText: '#38BDF8',
-    accentLine: 'rgba(56,189,248,0.30)',
-    accentGlow: 'rgba(56,189,248,0.15)',
-    bg: '#0B0B0F',
-    cardBg: 'rgba(255,255,255,0.03)',
-    cardBorder: 'rgba(255,255,255,0.08)',
-    cardBorderWinner: 'rgba(56,189,248,0.35)',
-    losersBorder: 'rgba(239,68,68,0.25)',
-    grandBorder: 'rgba(234,179,8,0.50)',
-    grandGlow: 'rgba(234,179,8,0.15)',
-    liveBorder: 'rgba(239,68,68,0.70)',
-  },
+const BRACKET_COLORS = {
+  losersBorder: 'rgba(239,68,68,0.25)',
+  grandBorder: 'rgba(234,179,8,0.50)',
+  grandGlow: 'rgba(234,179,8,0.15)',
+  liveBorder: 'rgba(239,68,68,0.70)',
+  cardBg: 'rgba(255,255,255,0.03)',
+  cardBorder: 'rgba(255,255,255,0.08)',
 };
 
 function getC(division: 'male' | 'female') {
-  return CHALLONGE_COLORS[division];
+  const dt = createDivisionTheme(division);
+  return {
+    accent: dt.accent,
+    accentLight: dt.accentLight,
+    accentDim: dt.accentBg(0.10),
+    accentBorder: dt.accentBorder(0.25),
+    accentText: dt.accent,
+    accentLine: dt.accentBorder(0.30),
+    accentGlow: dt.accentGlow(0.15),
+    bg: '#0B0B0F',
+    cardBg: BRACKET_COLORS.cardBg,
+    cardBorder: BRACKET_COLORS.cardBorder,
+    cardBorderWinner: dt.accentBorder(0.35),
+    losersBorder: BRACKET_COLORS.losersBorder,
+    grandBorder: BRACKET_COLORS.grandBorder,
+    grandGlow: BRACKET_COLORS.grandGlow,
+    liveBorder: BRACKET_COLORS.liveBorder,
+  };
 }
 
 /* ================================================================

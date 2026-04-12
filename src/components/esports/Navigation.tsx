@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { useAppSettings } from '@/hooks/useAppSettings';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
+import { createDivisionTheme, goldRgba, ACCENT } from '@/lib/theme-tokens';
 import {
   Home,
   Trophy,
@@ -85,41 +87,6 @@ const mobileNavItems: NavItem[] = [
 
 
 
-/* ────────────────────────────────────────────
-   Theme Token Helpers - DARK MODE ONLY
-
-   - Male = Green (#73FF00)
-   - Female = Blue (#38BDF8)
-   ──────────────────────────────────────────── */
-
-function getThemeTokens(division: 'male' | 'female') {
-  const isMale = division === 'male';
-
-  if (isMale) {
-    // MALE = GREEN
-    return {
-      primaryColor: '#73FF00',
-      primaryColorDark: '#4AB800',
-      primaryColorLight: '#8CFF00',
-      glowRGB: '115,255,0',
-      glowRGB2: '140,255,0',
-      activeText: 'text-[#73FF00]',
-      titleGradient: 'bg-gradient-to-r from-[#8CFF00] via-[#73FF00] to-[#5FD400] bg-clip-text text-transparent',
-    };
-  } else {
-    // FEMALE = BLUE
-    return {
-      primaryColor: '#38BDF8',
-      primaryColorDark: '#0EA5E9',
-      primaryColorLight: '#7DD3FC',
-      glowRGB: '56,189,248',
-      glowRGB2: '125,211,252',
-      activeText: 'text-[#38BDF8]',
-      titleGradient: 'bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] bg-clip-text text-transparent',
-    };
-  }
-}
-
 /* ════════════════════════════════════════════
    Admin FAB  –  Small floating admin button (mobile)
    ════════════════════════════════════════════ */
@@ -135,7 +102,7 @@ export function AdminFAB({
   onAdminClick?: () => void;
   adminNotificationCount?: number;
 }) {
-  const t = getThemeTokens(division);
+  const dt = useDivisionTheme(division);
 
   return (
     <motion.button
@@ -146,17 +113,17 @@ export function AdminFAB({
         right: 12,
         bottom: 76, // Above bottom nav on mobile
         background: isAdminAuthenticated
-          ? `linear-gradient(135deg, rgba(${t.glowRGB},0.20) 0%, rgba(${t.glowRGB},0.10) 100%)`
+          ? `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.10)} 100%)`
           : 'rgba(40,40,45,0.95)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         border: isAdminAuthenticated
-          ? `1.5px solid rgba(${t.glowRGB},0.40)`
-          : '1.5px solid rgba(255,255,255,0.12)',
+          ? `1.5px solid ${dt.accentBorder(0.40)}`
+          : '1.5px solid var(--border-medium)',
         borderRadius: 20,
         boxShadow: isAdminAuthenticated
-          ? `0 4px 16px rgba(${t.glowRGB},0.25), 0 0 0 1px rgba(${t.glowRGB},0.10)`
-          : '0 4px 16px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.05)',
+          ? `0 4px 16px ${dt.accentGlow(0.25)}, 0 0 0 1px ${dt.accentBg(0.10)}`
+          : '0 4px 16px rgba(0,0,0,0.40), 0 0 0 1px var(--border-subtle)',
       }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -165,14 +132,14 @@ export function AdminFAB({
       <Shield
         className="w-4 h-4"
         style={{
-          color: isAdminAuthenticated ? t.primaryColor : 'rgba(255,255,255,0.5)',
+          color: isAdminAuthenticated ? dt.accent : 'var(--text-tertiary)',
         }}
         strokeWidth={2}
       />
       <span
         className="text-[11px] font-semibold tracking-wide"
         style={{
-          color: isAdminAuthenticated ? t.primaryColor : 'rgba(255,255,255,0.5)',
+          color: isAdminAuthenticated ? dt.accent : 'var(--text-tertiary)',
         }}
       >
         {isAdminAuthenticated ? 'Admin' : 'Login'}
@@ -188,9 +155,9 @@ export function AdminFAB({
             minWidth: 14,
             height: 14,
             borderRadius: 7,
-            background: t.primaryColor,
-            color: division === 'male' ? '#000' : '#fff',
-            boxShadow: `0 0 6px rgba(${t.glowRGB},0.5)`,
+            background: dt.accent,
+            color: dt.accentForeground,
+            boxShadow: `0 0 6px ${dt.accentGlow(0.5)}`,
             paddingLeft: 4,
             paddingRight: 4,
           }}
@@ -211,9 +178,8 @@ export function AdminFAB({
    ════════════════════════════════════════════ */
 
 export function Navigation({ activeTab, onTabChange, division, currentPlayer, onPlayerLoginClick }: NavigationProps) {
-  const t = getThemeTokens(division);
+  const dt = useDivisionTheme(division);
   const isGfActive = activeTab === 'grandfinal';
-  const isMale = division === 'male';
 
   return (
     <>
@@ -236,14 +202,14 @@ export function Navigation({ activeTab, onTabChange, division, currentPlayer, on
             background: 'linear-gradient(180deg, rgba(30,30,35,0.92) 0%, rgba(20,20,25,0.95) 100%)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
-            boxShadow: '0 -8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04)',
+            boxShadow: '0 -8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--border-light), inset 0 1px 0 var(--border-subtle)',
           }}
         >
           {/* Top accent line */}
           <div
             className="absolute top-0 left-4 right-4 h-[1px]"
             style={{
-              background: `linear-gradient(90deg, transparent, rgba(${t.glowRGB},0.3), transparent)`,
+              background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.3)}, transparent)`,
             }}
           />
 
@@ -266,22 +232,20 @@ export function Navigation({ activeTab, onTabChange, division, currentPlayer, on
                       layoutId="nav-active-pill"
                       className="absolute inset-0 rounded-xl"
                       style={{
-                        background: `linear-gradient(180deg, rgba(${t.glowRGB},0.12) 0%, rgba(${t.glowRGB},0.04) 100%)`,
-                        border: `1px solid rgba(${t.glowRGB},0.2)`,
+                        background: `linear-gradient(180deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 100%)`,
+                        border: `1px solid ${dt.accentBorder(0.2)}`,
                       }}
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
                   <Icon
-                    className={`w-[22px] h-[22px] relative z-10 transition-all duration-200 ${
-                      isActive ? t.activeText : 'text-white/50'
-                    }`}
+                    className={`w-[22px] h-[22px] relative z-10 transition-all duration-200 ${!isActive ? 'text-white/50' : ''}`}
+                    style={isActive ? { color: dt.accent } : undefined}
                     strokeWidth={isActive ? 2.2 : 1.8}
                   />
                   <span
-                    className={`relative z-10 mt-1 text-[10px] font-semibold tracking-wide transition-all duration-200 ${
-                      isActive ? t.activeText : 'text-white/45'
-                    }`}
+                    className={`relative z-10 mt-1 text-[10px] font-semibold tracking-wide transition-all duration-200 ${!isActive ? 'text-white/45' : ''}`}
+                    style={isActive ? { color: dt.accent } : undefined}
                   >
                     {item.label}
                   </span>
@@ -306,7 +270,7 @@ export function Navigation({ activeTab, onTabChange, division, currentPlayer, on
                   style={{
                     width: 64,
                     height: 64,
-                    background: `radial-gradient(circle, rgba(${t.glowRGB},0.15) 0%, transparent 70%)`,
+                    background: `radial-gradient(circle, ${dt.accentBg(0.15)} 0%, transparent 70%)`,
                   }}
                   animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
@@ -319,14 +283,14 @@ export function Navigation({ activeTab, onTabChange, division, currentPlayer, on
                 style={{
                   width: 52,
                   height: 52,
-                  background: `linear-gradient(135deg, rgba(${t.glowRGB},1) 0%, rgba(${t.glowRGB2},1) 100%)`,
-                  boxShadow: `0 4px 16px rgba(${t.glowRGB},0.35), 0 0 0 3px rgba(${t.glowRGB},0.15), inset 0 1px 0 rgba(255,255,255,0.3)`,
+                  background: `linear-gradient(135deg, ${dt.accent} 0%, ${dt.accentLight} 100%)`,
+                  boxShadow: `0 4px 16px ${dt.accentGlow(0.35)}, 0 0 0 3px ${dt.accentBg(0.15)}, inset 0 1px 0 rgba(255,255,255,0.3)`,
                 }}
                 animate={isGfActive ? {
                   boxShadow: [
-                    `0 4px 16px rgba(${t.glowRGB},0.35), 0 0 0 3px rgba(${t.glowRGB},0.15), inset 0 1px 0 rgba(255,255,255,0.3)`,
-                    `0 4px 24px rgba(${t.glowRGB},0.5), 0 0 0 4px rgba(${t.glowRGB},0.25), inset 0 1px 0 rgba(255,255,255,0.3)`,
-                    `0 4px 16px rgba(${t.glowRGB},0.35), 0 0 0 3px rgba(${t.glowRGB},0.15), inset 0 1px 0 rgba(255,255,255,0.3)`,
+                    `0 4px 16px ${dt.accentGlow(0.35)}, 0 0 0 3px ${dt.accentBg(0.15)}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                    `0 4px 24px ${dt.accentGlow(0.5)}, 0 0 0 4px ${dt.accentBg(0.25)}, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                    `0 4px 16px ${dt.accentGlow(0.35)}, 0 0 0 3px ${dt.accentBg(0.15)}, inset 0 1px 0 rgba(255,255,255,0.3)`,
                   ]
                 } : {}}
                 transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -357,22 +321,20 @@ export function Navigation({ activeTab, onTabChange, division, currentPlayer, on
                       layoutId="nav-active-pill"
                       className="absolute inset-0 rounded-xl"
                       style={{
-                        background: `linear-gradient(180deg, rgba(${t.glowRGB},0.12) 0%, rgba(${t.glowRGB},0.04) 100%)`,
-                        border: `1px solid rgba(${t.glowRGB},0.2)`,
+                        background: `linear-gradient(180deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 100%)`,
+                        border: `1px solid ${dt.accentBorder(0.2)}`,
                       }}
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
                   <Icon
-                    className={`w-[22px] h-[22px] relative z-10 transition-all duration-200 ${
-                      isActive ? t.activeText : 'text-white/50'
-                    }`}
+                    className={`w-[22px] h-[22px] relative z-10 transition-all duration-200 ${!isActive ? 'text-white/50' : ''}`}
+                    style={isActive ? { color: dt.accent } : undefined}
                     strokeWidth={isActive ? 2.2 : 1.8}
                   />
                   <span
-                    className={`relative z-10 mt-1 text-[10px] font-semibold tracking-wide transition-all duration-200 ${
-                      isActive ? t.activeText : 'text-white/45'
-                    }`}
+                    className={`relative z-10 mt-1 text-[10px] font-semibold tracking-wide transition-all duration-200 ${!isActive ? 'text-white/45' : ''}`}
+                    style={isActive ? { color: dt.accent } : undefined}
                   >
                     {item.label}
                   </span>
@@ -404,12 +366,13 @@ export function Sidebar({
   currentPlayer,
   onPlayerLoginClick,
 }: TopBarProps) {
-  const t = getThemeTokens(division);
+  const dt = useDivisionTheme(division);
   const isMale = division === 'male';
+  const otherDt = createDivisionTheme(isMale ? 'female' : 'male');
   const { settings } = useAppSettings();
 
   return (
-    <aside 
+    <aside
       className="hidden md:flex fixed left-0 top-0 bottom-0 z-50 flex-col w-16 lg:w-56"
       style={{
         backgroundColor: '#000000',
@@ -419,7 +382,7 @@ export function Sidebar({
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='${isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)'}' stroke-width='0.5'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='${dt.accentBg(0.10)}' stroke-width='0.5'/%3E%3C/svg%3E")`,
           backgroundSize: '60px 60px',
           opacity: 0.20,
         }}
@@ -430,21 +393,21 @@ export function Sidebar({
         className="relative flex flex-col h-full"
         style={{
           background: '#000000',
-          borderRight: `1px solid rgba(${t.glowRGB},0.12)`,
+          borderRight: `1px solid ${dt.accentBorder(0.12)}`,
         }}
       >
         {/* ── Logo Section ── */}
         <div
           className="flex items-center justify-center lg:justify-start gap-2 px-3 py-4 border-b"
           style={{
-            borderColor: `rgba(${t.glowRGB},0.08)`,
+            borderColor: dt.accentBorder(0.08),
           }}
         >
           <motion.div
             className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: `linear-gradient(135deg, rgba(${t.glowRGB},1) 0%, rgba(${t.glowRGB2},1) 100%)`,
-              boxShadow: `0 4px 12px rgba(${t.glowRGB},0.35)`,
+              background: `linear-gradient(135deg, ${dt.accent} 0%, ${dt.accentLight} 100%)`,
+              boxShadow: `0 4px 12px ${dt.accentGlow(0.35)}`,
             }}
             whileHover={{ scale: 1.05, rotate: 5 }}
             whileTap={{ scale: 0.95 }}
@@ -455,11 +418,19 @@ export function Sidebar({
 
           {/* Logo text - hidden on tablet */}
           <div className="hidden lg:flex flex-col leading-tight">
-            <span className={`text-[15px] font-bold tracking-tight ${t.titleGradient}`}>
+            <span
+              className="text-[15px] font-bold tracking-tight"
+              style={{
+                background: `linear-gradient(to right, ${dt.accentLight}, ${dt.accent}, ${dt.accentDark})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
               {settings.app_name}
             </span>
             <span className="text-[9px] font-medium tracking-wide"
-              style={{ color: 'rgba(255,255,255,0.40)' }}
+              style={{ color: 'var(--text-quaternary)' }}
             >
               {settings.app_subtitle}
             </span>
@@ -474,11 +445,11 @@ export function Sidebar({
               onClick={onGoHome}
               className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
               style={{
-                background: 'linear-gradient(180deg, rgba(255,215,0,0.10) 0%, rgba(255,215,0,0.03) 100%)',
-                color: '#FFD700',
-                border: '1px solid rgba(255,215,0,0.15)',
+                background: `linear-gradient(180deg, ${goldRgba(0.10)} 0%, ${goldRgba(0.03)} 100%)`,
+                color: 'var(--gold)',
+                border: `1px solid ${goldRgba(0.15)}`,
               }}
-              whileHover={{ scale: 1.02, background: 'linear-gradient(180deg, rgba(255,215,0,0.14) 0%, rgba(255,215,0,0.05) 100%)' }}
+              whileHover={{ scale: 1.02, background: `linear-gradient(180deg, ${goldRgba(0.14)} 0%, ${goldRgba(0.05)} 100%)` }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
@@ -487,7 +458,7 @@ export function Sidebar({
             </motion.button>
 
             {/* Divider */}
-            <div className="my-2 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
+            <div className="my-2 h-px" style={{ background: 'var(--border-subtle)' }} />
 
             {/* Regular Nav Items */}
             {regularNavItems.map((item) => (
@@ -503,7 +474,7 @@ export function Sidebar({
             {/* Divider */}
             <div
               className="my-3 h-px"
-              style={{ background: `rgba(${t.glowRGB},0.08)` }}
+              style={{ background: dt.accentBorder(0.08) }}
             />
 
             {/* Grand Final - Special */}
@@ -513,20 +484,16 @@ export function Sidebar({
               onClick={() => onTabChange?.('grandfinal')}
             />
 
-            <div className="my-1.5 h-px" style={{ background: `rgba(${t.glowRGB},0.08)` }} />
+            <div className="my-1.5 h-px" style={{ background: dt.accentBorder(0.08) }} />
 
             {/* Division Toggle — only show the OTHER division, blinking */}
             <motion.button
               onClick={onToggleDivision}
               className="w-full mt-1 py-2 rounded-xl text-[11px] font-bold tracking-wide cursor-pointer outline-none relative overflow-hidden"
               style={{
-                background: isMale
-                  ? 'linear-gradient(135deg, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.04) 100%)'
-                  : 'linear-gradient(135deg, rgba(115,255,0,0.12) 0%, rgba(115,255,0,0.04) 100%)',
-                border: isMale
-                  ? '1.5px solid rgba(56,189,248,0.25)'
-                  : '1.5px solid rgba(115,255,0,0.25)',
-                color: isMale ? '#38BDF8' : '#73FF00',
+                background: `linear-gradient(135deg, ${otherDt.accentBg(0.12)} 0%, ${otherDt.accentBg(0.04)} 100%)`,
+                border: `1.5px solid ${otherDt.accentBorder(0.25)}`,
+                color: otherDt.accent,
               }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
@@ -535,17 +502,11 @@ export function Sidebar({
               <motion.div
                 className="absolute inset-0 rounded-xl pointer-events-none"
                 animate={{
-                  boxShadow: isMale
-                    ? [
-                        '0 0 4px rgba(56,189,248,0.10)',
-                        '0 0 14px rgba(56,189,248,0.30)',
-                        '0 0 4px rgba(56,189,248,0.10)',
-                      ]
-                    : [
-                        '0 0 4px rgba(115,255,0,0.10)',
-                        '0 0 14px rgba(115,255,0,0.30)',
-                        '0 0 4px rgba(115,255,0,0.10)',
-                      ],
+                  boxShadow: [
+                    `0 0 4px ${otherDt.accentGlow(0.10)}`,
+                    `0 0 14px ${otherDt.accentGlow(0.30)}`,
+                    `0 0 4px ${otherDt.accentGlow(0.10)}`,
+                  ],
                 }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               />
@@ -553,9 +514,7 @@ export function Sidebar({
               <motion.div
                 className="absolute inset-0 rounded-xl pointer-events-none"
                 style={{
-                  background: isMale
-                    ? 'linear-gradient(105deg, transparent 40%, rgba(56,189,248,0.08) 50%, transparent 60%)'
-                    : 'linear-gradient(105deg, transparent 40%, rgba(115,255,0,0.08) 50%, transparent 60%)',
+                  background: `linear-gradient(105deg, transparent 40%, ${otherDt.accentBg(0.08)} 50%, transparent 60%)`,
                 }}
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
@@ -583,7 +542,7 @@ export function Sidebar({
         <div
           className="px-2 py-3 space-y-2 border-t"
           style={{
-            borderColor: `rgba(${t.glowRGB},0.08)`,
+            borderColor: dt.accentBorder(0.08),
           }}
         >
           {/* Notification Bell — Desktop Sidebar */}
@@ -596,21 +555,21 @@ export function Sidebar({
             <motion.button
               className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
               style={{
-                background: `linear-gradient(180deg, rgba(${t.glowRGB},0.08) 0%, rgba(${t.glowRGB},0.02) 100%)`,
-                border: `1px solid rgba(${t.glowRGB},0.12)`,
+                background: `linear-gradient(180deg, ${dt.accentBg(0.08)} 0%, ${dt.accentBg(0.02)} 100%)`,
+                border: `1px solid ${dt.accentBorder(0.12)}`,
               }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
             >
               <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden text-[10px] font-bold"
-                style={{ background: `rgba(${t.glowRGB},0.15)`, color: t.primaryColor }}
+                style={{ background: dt.accentBg(0.15), color: dt.accent }}
               >
                 {currentPlayer.avatar
                   ? <img src={currentPlayer.avatar} alt="" className="w-full h-full object-cover" />
                   : currentPlayer.name.charAt(0).toUpperCase()}
               </div>
               <div className="hidden lg:flex flex-col items-start leading-tight min-w-0">
-                <span className="text-[11px] font-semibold truncate max-w-[120px]" style={{ color: t.primaryColor }}>
+                <span className="text-[11px] font-semibold truncate max-w-[120px]" style={{ color: dt.accent }}>
                   {currentPlayer.name}
                 </span>
                 <span className="text-[9px] text-white/25">Tier {currentPlayer.tier}</span>
@@ -621,9 +580,9 @@ export function Sidebar({
               onClick={onPlayerLoginClick}
               className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                color: 'rgba(255,255,255,0.45)',
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border-light)',
+                color: 'var(--text-tertiary)',
               }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
@@ -639,14 +598,14 @@ export function Sidebar({
             className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
             style={{
               background: isAdminAuthenticated
-                ? `linear-gradient(180deg, rgba(${t.glowRGB},0.12) 0%, rgba(${t.glowRGB},0.04) 100%)`
-                : 'rgba(255,255,255,0.03)',
+                ? `linear-gradient(180deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 100%)`
+                : 'var(--surface-2)',
               border: isAdminAuthenticated
-                ? `1px solid rgba(${t.glowRGB},0.25)`
-                : '1px solid rgba(255,255,255,0.06)',
+                ? `1px solid ${dt.accentBorder(0.25)}`
+                : '1px solid var(--border-light)',
               color: isAdminAuthenticated
-                ? t.primaryColor
-                : 'rgba(255,255,255,0.50)',
+                ? dt.accent
+                : 'var(--text-tertiary)',
             }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
@@ -664,9 +623,9 @@ export function Sidebar({
                   minWidth: 16,
                   height: 16,
                   borderRadius: 8,
-                  background: t.primaryColor,
-                  color: division === 'male' ? '#000' : '#fff',
-                  boxShadow: `0 0 8px rgba(${t.glowRGB},0.5)`,
+                  background: dt.accent,
+                  color: dt.accentForeground,
+                  boxShadow: `0 0 8px ${dt.accentGlow(0.5)}`,
                 }}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -698,7 +657,7 @@ function SidebarNavItem({
   isActive: boolean;
   onClick: () => void;
 }) {
-  const t = getThemeTokens(division);
+  const dt = useDivisionTheme(division);
   const Icon = item.icon;
 
   return (
@@ -707,13 +666,13 @@ function SidebarNavItem({
       className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative"
       style={{
         background: isActive
-          ? `linear-gradient(180deg, rgba(${t.glowRGB},0.12) 0%, rgba(${t.glowRGB},0.04) 100%)`
+          ? `linear-gradient(180deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 100%)`
           : 'transparent',
-        color: isActive 
-          ? t.primaryColor 
-          : 'rgba(255,255,255,0.50)',
-        border: isActive 
-          ? `1px solid rgba(${t.glowRGB},0.2)` 
+        color: isActive
+          ? dt.accent
+          : 'var(--text-tertiary)',
+        border: isActive
+          ? `1px solid ${dt.accentBorder(0.2)}`
           : '1px solid transparent',
       }}
       whileHover={{ scale: 1.02 }}
@@ -727,7 +686,7 @@ function SidebarNavItem({
       {isActive && (
         <motion.div
           className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full"
-          style={{ background: t.primaryColor }}
+          style={{ background: dt.accent }}
           layoutId="sidebar-active-indicator"
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         />
@@ -749,7 +708,7 @@ function SidebarGrandFinalItem({
   isActive: boolean;
   onClick: () => void;
 }) {
-  const t = getThemeTokens(division);
+  const dt = useDivisionTheme(division);
 
   return (
     <motion.button
@@ -757,10 +716,10 @@ function SidebarGrandFinalItem({
       className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-xl cursor-pointer outline-none relative overflow-hidden"
       style={{
         background: isActive
-          ? `linear-gradient(135deg, rgba(${t.glowRGB},0.20) 0%, rgba(${t.glowRGB},0.08) 100%)`
-          : `linear-gradient(135deg, rgba(${t.glowRGB},0.08) 0%, rgba(${t.glowRGB},0.03) 100%)`,
-        color: t.primaryColor,
-        border: `1px solid rgba(${t.glowRGB},0.25)`,
+          ? `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.08)} 100%)`
+          : `linear-gradient(135deg, ${dt.accentBg(0.08)} 0%, ${dt.accentBg(0.03)} 100%)`,
+        color: dt.accent,
+        border: `1px solid ${dt.accentBorder(0.25)}`,
       }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
@@ -773,7 +732,7 @@ function SidebarGrandFinalItem({
       {isActive && (
         <motion.div
           className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ boxShadow: `0 0 20px rgba(${t.glowRGB},0.25)` }}
+          style={{ boxShadow: `0 0 20px ${dt.accentGlow(0.25)}` }}
           animate={{ opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -798,7 +757,7 @@ export function TopBar({
   currentPlayer,
   onPlayerLoginClick,
 }: TopBarProps) {
-  const t = getThemeTokens(division);
+  const dt = useDivisionTheme(division);
   const isMale = division === 'male';
   const { settings } = useAppSettings();
 
@@ -822,14 +781,14 @@ export function TopBar({
               background: 'linear-gradient(180deg, rgba(30,30,35,0.92) 0%, rgba(20,20,25,0.95) 100%)',
               backdropFilter: 'blur(24px)',
               WebkitBackdropFilter: 'blur(24px)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.04)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px var(--border-subtle), inset 0 1px 0 var(--border-subtle)',
             }}
           >
             {/* Bottom accent line */}
             <div
               className="absolute bottom-0 left-6 right-6 h-[1px]"
               style={{
-                background: `linear-gradient(90deg, transparent, rgba(${t.glowRGB},0.25), transparent)`,
+                background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.25)}, transparent)`,
               }}
             />
 
@@ -840,13 +799,13 @@ export function TopBar({
                   onClick={onGoHome}
                   className="flex items-center justify-center w-7 h-7 rounded-lg cursor-pointer outline-none flex-shrink-0"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.05) 100%)',
-                    border: '1px solid rgba(255,215,0,0.15)',
+                    background: `linear-gradient(135deg, ${goldRgba(0.12)} 0%, ${goldRgba(0.05)} 100%)`,
+                    border: `1px solid ${goldRgba(0.15)}`,
                   }}
                   whileTap={{ scale: 0.9 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                 >
-                  <LayoutGrid className="w-3.5 h-3.5" style={{ color: '#FFD700' }} strokeWidth={2} />
+                  <LayoutGrid className="w-3.5 h-3.5" style={{ color: 'var(--gold)' }} strokeWidth={2} />
                 </motion.button>
                 <div
                   className="flex items-center gap-2 cursor-pointer"
@@ -855,8 +814,8 @@ export function TopBar({
                   <motion.div
                     className="w-7 h-7 rounded-lg flex items-center justify-center"
                     style={{
-                      background: `linear-gradient(135deg, rgba(${t.glowRGB},1) 0%, rgba(${t.glowRGB2},1) 100%)`,
-                      boxShadow: `0 2px 8px rgba(${t.glowRGB},0.3)`,
+                      background: `linear-gradient(135deg, ${dt.accent} 0%, ${dt.accentLight} 100%)`,
+                      boxShadow: `0 2px 8px ${dt.accentGlow(0.3)}`,
                     }}
                     whileTap={{ scale: 0.9 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 20 }}
@@ -865,7 +824,15 @@ export function TopBar({
                   </motion.div>
 
                   <div className="flex flex-col leading-tight">
-                    <span className={`text-[13px] font-bold tracking-tight ${t.titleGradient}`}>
+                    <span
+                      className="text-[13px] font-bold tracking-tight"
+                      style={{
+                        background: `linear-gradient(to right, ${dt.accentLight}, ${dt.accent}, ${dt.accentDark})`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
                       {settings.app_name}
                     </span>
                     <span className="text-[8px] font-medium tracking-wide text-white/40">
@@ -882,9 +849,9 @@ export function TopBar({
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden text-[10px] font-bold cursor-default"
                     style={{
-                      background: `rgba(${t.glowRGB},0.12)`,
-                      border: `1px solid rgba(${t.glowRGB},0.20)`,
-                      color: t.primaryColor,
+                      background: dt.accentBg(0.12),
+                      border: `1px solid ${dt.accentBorder(0.20)}`,
+                      color: dt.accent,
                     }}
                   >
                     {currentPlayer.avatar
@@ -896,8 +863,8 @@ export function TopBar({
                     onClick={onPlayerLoginClick}
                     className="flex items-center justify-center w-7 h-7 rounded-lg cursor-pointer outline-none"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'var(--surface-3)',
+                      border: '1px solid var(--border-default)',
                     }}
                     whileTap={{ scale: 0.9 }}
                   >
@@ -908,27 +875,31 @@ export function TopBar({
                 <div
                   className="relative flex rounded-lg overflow-hidden"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.05)',
+                    background: 'var(--surface-3)',
+                    border: '1px solid var(--border-subtle)',
                   }}
                 >
                   <button
                     onClick={() => division !== 'male' && onToggleDivision()}
-                    className={`px-2 py-0.5 text-[9px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer ${
-                      division === 'male'
-                        ? 'bg-gradient-to-r from-[#73FF00] to-[#5FD400] text-black rounded-l-md'
-                        : 'text-white/45 hover:text-white/60'
-                    }`}
+                    className="px-2 py-0.5 text-[9px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer rounded-l-md"
+                    style={{
+                      background: division === 'male'
+                        ? `linear-gradient(to right, ${ACCENT.male.primary}, ${ACCENT.male.dark})`
+                        : undefined,
+                      color: division === 'male' ? '#0a0f0d' : 'var(--text-tertiary)',
+                    }}
                   >
                     Male
                   </button>
                   <button
                     onClick={() => division !== 'female' && onToggleDivision()}
-                    className={`px-2 py-0.5 text-[9px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer ${
-                      division === 'female'
-                        ? 'bg-gradient-to-r from-[#38BDF8] to-[#0EA5E9] text-white rounded-r-md'
-                        : 'text-white/45 hover:text-white/60'
-                    }`}
+                    className="px-2 py-0.5 text-[9px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer rounded-r-md"
+                    style={{
+                      background: division === 'female'
+                        ? `linear-gradient(to right, ${ACCENT.female.primary}, ${ACCENT.female.dark})`
+                        : undefined,
+                      color: division === 'female' ? '#ffffff' : 'var(--text-tertiary)',
+                    }}
                   >
                     Female
                   </button>
@@ -946,11 +917,11 @@ export function TopBar({
                   className="relative flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer outline-none"
                   style={{
                     background: isAdminAuthenticated
-                      ? `linear-gradient(180deg, rgba(${t.glowRGB},0.12) 0%, rgba(${t.glowRGB},0.04) 100%)`
-                      : 'rgba(255,255,255,0.04)',
+                      ? `linear-gradient(180deg, ${dt.accentBg(0.12)} 0%, ${dt.accentBg(0.04)} 100%)`
+                      : 'var(--surface-3)',
                     border: isAdminAuthenticated
-                      ? `1px solid rgba(${t.glowRGB},0.25)`
-                      : '1px solid rgba(255,255,255,0.1)',
+                      ? `1px solid ${dt.accentBorder(0.25)}`
+                      : '1px solid var(--border-medium)',
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -959,7 +930,7 @@ export function TopBar({
                   <Shield
                     className="w-4 h-4"
                     style={{
-                      color: isAdminAuthenticated ? t.primaryColor : 'rgba(255,255,255,0.45)',
+                      color: isAdminAuthenticated ? dt.accent : 'var(--text-tertiary)',
                     }}
                     strokeWidth={2}
                   />
@@ -973,11 +944,11 @@ export function TopBar({
                         minWidth: 14,
                         height: 14,
                         borderRadius: 7,
-                        background: t.primaryColor,
-                        color: division === 'male' ? '#000' : '#fff',
+                        background: dt.accent,
+                        color: dt.accentForeground,
                         paddingLeft: 4,
                         paddingRight: 4,
-                        boxShadow: `0 0 6px rgba(${t.glowRGB},0.5)`,
+                        boxShadow: `0 0 6px ${dt.accentGlow(0.5)}`,
                       }}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}

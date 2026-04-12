@@ -180,6 +180,31 @@
   --glass-bg-subtle: rgba(115, 255, 0, 0.015);
   --glass-bg-heavy: rgba(10, 15, 13, 0.88);
 
+  /* ── Surface Opacity Scale (replaces rgba(255,255,255,X) backgrounds) ── */
+  --surface-1: rgba(255, 255, 255, 0.02);
+  --surface-2: rgba(255, 255, 255, 0.03);
+  --surface-3: rgba(255, 255, 255, 0.04);
+  --surface-4: rgba(255, 255, 255, 0.06);
+  --surface-5: rgba(255, 255, 255, 0.08);
+  --surface-6: rgba(255, 255, 255, 0.10);
+  --surface-8: rgba(255, 255, 255, 0.12);
+  --surface-10: rgba(255, 255, 255, 0.15);
+
+  /* ── Border Opacity Scale (replaces rgba(255,255,255,X) borders) ── */
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-bold: rgba(255, 255, 255, 0.20);
+
+  /* ── Overlay & Backdrop ── */
+  --overlay-light: rgba(0, 0, 0, 0.20);
+  --overlay-medium: rgba(0, 0, 0, 0.40);
+  --overlay-heavy: rgba(0, 0, 0, 0.60);
+  --overlay-solid: rgba(0, 0, 0, 0.80);
+  --overlay-full: rgba(10, 10, 15, 0.95);
+
   /* ── Inner Glow Effects ── */
   --inner-glow-primary: inset 0 1px 0 rgba(115, 255, 0, 0.15), inset 0 0 32px rgba(115, 255, 0, 0.08);
   --inner-glow-secondary: inset 0 1px 0 rgba(244, 114, 182, 0.10), inset 0 0 24px rgba(244, 114, 182, 0.04);
@@ -255,6 +280,27 @@
   --glass-bg: rgba(10, 15, 13, 0.65);
   --glass-hover: rgba(15, 20, 17, 0.75);
   --glass-border: rgba(115, 255, 0, 0.10);
+  
+  /* Surface / Border / Overlay (same for dark) */
+  --surface-1: rgba(255, 255, 255, 0.02);
+  --surface-2: rgba(255, 255, 255, 0.03);
+  --surface-3: rgba(255, 255, 255, 0.04);
+  --surface-4: rgba(255, 255, 255, 0.06);
+  --surface-5: rgba(255, 255, 255, 0.08);
+  --surface-6: rgba(255, 255, 255, 0.10);
+  --surface-8: rgba(255, 255, 255, 0.12);
+  --surface-10: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-bold: rgba(255, 255, 255, 0.20);
+  --overlay-light: rgba(0, 0, 0, 0.20);
+  --overlay-medium: rgba(0, 0, 0, 0.40);
+  --overlay-heavy: rgba(0, 0, 0, 0.60);
+  --overlay-solid: rgba(0, 0, 0, 0.80);
+  --overlay-full: rgba(10, 10, 15, 0.95);
 }
 
 /* DARK MALE - Green accent */
@@ -1058,10 +1104,81 @@ html {
 .bg-theme-card { background: var(--card); }
 .bg-theme-elevated { background: var(--background-elevated); }
 .bg-theme-secondary { background: var(--background-secondary); }
+.bg-theme-surface-1 { background: var(--surface-1); }
+.bg-theme-surface-2 { background: var(--surface-2); }
+.bg-theme-surface-3 { background: var(--surface-3); }
+.bg-theme-surface-4 { background: var(--surface-4); }
+.bg-theme-surface-5 { background: var(--surface-5); }
+.bg-theme-surface-6 { background: var(--surface-6); }
+.bg-theme-surface-8 { background: var(--surface-8); }
+.bg-theme-overlay-light { background: var(--overlay-light); }
+.bg-theme-overlay-medium { background: var(--overlay-medium); }
+.bg-theme-overlay-heavy { background: var(--overlay-heavy); }
 
 /* Border utilities — Theme-aware */
 .border-theme { border-color: var(--border); }
 .border-theme-glass { border-color: var(--glass-border); }
+.border-theme-subtle { border-color: var(--border-subtle); }
+.border-theme-light { border-color: var(--border-light); }
+.border-theme-default { border-color: var(--border-default); }
+.border-theme-medium { border-color: var(--border-medium); }
+.border-theme-strong { border-color: var(--border-strong); }
+
+/* Accent utilities — Theme-aware (changes with division) */
+.text-accent { color: var(--primary); }
+.text-accent-light { color: var(--primary-light); }
+.text-accent-dark { color: var(--primary-dark); }
+.bg-accent { background: var(--primary); }
+.bg-accent-muted { background: var(--gold-muted); }
+.bg-accent-glow { background: var(--gold-glow); }
+.border-accent { border-color: var(--primary); }
+
+/* Gold utilities — Always gold regardless of division */
+.text-gold { color: var(--gold); }
+.text-gold-light { color: var(--gold-light); }
+.bg-gold { background: var(--gold); }
+.bg-gold-muted { background: var(--gold-muted); }
+.border-gold { border-color: var(--gold); }
+
+/* Skeleton / Loading Shimmer — Theme-aware */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-4) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Micro-interaction: Press scale */
+.press-scale {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-scale:active {
+  transform: scale(0.97);
+}
+
+/* Micro-interaction: Hover lift */
+.hover-lift {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--depth-3);
+}
+
+/* Micro-interaction: Focus ring glow */
+.focus-glow:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+}
 
 /* ========================================
    iOS Safe Area

@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { QualifiedPlayersModal } from './QualifiedPlayersModal';
 import { AllRankingsModal } from './AllRankingsModal';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
+import { RANK_COLORS, GOLD, goldRgba } from '@/lib/theme-tokens';
 
 /* ─────────────────────────────────────────────
    Interfaces — preserved exactly
@@ -64,28 +66,8 @@ interface MVPData {
 }
 
 /* ─────────────────────────────────────────────
-   Theme Color Helper - colors based on DIVISION
-   Male = Green, Female = Pink
+   Theme Color Helper — now uses useDivisionTheme hook
    ───────────────────────────────────────────── */
-function getThemeColors(division: 'male' | 'female') {
-  if (division === 'male') {
-    // MALE = GREEN
-    return {
-      primary: '#73FF00',
-      primaryRGB: '115,255,0',
-      primaryLight: '#8CFF00',
-      primaryDark: '#4AB800',
-    };
-  } else {
-    // FEMALE = BLUE
-    return {
-      primary: '#38BDF8',
-      primaryRGB: '56,189,248',
-      primaryLight: '#7DD3FC',
-      primaryDark: '#0EA5E9',
-    };
-  }
-}
 
 interface DashboardProps {
   division: 'male' | 'female';
@@ -159,7 +141,7 @@ const staggeredItem = {
   }),
 };
 
-const rankColors = ['#FFD60A', '#C7C7CC', '#CD7F32'];
+// rankColors now imported from theme-tokens as RANK_COLORS
 
 /* ─────────────────────────────────────────────
    Helpers
@@ -301,8 +283,8 @@ export function Dashboard({
   const heroCardClass = 'card-hero card-hero-corner';  // Premium hero with spinning border
   const statsCardClass = 'card-float card-accent-line';  // Lightweight for many cards
   
-  // Get theme-aware colors based on DIVISION (dark mode only)
-  const themeColors = getThemeColors(division);
+  // Get theme-aware colors based on DIVISION
+  const dt = useDivisionTheme(division);
 
   /* ── Theme-aware accent colors based on DIVISION ── */
   const accentColor = isMale 
@@ -513,9 +495,7 @@ export function Dashboard({
               className={`text-[24px] sm:text-[28px] lg:text-[40px] font-black leading-[1.1] mb-2 hero-shimmer-title ${isMale ? 'shimmer-gold' : 'shimmer-pink'}`}
               style={{
                 letterSpacing: '-0.03em',
-                textShadow: isMale
-                  ? '0 0 40px rgba(255,214,10,0.08)'
-                  : '0 0 40px rgba(56, 189, 248,0.08)',
+                textShadow: `0 0 40px ${goldRgba(0.08)}`
               }}
             >
               {tournament?.name || divisionLabel}
@@ -641,7 +621,7 @@ export function Dashboard({
                   {isOngoing && (
                     <motion.button
                       onClick={(e) => { e.stopPropagation(); onNavigate?.('bracket'); }}
-                      className={`w-full py-3.5 rounded-2xl text-[14px] font-semibold ${accentBg} ${accentColor} border ${isMale ? 'border-[#73FF00]/20' : 'border-[#38BDF8]/20'} flex items-center justify-center gap-2.5`}
+                      className={`w-full py-3.5 rounded-2xl text-[14px] font-semibold ${accentBg} ${accentColor} border ${'border-primary/20'} flex items-center justify-center gap-2.5`}
                       whileHover={{ scale: 1.012 }}
                       whileTap={{ scale: 0.975 }}
                       transition={springTransition}
@@ -675,18 +655,18 @@ export function Dashboard({
                     className="hero-result-card lg:flex-1 lg:min-w-0"
                     style={{
                       background: false
-                        ? `linear-gradient(145deg, rgba(${themeColors.primaryRGB},0.10) 0%, rgba(255,255,255,0.85) 50%, rgba(${themeColors.primaryRGB},0.05) 100%)`
-                        : `linear-gradient(145deg, rgba(${themeColors.primaryRGB},0.06) 0%, rgba(18,18,22,0.50) 50%, rgba(${themeColors.primaryRGB},0.02) 100%)`,
+                        ? `linear-gradient(145deg, ${dt.accentBg(0.10)} 0%, rgba(255,255,255,0.85) 50%, ${dt.accentBg(0.05)} 100%)`
+                        : `linear-gradient(145deg, ${dt.accentBg(0.06)} 0%, rgba(18,18,22,0.50) 50%, ${dt.accentBg(0.02)} 100%)`,
                       borderColor: false
-                        ? `rgba(${themeColors.primaryRGB},0.15)`
-                        : `rgba(${themeColors.primaryRGB},0.10)`,
+                        ? dt.accentBorder(0.15)
+                        : dt.accentBorder(0.10),
                     }}
                   >
                     {/* Subtle glow line at top */}
                     <div
                       className="result-glow"
                       style={{
-                        background: `linear-gradient(90deg, transparent, rgba(${themeColors.primaryRGB},0.20), transparent)`,
+                        background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.20)}, transparent)`,
                       }}
                     />
 
@@ -697,19 +677,19 @@ export function Dashboard({
                           className="w-12 h-12 rounded-2xl flex items-center justify-center"
                           style={{
                             background: false
-                              ? `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.20), rgba(${themeColors.primaryRGB},0.10))`
-                              : `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.14), rgba(${themeColors.primaryRGB},0.06))`,
-                            border: `0.5px solid rgba(${themeColors.primaryRGB},0.20)`,
+                              ? `linear-gradient(135deg, ${dt.accentBg(0.20)}, ${dt.accentBg(0.10)})`
+                              : `linear-gradient(135deg, ${dt.accentBg(0.14)}, ${dt.accentBg(0.06)})`,
+                            border: `0.5px solid ${dt.accentBorder(0.20)}`,
                           }}
                         >
-                          <Crown className={`w-6 h-6`} style={{ color: themeColors.primary }} />
+                          <Crown className={`w-6 h-6`} style={{ color: dt.accent }} />
                         </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <span
                           className="text-[9px] font-black uppercase"
-                          style={{ letterSpacing: '0.2em', color: `rgba(${themeColors.primaryRGB},0.70)` }}
+                          style={{ letterSpacing: '0.2em', color: dt.accentBorder(0.70) }}
                         >
                           Pemenang Pekan Ini
                         </span>
@@ -726,11 +706,11 @@ export function Dashboard({
                           className="w-10 h-10 rounded-xl flex items-center justify-center"
                           style={{
                             background: false
-                              ? `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.15), rgba(${themeColors.primaryRGB},0.08))`
-                              : `linear-gradient(135deg, rgba(${themeColors.primaryRGB},0.10), rgba(${themeColors.primaryRGB},0.04))`,
+                              ? `linear-gradient(135deg, ${dt.accentBg(0.15)}, ${dt.accentBg(0.08)})`
+                              : `linear-gradient(135deg, ${dt.accentBg(0.10)}, ${dt.accentBg(0.04)})`,
                           }}
                         >
-                          <Trophy className="w-5 h-5" style={{ color: `rgba(${themeColors.primaryRGB},0.70)` }} />
+                          <Trophy className="w-5 h-5" style={{ color: dt.accentBorder(0.70) }} />
                         </div>
                       </motion.div>
                     </div>
@@ -765,7 +745,7 @@ export function Dashboard({
                             <p className={`text-[13px] font-semibold truncate leading-snug ${false ? 'text-slate-800' : 'text-white/90'}`}>
                               {member.userName}
                               {member.role === 'captain' && (
-                                <span className="ml-2 text-[9px] font-bold uppercase" style={{ letterSpacing: '0.08em', color: `rgba(${themeColors.primaryRGB},0.40)` }}>
+                                <span className="ml-2 text-[9px] font-bold uppercase" style={{ letterSpacing: '0.08em', color: dt.accentBorder(0.40) }}>
                                   CPT
                                 </span>
                               )}
@@ -910,8 +890,8 @@ export function Dashboard({
             className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none"
             style={{
               background: isMale
-                ? 'radial-gradient(circle at 50% 30%, rgba(115,255,0,0.06) 0%, transparent 70%)'
-                : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
+                ? `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`
+                : `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`,
             }}
           />
           <div className="relative z-10 min-w-0">
@@ -925,11 +905,11 @@ export function Dashboard({
               Peserta
             </p>
             <div className="flex items-center justify-center gap-1 mt-2">
-              <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
-              <span className={`text-[8px] font-bold tracking-[0.15em] ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`}>
+              <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${accentColor} opacity-40`} />
+              <span className={`text-[8px] font-bold tracking-[0.15em] ${accentColor} opacity-40`}>
                 TAP
               </span>
-              <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
+              <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${accentColor} opacity-40`} />
             </div>
           </div>
         </motion.button>
@@ -947,8 +927,8 @@ export function Dashboard({
             className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none"
             style={{
               background: isMale
-                ? 'radial-gradient(circle at 50% 30%, rgba(115,255,0,0.06) 0%, transparent 70%)'
-                : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
+                ? `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`
+                : `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`,
             }}
           />
           <div className="relative z-10 min-w-0">
@@ -962,11 +942,11 @@ export function Dashboard({
               Hadiah
             </p>
             <div className="flex items-center justify-center gap-1 mt-2">
-              <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
-              <span className={`text-[8px] font-bold tracking-[0.15em] ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`}>
+              <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${accentColor} opacity-40`} />
+              <span className={`text-[8px] font-bold tracking-[0.15em] ${accentColor} opacity-40`}>
                 TAP
               </span>
-              <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
+              <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${accentColor} opacity-40`} />
             </div>
           </div>
         </motion.button>
@@ -985,8 +965,8 @@ export function Dashboard({
               className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none"
               style={{
                 background: isMale
-                  ? 'radial-gradient(circle at 50% 30%, rgba(115,255,0,0.06) 0%, transparent 70%)'
-                  : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
+                  ? `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`
+                  : `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`,
               }}
             />
             <div className="relative z-10 min-w-0">
@@ -1000,11 +980,11 @@ export function Dashboard({
                 Sistem Poin
               </p>
               <div className="flex items-center justify-center gap-1 mt-2">
-                <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
-                <span className={`text-[8px] font-bold tracking-[0.15em] ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`}>
+                <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${accentColor} opacity-40`} />
+                <span className={`text-[8px] font-bold tracking-[0.15em] ${accentColor} opacity-40`}>
                   TAP
                 </span>
-                <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
+                <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${accentColor} opacity-40`} />
               </div>
             </div>
           </motion.button>
@@ -1023,8 +1003,8 @@ export function Dashboard({
             className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none"
             style={{
               background: isMale
-                ? 'radial-gradient(circle at 50% 30%, rgba(115,255,0,0.06) 0%, transparent 70%)'
-                : 'radial-gradient(circle at 50% 30%, rgba(56, 189, 248,0.06) 0%, transparent 70%)',
+                ? `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`
+                : `radial-gradient(circle at 50% 30%, ${dt.accentBg(0.06)} 0%, transparent 70%)`,
             }}
           />
           <div className="relative z-10 min-w-0">
@@ -1040,11 +1020,11 @@ export function Dashboard({
             <div
               className="flex items-center justify-center gap-1 mt-2"
             >
-              <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
-              <span className={`text-[8px] font-bold tracking-[0.15em] ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`}>
+              <ChevronRight className={`w-2.5 h-2.5 -rotate-90 ${accentColor} opacity-40`} />
+              <span className={`text-[8px] font-bold tracking-[0.15em] ${accentColor} opacity-40`}>
                 TAP
               </span>
-              <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${isMale ? 'text-[#73FF00]/40' : 'text-[#38BDF8]/40'}`} />
+              <ChevronRight className={`w-2.5 h-2.5 rotate-90 ${accentColor} opacity-40`} />
             </div>
           </div>
         </motion.button>
@@ -1060,7 +1040,7 @@ export function Dashboard({
             <div
               className="absolute top-0 left-0 right-0 h-[1px]"
               style={{
-                background: `linear-gradient(90deg, transparent, rgba(${themeColors.primaryRGB},0.3), transparent)`,
+                background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.3)}, transparent)`,
               }}
             />
 
@@ -1152,9 +1132,7 @@ export function Dashboard({
                         ? 'linear-gradient(135deg, #FFD60A, #E5A800)'
                         : 'linear-gradient(135deg, #A78BFA, #8B5CF6)',
                       color: '#000',
-                      boxShadow: isMale
-                        ? '0 0 16px rgba(255,214,10,0.35)'
-                        : '0 0 16px rgba(56, 189, 248,0.35)',
+                      boxShadow: `0 0 16px ${goldRgba(0.35)}`
                     }}
                   >
                     1
@@ -1234,7 +1212,7 @@ export function Dashboard({
                 className="w-full mt-5 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden min-h-[44px]"
                 style={{
                   background: 'transparent',
-                  border: `1px solid ${isMale ? 'rgba(255,214,10,0.1)' : 'rgba(56, 189, 248,0.1)'}`,
+                  border: `1px solid ${dt.accentBorder(0.1)}`,
                 }}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
@@ -1243,9 +1221,7 @@ export function Dashboard({
                 <motion.div
                   className="absolute inset-x-0 top-0 h-[1px]"
                   style={{
-                    background: isMale
-                      ? 'linear-gradient(90deg, transparent, rgba(255,214,10,0.4), transparent)'
-                      : 'linear-gradient(90deg, transparent, rgba(56, 189, 248,0.4), transparent)',
+                    background: `linear-gradient(90deg, transparent, ${goldRgba(0.4)}, transparent)`
                   }}
                   animate={{
                     opacity: [0.3, 0.7, 0.3],
@@ -1283,8 +1259,8 @@ export function Dashboard({
               className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center mb-2 sm:mb-3`}
               style={{
                 background: isMale
-                  ? 'linear-gradient(135deg, rgba(255,214,10,0.12), rgba(255,159,10,0.05))'
-                  : 'linear-gradient(135deg, rgba(56, 189, 248,0.12), rgba(196,181,253,0.05))',
+                  ? `linear-gradient(135deg, ${goldRgba(0.12)}, rgba(255,159,10,0.05))`
+                  : `linear-gradient(135deg, ${dt.accentBg(0.12)}, rgba(196,181,253,0.05))`,
               }}
             >
               <UserPlus className={`w-4 h-4 sm:w-[18px] sm:h-[18px] ${accentColor}`} />
@@ -1418,7 +1394,7 @@ export function Dashboard({
             <>
               <motion.div
                 className="space-y-1.5 max-h-96 sm:max-h-[420px] overflow-y-auto pr-0.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full"
-                style={{ scrollbarWidth: 'thin', scrollbarColor: isMale ? 'rgba(115,255,0,0.12) transparent' : 'rgba(56,189,248,0.12) transparent' }}
+                style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBorder(0.12)} transparent` }}
                 variants={container}
                 initial="hidden"
                 animate="show"
@@ -1439,11 +1415,11 @@ export function Dashboard({
                       style={
                         index < 3
                           ? {
-                              background: `linear-gradient(160deg, ${rankColors[index]} 0%, ${
+                              background: `linear-gradient(160deg, ${RANK_COLORS[index].color} 0%, ${
                                 index === 1 ? '#8E8E93' : index === 2 ? '#A0522D' : '#E5A800'
                               } 100%)`,
                               color: index === 1 ? '#1C1C1E' : index === 2 ? '#fff' : '#000',
-                              boxShadow: `0 2px 6px ${rankColors[index]}30, inset 0 1px 0 rgba(255,255,255,${index === 2 ? '0.15' : '0.35'})`,
+                              boxShadow: `0 2px 6px ${RANK_COLORS[index].color}30, inset 0 1px 0 rgba(255,255,255,${index === 2 ? '0.15' : '0.35'})`,
                             }
                           : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.25)' }
                       }
@@ -1477,7 +1453,7 @@ export function Dashboard({
                       <span
                         className="text-[12px] sm:text-[13px] font-bold tabular-nums"
                         style={{
-                          background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                          background: `linear-gradient(135deg, ${GOLD.primary}, ${GOLD.light})`,
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
                           backgroundClip: 'text',
@@ -1492,8 +1468,8 @@ export function Dashboard({
                               key={sp.season}
                               className="text-[6px] font-semibold px-0.5 rounded"
                               style={{
-                                background: false ? 'rgba(56,189,248,0.08)' : 'rgba(115,255,0,0.08)',
-                                color: false ? 'rgba(56,189,248,0.5)' : 'rgba(115,255,0,0.5)',
+                                background: dt.accentBg(0.08),
+                                color: dt.accentBorder(0.5),
                               }}
                             >
                               S{sp.season}:{sp.points}
@@ -1513,18 +1489,18 @@ export function Dashboard({
                   className="w-full mt-3 py-3 rounded-xl text-[12px] font-semibold tracking-wide cursor-pointer outline-none flex items-center justify-center gap-1.5 min-h-[44px]"
                   style={{
                     background: showAllPlayers
-                      ? `rgba(${themeColors.primaryRGB},0.08)`
+                      ? dt.accentBg(0.08)
                       : (false ? 'rgba(100,116,139,0.06)' : 'rgba(255,255,255,0.03)'),
                     border: showAllPlayers
-                      ? `1px solid rgba(${themeColors.primaryRGB},0.15)`
+                      ? `1px solid ${dt.accentBorder(0.15)}`
                       : `1px solid ${false ? 'rgba(100,116,139,0.10)' : 'rgba(255,255,255,0.06)'}`,
                     color: showAllPlayers
-                      ? themeColors.primary
+                      ? dt.accent
                       : (false ? 'text-slate-500' : 'text-white/40'),
                   }}
                   whileHover={{
                     background: showAllPlayers
-                      ? `rgba(${themeColors.primaryRGB},0.12)`
+                      ? dt.accentBg(0.12)
                       : (false ? 'rgba(100,116,139,0.10)' : 'rgba(255,255,255,0.06)'),
                   }}
                   whileTap={{ scale: 0.98 }}
@@ -1574,7 +1550,7 @@ export function Dashboard({
               {/* Club rows */}
               <motion.div
                 className="space-y-1.5 max-h-96 sm:max-h-[420px] overflow-y-auto pr-0.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full"
-                style={{ scrollbarWidth: 'thin', scrollbarColor: isMale ? 'rgba(115,255,0,0.12) transparent' : 'rgba(56,189,248,0.12) transparent' }}
+                style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBorder(0.12)} transparent` }}
                 variants={container}
                 initial="hidden"
                 animate="show"
@@ -1601,11 +1577,11 @@ export function Dashboard({
                           style={
                             index < 3
                               ? {
-                                  background: `linear-gradient(160deg, ${rankColors[index]} 0%, ${
+                                  background: `linear-gradient(160deg, ${RANK_COLORS[index].color} 0%, ${
                                     index === 1 ? '#8E8E93' : index === 2 ? '#A0522D' : '#E5A800'
                                   } 100%)`,
                                   color: index === 1 ? '#1C1C1E' : index === 2 ? '#fff' : '#000',
-                                  boxShadow: `0 2px 6px ${rankColors[index]}30, inset 0 1px 0 rgba(255,255,255,${index === 2 ? '0.15' : '0.35'})`,
+                                  boxShadow: `0 2px 6px ${RANK_COLORS[index].color}30, inset 0 1px 0 rgba(255,255,255,${index === 2 ? '0.15' : '0.35'})`,
                                 }
                               : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.25)' }
                           }
@@ -1675,7 +1651,7 @@ export function Dashboard({
                         <div className={`pl-10 pr-3 py-2 space-y-1.5 max-h-64 overflow-y-auto ${false ? 'bg-slate-50/50' : 'bg-white/[0.02]'} [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full`}>
                           {isLoading ? (
                             <div className="flex items-center justify-center py-4">
-                              <div className={`w-5 h-5 border-2 border-t-transparent rounded-full animate-spin ${isMale ? 'border-[#73FF00]' : 'border-[#38BDF8]'}`} />
+                              <div className={`w-5 h-5 border-2 border-t-transparent rounded-full animate-spin ${'border-primary'}`} />
                             </div>
                           ) : members.length > 0 ? (
                             members.map((member, idx) => (
@@ -1751,9 +1727,9 @@ export function Dashboard({
             background: `linear-gradient(
               110deg,
               transparent 20%,
-              ${isMale ? 'rgba(255,214,10,0.05)' : 'rgba(56, 189, 248,0.05)'} 35%,
-              ${isMale ? 'rgba(255,214,10,0.10)' : 'rgba(56, 189, 248,0.10)'} 50%,
-              ${isMale ? 'rgba(255,214,10,0.05)' : 'rgba(56, 189, 248,0.05)'} 65%,
+              ${dt.accentBg(0.05)} 35%,
+              ${dt.accentBg(0.10)} 50%,
+              ${dt.accentBg(0.05)} 65%,
               transparent 80%
             )`,
             backgroundSize: '200% 100%',
@@ -1765,11 +1741,11 @@ export function Dashboard({
           className="absolute top-0 left-0 right-0 h-[1.5px]"
           style={{
             background: isMale
-              ? 'linear-gradient(90deg, transparent, rgba(255,214,10,0.4) 50%, transparent)'
-              : 'linear-gradient(90deg, transparent, rgba(56, 189, 248,0.4) 50%, transparent)',
+              ? `linear-gradient(90deg, transparent, ${goldRgba(0.4)} 50%, transparent)`
+              : `linear-gradient(90deg, transparent, ${dt.accentBg(0.4)} 50%, transparent)`,
             boxShadow: isMale
-              ? '0 0 16px rgba(255,214,10,0.2)'
-              : '0 0 16px rgba(56, 189, 248,0.2)',
+              ? `0 0 16px ${goldRgba(0.2)}`
+              : `0 0 16px ${dt.accentBg(0.2)}`,
           }}
         />
 
@@ -1778,8 +1754,8 @@ export function Dashboard({
             className="w-11 h-11 lg:w-14 lg:h-14 rounded-xl flex items-center justify-center shrink-0"
             style={{
               background: isMale
-                ? 'linear-gradient(135deg, rgba(255,214,10,0.16), rgba(229,168,0,0.06))'
-                : 'linear-gradient(135deg, rgba(56, 189, 248,0.16), rgba(212,201,31,0.06))',
+                ? `linear-gradient(135deg, ${goldRgba(0.16)}, rgba(229,168,0,0.06))`
+                : `linear-gradient(135deg, ${dt.accentBg(0.16)}, rgba(212,201,31,0.06))`,
             }}
           >
             <Trophy className={`w-5 h-5 lg:w-7 lg:h-7 ${accentColor}`} />

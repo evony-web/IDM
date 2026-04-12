@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppSettings } from '@/hooks/useAppSettings';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
+import { ACCENT, GOLD, goldRgba, createDivisionTheme } from '@/lib/theme-tokens';
 // Logo comes from useAppSettings().settings.logo_url
 import ShareButton from '@/components/esports/ShareButton';
 import {
@@ -217,12 +219,14 @@ function TopNavBar({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const dtMale = useDivisionTheme('male');
+  const dtFemale = useDivisionTheme('female');
   const liveCount = activeData.liveMatchCount || 0;
   const totalPlayers = activeData.male.totalPlayers + activeData.female.totalPlayers;
 
   const navLinks = [
-    { label: 'Male Division', icon: Swords, division: 'male' as const, color: '#73FF00' },
-    { label: 'Female Division', icon: Shield, division: 'female' as const, color: '#38BDF8' },
+    { label: 'Male Division', icon: Swords, division: 'male' as const, color: dtMale.accent },
+    { label: 'Female Division', icon: Shield, division: 'female' as const, color: dtFemale.accent },
   ];
 
   return (
@@ -241,7 +245,7 @@ function TopNavBar({
             : 'rgba(5,5,7,0.60)',
           backdropFilter: 'blur(28px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-          borderBottom: `1px solid rgba(255,255,255,${scrolled ? '0.08' : '0.04'})`,
+          borderBottom: `1px solid ${scrolled ? 'var(--border-default)' : 'var(--border-subtle)'}`,
           transition: 'background 0.3s ease, border-color 0.3s ease',
         }}
       >
@@ -249,7 +253,7 @@ function TopNavBar({
         <div
           className="h-[1.5px] w-full"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(115,255,0,0.35) 20%, rgba(255,215,0,0.30) 50%, rgba(56,189,248,0.35) 80%, transparent 100%)',
+            background: `linear-gradient(90deg, transparent 0%, ${dtMale.accentBg(0.35)} 20%, ${goldRgba(0.30)} 50%, ${dtFemale.accentBg(0.35)} 80%, transparent 100%)`,
           }}
         />
 
@@ -269,7 +273,7 @@ function TopNavBar({
               <h1
                 className="text-[14px] font-black tracking-tight leading-none"
                 style={{
-                  background: 'linear-gradient(135deg, #73FF00, #FFD700, #38BDF8)',
+                  background: `linear-gradient(135deg, ${dtMale.accent}, var(--gold), ${dtFemale.accent})`,
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -305,11 +309,11 @@ function TopNavBar({
             <div
               className="flex items-center gap-1 px-2.5 py-1 rounded-full"
               style={{
-                background: 'rgba(115,255,0,0.06)',
-                border: '1px solid rgba(115,255,0,0.12)',
+                background: dtMale.accentBg(0.06),
+                border: `1px solid ${dtMale.accentBorder(0.12)}`,
               }}
             >
-              <Users className="w-3 h-3" style={{ color: '#73FF00' }} />
+              <Users className="w-3 h-3" style={{ color: dtMale.accent }} />
               <span className="text-[10px] font-bold text-white/60">{totalPlayers}</span>
             </div>
 
@@ -324,12 +328,12 @@ function TopNavBar({
               onClick={onAdminLogin}
               className="flex items-center justify-center w-10 h-10 rounded-xl cursor-pointer"
               style={{
-                background: 'rgba(255,215,0,0.06)',
-                border: '1px solid rgba(255,215,0,0.12)',
+                background: goldRgba(0.06),
+                border: `1px solid ${goldRgba(0.12)}`,
               }}
               whileTap={{ scale: 0.88 }}
             >
-              <Shield className="w-4 h-4" style={{ color: '#FFD700' }} />
+              <Shield className="w-4 h-4" style={{ color: 'var(--gold)' }} />
             </motion.button>
           </div>
         </div>
@@ -349,14 +353,14 @@ function TopNavBar({
             : 'rgba(5,5,7,0.50)',
           backdropFilter: 'blur(24px) saturate(1.6)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-          borderBottom: `1px solid rgba(255,255,255,${scrolled ? '0.06' : '0.03'})`,
+          borderBottom: `1px solid ${scrolled ? 'var(--border-light)' : 'var(--border-subtle)'}`,
         }}
       >
         {/* Top accent line */}
         <div
           className="h-[1px] w-full"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(115,255,0,0.3) 25%, rgba(255,215,0,0.25) 50%, rgba(56,189,248,0.3) 75%, transparent 100%)',
+            background: `linear-gradient(90deg, transparent 0%, ${dtMale.accentBg(0.3)} 25%, ${goldRgba(0.25)} 50%, ${dtFemale.accentBg(0.3)} 75%, transparent 100%)`,
           }}
         />
 
@@ -373,7 +377,7 @@ function TopNavBar({
                 <h1
                   className="text-[15px] font-black tracking-tight leading-none"
                   style={{
-                    background: 'linear-gradient(135deg, #73FF00, #FFD700, #38BDF8)',
+                    background: `linear-gradient(135deg, ${dtMale.accent}, var(--gold), ${dtFemale.accent})`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -444,7 +448,7 @@ function TopNavBar({
                 border: '1px solid transparent',
               }}
               whileHover={{
-                color: '#FFD700',
+                color: 'var(--gold)',
                 background: 'rgba(255,215,0,0.06)',
                 borderColor: 'rgba(255,215,0,0.15)',
               }}
@@ -465,7 +469,7 @@ function TopNavBar({
                 border: '1px solid transparent',
               }}
               whileHover={{
-                color: '#FFD700',
+                color: 'var(--gold)',
                 background: 'rgba(255,215,0,0.06)',
                 borderColor: 'rgba(255,215,0,0.15)',
               }}
@@ -480,9 +484,9 @@ function TopNavBar({
           <div className="flex items-center gap-3">
             {/* Player count mini */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(115,255,0,0.06)', border: '1px solid rgba(115,255,0,0.10)' }}
+              style={{ background: dtMale.accentBg(0.06), border: `1px solid ${dtMale.accentBorder(0.10)}` }}
             >
-              <Users className="w-3.5 h-3.5" style={{ color: '#73FF00' }} />
+              <Users className="w-3.5 h-3.5" style={{ color: dtMale.accent }} />
               <span className="text-[11px] font-bold text-white/70">{totalPlayers}</span>
               <span className="text-[9px] text-white/30">pemain</span>
             </div>
@@ -492,16 +496,16 @@ function TopNavBar({
               onClick={onAdminLogin}
               className="flex items-center justify-center w-9 h-9 rounded-xl cursor-pointer"
               style={{
-                background: 'rgba(255,215,0,0.06)',
-                border: '1px solid rgba(255,215,0,0.10)',
+                background: goldRgba(0.06),
+                border: `1px solid ${goldRgba(0.10)}`,
               }}
               whileHover={{
-                background: 'rgba(255,215,0,0.12)',
-                borderColor: 'rgba(255,215,0,0.20)',
+                background: goldRgba(0.12),
+                borderColor: goldRgba(0.20),
               }}
               whileTap={{ scale: 0.92 }}
             >
-              <Shield className="w-4 h-4" style={{ color: '#FFD700' }} />
+              <Shield className="w-4 h-4" style={{ color: 'var(--gold)' }} />
             </motion.button>
           </div>
         </div>
@@ -515,7 +519,7 @@ function TopNavBar({
           background: 'rgba(5,5,7,0.92)',
           backdropFilter: 'blur(28px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
+          borderTop: '1px solid var(--border-light)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
@@ -526,8 +530,8 @@ function TopNavBar({
             whileTap={{ scale: 0.88 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <Gamepad2 className="w-5 h-5" style={{ color: '#FFD700' }} />
-            <span className="text-[9px] font-bold uppercase" style={{ color: '#FFD700' }}>Home</span>
+            <Gamepad2 className="w-5 h-5" style={{ color: 'var(--gold)' }} />
+            <span className="text-[9px] font-bold uppercase" style={{ color: 'var(--gold)' }}>Home</span>
           </motion.button>
 
           {/* Male Division tab */}
@@ -536,7 +540,7 @@ function TopNavBar({
             className="flex flex-col items-center gap-0.5 py-1.5 px-3 min-w-[52px] min-h-[44px] justify-center rounded-xl cursor-pointer"
             whileTap={{ scale: 0.88 }}
           >
-            <Swords className="w-5 h-5" style={{ color: '#73FF00' }} />
+            <Swords className="w-5 h-5" style={{ color: dtMale.accent }} />
             <span className="text-[9px] font-bold text-white/40 uppercase">Male</span>
           </motion.button>
 
@@ -546,7 +550,7 @@ function TopNavBar({
             className="flex flex-col items-center gap-0.5 py-1.5 px-3 min-w-[52px] min-h-[44px] justify-center rounded-xl cursor-pointer"
             whileTap={{ scale: 0.88 }}
           >
-            <Shield className="w-5 h-5" style={{ color: '#38BDF8' }} />
+            <Shield className="w-5 h-5" style={{ color: dtFemale.accent }} />
             <span className="text-[9px] font-bold text-white/40 uppercase">Female</span>
           </motion.button>
 
@@ -638,24 +642,80 @@ function timeAgo(dateStr: string): string {
 
 function LandingSkeleton() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 lg:px-12 xl:px-16 py-12 md:py-16">
-      {/* Hero skeleton */}
-      <div className="flex flex-col items-center mb-12">
-        <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl bg-white/5 animate-pulse" />
-        <div className="w-48 h-8 mt-6 rounded-lg bg-white/5 animate-pulse" />
-        <div className="w-36 h-4 mt-3 rounded bg-white/5 animate-pulse" />
-        <div className="w-64 h-3 mt-2 rounded bg-white/5 animate-pulse" />
+    <div className="min-h-screen flex flex-col items-center justify-start px-3 sm:px-5 lg:px-8 xl:px-12 py-4 md:py-8">
+      {/* Hero skeleton (matches ChampionCarouselBanner layout) */}
+      <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        <div
+          className="w-full aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5] rounded-[20px] skeleton-shimmer"
+          style={{ background: 'var(--surface-2)' }}
+        />
       </div>
+
       {/* Stats skeleton */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-full mb-12">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-20 rounded-2xl bg-white/5 animate-pulse" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface-2)', border: '1px solid var(--border-subtle)' }}>
+            <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
+            <div className="flex-1 space-y-2">
+              <div className="h-2 w-12 rounded skeleton-shimmer" />
+              <div className="h-4 w-16 rounded skeleton-shimmer" />
+            </div>
+          </div>
         ))}
       </div>
-      {/* Cards skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 w-full max-w-full">
-        {[...Array(2)].map((_, i) => (
-          <div key={i} className="h-[480px] rounded-3xl bg-white/5 animate-pulse" />
+
+      {/* Tournament Cards skeleton (matches DivisionCard layout) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="rounded-3xl p-4 md:p-6 space-y-4"
+            style={{ background: 'linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%)', border: '1px solid var(--border-light)' }}
+          >
+            {/* Header skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl skeleton-shimmer" />
+                <div className="space-y-1.5">
+                  <div className="h-3 w-24 rounded skeleton-shimmer" />
+                  <div className="h-2 w-16 rounded skeleton-shimmer" />
+                </div>
+              </div>
+              <div className="h-5 w-16 rounded-full skeleton-shimmer" />
+            </div>
+            {/* Tournament info skeleton */}
+            <div
+              className="rounded-2xl p-4 space-y-3"
+              style={{ background: 'var(--surface-2)', border: '1px solid var(--border-default)' }}
+            >
+              <div className="h-5 w-2/3 rounded skeleton-shimmer" />
+              <div className="h-3 w-1/2 rounded skeleton-shimmer" />
+              <div className="flex gap-2 mt-2">
+                <div className="h-6 w-16 rounded-full skeleton-shimmer" />
+                <div className="h-6 w-16 rounded-full skeleton-shimmer" />
+              </div>
+            </div>
+            {/* Top Players skeleton */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="h-3 w-20 rounded skeleton-shimmer" />
+                <div className="h-2 w-8 rounded skeleton-shimmer" />
+              </div>
+              {[1, 2, 3, 4, 5].map((j) => (
+                <div key={j} className="flex items-center gap-3 py-1.5 px-2 rounded-xl" style={{ background: 'var(--surface-1)' }}>
+                  <div className="w-7 h-7 rounded-lg skeleton-shimmer" />
+                  <div className="w-8 h-8 rounded-full skeleton-shimmer" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3 w-3/4 rounded skeleton-shimmer" />
+                    <div className="h-2 w-1/2 rounded skeleton-shimmer" />
+                  </div>
+                  <div className="h-4 w-10 rounded skeleton-shimmer" />
+                </div>
+              ))}
+            </div>
+            {/* Enter button skeleton */}
+            <div className="h-12 rounded-xl skeleton-shimmer" />
+          </div>
         ))}
       </div>
     </div>
@@ -721,7 +781,7 @@ function PlayerRow({
 }) {
   return (
     <div
-      className={`flex items-center gap-3 py-1.5 px-2 rounded-xl transition-all duration-150 ${player.id ? 'cursor-pointer active:scale-[0.97] hover:bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}
+      className={`flex items-center gap-3 py-1.5 px-2 rounded-xl transition-all duration-150 hover-lift ${player.id ? 'cursor-pointer press-scale hover:bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}
       onClick={player.id && onPlayerClick ? () => { onPlayerClick(player.id, player.gender); } : undefined}
       style={{ touchAction: 'manipulation', animationDelay: `${player.rank * 50}ms`, animation: 'fadeInRow 0.3s ease forwards', opacity: 0 }}
     >
@@ -731,7 +791,7 @@ function PlayerRow({
         style={{
           background:
             player.rank === 1
-              ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+              ? 'linear-gradient(135deg, var(--gold), #FFA500)'
               : player.rank === 2
                 ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
                 : player.rank === 3
@@ -755,7 +815,7 @@ function PlayerRow({
             ? `url(${player.avatar}) center/cover`
             : `linear-gradient(135deg, rgba(${accent},0.25), rgba(${accent},0.08))`,
           border: player.isMVP
-            ? `1.5px solid #FFD700`
+            ? `1.5px solid var(--gold)`
             : `1.5px solid rgba(${accent},0.20)`,
         }}
       >
@@ -774,9 +834,9 @@ function PlayerRow({
             <span
               className="text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
               style={{
-                background: 'rgba(255,215,0,0.15)',
-                color: '#FFD700',
-                border: '1px solid rgba(255,215,0,0.25)',
+                background: goldRgba(0.15),
+                color: 'var(--gold)',
+                border: `1px solid ${goldRgba(0.25)}`,
               }}
             >
               MVP
@@ -791,7 +851,7 @@ function PlayerRow({
         <p
           className="text-[13px] font-bold"
           style={{
-            background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+            background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -820,20 +880,17 @@ function DivisionCard({
   onEnter: () => void;
   onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void;
 }) {
-  const isMale = division === 'male';
-  const accent = isMale ? '115,255,0' : '56,189,248';
-  const accentHex = isMale ? '#73FF00' : '#38BDF8';
-  const accentHex2 = isMale ? '#5FD400' : '#0EA5E9';
-  const label = isMale ? 'MALE DIVISION' : 'FEMALE DIVISION';
-  const Icon = isMale ? Swords : Shield;
+  const dt = useDivisionTheme(division);
+  const label = dt.isMale ? 'MALE DIVISION' : 'FEMALE DIVISION';
+  const Icon = dt.isMale ? Swords : Shield;
 
   return (
     <motion.div
       variants={cardVariants}
       className="relative rounded-3xl overflow-hidden flex flex-col"
       style={{
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-        border: `1px solid rgba(${accent},0.12)`,
+        background: 'linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%)',
+        border: `1px solid ${dt.accentBorder(0.12)}`,
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
       }}
@@ -844,7 +901,7 @@ function DivisionCard({
       <div
         className="h-[2px]"
         style={{
-          background: `linear-gradient(90deg, transparent, rgba(${accent},0.5), transparent)`,
+          background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.5)}, transparent)`,
         }}
       />
 
@@ -852,7 +909,7 @@ function DivisionCard({
       <div
         className="absolute top-0 right-0 w-32 h-32 pointer-events-none"
         style={{
-          background: `radial-gradient(circle at top right, rgba(${accent},0.08) 0%, transparent 70%)`,
+          background: `radial-gradient(circle at top right, ${dt.accentBg(0.08)} 0%, transparent 70%)`,
         }}
       />
 
@@ -863,17 +920,17 @@ function DivisionCard({
             <div
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center"
               style={{
-                background: `linear-gradient(135deg, rgba(${accent},0.20) 0%, rgba(${accent},0.06) 100%)`,
-                border: `1px solid rgba(${accent},0.18)`,
+                background: `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.06)} 100%)`,
+                border: `1px solid ${dt.accentBorder(0.18)}`,
               }}
             >
-              <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" style={{ color: accentHex }} strokeWidth={2} />
+              <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" style={{ color: dt.accent }} strokeWidth={2} />
             </div>
             <div>
               <h3
                 className="text-[11px] sm:text-[13px] font-bold tracking-wider uppercase"
                 style={{
-                  background: `linear-gradient(135deg, ${accentHex}, ${accentHex2})`,
+                  background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -912,8 +969,8 @@ function DivisionCard({
           <div
             className="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 md:mb-4"
             style={{
-              background: `linear-gradient(135deg, rgba(${accent},0.06) 0%, rgba(${accent},0.02) 100%)`,
-              border: `1px solid rgba(${accent},0.08)`,
+              background: `linear-gradient(135deg, ${dt.accentBg(0.06)} 0%, ${dt.accentBg(0.02)} 100%)`,
+                border: `1px solid ${dt.accentBorder(0.08)}`,
             }}
           >
             <p className="text-[12px] sm:text-[14px] font-bold text-white/90 mb-1.5 sm:mb-2">{data.tournament.name}</p>
@@ -921,14 +978,14 @@ function DivisionCard({
               <div>
                 <p className="text-[9px] sm:text-[10px] text-white/35 uppercase tracking-wider">Minggu</p>
                 <p className="text-[11px] sm:text-[13px] font-bold text-white/80 flex items-center gap-1">
-                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ color: accentHex }} />
+                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ color: dt.accent }} />
                   {data.tournament.week}
                 </p>
               </div>
               <div>
                 <p className="text-[9px] sm:text-[10px] text-white/35 uppercase tracking-wider">Peserta</p>
                 <p className="text-[11px] sm:text-[13px] font-bold text-white/80 flex items-center gap-1">
-                  <Users className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ color: accentHex }} />
+                  <Users className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ color: dt.accent }} />
                   {data.tournament.participants}
                 </p>
               </div>
@@ -937,13 +994,13 @@ function DivisionCard({
                 <p
                   className="text-[11px] sm:text-[13px] font-bold flex items-center gap-1"
                   style={{
-                    background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                    background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                   }}
                 >
-                  <Coins className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ WebkitTextFillColor: '#ffd700' }} />
+                  <Coins className="w-2.5 h-2.5 sm:w-3 sm:h-3" style={{ WebkitTextFillColor: 'var(--gold)' }} />
                   {formatRupiah(data.tournament.prizePool)}
                 </p>
               </div>
@@ -953,8 +1010,8 @@ function DivisionCard({
           <div
             className="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 md:mb-4 text-center"
             style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--surface-2)',
+                border: '1px solid var(--border-light)',
             }}
           >
             <p className="text-[12px] text-white/30">Belum ada turnamen aktif</p>
@@ -965,16 +1022,16 @@ function DivisionCard({
         <div className="flex-1 min-h-0">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Star className="w-3.5 h-3.5" style={{ color: '#FFD700' }} />
+              <Star className="w-3.5 h-3.5" style={{ color: 'var(--gold)' }} />
               <p className="text-[11px] font-semibold text-white/45 tracking-wide uppercase">
                 Top Players
               </p>
             </div>
             <span className="text-[10px] text-white/25">Top 5</span>
           </div>
-          <div className="space-y-0.5 max-h-48 sm:max-h-64 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `rgba(${accent},0.12) transparent` }}>
+          <div className="space-y-0.5 max-h-48 sm:max-h-64 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `${dt.accentBg(0.12)} transparent` }}>
             {data.topPlayers.slice(0, 3).map((player) => (
-              <PlayerRow key={player.rank} player={player} accent={accent} onPlayerClick={onPlayerClick} />
+              <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
             ))}
             {data.topPlayers.length > 3 && (
               <div className="sm:hidden text-center py-1">
@@ -982,7 +1039,7 @@ function DivisionCard({
               </div>
             )}
             {data.topPlayers.slice(3, 5).map((player) => (
-              <PlayerRow key={player.rank} player={player} accent={accent} onPlayerClick={onPlayerClick} />
+              <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
             ))}
           </div>
         </div>
@@ -990,15 +1047,15 @@ function DivisionCard({
         {/* Enter Button */}
         <motion.button
           onClick={onEnter}
-          className="w-full mt-3 md:mt-4 flex items-center justify-center gap-2 py-2.5 sm:py-3 md:py-3.5 rounded-xl font-bold text-[11px] sm:text-[12px] md:text-[13px] tracking-wide uppercase cursor-pointer outline-none"
+          className="w-full mt-3 md:mt-4 flex items-center justify-center gap-2 py-2.5 sm:py-3 md:py-3.5 rounded-xl font-bold text-[11px] sm:text-[12px] md:text-[13px] tracking-wide uppercase cursor-pointer outline-none focus-glow"
           style={{
-            background: `linear-gradient(135deg, rgba(${accent},0.18) 0%, rgba(${accent},0.08) 100%)`,
-            border: `1.5px solid rgba(${accent},0.25)`,
-            color: accentHex,
+            background: `linear-gradient(135deg, ${dt.accentBg(0.18)} 0%, ${dt.accentBg(0.08)} 100%)`,
+            border: `1.5px solid ${dt.accentBorder(0.25)}`,
+            color: dt.accent,
           }}
           whileHover={{
-            background: `linear-gradient(135deg, rgba(${accent},0.25) 0%, rgba(${accent},0.12) 100%)`,
-            border: `1.5px solid rgba(${accent},0.35)`,
+            background: `linear-gradient(135deg, ${dt.accentBg(0.25)} 0%, ${dt.accentBg(0.12)} 100%)`,
+            border: `1.5px solid ${dt.accentBorder(0.35)}`,
           }}
           whileTap={{ scale: 0.97 }}
           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
@@ -1017,12 +1074,11 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
   return (
     <>
       {players.map((player) => {
-        const isMale = player.gender === 'male';
-        const accent = isMale ? '115,255,0' : '56,189,248';
+        const dt = createDivisionTheme(player.gender);
         return (
           <div
             key={`${player.gender}-${player.rank}`}
-            className={`flex items-center gap-3 py-1.5 px-2 rounded-xl transition-all duration-150 ${player.id ? 'cursor-pointer active:scale-[0.97] hover:bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}
+            className={`flex items-center gap-3 py-1.5 px-2 rounded-xl transition-all duration-150 hover-lift ${player.id ? 'cursor-pointer press-scale hover:bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}
             onClick={player.id && onPlayerClick ? () => { onPlayerClick(player.id, player.gender); } : undefined}
             style={{ touchAction: 'manipulation', animationDelay: `${Math.min(startDelay + player.rank * 30, 1200)}ms`, animation: 'fadeInRow 0.3s ease forwards', opacity: 0 }}
           >
@@ -1032,13 +1088,13 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
               style={{
                 background:
                   player.rank === 1
-                    ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                    ? 'linear-gradient(135deg, var(--gold), #FFA500)'
                     : player.rank === 2
                       ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
                       : player.rank === 3
                         ? 'linear-gradient(135deg, #CD7F32, #B87333)'
-                        : `rgba(${accent},0.10)`,
-                color: player.rank <= 3 ? '#000' : `rgb(${accent})`,
+                        : dt.accentBg(0.10),
+                color: player.rank <= 3 ? '#000' : dt.accent,
               }}
             >
               {player.rank <= 3 ? (
@@ -1054,14 +1110,14 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
               style={{
                 background: player.avatar
                   ? `url(${player.avatar}) center/cover`
-                  : `linear-gradient(135deg, rgba(${accent},0.25), rgba(${accent},0.08))`,
+                  : `linear-gradient(135deg, ${dt.accentBg(0.25)}, ${dt.accentBg(0.08)})`,
                 border: player.isMVP
-                  ? `1.5px solid #FFD700`
-                  : `1.5px solid rgba(${accent},0.20)`,
+                  ? `1.5px solid var(--gold)`
+                  : `1.5px solid ${dt.accentBorder(0.20)}`,
               }}
             >
               {!player.avatar && (
-                <span className="text-[11px] font-bold" style={{ color: `rgb(${accent})` }}>
+                <span className="text-[11px] font-bold" style={{ color: dt.accent }}>
                   {player.name.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -1070,14 +1126,14 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
             {/* Name + Tier + Gender Badge */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <p className="text-[13px] font-semibold truncate" style={{ color: isMale ? '#73FF00' : '#38BDF8' }}>{player.name}</p>
+                <p className="text-[13px] font-semibold truncate" style={{ color: dt.accent }}>{player.name}</p>
                 {player.isMVP && (
                   <span
                     className="text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                     style={{
-                      background: 'rgba(255,215,0,0.15)',
-                      color: '#FFD700',
-                      border: '1px solid rgba(255,215,0,0.25)',
+                      background: goldRgba(0.15),
+                      color: 'var(--gold)',
+                      border: `1px solid ${goldRgba(0.25)}`,
                     }}
                   >
                     MVP
@@ -1087,12 +1143,12 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
                 <span
                   className="text-[8px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                   style={{
-                    background: isMale ? 'rgba(115,255,0,0.10)' : 'rgba(56,189,248,0.10)',
-                    color: isMale ? '#73FF00' : '#38BDF8',
-                    border: `1px solid ${isMale ? 'rgba(115,255,0,0.18)' : 'rgba(56,189,248,0.18)'}`,
+                    background: dt.accentBg(0.10),
+                    color: dt.accent,
+                    border: `1px solid ${dt.accentBorder(0.18)}`,
                   }}
                 >
-                  {isMale ? 'M' : 'F'}
+                  {dt.isMale ? 'M' : 'F'}
                 </span>
               </div>
               <p className="text-[10px] text-white/35">Tier {player.tier}</p>
@@ -1103,7 +1159,7 @@ function PlayerList({ players, startDelay, onPlayerClick }: { players: TopPlayer
               <p
                 className="text-[13px] font-bold"
                 style={{
-                  background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                  background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -1359,7 +1415,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
                 style={{
                   background:
                     idx === 0
-                      ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                      ? 'linear-gradient(135deg, var(--gold), #FFA500)'
                       : idx === 1
                         ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
                         : idx === 2
@@ -1383,7 +1439,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
                 <span
                   className="text-[10px] sm:text-[11px] font-bold"
                   style={{
-                    background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                    background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -1739,16 +1795,17 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
   const hasMore = displaySeasonPlayers.length > VISIBLE_COUNT;
 
   const genderFilters = [
-    { key: 'all' as const, label: 'Semua', color: '#FFD700' },
-    { key: 'male' as const, label: 'Male', color: '#73FF00' },
-    { key: 'female' as const, label: 'Female', color: '#38BDF8' },
+    { key: 'all' as const, label: 'Semua', color: 'var(--gold)' },
+    { key: 'male' as const, label: 'Male', color: ACCENT.male.primary },
+    { key: 'female' as const, label: 'Female', color: ACCENT.female.primary },
   ];
 
   // ── Shared player row renderer ──
   const renderPlayerRow = (player: SeasonLeaderboardPlayer, idx: number, isExpanded: boolean, onToggle: () => void) => {
     const rank = idx + 1;
-    const accentHex = player.gender === 'male' ? '#73FF00' : '#38BDF8';
-    const accentRGB = player.gender === 'male' ? '115,255,0' : '56,189,248';
+    const pDt = createDivisionTheme(player.gender as 'male' | 'female');
+    const accentHex = pDt.accent;
+    const accentRGB = pDt.accentRgb;
 
     const displayPoints = selectedSeason === 'all'
       ? player.totalSeasonPoints
@@ -1758,22 +1815,22 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
 
     // Rank badge colors
     const rankBg = rank === 1
-      ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+      ? 'linear-gradient(135deg, var(--gold), #FFA500)'
       : rank === 2
         ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
         : rank === 3
           ? 'linear-gradient(135deg, #CD7F32, #B87333)'
-          : `rgba(${accentRGB},0.08)`;
-    const rankColor = rank <= 3 ? '#000' : `rgb(${accentRGB})`;
+          : pDt.accentBg(0.08);
+    const rankColor = rank <= 3 ? '#000' : pDt.accent;
     const rankShadow = rank <= 3
-      ? `0 2px 16px ${rank === 1 ? 'rgba(255,215,0,0.25)' : rank === 2 ? 'rgba(192,192,192,0.20)' : 'rgba(205,127,50,0.20)'}`
+      ? `0 2px 16px ${rank === 1 ? goldRgba(0.25) : rank === 2 ? 'rgba(192,192,192,0.20)' : 'rgba(205,127,50,0.20)'}`
       : 'none';
 
     return (
       <div key={player.id}>
         {/* ── Main Row ── */}
         <div
-          className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 cursor-pointer transition-colors duration-150 hover:bg-white/[0.02]"
+          className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 cursor-pointer transition-colors duration-150 hover:bg-white/[0.02] press-scale hover-lift"
           onClick={onToggle}
         >
           {/* Rank Badge */}
@@ -1790,15 +1847,15 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
             style={{
               background: player.avatar
                 ? `url(${player.avatar}) center/cover`
-                : `linear-gradient(135deg, rgba(${accentRGB},0.25), rgba(${accentRGB},0.08))`,
+                : `linear-gradient(135deg, ${pDt.accentBg(0.25)}, ${pDt.accentBg(0.08)})`,
               border: player.isMVP
-                ? '2.5px solid #FFD700'
-                : `2px solid rgba(${accentRGB},0.25)`,
-              boxShadow: player.isMVP ? '0 0 12px rgba(255,215,0,0.20)' : 'none',
+                ? '2.5px solid var(--gold)'
+                : `2px solid ${pDt.accentBorder(0.25)}`,
+              boxShadow: player.isMVP ? `0 0 12px ${goldRgba(0.20)}` : 'none',
             }}
           >
             {!player.avatar && (
-              <span className="text-[14px] sm:text-[16px] font-bold" style={{ color: `rgb(${accentRGB})` }}>
+              <span className="text-[14px] sm:text-[16px] font-bold" style={{ color: pDt.accent }}>
                 {player.name.charAt(0).toUpperCase()}
               </span>
             )}
@@ -1811,7 +1868,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
               {player.isMVP && (
                 <span
                   className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                  style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.25)' }}
+                  style={{ background: goldRgba(0.15), color: 'var(--gold)', border: `1px solid ${goldRgba(0.25)}` }}
                 >
                   MVP
                 </span>
@@ -1821,8 +1878,8 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
               <span
                 className="text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded-md"
                 style={{
-                  background: player.tier === 'S' ? 'rgba(255,215,0,0.12)' : player.tier === 'A' ? 'rgba(115,255,0,0.10)' : 'rgba(255,255,255,0.05)',
-                  color: player.tier === 'S' ? '#FFD700' : player.tier === 'A' ? '#73FF00' : 'rgba(255,255,255,0.35)',
+                  background: player.tier === 'S' ? goldRgba(0.12) : player.tier === 'A' ? pDt.accentBg(0.10) : 'var(--surface-4)',
+                  color: player.tier === 'S' ? 'var(--gold)' : player.tier === 'A' ? pDt.accent : 'var(--text-quaternary)',
                 }}
               >
                 Tier {player.tier}
@@ -1838,7 +1895,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
             <p
               className="text-[18px] sm:text-[22px] font-black leading-none"
               style={{
-                background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+                background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -1880,12 +1937,12 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                       key={sp.season}
                       className="flex items-center justify-between px-2.5 py-2 rounded-lg"
                       style={{
-                        background: sp.points > 0 ? `rgba(${accentRGB},0.06)` : 'rgba(255,255,255,0.015)',
-                        border: `1px solid ${sp.points > 0 ? `rgba(${accentRGB},0.12)` : 'rgba(255,255,255,0.03)'}`,
+                        background: sp.points > 0 ? pDt.accentBg(0.06) : 'var(--surface-1)',
+                        border: `1px solid ${sp.points > 0 ? pDt.accentBorder(0.12) : 'var(--border-subtle)'}`,
                       }}
                     >
                       <span className="text-[11px] sm:text-[12px] font-bold text-white/40">S{sp.season}</span>
-                      <span className="text-[12px] sm:text-[13px] font-bold" style={{ color: sp.points > 0 ? accentHex : 'rgba(255,255,255,0.15)' }}>
+                      <span className="text-[12px] sm:text-[13px] font-bold" style={{ color: sp.points > 0 ? accentHex : 'var(--border-strong)' }}>
                         {sp.points}
                       </span>
                     </div>
@@ -1907,11 +1964,11 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
           <div
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: 'linear-gradient(135deg, rgba(255,215,0,0.18) 0%, rgba(255,215,0,0.06) 100%)',
-              border: '1px solid rgba(255,215,0,0.22)',
+              background: `linear-gradient(135deg, ${goldRgba(0.18)} 0%, ${goldRgba(0.06)} 100%)`,
+              border: `1px solid ${goldRgba(0.22)}`,
             }}
           >
-            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: '#FFD700' }} />
+            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--gold)' }} />
           </div>
           <div>
             <h2 className="text-[19px] sm:text-[22px] font-black text-white/90 tracking-tight">Leaderboard</h2>
@@ -1929,10 +1986,10 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
           <div className="relative min-w-0" ref={seasonDropdownRef}>
             <motion.button
               onClick={() => setSeasonDropdownOpen(!seasonDropdownOpen)}
-              className="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl cursor-pointer"
+              className="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl cursor-pointer focus-glow"
               style={{
-                background: 'linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.03) 100%)',
-                border: '1px solid rgba(255,215,0,0.15)',
+                background: `linear-gradient(135deg, ${goldRgba(0.08)} 0%, ${goldRgba(0.03)} 100%)`,
+                border: `1px solid ${goldRgba(0.15)}`,
               }}
               whileTap={{ scale: 0.98 }}
             >
@@ -1949,14 +2006,14 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                   }}
                 >
                   {selectedSeason === 'all' ? (
-                    <Medal className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#FFD700' }} />
+                    <Medal className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--gold)' }} />
                   ) : (
                     <span className="text-[10px] sm:text-[12px] font-black" style={{ color: selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.5)' }}>S{selectedSeason}</span>
                   )}
                 </div>
                 <div className="text-left min-w-0">
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <p className="text-[12px] sm:text-[14px] font-bold truncate" style={{ color: selectedSeason === 'all' ? '#FFD700' : selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.6)' }}>
+                    <p className="text-[12px] sm:text-[14px] font-bold truncate" style={{ color: selectedSeason === 'all' ? 'var(--gold)' : selectedSeason === currentSeason ? '#73FF00' : 'rgba(255,255,255,0.6)' }}>
                       {selectedSeason === 'all' ? 'All' : `S${selectedSeason}`}
                     </p>
                     {selectedSeason === currentSeason && (
@@ -1995,13 +2052,13 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                     }}
                   >
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,215,0,0.10)', border: '1px solid rgba(255,215,0,0.18)' }}>
-                      <Medal className="w-4 h-4" style={{ color: '#FFD700' }} />
+                      <Medal className="w-4 h-4" style={{ color: 'var(--gold)' }} />
                     </div>
                     <div className="text-left flex-1">
-                      <p className="text-[13px] font-bold" style={{ color: selectedSeason === 'all' ? '#FFD700' : 'rgba(255,255,255,0.7)' }}>All Seasons (Total)</p>
+                      <p className="text-[13px] font-bold" style={{ color: selectedSeason === 'all' ? 'var(--gold)' : 'rgba(255,255,255,0.7)' }}>All Seasons (Total)</p>
                       <p className="text-[10px] text-white/25">Akumulasi semua season</p>
                     </div>
-                    {selectedSeason === 'all' && <div className="w-2 h-2 rounded-full" style={{ background: '#FFD700', boxShadow: '0 0 6px rgba(255,215,0,0.5)' }} />}
+                    {selectedSeason === 'all' && <div className="w-2 h-2 rounded-full" style={{ background: 'var(--gold)', boxShadow: '0 0 6px rgba(255,215,0,0.5)' }} />}
                   </button>
 
                   <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
@@ -2050,7 +2107,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
               <button
                 key={f.key}
                 onClick={() => setFilterGender(f.key)}
-                className="px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer"
+                className="px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer press-scale focus-glow"
                 style={{
                   background: filterGender === f.key ? `${f.color}15` : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${filterGender === f.key ? `${f.color}28` : 'rgba(255,255,255,0.06)'}`,
@@ -2066,10 +2123,17 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
 
       {/* ═══ Player List ═══ */}
       {!seasonLoaded ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="relative w-8 h-8">
-            <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderTopColor: '#FFD700', borderRightColor: 'rgba(255,215,0,0.3)' }} />
-          </div>
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map(i => (
+            <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--surface-2)' }}>
+              <div className="w-8 h-8 rounded-lg skeleton-shimmer" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-3/4 rounded skeleton-shimmer" />
+                <div className="h-2 w-1/2 rounded skeleton-shimmer" />
+              </div>
+              <div className="h-4 w-12 rounded skeleton-shimmer" />
+            </div>
+          ))}
         </div>
       ) : seasonPlayers.length === 0 ? (
         <div
@@ -2109,6 +2173,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
             className="rounded-2xl overflow-hidden"
             style={{
               background: 'rgba(255,255,255,0.02)',
+              animation: 'fade-in-up 0.5s ease-out',
               border: '1px solid rgba(255,215,0,0.08)',
             }}
           >
@@ -2140,7 +2205,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                   style={{
                     background: 'rgba(255,215,0,0.06)',
                     border: '1px solid rgba(255,215,0,0.12)',
-                    color: '#FFD700',
+                    color: 'var(--gold)',
                   }}
                   whileHover={{
                     background: 'rgba(255,215,0,0.10)',
@@ -2198,7 +2263,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent)', boxShadow: '0 0 16px rgba(255,215,0,0.4)' }} />
                     <div className="flex items-center gap-3.5">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.16), rgba(255,215,0,0.06))' }}>
-                        <BarChart3 className="w-6 h-6" style={{ color: '#FFD700' }} />
+                        <BarChart3 className="w-6 h-6" style={{ color: 'var(--gold)' }} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-lg font-bold text-white/90 tracking-tight">Semua Peringkat</h2>
@@ -2461,7 +2526,7 @@ function QuickInfoSection() {
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="flex items-center gap-2 mb-4">
-        <Info className="w-4 h-4" style={{ color: '#FFD700' }} />
+        <Info className="w-4 h-4" style={{ color: 'var(--gold)' }} />
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi</h2>
       </div>
 
@@ -2515,7 +2580,8 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   if (data.activityLogs && Array.isArray(data.activityLogs)) {
     data.activityLogs.forEach((log) => {
       const isMale = log.userGender === 'male';
-      const accent = isMale ? '115,255,0' : '56,189,248';
+      const dt = createDivisionTheme(log.userGender as 'male' | 'female');
+      const accent = dt.accentRgb;
 
       if (log.action === 'club_transfer') {
         try {
@@ -2581,7 +2647,8 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   // 2. Match results from recentMatches
   data.recentMatches.forEach((match) => {
     const isMale = match.division === 'male';
-    const accent = isMale ? '115,255,0' : '56,189,248';
+    const dt = createDivisionTheme(match.division as 'male' | 'female');
+    const accent = dt.accentRgb;
     const matchLabel = match.round >= 3 ? 'Final' : match.round === 2 ? 'Semi-Final' : `R${match.round}`;
     newsItems.push({
       id: `match-${match.id}`,
@@ -2601,7 +2668,8 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   // 3. Achievements
   data.recentAchievements.forEach((achievement) => {
     const isMale = achievement.userGender === 'male';
-    const accent = isMale ? '115,255,0' : '56,189,248';
+    const dt = createDivisionTheme(achievement.userGender as 'male' | 'female');
+    const accent = dt.accentRgb;
     newsItems.push({
       id: `ach-${achievement.id}`,
       type: 'achievement',
@@ -2629,7 +2697,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
       <div className="flex items-center gap-2 mb-4">
-        <Zap className="w-4 h-4" style={{ color: '#FFD700' }} />
+        <Zap className="w-4 h-4" style={{ color: 'var(--gold)' }} />
         <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Informasi Terbaru</h2>
         {displayed.length > 0 && (
           <span className="text-[11px] text-white/25 ml-1">{displayed.length} update</span>
@@ -2645,21 +2713,22 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
           }}
         >
           {/* Top gradient accent */}
-          <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.3), rgba(115,255,0,0.2), transparent)' }} />
+          <div className="h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${goldRgba(0.3)}, ${dt.accentBg(0.2)}, transparent)` }} />
 
           <div className="p-2 max-h-[304px] md:max-h-none md:flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
             {displayed.map((item, idx) => {
               const isMale = item.playerGender === 'male';
-              const genderAccent = isMale ? '115,255,0' : '56,189,248';
-              const genderAccentHex = isMale ? '#73FF00' : '#38BDF8';
+              const dt = createDivisionTheme(item.playerGender as 'male' | 'female');
+              const genderAccent = dt.accentRgb;
+              const genderAccentHex = dt.accent;
 
               // Type-specific badge colors
               const typeConfig: Record<string, { bg: string; border: string; color: string; label: string }> = {
-                club_transfer: { bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.15)', color: '#38BDF8', label: 'Transfer' },
-                match_result: { bg: 'rgba(115,255,0,0.08)', border: 'rgba(115,255,0,0.15)', color: '#73FF00', label: 'Pertandingan' },
-                achievement: { bg: 'rgba(255,215,0,0.08)', border: 'rgba(255,215,0,0.15)', color: '#FFD700', label: 'Pencapaian' },
+                club_transfer: { bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.15)', color: ACCENT.female.primary, label: 'Transfer' },
+                match_result: { bg: 'rgba(115,255,0,0.08)', border: 'rgba(115,255,0,0.15)', color: ACCENT.male.primary, label: 'Pertandingan' },
+                achievement: { bg: 'rgba(255,215,0,0.08)', border: 'rgba(255,215,0,0.15)', color: 'var(--gold)', label: 'Pencapaian' },
                 win_streak: { bg: 'rgba(255,165,0,0.08)', border: 'rgba(255,165,0,0.15)', color: '#FFA500', label: 'Win Streak' },
-                tournament_win: { bg: 'rgba(255,215,0,0.10)', border: 'rgba(255,215,0,0.20)', color: '#FFD700', label: 'Juara' },
+                tournament_win: { bg: 'rgba(255,215,0,0.10)', border: 'rgba(255,215,0,0.20)', color: 'var(--gold)', label: 'Juara' },
               };
               const cfg = typeConfig[item.type] || typeConfig.achievement;
 
@@ -2695,8 +2764,8 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
                         style={{
                           background: item.playerAvatar
                             ? `url(${item.playerAvatar}) center/cover`
-                            : `linear-gradient(135deg, rgba(${genderAccent},0.25), rgba(${genderAccent},0.08))`,
-                          border: `1px solid rgba(${genderAccent},0.20)`,
+                            : `linear-gradient(135deg, ${dt.accentBg(0.25)}, ${dt.accentBg(0.08)})`,
+                          border: `1px solid ${dt.accentBorder(0.20)}`,
                         }}
                       >
                         {!item.playerAvatar && (
@@ -2726,9 +2795,9 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
                       <span
                         className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                         style={{
-                          background: isMale ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
+                          background: dt.accentBg(0.08),
                           color: genderAccentHex,
-                          border: `1px solid ${isMale ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
+                          border: `1px solid ${dt.accentBorder(0.15)}`,
                         }}
                       >
                         {isMale ? 'M' : 'F'}
@@ -2867,7 +2936,7 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
         <div className="relative w-10 h-10">
           <motion.div
             className="absolute inset-0 rounded-full"
-            style={{ border: '2px solid transparent', borderTopColor: '#FFD700', borderRightColor: 'rgba(255,215,0,0.3)' }}
+            style={{ border: '2px solid transparent', borderTopColor: 'var(--gold)', borderRightColor: 'rgba(255,215,0,0.3)' }}
             animate={{ rotate: 360 }}
             transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
           />
@@ -2882,7 +2951,7 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
             animate={{ scale: [1, 1.3, 1] }}
             transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#FFD700' }} />
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gold)' }} />
           </motion.div>
         </div>
         <motion.p
@@ -2958,11 +3027,11 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
           }}
           whileHover={{ scale: 1.02 }}
         >
-          <Coins className="w-3.5 h-3.5" style={{ color: '#FFD700' }} />
+          <Coins className="w-3.5 h-3.5" style={{ color: 'var(--gold)' }} />
           <span
             className="text-[12px] font-bold"
             style={{
-              background: 'linear-gradient(135deg, #ffd700, #ffec8b)',
+              background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -2992,7 +3061,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
             <div className="flex items-center gap-1 p-2 mx-3 mt-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
               <button
                 onClick={() => setActiveTab('sawer')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer press-scale focus-glow ${
                   activeTab === 'sawer' ? 'text-white' : 'text-white/30 hover:text-white/50'
                 }`}
                 style={activeTab === 'sawer' ? {
@@ -3006,7 +3075,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
               </button>
               <button
                 onClick={() => setActiveTab('donasi')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer press-scale focus-glow ${
                   activeTab === 'donasi' ? 'text-white' : 'text-white/30 hover:text-white/50'
                 }`}
                 style={activeTab === 'donasi' ? {
@@ -3015,7 +3084,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                   boxShadow: '0 0 12px rgba(255,215,0,0.06)',
                 } : {}}
               >
-                <Heart className="w-3.5 h-3.5" style={{ color: activeTab === 'donasi' ? '#FFD700' : 'currentColor' }} />
+                <Heart className="w-3.5 h-3.5" style={{ color: activeTab === 'donasi' ? 'var(--gold)' : 'currentColor' }} />
                 Donasi ({sortedDonations.length})
               </button>
             </div>
@@ -3037,7 +3106,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: idx * 0.04 }}
-                        className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03] relative"
+                        className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03] relative hover-lift"
                         style={{
                           background: idx === 0
                             ? 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(244,114,182,0.10) 40%, rgba(255,215,0,0.06) 70%, rgba(255,107,53,0.08) 100%)'
@@ -3066,7 +3135,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                               animate={{ scale: [0.8, 1.1, 0.7, 1], opacity: [0.5, 0.9, 0.4, 0.8] }}
                               transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
                             >
-                              <Flame className="w-3.5 h-3.5" style={{ color: '#FFD700', filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' }} />
+                              <Flame className="w-3.5 h-3.5" style={{ color: 'var(--gold)', filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' }} />
                             </motion.div>
                             <motion.div
                               className="absolute top-0 right-9"
@@ -3101,7 +3170,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                             {idx === 0 && (
                               <motion.span
                                 className="text-[7px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
-                                style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: '#FFD700', border: '1px solid rgba(255,215,0,0.30)' }}
+                                style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: 'var(--gold)', border: '1px solid rgba(255,215,0,0.30)' }}
                                 animate={{ textShadow: ['0 0 4px rgba(255,215,0,0.3)', '0 0 8px rgba(255,215,0,0.6)', '0 0 4px rgba(255,215,0,0.3)'] }}
                                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                               >👑 #1</motion.span>
@@ -3110,7 +3179,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                             {sawer.targetPlayerName && (
                               <>
                                 <span className="text-[10px] text-white/20">→</span>
-                                <p className="text-[11px] font-medium truncate" style={{ color: sawer.division === 'male' ? '#73FF00' : '#38BDF8' }}>
+                                <p className="text-[11px] font-medium truncate" style={{ color: sawer.division === 'male' ? ACCENT.male.primary : ACCENT.female.primary }}>
                                   {sawer.targetPlayerName}
                                 </p>
                               </>
@@ -3120,7 +3189,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                                 className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                                 style={{
                                   background: sawer.division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                                  color: sawer.division === 'male' ? '#73FF00' : '#38BDF8',
+                                  color: sawer.division === 'male' ? ACCENT.male.primary : ACCENT.female.primary,
                                   border: `1px solid ${sawer.division === 'male' ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
                                 }}
                               >
@@ -3201,7 +3270,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                               {donation.anonymous ? '🤲 Hamba Allah' : donation.donorName}
                             </p>
                             {donation.anonymous && (
-                              <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
+                              <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: 'var(--gold)', border: '1px solid rgba(255,215,0,0.12)' }}>
                                 ANONIM
                               </span>
                             )}
@@ -3263,7 +3332,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
             {hasDonasi && (
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-2 px-1">
-                  <Heart className="w-3 h-3" style={{ color: '#FFD700' }} />
+                  <Heart className="w-3 h-3" style={{ color: 'var(--gold)' }} />
                   <span className="text-[10px] font-bold tracking-wider uppercase text-yellow-400/70">Donasi</span>
                   <span className="text-[9px] text-white/20 ml-0.5">({sortedDonations.length})</span>
                 </div>
@@ -3307,7 +3376,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                             {donation.anonymous ? '🤲 Hamba Allah' : donation.donorName}
                           </p>
                           {donation.anonymous && (
-                            <span className="text-[7px] font-bold px-1 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.12)' }}>
+                            <span className="text-[7px] font-bold px-1 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.08)', color: 'var(--gold)', border: '1px solid rgba(255,215,0,0.12)' }}>
                               ANONIM
                             </span>
                           )}
@@ -3404,7 +3473,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                             animate={{ scale: [0.8, 1.1, 0.7, 1], opacity: [0.5, 0.9, 0.4, 0.8] }}
                             transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
                           >
-                            <Flame className="w-3 h-3" style={{ color: '#FFD700', filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' }} />
+                            <Flame className="w-3 h-3" style={{ color: 'var(--gold)', filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' }} />
                           </motion.div>
                           <motion.div
                             className="absolute top-0 right-7"
@@ -3439,7 +3508,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                           {idx === 0 && (
                             <motion.span
                               className="text-[7px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
-                              style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: '#FFD700', border: '1px solid rgba(255,215,0,0.30)' }}
+                              style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.20), rgba(255,107,53,0.15))', color: 'var(--gold)', border: '1px solid rgba(255,215,0,0.30)' }}
                               animate={{ textShadow: ['0 0 4px rgba(255,215,0,0.3)', '0 0 8px rgba(255,215,0,0.6)', '0 0 4px rgba(255,215,0,0.3)'] }}
                               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                             >👑 #1</motion.span>
@@ -3448,7 +3517,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                           {sawer.targetPlayerName && (
                             <>
                               <span className="text-[9px] text-white/20">→</span>
-                              <p className="text-[10px] font-medium truncate" style={{ color: sawer.division === 'male' ? '#73FF00' : '#38BDF8' }}>
+                              <p className="text-[10px] font-medium truncate" style={{ color: sawer.division === 'male' ? ACCENT.male.primary : ACCENT.female.primary }}>
                                 {sawer.targetPlayerName}
                               </p>
                             </>
@@ -3458,7 +3527,7 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
                               className="text-[7px] font-bold px-1 py-0.5 rounded-full flex-shrink-0"
                               style={{
                                 background: sawer.division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                                color: sawer.division === 'male' ? '#73FF00' : '#38BDF8',
+                                color: sawer.division === 'male' ? ACCENT.male.primary : ACCENT.female.primary,
                                 border: `1px solid ${sawer.division === 'male' ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
                               }}
                             >
@@ -3806,7 +3875,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
                       {/* Prize Row */}
                       <div className="flex items-center gap-2 mt-2">
                         {currentSlide.champion.prize > 0 && (
-                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.20)', color: '#FFD700' }}>
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold" style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.20)', color: 'var(--gold)' }}>
                             <Coins className="w-3 h-3" />
                             {formatRupiah(currentSlide.champion.prize)}
                           </span>
@@ -4108,7 +4177,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
       />
       <Settings
         className="w-5 h-5 relative z-10"
-        style={{ color: '#FFD700' }}
+        style={{ color: 'var(--gold)' }}
         strokeWidth={2}
       />
     </motion.button>
