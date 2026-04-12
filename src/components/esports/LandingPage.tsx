@@ -1738,10 +1738,10 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
   const [selectedSeason, setSelectedSeason] = useState<number | 'all'>(1); // Default to current season
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [seasonDropdownOpen, setSeasonDropdownOpen] = useState(false);
-  const [showAllModal, setShowAllModal] = useState(false);
   const seasonDropdownRef = useRef<HTMLDivElement>(null);
 
-  const VISIBLE_COUNT = 7;
+  const [showAll, setShowAll] = useState(false);
+  const VISIBLE_COUNT = 10;
 
   // Helper to process API response
   const processSeasonData = (json: any) => {
@@ -1820,7 +1820,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
     });
   }, [seasonPlayers, selectedSeason]);
 
-  const visiblePlayers = displaySeasonPlayers.slice(0, VISIBLE_COUNT);
+  const visiblePlayers = showAll ? displaySeasonPlayers : displaySeasonPlayers.slice(0, VISIBLE_COUNT);
   const hasMore = displaySeasonPlayers.length > VISIBLE_COUNT;
 
   const genderFilters = [
@@ -2225,11 +2225,11 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
               })}
             </div>
 
-            {/* CTA Lihat Semua */}
-            {hasMore && (
+            {/* CTA Lihat Semua / Ciutkan */}
+            {hasMore && !showAll && (
               <div className="p-3 sm:p-4">
                 <motion.button
-                  onClick={() => setShowAllModal(true)}
+                  onClick={() => setShowAll(true)}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] sm:text-[13px] font-semibold tracking-wide cursor-pointer transition-colors"
                   style={{
                     background: 'rgba(255,215,0,0.06)',
@@ -2242,93 +2242,29 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                   }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Lihat Semua Pemain
-                  <ArrowRight className="w-4 h-4" />
+                  Lihat Semua Pemain ({displaySeasonPlayers.length})
+                  <ChevronDown className="w-4 h-4" />
+                </motion.button>
+              </div>
+            )}
+            {showAll && (
+              <div className="p-3 sm:p-4">
+                <motion.button
+                  onClick={() => setShowAll(false)}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] sm:text-[13px] font-semibold tracking-wide cursor-pointer transition-colors"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.4)',
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Ciutkan
+                  <ChevronUp className="w-4 h-4" />
                 </motion.button>
               </div>
             )}
           </div>
-
-          {/* ═══ Full Leaderboard Modal ═══ */}
-          <AnimatePresence>
-            {showAllModal && (
-              <motion.div
-                className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
-              >
-                <motion.div
-                  className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setShowAllModal(false)}
-                />
-                <motion.div
-                  className="relative w-full max-w-md max-h-[75vh] sm:max-h-[80vh] mx-2 sm:mx-4 mb-20 sm:mb-4 rounded-t-3xl sm:rounded-3xl overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(18,18,22,0.99) 100%)',
-                    boxShadow: '0 0 60px rgba(255,215,0,0.08), 0 25px 50px -12px rgba(0,0,0,0.5)',
-                  }}
-                  initial={{ y: '100%', opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: '100%', opacity: 0 }}
-                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                  drag="y"
-                  dragConstraints={{ top: 0, bottom: 0 }}
-                  dragElastic={{ top: 0, bottom: 0.5 }}
-                  onDragEnd={(_, info) => {
-                    if (info.offset.y > 100 || info.velocity.y > 500) {
-                      setShowAllModal(false);
-                    }
-                  }}
-                >
-                  <div className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
-                    <div className="w-10 h-1 rounded-full bg-white/20" />
-                  </div>
-                  <div className="relative px-5 pt-3 pb-4 border-b border-white/[0.06]">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent)', boxShadow: '0 0 16px rgba(255,215,0,0.4)' }} />
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.16), rgba(255,215,0,0.06))' }}>
-                        <BarChart3 className="w-6 h-6" style={{ color: 'var(--gold)' }} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h2 className="text-lg font-bold text-white/90 tracking-tight">Semua Peringkat</h2>
-                        <p className="text-[12px] text-white/45 mt-0.5">{displaySeasonPlayers.length} pemain • {selectedSeason === 'all' ? 'All Seasons' : `S${selectedSeason}`}</p>
-                      </div>
-                      <motion.button
-                        onClick={() => setShowAllModal(false)}
-                        className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer"
-                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
-                        whileHover={{ background: 'rgba(255,255,255,0.10)' }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <X className="w-4 h-4 text-white/50" />
-                      </motion.button>
-                    </div>
-                  </div>
-                  <div
-                    className="overflow-y-auto max-h-[calc(75vh-120px)] sm:max-h-[calc(80vh-120px)] divide-y divide-white/[0.04]"
-                    style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.12) transparent' }}
-                  >
-                    {displaySeasonPlayers.map((player, idx) => {
-                      const isExpanded = expandedPlayer === player.id;
-                      return renderPlayerRow(player, idx, isExpanded, () => {
-                        if (selectedSeason === 'all') {
-                          setExpandedPlayer(isExpanded ? null : player.id);
-                        } else if (onPlayerClick) {
-                          onPlayerClick(player.id, player.gender as 'male' | 'female');
-                          setShowAllModal(false);
-                        }
-                      });
-                    })}
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </>
       )}
     </motion.div>
