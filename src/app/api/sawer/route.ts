@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { triggerNewSawer } from '@/lib/pusher';
 import { verifyAdmin } from '@/lib/admin-guard';
+import { uploadBase64ToCloudinary } from '@/lib/server-utils';
 
 // GET /api/sawer — fetch recent confirmed sawer feed
 export async function GET() {
@@ -47,19 +48,58 @@ export async function POST(req: NextRequest) {
 
     const sawerAmount = Number(amount);
 
+    // ── Upload proof image to Cloudinary CDN ──
+    let cdnProofUrl: string | null = null;
+    if (proofImageUrl) {
+      if (proofImageUrl.startsWith('https://res.cloudinary.com')) {
+        // Already on Cloudinary — use as-is
+        cdnProofUrl = proofImageUrl;
+      } else if (proofImageUrl.startsWith('data:image/')) {
+        // Base64 image — upload to Cloudinary
+        const result = await uploadBase64ToCloudinary(proofImageUrl, 'idm/proof/sawer', {
+          maxWidth: 1200,
+          maxHeight: 1200,
+          quality: 'auto:good',
+        });
+        if (result) {
+          cdnProofUrl = result.url;
+        } else {
+          console.warn('[Sawer] Cloudinary upload failed for proof image — storing null');
+        }
+      } else if (proofImageUrl.startsWith('http')) {
+        // External URL — store as-is
+        cdnProofUrl = proofImageUrl;
+      }
+    }
+
+    // ── Upload sender avatar to Cloudinary if it's base64 ──
+    let cdnSenderAvatar: string | null = null;
+    if (senderAvatar) {
+      if (senderAvatar.startsWith('https://res.cloudinary.com') || senderAvatar.startsWith('http')) {
+        cdnSenderAvatar = senderAvatar;
+      } else if (senderAvatar.startsWith('data:image/')) {
+        const result = await uploadBase64ToCloudinary(senderAvatar, 'idm/avatars', {
+          maxWidth: 256,
+          maxHeight: 256,
+          quality: 'auto:good',
+        });
+        cdnSenderAvatar = result ? result.url : null;
+      }
+    }
+
     // Create sawer record with pending status
     const sawer = await db.sawer.create({
       data: {
         tournamentId: tournamentId || null,
         senderName: String(senderName).slice(0, 50),
-        senderAvatar: senderAvatar || null,
+        senderAvatar: cdnSenderAvatar,
         targetPlayerId: targetPlayerId || null,
         targetPlayerName: targetPlayerName ? String(targetPlayerName).slice(0, 50) : null,
         amount: sawerAmount,
         message: message ? String(message).slice(0, 200) : null,
         paymentMethod: paymentMethod || 'qris',
         paymentStatus: 'pending',
-        proofImageUrl: proofImageUrl || null,
+        proofImageUrl: cdnProofUrl,
       },
     });
 

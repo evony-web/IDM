@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { triggerNewDonation, triggerNewSawer } from '@/lib/pusher';
+import { uploadBase64ToCloudinary } from '@/lib/server-utils';
 
 // GET - Get donations (only confirmed, for Liga Season 2 funding)
 export async function GET(request: NextRequest) {
@@ -82,6 +83,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ── Upload proof image to Cloudinary CDN ──
+    let cdnProofUrl: string | null = null;
+    if (proofImageUrl) {
+      if (proofImageUrl.startsWith('https://res.cloudinary.com')) {
+        // Already on Cloudinary — use as-is
+        cdnProofUrl = proofImageUrl;
+      } else if (proofImageUrl.startsWith('data:image/')) {
+        // Base64 image — upload to Cloudinary
+        const result = await uploadBase64ToCloudinary(proofImageUrl, 'idm/proof/donations', {
+          maxWidth: 1200,
+          maxHeight: 1200,
+          quality: 'auto:good',
+        });
+        if (result) {
+          cdnProofUrl = result.url;
+        } else {
+          // Cloudinary upload failed — store nothing (better than bloated base64)
+          console.warn('[Donations] Cloudinary upload failed for proof image — storing null');
+        }
+      } else if (proofImageUrl.startsWith('http')) {
+        // External URL — store as-is (might be from another CDN)
+        cdnProofUrl = proofImageUrl;
+      }
+    }
+
     const donation = await db.donation.create({
       data: {
         id: uuidv4(),
@@ -92,7 +118,7 @@ export async function POST(request: NextRequest) {
         anonymous: anonymous || false,
         paymentMethod: paymentMethod || 'qris',
         paymentStatus: 'pending',
-        proofImageUrl: proofImageUrl || null,
+        proofImageUrl: cdnProofUrl,
       },
       include: {
         user: {

@@ -2,6 +2,7 @@
 // Falls back to env vars, then to generic defaults
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { DEFAULT_LOGO_URL } from '@/lib/server-utils';
 
 // Theme color mapping
 const THEME_COLORS: Record<string, string> = {
@@ -16,7 +17,7 @@ const DEFAULTS = {
     'Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.',
   logo_url:
     process.env.NEXT_PUBLIC_LOGO_URL ||
-    '/icon-192.png',
+    DEFAULT_LOGO_URL,
   default_theme: 'dark',
 };
 

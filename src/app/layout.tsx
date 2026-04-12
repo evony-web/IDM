@@ -4,6 +4,7 @@ import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { DEFAULT_LOGO_URL } from "@/lib/server-utils";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -26,9 +27,7 @@ const geistMono = Geist_Mono({
 // ── Dynamic Configuration ──
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "IDOL META";
 const APP_URL = process.env.NEXTAUTH_URL || "https://idm-tournament.vercel.app";
-const LOGO_URL =
-  process.env.NEXT_PUBLIC_LOGO_URL ||
-  "https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png";
+const LOGO_URL = process.env.NEXT_PUBLIC_LOGO_URL || DEFAULT_LOGO_URL;
 const OG_IMAGE_URL = `${APP_URL}/api/og`;
 
 export const viewport: Viewport = {

@@ -2,6 +2,7 @@
 // Replaces all hardcoded brand strings, payment settings, etc.
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { DEFAULT_LOGO_URL } from '@/lib/server-utils';
 
 // Default settings used when no DB record exists
 // These are FALLBACKS only — admin can override all via Settings panel
@@ -16,7 +17,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   app_share_text: 'IDOL META — TARKAM Fan Made Tournament',
 
   // Logo & Images
-  logo_url: process.env.NEXT_PUBLIC_LOGO_URL || 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png',
+  logo_url: process.env.NEXT_PUBLIC_LOGO_URL || DEFAULT_LOGO_URL,
   banner_male_url: '',
   banner_female_url: '',
 

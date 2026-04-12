@@ -47,14 +47,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!cloudinaryResult) {
-      // Fallback: return base64 data URL if Cloudinary upload fails
+      // Cloudinary upload failed — return error instead of base64 fallback
+      console.error('[AI Image] Cloudinary upload failed — cannot store image locally');
       return NextResponse.json({
-        success: true,
-        imageUrl: dataUrl,
-        prompt: prompt,
-        size: size,
-        isFallback: true,
-      });
+        success: false,
+        error: 'Image generated but CDN upload failed. Please try again.',
+      }, { status: 503 });
     }
 
     return NextResponse.json({

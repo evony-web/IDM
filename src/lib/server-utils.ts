@@ -1,9 +1,20 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 
-// Cloud CDN constants — logo URL comes from env or falls back to Cloudinary default
-const DEFAULT_LOGO_URL = process.env.NEXT_PUBLIC_LOGO_URL || 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png';
+// ═══════════════════════════════════════════════════════════════════════
+// Cloudinary CDN Configuration & Utilities
+//
+// ALL images in this app are stored on Cloudinary CDN.
+// No local filesystem storage — serverless-compatible.
+//
+// Single source of truth for logo URL:
+//   1. NEXT_PUBLIC_LOGO_URL env var (highest priority)
+//   2. Default Cloudinary CDN URL (optimized WebP)
+// ═══════════════════════════════════════════════════════════════════════
+
+/** Default logo URL — Cloudinary CDN with auto WebP + quality optimization */
+export const DEFAULT_LOGO_URL =
+  process.env.NEXT_PUBLIC_LOGO_URL ||
+  'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png';
 
 // Cloud CDN constants
 export const CDN = {
@@ -107,6 +118,10 @@ export async function uploadToCloudinary(buffer: Buffer, folder: string = 'idm')
   }
 }
 
+/**
+ * Extract the Cloudinary public ID from a URL.
+ * Returns null if the URL is not a Cloudinary URL.
+ */
 export function getCloudinaryPublicId(url: string): string | null {
   if (!url || !url.includes('cloudinary.com')) return null;
   try {
@@ -116,12 +131,4 @@ export function getCloudinaryPublicId(url: string): string | null {
   } catch {
     return null;
   }
-}
-
-export async function saveUploadFile(buffer: Buffer, filename: string): Promise<string> {
-  const uploadDir = path.join(process.cwd(), 'upload');
-  await mkdir(uploadDir, { recursive: true });
-  const filepath = path.join(uploadDir, filename);
-  await writeFile(filepath, buffer);
-  return `/upload/${filename}`;
 }

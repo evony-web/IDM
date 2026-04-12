@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { DEFAULT_LOGO_URL } from '@/lib/server-utils';
 
 const BASE_URL = process.env.NEXTAUTH_URL || 'https://idm-tournament.netlify.app';
-const LOGO_URL = 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png';
+const LOGO_URL = DEFAULT_LOGO_URL;
 
 // Color palette
 const COLORS = {

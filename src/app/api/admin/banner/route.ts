@@ -62,8 +62,9 @@ export async function PUT(request: Request) {
           quality: 'auto:good',
         });
         if (result) return result.url;
-        // Fallback: store base64 (shouldn't happen normally)
-        return value;
+        // Cloudinary upload failed — return null rather than storing base64
+        console.warn(`[Banner] Cloudinary upload failed for ${key} — storing null`);
+        return null;
       }
 
       return value;

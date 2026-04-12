@@ -38,8 +38,11 @@ export async function POST(request: NextRequest) {
     if (cloudinaryResult) {
       imageUrl = cloudinaryResult.url;
     } else {
-      // Fallback: store base64 in DB (not ideal but works)
-      imageUrl = dataUrl;
+      // Cloudinary upload failed — return error instead of storing base64 in DB
+      console.error('[Generate Avatar] Cloudinary upload failed — cannot store base64 in DB');
+      return NextResponse.json({
+        error: 'Avatar generated but CDN upload failed. Please try again.',
+      }, { status: 503 });
     }
 
     await db.character.update({
