@@ -179,3 +179,33 @@ Stage Summary:
   | Tournament finalize (prize distribution) | ✅ Yes (lazy) |
   | Admin global sync (POST /api/wallet/sync) | ✅ Yes |
 - No separate wallet signup step needed anymore — wallet is created automatically
+
+---
+Task ID: 9
+Agent: Main Agent
+Task: Implement PIN setup flow for players with auto-created wallets (no PIN)
+
+Work Log:
+- Analyzed current PIN system: PIN stored on User.playerPin (SHA-256 hashed), used for NextAuth authentication
+- Identified UX gap: players with auto-created wallets have no PIN and the existing "Daftar/Masuk" button was confusing
+- Created /api/wallet/setup-pin/route.ts — dedicated API for setting PIN on existing accounts
+  - Finds user by phone (primary) or name+gender (secondary, case-insensitive)
+  - Returns USER_NOT_FOUND if no match, PIN_ALREADY_SET if user already has PIN
+  - Sets playerPin and phone (if missing) on the matched user
+  - Ensures wallet exists (defensive, should already exist from auto-create)
+- Updated WalletTab.tsx with "Aktifkan PIN" flow:
+  - Replaced simple "Daftar/Masuk" button with two clear options:
+    1. "Aktifkan PIN" (primary, prominent) — for players already registered in tournaments
+    2. "Daftar/Masuk" (secondary) — for new players via PlayerAuth modal
+  - Added inline setup PIN form with: name, phone, PIN, confirm PIN inputs
+  - Added PIN match indicator, error/success messages
+  - Auto-login via NextAuth after PIN setup success
+  - Back button to return to button view
+- Added new imports: Lock, Eye, EyeOff, User, Phone, CheckCircle, AlertTriangle, KeyRound, signIn
+- Lint: passes clean, dev server running normally
+
+Stage Summary:
+- Players with auto-created wallets (no PIN) now have a clear "Aktifkan PIN" flow
+- Two-step process: (1) Click "Aktifkan PIN", (2) Enter name + phone + PIN → auto-login
+- Dedicated /api/wallet/setup-pin endpoint with proper error handling
+- WalletTab title changed from "Wallet Belum Tersedia" to "Wallet Belum Aktif"

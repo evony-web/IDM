@@ -24,8 +24,17 @@ import {
   Star,
   Swords,
   Target,
+  Lock,
+  Eye,
+  EyeOff,
+  User,
+  Phone,
+  CheckCircle,
+  AlertTriangle,
+  KeyRound,
 } from 'lucide-react';
 import { useDivisionTheme } from '@/hooks/useDivisionTheme';
+import { signIn } from 'next-auth/react';
 
 // ═══════════════════════════════════════════════════════════════════════
 // BOUNTIE-STYLE WALLET TAB — Dark glassmorphism, Indonesian labels
@@ -169,8 +178,84 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
   const [userSearch, setUserSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<SearchedUser | null>(null);
 
+  // Setup PIN form (for players who have auto-created wallet but no PIN)
+  const [showSetupPin, setShowSetupPin] = useState(false);
+  const [setupPinName, setSetupPinName] = useState('');
+  const [setupPinPhone, setSetupPinPhone] = useState('');
+  const [setupPin, setSetupPin] = useState('');
+  const [setupPinConfirm, setSetupPinConfirm] = useState('');
+  const [showSetupPinVis, setShowSetupPinVis] = useState(false);
+  const [showSetupPinConfirmVis, setShowSetupPinConfirmVis] = useState(false);
+  const [isSettingUpPin, setIsSettingUpPin] = useState(false);
+  const [setupPinError, setSetupPinError] = useState('');
+  const [setupPinSuccess, setSetupPinSuccess] = useState('');
+
   const animatedBalance = useAnimatedCounter(wallet?.balance ?? 0);
   const animatedLeaderboard = useAnimatedCounter(leaderboardPoints);
+
+  // ── Setup PIN handler ──
+  const handleSetupPin = useCallback(async () => {
+    setSetupPinError('');
+
+    const trimmedName = setupPinName.trim();
+    const trimmedPhone = setupPinPhone.trim();
+
+    if (!trimmedName) { setSetupPinError('Nama wajib diisi'); return; }
+    if (!trimmedPhone) { setSetupPinError('Nomor HP wajib diisi'); return; }
+    if (!/^\d{4,6}$/.test(setupPin)) { setSetupPinError('PIN harus 4-6 digit angka'); return; }
+    if (setupPin !== setupPinConfirm) { setSetupPinError('PIN dan konfirmasi PIN tidak cocok'); return; }
+
+    setIsSettingUpPin(true);
+    try {
+      // Step 1: Set PIN via setup-pin API
+      const res = await fetch('/api/wallet/setup-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: trimmedName,
+          phone: trimmedPhone,
+          gender: division,
+          pin: setupPin,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setSetupPinError(data.error || 'Gagal mengatur PIN. Coba lagi.');
+        setIsSettingUpPin(false);
+        return;
+      }
+
+      // Step 2: Auto-login via NextAuth
+      const loginResult = await signIn('player-credentials', {
+        phone: trimmedPhone,
+        pin: setupPin,
+        redirect: false,
+      });
+
+      if (loginResult?.error) {
+        setSetupPinSuccess('PIN berhasil dibuat! Silakan masuk dengan PIN Anda.');
+        setShowSetupPin(false);
+        // Reset form
+        setSetupPinName(''); setSetupPinPhone(''); setSetupPin(''); setSetupPinConfirm('');
+        setIsSettingUpPin(false);
+        return;
+      }
+
+      // Step 3: Success — trigger refresh
+      setSetupPinSuccess('PIN berhasil! Mengakses wallet...');
+      setTimeout(() => {
+        setShowSetupPin(false);
+        setSetupPinName(''); setSetupPinPhone(''); setSetupPin(''); setSetupPinConfirm('');
+        setSetupPinSuccess(''); setSetupPinError('');
+        // Refresh the page to pick up new session
+        window.location.reload();
+      }, 1000);
+    } catch {
+      setSetupPinError('Terjadi kesalahan jaringan. Coba lagi.');
+    }
+    setIsSettingUpPin(false);
+  }, [setupPinName, setupPinPhone, setupPin, setupPinConfirm, division]);
 
   const fetchWallet = useCallback(async () => {
     if (!currentUserId) {
@@ -334,10 +419,10 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
     );
   }
 
-  // ── No user state — show login prompt ──
+  // ── No user state — show login/setup PIN prompt ──
   if (!currentUserId) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+      <div className="flex flex-col items-center justify-center py-10 text-center px-6">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -350,26 +435,233 @@ export function WalletTab({ division, currentUserId, onLoginClick, onLogout, cur
         >
           <WalletIcon className="w-9 h-9" style={{ color: dt.accent }} />
         </motion.div>
-        <h3 className="text-lg font-bold text-white/80 mb-1">Wallet Belum Tersedia</h3>
-        <p className="text-sm text-white/35 mb-6 max-w-[260px]">
-          Daftar atau masuk untuk mengakses wallet, melihat poin, dan melakukan transfer
+        <h3 className="text-lg font-bold text-white/80 mb-1">Wallet Belum Aktif</h3>
+        <p className="text-sm text-white/35 mb-6 max-w-[280px]">
+          Sudah terdaftar turnamen? Aktifkan PIN untuk mengakses wallet Anda
         </p>
-        {onLoginClick && (
-          <motion.button
-            onClick={onLoginClick}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2"
-            style={{
-              background: `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.08)} 100%)`,
-              border: `1.5px solid ${dt.accentBorder(0.30)}`,
-              color: dt.accent,
-            }}
-          >
-            <WalletIcon className="w-4 h-4" />
-            Daftar / Masuk
-          </motion.button>
-        )}
+
+        {/* ═══ Setup PIN Form ═══ */}
+        <AnimatePresence mode="wait">
+          {showSetupPin ? (
+            <motion.div
+              key="setup-form"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="w-full max-w-sm space-y-3"
+            >
+              {/* Info banner */}
+              <div
+                className="flex items-start gap-2.5 p-3 rounded-xl text-left"
+                style={{
+                  background: dt.accentBg(0.06),
+                  border: `0.5px solid ${dt.accentBorder(0.12)}`,
+                }}
+              >
+                <KeyRound className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: dt.accent }} />
+                <p className="text-[11px] text-white/50 leading-relaxed">
+                  Masukkan nama dan HP sesuai data pendaftaran turnamen untuk mengaktifkan PIN wallet Anda
+                </p>
+              </div>
+
+              {/* Success message */}
+              {setupPinSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 text-[12px] rounded-xl px-4 py-3 font-medium"
+                  style={{
+                    color: dt.accent,
+                    background: dt.accentBg(0.08),
+                    border: `1px solid ${dt.accentBorder(0.15)}`,
+                  }}
+                >
+                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                  {setupPinSuccess}
+                </motion.div>
+              )}
+
+              {/* Error message */}
+              {setupPinError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 text-[12px] text-red-400 bg-red-500/8 border border-red-500/12 rounded-xl px-4 py-3 font-medium"
+                >
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                  {setupPinError}
+                </motion.div>
+              )}
+
+              {/* Name input */}
+              <div className="relative group">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/15 group-focus-within:text-white/40 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Nama sesuai pendaftaran"
+                  value={setupPinName}
+                  onChange={(e) => setSetupPinName(e.target.value)}
+                  autoComplete="off"
+                  className="w-full bg-white/5 border border-white/8 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                />
+              </div>
+
+              {/* Phone input */}
+              <div className="relative group">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/15 group-focus-within:text-white/40 transition-colors" />
+                <input
+                  type="tel"
+                  placeholder="08xxxxxxxxxx"
+                  value={setupPinPhone}
+                  onChange={(e) => setSetupPinPhone(e.target.value)}
+                  autoComplete="off"
+                  inputMode="tel"
+                  className="w-full bg-white/5 border border-white/8 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                />
+              </div>
+
+              {/* PIN input */}
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/15 group-focus-within:text-white/40 transition-colors" />
+                <input
+                  type={showSetupPinVis ? 'text' : 'password'}
+                  placeholder="Buat PIN (4-6 digit)"
+                  value={setupPin}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    if (val.length <= 6) setSetupPin(val);
+                  }}
+                  autoComplete="off"
+                  inputMode="numeric"
+                  maxLength={6}
+                  className="w-full bg-white/5 border border-white/8 rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSetupPinVis(!showSetupPinVis)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/15 hover:text-white/40 transition-colors p-1"
+                >
+                  {showSetupPinVis ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Confirm PIN input */}
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/15 group-focus-within:text-white/40 transition-colors" />
+                <input
+                  type={showSetupPinConfirmVis ? 'text' : 'password'}
+                  placeholder="Konfirmasi PIN"
+                  value={setupPinConfirm}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    if (val.length <= 6) setSetupPinConfirm(val);
+                  }}
+                  autoComplete="off"
+                  inputMode="numeric"
+                  maxLength={6}
+                  className="w-full bg-white/5 border border-white/8 rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSetupPinConfirmVis(!showSetupPinConfirmVis)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/15 hover:text-white/40 transition-colors p-1"
+                >
+                  {showSetupPinConfirmVis ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* PIN match indicator */}
+              {setupPinConfirm.length > 0 && (
+                <p className={`text-[10px] font-medium ${setupPin === setupPinConfirm ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {setupPin === setupPinConfirm ? '✓ PIN cocok' : '✗ PIN tidak cocok'}
+                </p>
+              )}
+
+              {/* Submit button */}
+              <motion.button
+                onClick={handleSetupPin}
+                disabled={isSettingUpPin || !setupPinName || !setupPinPhone || !setupPin || setupPin !== setupPinConfirm}
+                whileTap={{ scale: 0.97 }}
+                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{
+                  background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
+                  color: dt.accentForeground,
+                }}
+              >
+                {isSettingUpPin ? (
+                  <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <KeyRound className="w-4 h-4" />
+                    Aktifkan PIN
+                  </>
+                )}
+              </motion.button>
+
+              {/* Back button */}
+              <button
+                onClick={() => {
+                  setShowSetupPin(false);
+                  setSetupPinError('');
+                  setSetupPinSuccess('');
+                }}
+                className="w-full py-2 text-xs text-white/30 hover:text-white/50 transition-colors"
+              >
+                ← Kembali
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="buttons"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="w-full max-w-sm space-y-3"
+            >
+              {/* Primary: Aktifkan PIN — for existing players */}
+              <motion.button
+                onClick={() => setShowSetupPin(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full px-6 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5"
+                style={{
+                  background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
+                  color: dt.accentForeground,
+                }}
+              >
+                <KeyRound className="w-4 h-4" />
+                Aktifkan PIN
+              </motion.button>
+
+              <p className="text-[10px] text-white/20 -my-1">atau</p>
+
+              {/* Secondary: Daftar Baru — for new players */}
+              {onLoginClick && (
+                <motion.button
+                  onClick={onLoginClick}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                  style={{
+                    background: `linear-gradient(135deg, ${dt.accentBg(0.10)} 0%, ${dt.accentBg(0.04)} 100%)`,
+                    border: `1.5px solid ${dt.accentBorder(0.20)}`,
+                    color: dt.accent,
+                  }}
+                >
+                  <User className="w-4 h-4" />
+                  Daftar / Masuk
+                </motion.button>
+              )}
+
+              {/* Info text */}
+              <p className="text-[10px] text-white/20 leading-relaxed mt-2">
+                <KeyRound className="w-3 h-3 inline mr-1" style={{ color: dt.accent }} />
+                <strong className="text-white/30">Aktifkan PIN</strong> — sudah terdaftar turnamen, buat PIN untuk wallet
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {!onLoginClick && (
           <p className="text-xs text-white/25">Login untuk mengakses wallet</p>
         )}
