@@ -30,24 +30,22 @@ export async function GET(request: NextRequest) {
       orderBy: { points: 'desc' },
     });
 
-    // Only include users who have at least one season point record
-    const playersWithSeasons = users
-      .filter(u => u.seasonPoints && u.seasonPoints.length > 0)
-      .map(u => {
-        const totalSeasonPoints = u.seasonPoints.reduce((sum, sp) => sum + sp.points, 0);
-        return {
-          id: u.id,
-          name: u.name,
-          avatar: u.avatar,
-          gender: u.gender,
-          tier: u.tier,
-          isMVP: u.isMVP,
-          currentPoints: u.points,
-          clubName: u.club?.name || null,
-          seasonPoints: u.seasonPoints,
-          totalSeasonPoints,
-        };
-      });
+    // Include ALL players — even those without season points yet
+    const playersWithSeasons = users.map(u => {
+      const totalSeasonPoints = (u.seasonPoints || []).reduce((sum, sp) => sum + sp.points, 0);
+      return {
+        id: u.id,
+        name: u.name,
+        avatar: u.avatar,
+        gender: u.gender,
+        tier: u.tier,
+        isMVP: u.isMVP,
+        currentPoints: u.points,
+        clubName: u.club?.name || null,
+        seasonPoints: u.seasonPoints || [],
+        totalSeasonPoints,
+      };
+    });
 
     // Sort by total season points descending
     playersWithSeasons.sort((a, b) => b.totalSeasonPoints - a.totalSeasonPoints);

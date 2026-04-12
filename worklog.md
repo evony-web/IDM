@@ -4,209 +4,32 @@ Agent: Main Agent
 Task: Add dynamic current season tracking - Season advances every 11 completed tournaments
 
 Stage Summary:
-- currentSeason calculated dynamically from completed tournament count
-- All lint checks pass
+- Modified /src/app/api/season-leaderboard/route.ts: currentSeason = Math.floor(completedTournaments / 11) + 1
+- Modified /src/components/esports/LandingPage.tsx: UnifiedLeaderboard now uses dynamic currentSeason from API
+- Season selector dropdown shows "AKTIF" badge next to current season
+- Season 1 = tournaments 1-11, Season 2 = tournaments 12-22, etc.
 
 ---
 Task ID: 2
 Agent: Main Agent
-Task: Implement secure authentication with NextAuth.js (JWT + httpOnly cookies)
-
-Stage Summary:
-- Authentication server-verified via NextAuth JWT in httpOnly cookies
-
----
-Task ID: 2-a
-Agent: Theme Refactor Agent
-Task: Replace hardcoded color values with theme tokens in LandingPage.tsx
-
-Stage Summary:
-- ~80+ hardcoded color instances replaced across 6 major components
-
----
-Task ID: 2-b
-Agent: Theme Refactor Agent
-Task: Replace hardcoded color values with theme tokens in Navigation.tsx
-
-Stage Summary:
-- ~60+ hardcoded color instances replaced across 6 components
-
----
-Task ID: 2-c
-Agent: Theme Refactor Agent
-Task: Replace hardcoded color values with theme tokens in Dashboard.tsx, Leaderboard.tsx, ChallongeBracket.tsx, PublicPlayerProfile.tsx
-
-Stage Summary:
-- ~100+ hardcoded color instances replaced across 4 major component files
-
----
-Task ID: 3
-Agent: Polish Agent
-Task: Add skeleton loading states and micro-interactions to LandingPage
-
-Stage Summary:
-- Leaderboard skeleton, micro-interactions (press-scale, hover-lift, focus-glow)
-
----
-Task ID: 4
-Agent: Main Agent
-Task: Fix runtime error 'dt is not defined' in Leaderboard.tsx
-
-Stage Summary:
-- Fixed critical runtime error in Leaderboard main component
-
----
-Task ID: 5
-Agent: Main Agent
-Task: Integrate Wallet with Leaderboard Points
-
-Stage Summary:
-- Wallet balance now syncs with leaderboard points on wallet creation
-- Tournament finalization now credits both User.points AND Wallet.balance
-
----
-Task ID: 6
-Agent: Main Agent
-Task: Fix wallet API 500 error + Global wallet sync
-
-Stage Summary:
-- Fixed wallet API 500 error (wins/losses from Ranking model)
-- Global wallet sync completed: all players now have wallets with correct balances
-
----
-Task ID: 7
-Agent: Main Agent
-Task: Add duplicate name validation when admin edits player name
-
-Stage Summary:
-- Admin can no longer rename a player to match another player's name
-- Real-time warning shown in edit form when duplicate name detected
-
----
-Task ID: 8
-Agent: Main Agent
-Task: Implement auto-create wallet for all player entry points
-
-Stage Summary:
-- Wallet auto-created in ALL player entry points (6 API routes)
-- Shared ensureWallet() utility in /lib/wallet-utils.ts
-
----
-Task ID: 9
-Agent: Main Agent
-Task: Implement PIN setup flow for players with auto-created wallets
-
-Stage Summary:
-- "Aktifkan PIN" flow for players with auto-created wallets
-- Dedicated /api/wallet/setup-pin endpoint
-
----
-Task ID: 10
-Agent: Main Agent
-Task: Remove hardcoded admin key + DRY wallet code refactor
-
-Stage Summary:
-- Hardcoded 'idm-sync-2024' removed, now env-var only
-- All wallet creation consolidated into ensureWallet() utility
-- 8 duplicate implementations eliminated
-
----
-Task ID: 11
-Agent: Main Agent
-Task: Backend improvements — Auto PlayerSeason write, data validation, error handling
+Task: Fix leaderboard to show ALL 75 players instead of only 6
 
 Work Log:
-- Analyzed all wallet/auth API routes for validation gaps and error handling issues
-- Created /lib/api-utils.ts — shared error handling + validation utilities:
-  - ErrorCodes enum with 15+ machine-readable error codes
-  - apiError() — standard error response builder with errorCode
-  - handlePrismaError() — Prisma-aware error handler (P2002 unique constraint, P2025 not found, P2003 FK)
-  - validateAmount() — amount validation with min/max/bounds checks
-  - validateCategory() — category whitelist validation
-  - validateLength() — string length validation
-  - safeParseBody() — JSON parse error handling
-  - Constants: MAX_TOPUP_AMOUNT, MIN/MAX_TRANSFER_AMOUNT, MAX_REASON_LENGTH, VALID_CATEGORIES
-- Updated /api/tournaments/finalize/route.ts:
-  - Auto PlayerSeason upsert on finalize (season calculated from completedCount)
-  - Idempotency guard: prevents double-finalize (ALREADY_COMPLETED error)
-  - Ranking upsert instead of update (handles edge case of missing ranking)
-  - Structured error codes and Indonesian error messages
-  - Season info added to activity logs
-- Updated /api/wallet/route.ts (GET + POST):
-  - Amount validation with min/max bounds
-  - Category whitelist validation
-  - Description length validation
-  - safeParseBody for JSON parse errors
-  - Consistent error codes
-- Updated /api/wallet/transfer/route.ts:
-  - Transfer amount min/max validation (1-100,000)
-  - Reason length validation
-  - Detailed insufficient balance message (shows current balance)
-  - Consistent error codes
-- Updated /api/wallet/setup-pin/route.ts:
-  - Name length validation (max 50)
-  - safeParseBody for JSON parse errors
-  - Consistent error codes (USER_NOT_FOUND, PIN_ALREADY_SET)
-- Updated /api/wallet/sync/route.ts:
-  - safeParseBody for JSON parse errors
-  - Consistent error handling
-- Updated /api/player-auth/route.ts (POST + PUT):
-  - safeParseBody for JSON parse errors
-  - Name length validation (max 50)
-  - Removed error message leakage (was exposing error.message in 500 responses — security fix)
-  - Consistent error codes across signup and login
-- Lint: passes clean
-- Dev server: running normally, no errors
+- Investigated why leaderboard only showed 6 players: found 3 filtering layers
+- API `/api/season-leaderboard/route.ts` filtered out players with no season point records
+- Frontend `displaySeasonPlayers` filtered out players with 0 points for specific season
+- Frontend `renderPlayerRow` returned null for players with 0 points
+- Fixed API: removed `.filter()`, now includes ALL non-admin users via `.map()` directly
+- Fixed frontend: removed 0-point filter from `displaySeasonPlayers` useMemo
+- Fixed frontend: removed `return null` for 0-point players in renderPlayerRow
+- Added "Lihat Semua" / "Ciutkan" button with INITIAL_VISIBLE = 10 limit
+- Added setShowAllPlayers(false) in gender filter and season selector click handlers
+- Updated season dropdown label to show "X pemain • Y berpoints" for clarity
+- All lint checks pass, no errors in dev server log
 
 Stage Summary:
-- Auto PlayerSeason write on tournament finalize (upsert with season calculation)
-- Idempotency guard prevents double-finalize
-- Shared /lib/api-utils.ts with ErrorCodes, apiError, handlePrismaError, validators
-- All wallet/auth APIs now use consistent error codes and Indonesian messages
-- Prisma constraint errors (unique, FK, not found) handled with user-friendly messages
-- JSON parse errors handled gracefully (no more 500 on malformed request body)
-- Security fix: removed error.message leakage in player-auth 500 responses
-- Data validation: amount bounds, category whitelist, field length limits
-
----
-Task ID: 12
-Agent: Main Agent
-Task: Full backend code audit and bug fixes — pusher null crash, transfer race condition, DRY auth utils, stale login data, ranking race condition
-
-Work Log:
-- Audited all wallet, auth, tournament API routes for bugs
-- **C1 Fix**: pusher.trigger() null crash in finalize route — added `if (pusher)` guard (pusher is null when env vars missing)
-- **C2 Fix**: Transfer race condition — moved balance check inside $transaction, re-read wallet balance in tx, throw custom errors for catch block to handle
-- **C5 Fix**: Extracted hashPin + normalizePhone to /lib/auth-utils.ts — single source of truth, removed 3 duplicate copies from auth.ts, player-auth/route.ts, wallet/setup-pin/route.ts
-- **M2 Fix**: Added safeParseBody to tournaments/register and tournaments/finalize routes (was using raw request.json() with no error handling)
-- **M2 Fix**: Migrated tournaments/register and tournaments/finalize to use apiError/ErrorCodes/handlePrismaError (was using manual NextResponse.json)
-- **M7 Fix**: Login returns stale phone data — now re-assigns matchedUser after phone normalization update so response has fresh data
-- **M8 Fix**: Ranking create race condition in player-auth — replaced findUnique+create with upsert in ensureUserRecords()
-- **M8 Fix**: New user signup also uses ensureUserRecords() instead of separate ranking.create + ensureWallet() calls
-- Lint: passes clean
-- Dev server: running normally, all APIs 200
-
-Stage Summary:
-- 6 bugs fixed (1 critical crash, 1 race condition, 1 DRY violation, 1 stale data, 2 missing validation)
-- /lib/auth-utils.ts created as single source of truth for hashPin + normalizePhone
-- All tournament + wallet routes now use consistent error handling (safeParseBody, apiError, handlePrismaError)
-- No more raw request.json() without error handling in any wallet/auth/tournament route
-- Transfer balance check is now inside transaction — prevents negative balances under concurrency
-
----
-Task ID: 13
-Agent: Frontend Fix Agent
-Task: Fix critical frontend issues — User type, Team type, logo 404, BroadcastChannel leak, style tag removal, fetchGrandFinal guard
-
-Work Log:
-- **Fix 1 (CRITICAL)**: Added `role?: string` and `isAdmin?: boolean` to `User` interface in `/src/lib/store.ts` — admin accounts no longer leak into player leaderboard since `u.role === 'user' || !u.isAdmin` now evaluates correctly
-- **Fix 2 (CRITICAL)**: Added `role?: string` to `Team.members` type in `/src/lib/store.ts` — captain sorting now works because member role is available
-- **Fix 3**: Replaced all `/logo.png` references with `/logo.svg` across 4 files (page.tsx, PWAInstallPrompt.tsx, LandingPage.tsx) — fixes 404 since only logo.svg exists in /public
-- **Fix 4 (MEDIUM)**: Added `channel.close()` to BroadcastChannel cleanup in page.tsx — prevents resource leak
-- **Fix 5 (MEDIUM)**: Moved `<style dangerouslySetInnerHTML>` with CSS keyframes from inside the loading screen `motion.div` to before the `<AnimatePresence>` element — keyframes now persist when loading screen exits during AnimatePresence, preventing landing page animation breakage
-- **Fix 6 (HIGH)**: Added `if (view !== 'app') return;` guard to `fetchGrandFinal` useEffect — prevents unnecessary API call on initial mount when user is still on landing page
-- Lint: passes clean
-
-Stage Summary:
-- 6 frontend issues fixed (2 critical type bugs, 1 logo 404, 1 resource leak, 1 style removal bug, 1 unnecessary API call)
-- All lint checks pass
+- Leaderboard now shows ALL 75 players (not just those with season points)
+- Initially shows 10 players with "Lihat Semua (65 lagi)" button
+- Clicking "Lihat Semua" expands to show all players with "Ciutkan" button to collapse
+- Season dropdown now shows total player count + how many have points
+- Filter changes (gender/season) reset the expand state automatically

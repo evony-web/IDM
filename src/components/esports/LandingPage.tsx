@@ -1799,7 +1799,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  // Compute season-filtered players
+  // Compute season-filtered players — show ALL players including those with 0 points
   const displaySeasonPlayers = useMemo(() => {
     if (selectedSeason === 'all') {
       return [...seasonPlayers].sort((a, b) => b.totalSeasonPoints - a.totalSeasonPoints);
@@ -1808,14 +1808,14 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
       const aSP = a.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0;
       const bSP = b.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0;
       return bSP - aSP;
-    }).filter(p => {
-      const sp = p.seasonPoints.find(s => s.season === selectedSeason);
-      return sp && sp.points > 0;
     });
   }, [seasonPlayers, selectedSeason]);
 
-  const visiblePlayers = displaySeasonPlayers;
-  const hasMore = false;
+  // Show limited players initially with "Lihat Semua" to expand
+  const INITIAL_VISIBLE = 10;
+  const [showAllPlayers, setShowAllPlayers] = useState(false);
+  const visiblePlayers = showAllPlayers ? displaySeasonPlayers : displaySeasonPlayers.slice(0, INITIAL_VISIBLE);
+  const hasMore = displaySeasonPlayers.length > INITIAL_VISIBLE;
 
   const genderFilters = [
     { key: 'all' as const, label: 'Semua', color: 'var(--gold)' },
@@ -1834,7 +1834,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
       ? player.totalSeasonPoints
       : (player.seasonPoints.find(sp => sp.season === selectedSeason)?.points ?? 0);
 
-    if (selectedSeason !== 'all' && displayPoints === 0) return null;
+    // Show all players including those with 0 points
 
     // Rank badge colors
     const rankBg = rank === 1
@@ -2067,7 +2067,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                   }}
                 >
                   <button
-                    onClick={() => { setSelectedSeason('all'); setSeasonDropdownOpen(false); setExpandedPlayer(null); }}
+                    onClick={() => { setSelectedSeason('all'); setSeasonDropdownOpen(false); setExpandedPlayer(null); setShowAllPlayers(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
                     style={{
                       background: selectedSeason === 'all' ? 'rgba(255,215,0,0.08)' : 'transparent',
@@ -2092,10 +2092,11 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                         const sp = p.seasonPoints.find(sp => sp.season === s);
                         return sp && sp.points > 0;
                       }).length;
+                      const totalInSeason = seasonPlayers.length;
                       return (
                         <button
                           key={s}
-                          onClick={() => { setSelectedSeason(s); setSeasonDropdownOpen(false); setExpandedPlayer(null); }}
+                          onClick={() => { setSelectedSeason(s); setSeasonDropdownOpen(false); setExpandedPlayer(null); setShowAllPlayers(false); }}
                           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer"
                           style={{
                             background: selectedSeason === s ? 'rgba(115,255,0,0.06)' : 'transparent',
@@ -2112,7 +2113,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
                                 <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(115,255,0,0.12)', color: '#73FF00', border: '1px solid rgba(115,255,0,0.20)' }}>AKTIF</span>
                               )}
                             </div>
-                            <p className="text-[10px] text-white/25">{playerCount} pemain berpoints</p>
+                            <p className="text-[10px] text-white/25">{totalInSeason} pemain • {playerCount} berpoints</p>
                           </div>
                           {selectedSeason === s && <div className="w-2 h-2 rounded-full" style={{ background: '#73FF00', boxShadow: '0 0 6px rgba(115,255,0,0.5)' }} />}
                         </button>
@@ -2129,7 +2130,7 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
             {genderFilters.map(f => (
               <button
                 key={f.key}
-                onClick={() => setFilterGender(f.key)}
+                onClick={() => { setFilterGender(f.key); setShowAllPlayers(false); }}
                 className="px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[12px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer press-scale focus-glow"
                 style={{
                   background: filterGender === f.key ? `${f.color}15` : 'rgba(255,255,255,0.03)',
@@ -2220,6 +2221,35 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
             </div>
 
           </div>
+
+          {/* ═══ Lihat Semua / Ciutkan Button ═══ */}
+          {hasMore && (
+            <div className="flex justify-center mt-3">
+              <motion.button
+                onClick={() => setShowAllPlayers(prev => !prev)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200"
+                style={{
+                  background: showAllPlayers ? 'rgba(255,255,255,0.04)' : `linear-gradient(135deg, ${goldRgba(0.10)}, ${goldRgba(0.04)})`,
+                  border: `1px solid ${showAllPlayers ? 'rgba(255,255,255,0.08)' : goldRgba(0.18)}`,
+                  color: showAllPlayers ? 'rgba(255,255,255,0.50)' : 'var(--gold)',
+                }}
+                whileTap={{ scale: 0.96 }}
+              >
+                {showAllPlayers ? (
+                  <>
+                    <ChevronUp className="w-3.5 h-3.5" />
+                    <span>Ciutkan</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Lihat Semua</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-normal opacity-60">({displaySeasonPlayers.length - INITIAL_VISIBLE} lagi)</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
+          )}
         </>
       )}
     </motion.div>
