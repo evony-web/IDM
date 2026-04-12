@@ -278,7 +278,7 @@ export default function IDOLMETAApp() {
         landed = true;
         clearTimeout(safetyTimeout);
         const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, 5000 - elapsed);
+        const remaining = Math.max(0, 3500 - elapsed);
         setTimeout(() => setView('landing'), remaining);
       }
     })();
