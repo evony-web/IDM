@@ -118,3 +118,31 @@ Stage Summary:
 - Mobile bottom padding increased from pb-20 to pb-24 for better UX
 - Section headers verified as already unified
 - No breaking changes to existing components
+
+---
+Task ID: 3
+Agent: Premium Landing Page Agent
+Task: Implement premium landing page visual upgrades
+
+Work Log:
+- Added useScrollReveal custom hook using IntersectionObserver for scroll-triggered animations
+- Added AnimatedCounter component that counts up numbers when scrolled into view
+- Added SectionReveal wrapper component with smooth fade+slide reveal on scroll
+- Added PremiumAmbientParticles component - 18 floating gold particles rising from bottom
+- Added CSS keyframes: floatUp, shimmerLine, pulseGlow to fireGlowKeyframes
+- Upgraded DivisionCard with 3D mouse-follow tilt effect (perspective 800px)
+- Replaced static whileHover on DivisionCard with interactive tilt
+- Added PremiumAmbientParticles to main LandingPage render
+- Wrapped all major sections with SectionReveal
+- Added premium shimmer line under the banner
+- Updated StatCard to support optional numericValue prop for animated counting
+- Applied AnimatedCounter to banner stats overlay (totalPlayers, clubCount)
+- All lint checks pass
+
+Stage Summary:
+- Landing page now has premium visual polish with scroll-reveal animations
+- Floating ambient gold particles add depth and luxury feel
+- 3D tilt effect on division cards provides interactive depth
+- Animated number counters create engaging first impression
+- Shimmer line under banner adds premium accent
+- All changes are additive - no breaking changes

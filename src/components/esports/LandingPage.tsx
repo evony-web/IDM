@@ -757,6 +757,92 @@ function LandingSkeleton() {
 }
 
 /* ────────────────────────────────────────────
+   Premium Utilities
+   ──────────────────────────────────────────── */
+
+function useScrollReveal(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); obs.unobserve(el); } },
+      { threshold, rootMargin: '0px 0px -40px 0px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, isVisible };
+}
+
+function AnimatedCounter({ value, duration = 1200 }: { value: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const { ref, isVisible } = useScrollReveal(0.3);
+  useEffect(() => {
+    if (!isVisible) return;
+    let start = 0;
+    const step = value / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= value) { setCount(value); clearInterval(timer); }
+      else setCount(Math.floor(start));
+    }, 16);
+    return () => clearInterval(timer);
+  }, [isVisible, value, duration]);
+  return <span ref={ref}>{count.toLocaleString()}</span>;
+}
+
+function SectionReveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const { ref, isVisible } = useScrollReveal(0.08);
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        transition: 'opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function PremiumAmbientParticles() {
+  const particles = useMemo(() =>
+    Array.from({ length: 18 }, (_, i) => ({
+      id: i,
+      left: `${(i * 5.5 + 3) % 100}%`,
+      size: 2 + (i % 4) * 1.2,
+      duration: 18 + (i % 6) * 5,
+      delay: (i % 8) * 2,
+      opacity: 0.03 + (i % 5) * 0.015,
+    })), []
+  );
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: p.left,
+            bottom: '-10px',
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            background: 'var(--gold)',
+            opacity: p.opacity,
+            animation: `floatUp ${p.duration}s ${p.delay}s ease-in infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────
    Stat Card
    ──────────────────────────────────────────── */
 
@@ -765,11 +851,13 @@ function StatCard({
   label,
   value,
   color,
+  numericValue,
 }: {
   icon: React.ElementType;
   label: string;
   value: string;
   color: string;
+  numericValue?: number;
 }) {
   return (
     <motion.div
@@ -794,7 +882,9 @@ function StatCard({
         <p className="text-[9px] sm:text-[11px] font-medium text-white/40 tracking-wide uppercase truncate">
           {label}
         </p>
-        <p className="text-[12px] sm:text-sm font-bold text-white/90 truncate">{value}</p>
+        <p className="text-[12px] sm:text-sm font-bold text-white/90 truncate">
+          {numericValue !== undefined ? <AnimatedCounter value={numericValue} /> : value}
+        </p>
       </div>
     </motion.div>
   );
@@ -917,9 +1007,22 @@ function DivisionCard({
   const dt = useDivisionTheme(division);
   const label = dt.isMale ? 'MALE DIVISION' : 'FEMALE DIVISION';
   const Icon = dt.isMale ? Swords : Shield;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * -6, y: x * 6 });
+  };
+  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
 
   return (
     <motion.div
+      ref={cardRef}
       variants={cardVariants}
       className="relative rounded-3xl overflow-hidden flex flex-col"
       style={{
@@ -927,9 +1030,11 @@ function DivisionCard({
         border: `1px solid ${dt.accentBorder(0.12)}`,
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
+        transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+        transition: 'transform 0.15s ease-out',
       }}
-      whileHover={{ scale: 1.015, y: -4 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Top gradient accent bar */}
       <div
@@ -1220,6 +1325,20 @@ const fireGlowKeyframes = `
 @keyframes bounce-subtle {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(4px); }
+}
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.06; }
+  90% { opacity: 0.04; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+@keyframes shimmerLine {
+  0%, 100% { opacity: 0.15; transform: scaleX(0.8); }
+  50% { opacity: 0.4; transform: scaleX(1); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 `;
 
@@ -4862,13 +4981,13 @@ function ChampionCarouselBanner({ data, stats }: { data: LandingData; stats?: { 
                 >
                   <div className="flex items-center gap-1.5">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: '#73FF00' }} />
-                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80">{stats.totalPlayers}</span>
+                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80"><AnimatedCounter value={stats.totalPlayers} /></span>
                     <span className="text-[8px] sm:text-[9px] text-white/30 hidden sm:inline">Pemain</span>
                   </div>
                   <div className="w-px h-4 bg-white/[0.08]" />
                   <div className="flex items-center gap-1.5">
                     <Swords className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: '#38BDF8' }} />
-                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80">{stats.clubCount}</span>
+                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80"><AnimatedCounter value={stats.clubCount} /></span>
                     <span className="text-[8px] sm:text-[9px] text-white/30 hidden sm:inline">Club</span>
                   </div>
                   <div className="w-px h-4 bg-white/[0.08]" />
@@ -4974,6 +5093,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
     <style>{playerRowKeyframes}</style>
     <style>{fireGlowKeyframes}</style>
     <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} onOpenWallet={onOpenWallet} activeData={activeData} />
+    <PremiumAmbientParticles />
     <div className="h-full relative overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
       {/* ── Background ── */}
       <div className="fixed inset-0 pointer-events-none">
@@ -5026,6 +5146,14 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
             prizePool: totalPrizePool,
             totalDonation: activeData.totalDonation + activeData.totalSawer,
           }} />
+          {/* Premium shimmer line under banner */}
+          <div
+            className="h-[2px] w-full mt-1"
+            style={{
+              background: 'linear-gradient(90deg, transparent, var(--gold), transparent)',
+              animation: 'shimmerLine 3s ease-in-out infinite',
+            }}
+          />
         </div>
 
         {/* ═══ Scroll Hint ═══ */}
@@ -5043,55 +5171,61 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         <AdSlot slot="landing" />
 
         {/* ═══ DIVISION CARDS ═══ */}
-        <motion.div
-          variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-10 md:mb-16"
-        >
-          <DivisionCard
-            division="male"
-            data={activeData.male}
-            onEnter={() => onEnterDivision('male')}
-            onPlayerClick={handlePlayerClick}
-          />
-          <DivisionCard
-            division="female"
-            data={activeData.female}
-            onEnter={() => onEnterDivision('female')}
-            onPlayerClick={handlePlayerClick}
-          />
-        </motion.div>
+        <SectionReveal className="w-full">
+          <motion.div
+            variants={containerVariants}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-10 md:mb-16"
+          >
+            <DivisionCard
+              division="male"
+              data={activeData.male}
+              onEnter={() => onEnterDivision('male')}
+              onPlayerClick={handlePlayerClick}
+            />
+            <DivisionCard
+              division="female"
+              data={activeData.female}
+              onEnter={() => onEnterDivision('female')}
+              onPlayerClick={handlePlayerClick}
+            />
+          </motion.div>
+        </SectionReveal>
 
         {/* ═══ SECTION DIVIDER ═══ */}
         <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ VIDEO HIGHLIGHT ═══ */}
-        <div className="w-full mb-10 md:mb-16">
+        <SectionReveal className="w-full mb-10 md:mb-16">
           <VideoHighlightSection />
-        </div>
+        </SectionReveal>
 
         {/* ═══ SECTION DIVIDER ═══ */}
         <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ LEADERBOARD (Top 5 Podium) ═══ */}
-        <div id="leaderboard-section" className="w-full mb-10 md:mb-16">
-          <Top5PodiumSection data={activeData} onPlayerClick={handlePlayerClick} />
-        </div>
+        <SectionReveal className="w-full mb-10 md:mb-16" >
+          <div id="leaderboard-section">
+            <Top5PodiumSection data={activeData} onPlayerClick={handlePlayerClick} />
+          </div>
+        </SectionReveal>
 
         {/* ═══ SECTION DIVIDER ═══ */}
         <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ AKTIVITAS TERBARU (Tabbed) ═══ */}
-        <div className="w-full mb-10 md:mb-16">
+        <SectionReveal className="w-full mb-10 md:mb-16">
           <AktivitasSection data={activeData} onPlayerClick={handlePlayerClick} />
-        </div>
+        </SectionReveal>
 
         {/* ═══ SECTION DIVIDER ═══ */}
         <div className="w-full mb-10 md:mb-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
 
         {/* ═══ RULES (Collapsible) ═══ */}
-        <div id="info-section" className="w-full mb-10 md:mb-16">
-          <LandingContentSection />
-        </div>
+        <SectionReveal className="w-full mb-10 md:mb-16">
+          <div id="info-section">
+            <LandingContentSection />
+          </div>
+        </SectionReveal>
 
         {/* ═══ FOOTER ═══ */}
         <motion.footer
