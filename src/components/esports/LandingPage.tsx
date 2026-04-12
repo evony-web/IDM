@@ -1067,11 +1067,6 @@ function DivisionCard({
             {data.topPlayers.slice(0, 3).map((player) => (
               <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
             ))}
-            {data.topPlayers.length > 3 && (
-              <div className="sm:hidden text-center py-1">
-                <span className="text-[9px] text-white/25">+{data.topPlayers.length - 3} lagi</span>
-              </div>
-            )}
             {data.topPlayers.slice(3, 5).map((player) => (
               <PlayerRow key={player.rank} player={player} accent={dt.accentRgb} onPlayerClick={onPlayerClick} />
             ))}
