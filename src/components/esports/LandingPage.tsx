@@ -1491,9 +1491,8 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
         const cardWidth = cardEl?.offsetWidth || 180;
         const gap = 16;
         const maxScroll = el.scrollWidth - el.clientWidth;
-        if (maxScroll <= 4) return; // All clubs visible, no scroll needed
+        if (maxScroll <= 4) return;
         if (el.scrollLeft >= maxScroll - 4) {
-          // Reset to start smoothly
           el.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
           el.scrollBy({ left: cardWidth + gap, behavior: 'smooth' });
@@ -1536,195 +1535,264 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
 
   if (clubs.length === 0) return null;
 
+  const rankBg = (idx: number) => {
+    if (idx === 0) return { bg: 'linear-gradient(135deg, #FFD700, #FFA500)', glow: '0 0 12px rgba(255,215,0,0.25)', color: '#000' };
+    if (idx === 1) return { bg: 'linear-gradient(135deg, #E8E8E8, #B0B0B0)', glow: '0 0 10px rgba(192,192,192,0.20)', color: '#000' };
+    if (idx === 2) return { bg: 'linear-gradient(135deg, #CD7F32, #A0652A)', glow: '0 0 10px rgba(205,127,50,0.20)', color: '#000' };
+    return { bg: 'rgba(255,255,255,0.05)', glow: 'none', color: 'rgba(255,255,255,0.40)' };
+  };
+
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(56,189,248,0.06) 100%)',
-              border: '1px solid rgba(56,189,248,0.18)',
-              boxShadow: '0 0 12px rgba(56,189,248,0.06)',
-            }}
-          >
-            <Users className="w-3.5 h-3.5" style={{ color: '#38BDF8' }} />
-          </div>
-          <h2 className="text-[15px] font-bold text-white/85 tracking-wide">Club Terdaftar</h2>
-          <span className="text-[11px] text-white/25 ml-1">{clubs.length} club</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <motion.button
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer disabled:opacity-20 disabled:cursor-default transition-opacity"
-            style={{
-              background: canScrollLeft ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
-              border: `1px solid rgba(255,255,255,${canScrollLeft ? '0.08' : '0.03'})`,
-            }}
-            whileHover={canScrollLeft ? { scale: 1.08 } : {}}
-            whileTap={canScrollLeft ? { scale: 0.92 } : {}}
-          >
-            <ChevronLeft className="w-4 h-4 text-white/60" />
-          </motion.button>
-          <motion.button
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer disabled:opacity-20 disabled:cursor-default transition-opacity"
-            style={{
-              background: canScrollRight ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
-              border: `1px solid rgba(255,255,255,${canScrollRight ? '0.08' : '0.03'})`,
-            }}
-            whileHover={canScrollRight ? { scale: 1.08 } : {}}
-            whileTap={canScrollRight ? { scale: 0.92 } : {}}
-          >
-            <ChevronRight className="w-4 h-4 text-white/60" />
-          </motion.button>
-        </div>
-      </div>
-
-      {/* Scrollable container - hidden scrollbar, auto-scroll on hover pause */}
+      {/* ── Premium Glass Container ── */}
       <div
-        ref={scrollRef}
-        data-club-scroll=""
-        className="flex gap-4 overflow-x-auto scroll-smooth pb-2 -mx-1 px-1"
+        className="relative rounded-3xl overflow-hidden"
         style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => {
-          setIsUserScrolling(true);
-          if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
-        }}
-        onTouchEnd={() => {
-          if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
-          userScrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 3000);
-        }}
-        onWheel={() => {
-          setIsUserScrolling(true);
-          if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
-          userScrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 3000);
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          boxShadow: '0 4px 30px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.03)',
         }}
       >
-        <style>{`[data-club-scroll]::-webkit-scrollbar{display:none}`}</style>
-        {clubs.map((club, idx) => (
-          <motion.div
-            key={club.id}
-            data-club-card=""
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative flex-shrink-0 w-[calc(33.333%-11px)] sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(14.286%-14px)] overflow-hidden rounded-2xl`}
-            style={{
-              background: club.name === 'GYMSHARK'
-                ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)'
-                : 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-              border: club.name === 'GYMSHARK'
-                ? 'none'
-                : '1px solid rgba(255,255,255,0.06)',
-            }}
-            whileHover={{
-              y: -3,
-              transition: { type: 'spring', stiffness: 400, damping: 25 },
-            }}
-          >
-            {club.name === 'GYMSHARK' && (
-              <svg className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)] pointer-events-none" style={{ zIndex: 0 }} viewBox="0 0 200 200" preserveAspectRatio="none" fill="none">
-                <defs>
-                  <linearGradient id="gymNeonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#73FF00" />
-                    <stop offset="50%" stopColor="#38BDF8" />
-                    <stop offset="100%" stopColor="#73FF00" />
-                  </linearGradient>
-                  <filter id="gymNeonGlow">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="b" />
-                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-                  </filter>
-                </defs>
-                <rect x="1" y="1" width="198" height="198" rx="16" ry="16" stroke="url(#gymNeonGrad)" strokeWidth="1" strokeDasharray="275 325" strokeLinecap="round" filter="url(#gymNeonGlow)">
-                  <animate attributeName="stroke-dashoffset" from="0" to="-600" dur="3s" repeatCount="indefinite" />
-                </rect>
-              </svg>
-            )}
-            {/* Club Logo Area */}
+        {/* Top accent line */}
+        <div
+          className="h-[1.5px] w-full"
+          style={{
+            background: 'linear-gradient(90deg, transparent 5%, rgba(115,255,0,0.20) 20%, rgba(255,215,0,0.30) 50%, rgba(56,189,248,0.20) 80%, transparent 95%)',
+          }}
+        />
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-2">
+          <div className="flex items-center gap-3">
             <div
-              className="relative w-full aspect-square flex items-center justify-center overflow-hidden"
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
               style={{
-                background: 'linear-gradient(135deg, rgba(56,189,248,0.06) 0%, rgba(115,255,0,0.03) 100%)',
+                background: 'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
+                border: '1px solid rgba(255,215,0,0.18)',
+                boxShadow: '0 0 14px rgba(255,215,0,0.06)',
               }}
             >
-              {club.logoUrl ? (
-                <img
-                  src={club.logoUrl}
-                  alt={club.name}
-                  className="w-full h-full object-cover object-top"
-                  loading="lazy"
-                />
-              ) : (
-                <div
-                  className="w-[80%] h-[80%] rounded-2xl flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(56,189,248,0.15) 0%, rgba(115,255,0,0.08) 100%)',
-                    border: '1px solid rgba(56,189,248,0.12)',
-                  }}
-                >
-                  <span
-                    className="text-3xl md:text-4xl font-black"
-                    style={{
-                      background: 'linear-gradient(135deg, #38BDF8, #73FF00)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    }}
-                  >
-                    {club.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-              {/* Rank badge top-right */}
-              <div
-                className="absolute top-2 right-2 w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{
-                  background:
-                    idx === 0
-                      ? 'linear-gradient(135deg, var(--gold), #FFA500)'
-                      : idx === 1
-                        ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
-                        : idx === 2
-                          ? 'linear-gradient(135deg, #CD7F32, #B87333)'
-                          : 'rgba(255,255,255,0.06)',
-                  color: idx <= 2 ? '#000' : 'rgba(255,255,255,0.35)',
-                }}
-              >
-                <span className="text-[10px] font-bold">{idx + 1}</span>
-              </div>
+              <Star className="w-4 h-4" style={{ color: '#FFD700' }} />
             </div>
-
-            {/* Club Info */}
-            <div className="p-2 sm:p-3">
-              <p className="text-[11px] sm:text-[13px] font-bold text-white/85 truncate">{club.name}</p>
-              <div className="flex items-center justify-between mt-1 sm:mt-1.5">
-                <div className="flex items-center gap-1">
-                  <Users className="w-3 h-3 text-white/30" />
-                  <span className="text-[10px] sm:text-[11px] text-white/40">{club.memberCount}</span>
-                </div>
-                <span
-                  className="text-[10px] sm:text-[11px] font-bold"
+            <div>
+              <div className="flex items-center gap-2">
+                <h2
+                  className="text-[15px] sm:text-[16px] font-black tracking-tight"
                   style={{
-                    background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.70))',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                   }}
                 >
-                  {club.totalPoints.toLocaleString()} pts
+                  Club Peserta
+                </h2>
+                <span
+                  className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                  style={{
+                    background: 'rgba(255,215,0,0.08)',
+                    color: '#FFD700',
+                    border: '1px solid rgba(255,215,0,0.15)',
+                  }}
+                >
+                  {clubs.length}
                 </span>
               </div>
+              <p className="text-[10px] text-white/25 tracking-wide mt-0.5">Peserta turnamen musim ini</p>
             </div>
-          </motion.div>
-        ))}
+          </div>
+
+          {/* Navigation arrows */}
+          <div className="flex items-center gap-1.5">
+            <motion.button
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
+              className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer disabled:opacity-15 disabled:cursor-default transition-all"
+              style={{
+                background: canScrollLeft ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${canScrollLeft ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.04)'}`,
+              }}
+              whileHover={canScrollLeft ? { scale: 1.1, boxShadow: '0 0 12px rgba(255,215,0,0.10)' } : {}}
+              whileTap={canScrollLeft ? { scale: 0.9 } : {}}
+            >
+              <ChevronLeft className="w-4 h-4" style={{ color: canScrollLeft ? '#FFD700' : 'rgba(255,255,255,0.25)' }} />
+            </motion.button>
+            <motion.button
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
+              className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer disabled:opacity-15 disabled:cursor-default transition-all"
+              style={{
+                background: canScrollRight ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${canScrollRight ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.04)'}`,
+              }}
+              whileHover={canScrollRight ? { scale: 1.1, boxShadow: '0 0 12px rgba(255,215,0,0.10)' } : {}}
+              whileTap={canScrollRight ? { scale: 0.9 } : {}}
+            >
+              <ChevronRight className="w-4 h-4" style={{ color: canScrollRight ? '#FFD700' : 'rgba(255,255,255,0.25)' }} />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* ── Scrollable Club Cards ── */}
+        <div
+          ref={scrollRef}
+          data-club-scroll=""
+          className="flex gap-3 sm:gap-4 overflow-x-auto scroll-smooth px-4 sm:px-5 pb-4 sm:pb-5 pt-1"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={() => {
+            setIsUserScrolling(true);
+            if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
+          }}
+          onTouchEnd={() => {
+            if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
+            userScrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 3000);
+          }}
+          onWheel={() => {
+            setIsUserScrolling(true);
+            if (userScrollTimeoutRef.current) clearTimeout(userScrollTimeoutRef.current);
+            userScrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 3000);
+          }}
+        >
+          <style>{`[data-club-scroll]::-webkit-scrollbar{display:none}`}</style>
+          {clubs.map((club, idx) => {
+            const rank = rankBg(idx);
+            const isTop3 = idx <= 2;
+            return (
+              <motion.div
+                key={club.id}
+                data-club-card=""
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                className={`relative flex-shrink-0 w-[calc(33.333%-8px)] sm:w-[calc(33.333%-8px)] md:w-[calc(25%-12px)] lg:w-[calc(14.286%-14px)] overflow-hidden rounded-2xl group`}
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+                  border: `1px solid ${isTop3 ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.05)'}`,
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                }}
+                whileHover={{
+                  y: -4,
+                  borderColor: isTop3 ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.12)',
+                  boxShadow: isTop3
+                    ? '0 8px 25px rgba(255,215,0,0.08), 0 0 0 1px rgba(255,215,0,0.10)'
+                    : '0 8px 25px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.06)',
+                  transition: { type: 'spring', stiffness: 400, damping: 25 },
+                }}
+              >
+                {/* GYMSHARK neon border */}
+                {club.name === 'GYMSHARK' && (
+                  <svg className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)] pointer-events-none" style={{ zIndex: 0 }} viewBox="0 0 200 200" preserveAspectRatio="none" fill="none">
+                    <defs>
+                      <linearGradient id="gymNeonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#73FF00" />
+                        <stop offset="50%" stopColor="#38BDF8" />
+                        <stop offset="100%" stopColor="#73FF00" />
+                      </linearGradient>
+                      <filter id="gymNeonGlow">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="b" />
+                        <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                      </filter>
+                    </defs>
+                    <rect x="1" y="1" width="198" height="198" rx="16" ry="16" stroke="url(#gymNeonGrad)" strokeWidth="1" strokeDasharray="275 325" strokeLinecap="round" filter="url(#gymNeonGlow)">
+                      <animate attributeName="stroke-dashoffset" from="0" to="-600" dur="3s" repeatCount="indefinite" />
+                    </rect>
+                  </svg>
+                )}
+
+                {/* Top-3 subtle shimmer overlay */}
+                {isTop3 && (
+                  <div
+                    className="absolute inset-0 pointer-events-none z-[1] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255,215,0,0.04) 0%, transparent 50%, rgba(255,215,0,0.02) 100%)',
+                    }}
+                  />
+                )}
+
+                {/* Club Logo Area */}
+                <div
+                  className="relative w-full aspect-square flex items-center justify-center overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%)`,
+                  }}
+                >
+                  {club.logoUrl ? (
+                    <img
+                      src={club.logoUrl}
+                      alt={club.name}
+                      className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div
+                      className="w-[75%] h-[75%] rounded-2xl flex items-center justify-center"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255,215,0,0.10) 0%, rgba(115,255,0,0.06) 50%, rgba(56,189,248,0.08) 100%)',
+                        border: '1px solid rgba(255,215,0,0.10)',
+                      }}
+                    >
+                      <span
+                        className="text-3xl md:text-4xl font-black"
+                        style={{
+                          background: 'linear-gradient(135deg, #FFD700, #73FF00, #38BDF8)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text',
+                        }}
+                      >
+                        {club.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Rank badge */}
+                  <div
+                    className="absolute top-1.5 right-1.5 min-w-[22px] h-[22px] px-1 rounded-lg flex items-center justify-center"
+                    style={{
+                      background: rank.bg,
+                      boxShadow: rank.glow,
+                      color: rank.color,
+                    }}
+                  >
+                    {isTop3 ? (
+                      <Crown className="w-3 h-3" strokeWidth={2.5} />
+                    ) : (
+                      <span className="text-[9px] font-bold">{idx + 1}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Club Info */}
+                <div className="p-2 sm:p-2.5 relative z-[2]">
+                  <p className="text-[11px] sm:text-[12px] font-bold text-white/85 truncate leading-tight">{club.name}</p>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <div className="flex items-center gap-1">
+                      <Users className="w-3 h-3 text-white/25" />
+                      <span className="text-[9px] sm:text-[10px] text-white/35 font-medium">{club.memberCount} anggota</span>
+                    </div>
+                    <span
+                      className="text-[9px] sm:text-[10px] font-bold"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      {club.totalPoints.toLocaleString()} pts
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </motion.div>
   );
