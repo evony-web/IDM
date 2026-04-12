@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { ensureWallet } from '@/lib/wallet-utils'
 import { NextRequest, NextResponse } from 'next/server'
+import { apiError, ErrorCodes, handlePrismaError, safeParseBody } from '@/lib/api-utils'
 
 // ═══════════════════════════════════════════════════════════════════════
 // POST /api/wallet/sync
@@ -10,16 +11,15 @@ import { NextRequest, NextResponse } from 'next/server'
 // ═══════════════════════════════════════════════════════════════════════
 export async function POST(request: NextRequest) {
   try {
-    // Simple admin check — only admins can run global sync
-    const body = await request.json().catch(() => ({}))
+    // Safely parse request body
+    const { data: body, error: parseError } = await safeParseBody(request)
+    if (parseError || !body) return parseError!
+
     const { adminKey } = body
 
     // Auth: admin key from env only — no hardcoded fallback
     if (!process.env.ADMIN_SYNC_KEY || adminKey !== process.env.ADMIN_SYNC_KEY) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Admin key required.' },
-        { status: 401 }
-      )
+      return apiError('Unauthorized. Admin key required.', ErrorCodes.UNAUTHORIZED, 401)
     }
 
     // Get all non-admin users
@@ -110,10 +110,6 @@ export async function POST(request: NextRequest) {
       results,
     })
   } catch (error) {
-    console.error('[Wallet Sync] Error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handlePrismaError(error)
   }
 }

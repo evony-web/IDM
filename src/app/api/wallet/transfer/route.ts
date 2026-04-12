@@ -2,48 +2,57 @@ import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePlayerAuth } from '@/lib/session'
 import { ensureWallet } from '@/lib/wallet-utils'
+import {
+  apiError,
+  ErrorCodes,
+  validateAmount,
+  validateLength,
+  handlePrismaError,
+  safeParseBody,
+  MIN_TRANSFER_AMOUNT,
+  MAX_TRANSFER_AMOUNT,
+  MAX_REASON_LENGTH,
+} from '@/lib/api-utils'
 
+// ═══════════════════════════════════════════════════════════════════════
 // POST /api/wallet/transfer
 // Transfer points between users — requires authentication
+// ═══════════════════════════════════════════════════════════════════════
 export async function POST(request: NextRequest) {
   try {
     // Verify session — sender must be authenticated
     const session = await requirePlayerAuth()
     if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Akses ditolak. Silakan login terlebih dahulu.' },
-        { status: 401 }
-      )
+      return apiError('Akses ditolak. Silakan login terlebih dahulu.', ErrorCodes.UNAUTHORIZED, 401)
     }
 
-    const body = await request.json()
+    // Safely parse request body
+    const { data: body, error: parseError } = await safeParseBody(request)
+    if (parseError || !body) return parseError!
+
     const { receiverId, amount, reason } = body
 
     // Sender is always the authenticated user — ignore any senderId from request body
     const senderId = session.user.id
 
-    // Validate required fields
-    if (!receiverId || amount === undefined || amount === null) {
-      return NextResponse.json(
-        { success: false, error: 'receiverId and amount are required' },
-        { status: 400 }
-      )
+    // ── Validation ──
+    if (!receiverId || typeof receiverId !== 'string') {
+      return apiError('ID penerima wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400)
     }
 
-    // Validate amount
-    if (typeof amount !== 'number' || amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: 'Amount must be a positive number' },
-        { status: 400 }
-      )
+    const amountError = validateAmount(amount, MIN_TRANSFER_AMOUNT, MAX_TRANSFER_AMOUNT, 'Jumlah transfer')
+    if (amountError) {
+      return apiError(amountError, ErrorCodes.INVALID_AMOUNT, 400)
+    }
+
+    const reasonError = validateLength(reason, MAX_REASON_LENGTH, 'Alasan')
+    if (reasonError) {
+      return apiError(reasonError, ErrorCodes.FIELD_TOO_LONG, 400)
     }
 
     // Cannot transfer to self
     if (senderId === receiverId) {
-      return NextResponse.json(
-        { success: false, error: 'Tidak dapat transfer ke diri sendiri' },
-        { status: 400 }
-      )
+      return apiError('Tidak dapat transfer ke diri sendiri.', ErrorCodes.SELF_TRANSFER, 400)
     }
 
     // Verify both users exist
@@ -53,17 +62,11 @@ export async function POST(request: NextRequest) {
     ])
 
     if (!sender) {
-      return NextResponse.json(
-        { success: false, error: 'Sender not found' },
-        { status: 404 }
-      )
+      return apiError('Akun pengirim tidak ditemukan.', ErrorCodes.USER_NOT_FOUND, 404)
     }
 
     if (!receiver) {
-      return NextResponse.json(
-        { success: false, error: 'Penerima tidak ditemukan' },
-        { status: 404 }
-      )
+      return apiError('Penerima tidak ditemukan.', ErrorCodes.USER_NOT_FOUND, 404)
     }
 
     // Auto-create wallets if not exists — uses shared utility
@@ -71,10 +74,11 @@ export async function POST(request: NextRequest) {
     const receiverWallet = await ensureWallet(receiverId, receiver.points || 0)
 
     // Check sufficient balance
-    if (senderWallet.balance < amount) {
-      return NextResponse.json(
-        { success: false, error: 'Saldo tidak mencukupi' },
-        { status: 400 }
+    if (senderWallet.balance < (amount as number)) {
+      return apiError(
+        `Saldo tidak mencukupi. Saldo Anda: ${senderWallet.balance.toLocaleString('id-ID')} poin.`,
+        ErrorCodes.INSUFFICIENT_BALANCE,
+        400
       )
     }
 
@@ -85,18 +89,18 @@ export async function POST(request: NextRequest) {
         data: {
           senderId,
           receiverId,
-          amount,
-          reason: reason || null,
+          amount: amount as number,
+          reason: (reason as string) || null,
           status: 'completed',
         },
       })
 
       // Create debit transaction for sender
-      const senderTransaction = await tx.walletTransaction.create({
+      await tx.walletTransaction.create({
         data: {
           walletId: senderWallet.id,
           type: 'debit',
-          amount,
+          amount: amount as number,
           category: 'transfer',
           description: reason
             ? `Transfer ke ${receiver.name}: ${reason}`
@@ -106,11 +110,11 @@ export async function POST(request: NextRequest) {
       })
 
       // Create credit transaction for receiver
-      const receiverTransaction = await tx.walletTransaction.create({
+      await tx.walletTransaction.create({
         data: {
           walletId: receiverWallet.id,
           type: 'credit',
-          amount,
+          amount: amount as number,
           category: 'transfer',
           description: reason
             ? `Transfer dari ${sender.name}: ${reason}`
@@ -120,30 +124,24 @@ export async function POST(request: NextRequest) {
       })
 
       // Update sender wallet (debit)
-      const updatedSenderWallet = await tx.wallet.update({
+      await tx.wallet.update({
         where: { id: senderWallet.id },
         data: {
-          balance: { decrement: amount },
-          totalOut: { increment: amount },
+          balance: { decrement: amount as number },
+          totalOut: { increment: amount as number },
         },
       })
 
       // Update receiver wallet (credit)
-      const updatedReceiverWallet = await tx.wallet.update({
+      await tx.wallet.update({
         where: { id: receiverWallet.id },
         data: {
-          balance: { increment: amount },
-          totalIn: { increment: amount },
+          balance: { increment: amount as number },
+          totalIn: { increment: amount as number },
         },
       })
 
-      return {
-        transfer,
-        senderTransaction,
-        receiverTransaction,
-        updatedSenderWallet,
-        updatedReceiverWallet,
-      }
+      return { transfer }
     })
 
     return NextResponse.json({
@@ -151,10 +149,6 @@ export async function POST(request: NextRequest) {
       transfer: result.transfer,
     })
   } catch (error) {
-    console.error('[Wallet Transfer POST] Error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handlePrismaError(error)
   }
 }

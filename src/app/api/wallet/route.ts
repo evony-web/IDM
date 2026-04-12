@@ -2,6 +2,16 @@ import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePlayerAuth } from '@/lib/session'
 import { ensureWallet } from '@/lib/wallet-utils'
+import {
+  apiError,
+  ErrorCodes,
+  validateAmount,
+  validateCategory,
+  validateLength,
+  handlePrismaError,
+  safeParseBody,
+  MAX_REASON_LENGTH,
+} from '@/lib/api-utils'
 
 // ═══════════════════════════════════════════════════════════════════════
 // GET /api/wallet
@@ -9,15 +19,12 @@ import { ensureWallet } from '@/lib/wallet-utils'
 // Also returns leaderboard points (User.points) for display
 // Session-based: uses NextAuth httpOnly cookie for authentication
 // ═══════════════════════════════════════════════════════════════════════
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Verify session — user must be authenticated
     const session = await requirePlayerAuth()
     if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Akses ditolak. Silakan login terlebih dahulu.' },
-        { status: 401 }
-      )
+      return apiError('Akses ditolak. Silakan login terlebih dahulu.', ErrorCodes.UNAUTHORIZED, 401)
     }
 
     const userId = session.user.id
@@ -35,10 +42,7 @@ export async function GET(request: NextRequest) {
       },
     })
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      )
+      return apiError('User tidak ditemukan.', ErrorCodes.USER_NOT_FOUND, 404)
     }
 
     // Get wins/losses from Ranking model (separate from User)
@@ -66,9 +70,7 @@ export async function GET(request: NextRequest) {
         totalIn: wallet.totalIn,
         totalOut: wallet.totalOut,
       },
-      // Leaderboard points (from tournament earnings)
       leaderboardPoints: user.points,
-      // Player stats for display (wins/losses from Ranking model)
       playerStats: {
         wins: ranking?.wins ?? 0,
         losses: ranking?.losses ?? 0,
@@ -79,11 +81,7 @@ export async function GET(request: NextRequest) {
       transactions,
     })
   } catch (error) {
-    console.error('[Wallet GET] Error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handlePrismaError(error)
   }
 }
 
@@ -96,39 +94,38 @@ export async function POST(request: NextRequest) {
     // Verify session
     const session = await requirePlayerAuth()
     if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Akses ditolak. Silakan login terlebih dahulu.' },
-        { status: 401 }
-      )
+      return apiError('Akses ditolak. Silakan login terlebih dahulu.', ErrorCodes.UNAUTHORIZED, 401)
     }
 
-    const body = await request.json()
+    // Safely parse request body
+    const { data: body, error: parseError } = await safeParseBody(request)
+    if (parseError || !body) return parseError!
+
     const { amount, category = 'topup', description } = body
 
     // Use session user ID — ignore any userId from the request body for security
     const userId = session.user.id
 
-    if (amount === undefined || amount === null) {
-      return NextResponse.json(
-        { success: false, error: 'Amount is required' },
-        { status: 400 }
-      )
+    // ── Validation ──
+    const amountError = validateAmount(amount, 1, 100000, 'Jumlah top up')
+    if (amountError) {
+      return apiError(amountError, ErrorCodes.INVALID_AMOUNT, 400)
     }
 
-    if (typeof amount !== 'number' || amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: 'Amount must be a positive number' },
-        { status: 400 }
-      )
+    const categoryError = validateCategory(category)
+    if (categoryError) {
+      return apiError(categoryError, ErrorCodes.INVALID_CATEGORY, 400)
+    }
+
+    const descError = validateLength(description, MAX_REASON_LENGTH, 'Deskripsi')
+    if (descError) {
+      return apiError(descError, ErrorCodes.FIELD_TOO_LONG, 400)
     }
 
     // Verify user exists
     const user = await db.user.findUnique({ where: { id: userId } })
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      )
+      return apiError('User tidak ditemukan.', ErrorCodes.USER_NOT_FOUND, 404)
     }
 
     // Auto-create wallet if not exists — uses shared utility
@@ -140,17 +137,17 @@ export async function POST(request: NextRequest) {
         data: {
           walletId: wallet.id,
           type: 'credit',
-          amount,
-          category,
-          description: description || `Top up ${amount} poin`,
+          amount: amount as number,
+          category: category as string,
+          description: (description as string) || `Top up ${amount} poin`,
         },
       })
 
       const updatedWallet = await tx.wallet.update({
         where: { id: wallet.id },
         data: {
-          balance: { increment: amount },
-          totalIn: { increment: amount },
+          balance: { increment: amount as number },
+          totalIn: { increment: amount as number },
         },
       })
 
@@ -169,10 +166,6 @@ export async function POST(request: NextRequest) {
       transaction: result.transaction,
     })
   } catch (error) {
-    console.error('[Wallet POST] Error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handlePrismaError(error)
   }
 }

@@ -4,7 +4,38 @@ import pusher, { globalChannel, tournamentChannel } from '@/lib/pusher';
 import { requireAdmin } from '@/lib/admin-guard';
 import { ensureWallet } from '@/lib/wallet-utils';
 
-// POST - Finalize tournament (admin only)
+// ═══════════════════════════════════════════════════════════════════════
+// POST /api/tournaments/finalize
+// Finalize tournament (admin only) — award prizes, update rankings,
+// write PlayerSeason records, credit wallets, log activity.
+//
+// Guards:
+// - Admin auth required
+// - Tournament must exist
+// - Tournament must NOT already be completed (idempotency)
+// - Final match must have a winner
+// ═══════════════════════════════════════════════════════════════════════
+
+// ── Validation helpers ──
+
+function isValidTournamentId(id: unknown): id is string {
+  return typeof id === 'string' && id.trim().length > 0
+}
+
+// ── Season calculation ──
+// Current season = floor(completedTournaments / 11) + 1
+// But AFTER this tournament is marked completed, the count will be +1
+// So we calculate: season = floor((currentCompletedCount + 1) / 11) + 1
+// Actually we use the count AFTER the update since we mark completed inside the tx.
+// Simpler: we compute it from the tournament.week field.
+// season = floor((week - 1) / 11) + 1  (week is 1-based)
+// Week 1-11 → Season 1, Week 12-22 → Season 2, etc.
+
+function seasonFromWeek(week: number | null | undefined): number {
+  const w = week || 1
+  return Math.floor((w - 1) / 11) + 1
+}
+
 export async function POST(request: NextRequest) {
   const denied = await requireAdmin(request);
   if (denied) return denied;
@@ -12,6 +43,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { tournamentId } = body;
+
+    // ── Input validation ──
+    if (!isValidTournamentId(tournamentId)) {
+      return NextResponse.json(
+        { success: false, error: 'tournamentId wajib diisi', errorCode: 'VALIDATION_ERROR' },
+        { status: 400 }
+      );
+    }
 
     const tournament = await db.tournament.findUnique({
       where: { id: tournamentId },
@@ -31,8 +70,20 @@ export async function POST(request: NextRequest) {
 
     if (!tournament) {
       return NextResponse.json(
-        { success: false, error: 'Tournament not found' },
+        { success: false, error: 'Turnamen tidak ditemukan', errorCode: 'NOT_FOUND' },
         { status: 404 }
+      );
+    }
+
+    // ── Idempotency guard: prevent double-finalize ──
+    if (tournament.status === 'completed') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Turnamen sudah pernah difinalisasi. Tidak dapat finalize ulang.',
+          errorCode: 'ALREADY_COMPLETED',
+        },
+        { status: 409 }
       );
     }
 
@@ -40,7 +91,7 @@ export async function POST(request: NextRequest) {
     const finalMatch = tournament.matches[0];
     if (!finalMatch || !finalMatch.winnerId) {
       return NextResponse.json(
-        { success: false, error: 'Final match not completed' },
+        { success: false, error: 'Final match belum selesai. Tentukan pemenang terlebih dahulu.', errorCode: 'FINAL_NOT_COMPLETED' },
         { status: 400 }
       );
     }
@@ -62,15 +113,10 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Prize-based point system ──
-    // Points = prize_per_team / team_members_count
-    // Example: prizeChampion = 150000, team has 3 members → each member gets 50000 pts (+50)
-    // Falls back to fixed points if prize pool is 0 or not set
     const FALLBACK_POINTS = { champion: 100, runnerUp: 70, third: 50, mvp: 30, participation: 10 };
 
     const calculatePointsPerMember = (prizeAmount: number, memberCount: number, fallbackKey: keyof typeof FALLBACK_POINTS): number => {
       if (prizeAmount > 0 && memberCount > 0) {
-        // prize divided by team members, then convert to whole number points
-        // e.g. 150000 / 3 = 50000 → we use 50 as points (prize / 1000 per point)
         return Math.round(prizeAmount / memberCount / 1000);
       }
       return FALLBACK_POINTS[fallbackKey];
@@ -79,7 +125,7 @@ export async function POST(request: NextRequest) {
     const championMemberCount = champion?.TeamMember?.length || 0;
     const runnerUpMemberCount = runnerUp?.TeamMember?.length || 0;
     const thirdMemberCount = thirdPlace?.TeamMember?.length || 0;
-    const mvpMemberCount = 1; // MVP is always 1 person
+    const mvpMemberCount = 1;
 
     const pointSystem = {
       champion: calculatePointsPerMember(tournament.prizeChampion, championMemberCount, 'champion'),
@@ -171,14 +217,11 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Credit wallets for tournament earnings ──
-    // For each player who earned points, ensure they have a wallet and credit it
     const walletOps = await Promise.all(
       Array.from(userPointsMap.entries()).map(async ([userId, data]) => {
-        // Find or create wallet — uses shared utility
         const user = await db.user.findUnique({ where: { id: userId }, select: { points: true } });
         const wallet = await ensureWallet(userId, user?.points || 0);
 
-        // Create wallet transaction label for tournament earnings
         const roleLabel = data.roles.length === 1
           ? data.roles[0] === 'champion' ? 'Juara'
             : data.roles[0] === 'runner-up' ? 'Runner-up'
@@ -196,9 +239,19 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Execute all updates in a single atomic transaction
+    // ── Calculate season for PlayerSeason write ──
+    // Season advances every 11 weeks. We use the tournament's week number
+    // plus the count of previously completed tournaments to determine the season.
+    const completedCount = await db.tournament.count({
+      where: { status: 'completed' },
+    });
+    // After this tournament is completed, total completed = completedCount + 1
+    // Season = floor(totalCompleted / 11) + 1 (consistent with season-leaderboard API)
+    const targetSeason = Math.floor((completedCount + 1) / 11) + 1;
+
+    // ── Execute all updates in a single atomic transaction ──
     await db.$transaction(async (tx) => {
-      // Update User.points (leaderboard)
+      // 1. Update User.points (leaderboard)
       for (const [userId, data] of userPointsMap) {
         await tx.user.update({
           where: { id: userId },
@@ -206,25 +259,31 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Update Rankings
+      // 2. Update Rankings
       for (const [userId, data] of userPointsMap) {
-        await tx.ranking.update({
+        // Ranking may not exist for some users (edge case) — use upsert
+        await tx.ranking.upsert({
           where: { userId },
-          data: {
+          update: {
             points: { increment: data.points },
             ...(data.wins > 0 ? { wins: { increment: data.wins } } : {}),
+          },
+          create: {
+            userId,
+            points: data.points,
+            wins: data.wins,
+            losses: 0,
           },
         });
       }
 
-      // MVP flag
+      // 3. MVP flag
       if (finalMatch.mvpId) {
         await tx.user.update({ where: { id: finalMatch.mvpId }, data: { isMVP: true } });
       }
 
-      // Credit wallets for tournament earnings
+      // 4. Credit wallets for tournament earnings
       for (const wo of walletOps) {
-        // Create wallet transaction
         await tx.walletTransaction.create({
           data: {
             walletId: wo.walletId,
@@ -235,7 +294,6 @@ export async function POST(request: NextRequest) {
             referenceId: tournamentId,
           },
         });
-        // Update wallet balance
         await tx.wallet.update({
           where: { id: wo.walletId },
           data: {
@@ -245,18 +303,35 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Mark tournament as completed
+      // 5. ═══ Auto-write PlayerSeason records ═══
+      // Each player who earned points gets their season points incremented
+      for (const [userId, data] of userPointsMap) {
+        await tx.playerSeason.upsert({
+          where: {
+            userId_season: { userId, season: targetSeason },
+          },
+          update: {
+            points: { increment: data.points },
+          },
+          create: {
+            userId,
+            season: targetSeason,
+            points: data.points,
+          },
+        });
+      }
+
+      // 6. Mark tournament as completed
       await tx.tournament.update({
         where: { id: tournamentId },
         data: { status: 'completed' },
       });
     });
 
-    // Log tournament_win activity for champion members
+    // ── Post-transaction: Activity logs (non-critical) ──
     if (champion) {
       for (const member of champion.TeamMember) {
         try {
-          // Count consecutive tournament wins for this user
           const userRanking = await db.ranking.findUnique({ where: { userId: member.userId } });
           const totalWins = userRanking?.wins || 0;
           await db.activityLog.create({
@@ -268,18 +343,20 @@ export async function POST(request: NextRequest) {
                 week: tournament.week,
                 teamName: champion.name,
                 totalWins,
+                season: targetSeason,
               }),
               userId: member.userId,
             },
           });
           // Log win_streak if 3+ consecutive wins
-          if (totalWins >= 3 && totalWins % 1 === 0) {
+          if (totalWins >= 3) {
             await db.activityLog.create({
               data: {
                 action: 'win_streak',
                 details: JSON.stringify({
                   streak: totalWins,
                   tournamentName: tournament.name,
+                  season: targetSeason,
                 }),
                 userId: member.userId,
               },
@@ -291,8 +368,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Pusher broadcast
     pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'tournament-update', { action: 'finalized', tournamentId, division: tournament.division }).catch(() => {});
     pusher.trigger([globalChannel, tournamentChannel(tournamentId)], 'announcement', { message: 'Tournament completed!', type: 'success', tournamentId }).catch(() => {});
+
+    console.log(`[Finalize] Tournament ${tournament.name} finalized. Season ${targetSeason}. ${userPointsMap.size} players awarded.`);
 
     return NextResponse.json({
       success: true,
@@ -301,12 +381,13 @@ export async function POST(request: NextRequest) {
       thirdPlace: thirdPlace ? { id: thirdPlace.id, name: thirdPlace.name } : null,
       mvp: finalMatch.mvp ? { id: finalMatch.mvp.id, name: finalMatch.mvp.name } : null,
       pointSystem,
+      season: targetSeason,
       results,
     });
   } catch (error) {
-    console.error('Error finalizing tournament:', error);
+    console.error('[Finalize] Error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to finalize tournament' },
+      { success: false, error: 'Gagal mengfinalisasi turnamen. Coba lagi.', errorCode: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

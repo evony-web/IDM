@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { ensureWallet } from '@/lib/wallet-utils'
+import { apiError, ErrorCodes, handlePrismaError, safeParseBody, validateLength } from '@/lib/api-utils'
 
 /** Hash a PIN string with SHA-256 */
 function hashPin(pin: string): string {
@@ -27,43 +28,33 @@ function normalizePhone(phone: string): string {
 // POST /api/wallet/setup-pin
 // Set PIN for a player who has an auto-created account but no PIN yet.
 // This is the "Aktivasi PIN" flow — separate from full signup.
-//
-// Flow:
-// 1. Player enters their name + phone + new PIN
-// 2. System finds matching user (by phone first, then by name+gender)
-// 3. If user has no PIN → set PIN, return user data for auto-login
-// 4. If user already has PIN → reject (tell them to login instead)
-// 5. If no user found → reject (tell them to register via full signup)
 // ═══════════════════════════════════════════════════════════════════════
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { name, phone, gender, pin } = body
+    // Safely parse request body
+    const { data: body, error: parseError } = await safeParseBody(request)
+    if (parseError || !body) return parseError!
 
-    // Validate required fields
+    const { name, phone, gender, pin } = body as Record<string, string>
+
+    // ── Validation ──
     if (!name || typeof name !== 'string' || !name.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Nama wajib diisi' },
-        { status: 400 }
-      )
+      return apiError('Nama wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400)
     }
+
+    const nameError = validateLength(name, 50, 'Nama')
+    if (nameError) return apiError(nameError, ErrorCodes.FIELD_TOO_LONG, 400)
+
     if (!phone || typeof phone !== 'string' || !phone.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Nomor HP wajib diisi' },
-        { status: 400 }
-      )
+      return apiError('Nomor HP wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400)
     }
+
     if (!gender || !['male', 'female'].includes(gender)) {
-      return NextResponse.json(
-        { success: false, error: 'Gender harus "male" atau "female"' },
-        { status: 400 }
-      )
+      return apiError('Gender harus "male" atau "female".', ErrorCodes.VALIDATION_ERROR, 400)
     }
+
     if (!pin || typeof pin !== 'string' || !/^\d{4,6}$/.test(pin)) {
-      return NextResponse.json(
-        { success: false, error: 'PIN harus 4-6 digit angka' },
-        { status: 400 }
-      )
+      return apiError('PIN harus 4-6 digit angka.', ErrorCodes.VALIDATION_ERROR, 400)
     }
 
     const normalizedPhone = normalizePhone(phone)
@@ -72,9 +63,10 @@ export async function POST(request: NextRequest) {
 
     // Validate normalized phone format
     if (!/^08\d{8,11}$/.test(normalizedPhone)) {
-      return NextResponse.json(
-        { success: false, error: 'Format nomor HP tidak valid. Gunakan format 08xxxxxxxxxx' },
-        { status: 400 }
+      return apiError(
+        'Format nomor HP tidak valid. Gunakan format 08xxxxxxxxxx.',
+        ErrorCodes.VALIDATION_ERROR,
+        400
       )
     }
 
@@ -95,25 +87,19 @@ export async function POST(request: NextRequest) {
 
     // ── Step 3: If no user found at all ──
     if (!matchedUser) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Akun tidak ditemukan. Pastikan nama dan nomor HP sesuai dengan data pendaftaran turnamen, atau daftar akun baru.',
-          errorCode: 'USER_NOT_FOUND',
-        },
-        { status: 404 }
+      return apiError(
+        'Akun tidak ditemukan. Pastikan nama dan nomor HP sesuai dengan data pendaftaran turnamen, atau daftar akun baru.',
+        ErrorCodes.USER_NOT_FOUND,
+        404
       )
     }
 
     // ── Step 4: If user already has PIN → tell them to login ──
     if (matchedUser.playerPin) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Akun sudah memiliki PIN. Silakan masuk dengan nomor HP dan PIN Anda.',
-          errorCode: 'PIN_ALREADY_SET',
-        },
-        { status: 409 }
+      return apiError(
+        'Akun sudah memiliki PIN. Silakan masuk dengan nomor HP dan PIN Anda.',
+        ErrorCodes.PIN_ALREADY_SET,
+        409
       )
     }
 
@@ -154,10 +140,6 @@ export async function POST(request: NextRequest) {
       message: 'PIN berhasil dibuat! Anda bisa masuk sekarang.',
     })
   } catch (error) {
-    console.error('[Setup PIN] Error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Terjadi kesalahan. Coba lagi.' },
-      { status: 500 }
-    )
+    return handlePrismaError(error)
   }
 }

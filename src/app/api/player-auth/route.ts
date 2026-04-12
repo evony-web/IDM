@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { ensureWallet } from '@/lib/wallet-utils';
+import { apiError, ErrorCodes, handlePrismaError, safeParseBody, validateLength } from '@/lib/api-utils';
 
 /** Hash a PIN string with SHA-256 */
 function hashPin(pin: string): string {
@@ -88,33 +89,24 @@ async function ensureUserRecords(userId: string, userPoints: number) {
 // ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, phone, gender, pin } = body;
+    const { data: body, error: parseError } = await safeParseBody(request);
+    if (parseError || !body) return parseError!;
+    const { name, phone, gender, pin } = body as Record<string, string>;
 
     // 1. Validate required fields
     if (!name || typeof name !== 'string' || !name.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Nama wajib diisi' },
-        { status: 400 }
-      );
+      return apiError('Nama wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
     }
+    const nameLenError = validateLength(name, 50, 'Nama');
+    if (nameLenError) return apiError(nameLenError, ErrorCodes.FIELD_TOO_LONG, 400);
     if (!phone || typeof phone !== 'string' || !phone.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Nomor HP wajib diisi' },
-        { status: 400 }
-      );
+      return apiError('Nomor HP wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
     }
     if (!gender || !['male', 'female'].includes(gender)) {
-      return NextResponse.json(
-        { success: false, error: 'Gender harus "male" atau "female"' },
-        { status: 400 }
-      );
+      return apiError('Gender harus "male" atau "female".', ErrorCodes.VALIDATION_ERROR, 400);
     }
     if (!pin || typeof pin !== 'string' || !/^\d{4,6}$/.test(pin)) {
-      return NextResponse.json(
-        { success: false, error: 'PIN harus 4-6 digit angka' },
-        { status: 400 }
-      );
+      return apiError('PIN harus 4-6 digit angka.', ErrorCodes.VALIDATION_ERROR, 400);
     }
 
     const normalizedPhone = normalizePhone(phone);
@@ -123,10 +115,7 @@ export async function POST(request: NextRequest) {
 
     // Validate normalized phone format (must start with 08 and be 10-13 digits)
     if (!/^08\d{8,11}$/.test(normalizedPhone)) {
-      return NextResponse.json(
-        { success: false, error: 'Format nomor HP tidak valid. Gunakan format 08xxxxxxxxxx' },
-        { status: 400 }
-      );
+      return apiError('Format nomor HP tidak valid. Gunakan format 08xxxxxxxxxx.', ErrorCodes.VALIDATION_ERROR, 400);
     }
 
     // 2. Check if a user with this phone number already exists (exact match, normalized)
@@ -137,18 +126,12 @@ export async function POST(request: NextRequest) {
     if (existingByPhone) {
       // If user is admin, they can't sign up as player
       if (existingByPhone.isAdmin) {
-        return NextResponse.json(
-          { success: false, error: 'Nomor HP terdaftar sebagai admin. Gunakan nomor HP lain.' },
-          { status: 409 }
-        );
+        return apiError('Nomor HP terdaftar sebagai admin. Gunakan nomor HP lain.', ErrorCodes.FORBIDDEN, 409);
       }
 
       // If they already have a playerPin → already registered
       if (existingByPhone.playerPin) {
-        return NextResponse.json(
-          { success: false, error: 'Akun sudah terdaftar. Silakan login.' },
-          { status: 409 }
-        );
+        return apiError('Akun sudah terdaftar. Silakan login.', ErrorCodes.PIN_ALREADY_SET, 409);
       }
 
       // Admin created them but they have no PIN — set the PIN now
@@ -241,15 +224,7 @@ export async function POST(request: NextRequest) {
       isNewAccount: true,
     });
   } catch (error) {
-    console.error('[Player Auth] Signup error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Terjadi kesalahan saat mendaftar',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return handlePrismaError(error);
   }
 }
 
@@ -258,21 +233,16 @@ export async function POST(request: NextRequest) {
 // ─────────────────────────────────────────────
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { phone, pin } = body;
+    const { data: body, error: parseError } = await safeParseBody(request);
+    if (parseError || !body) return parseError!;
+    const { phone, pin } = body as Record<string, string>;
 
     // 1. Validate required fields
     if (!phone || typeof phone !== 'string' || !phone.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Nomor HP wajib diisi' },
-        { status: 400 }
-      );
+      return apiError('Nomor HP wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
     }
     if (!pin || typeof pin !== 'string') {
-      return NextResponse.json(
-        { success: false, error: 'PIN wajib diisi' },
-        { status: 400 }
-      );
+      return apiError('PIN wajib diisi.', ErrorCodes.VALIDATION_ERROR, 400);
     }
 
     const normalizedPhone = normalizePhone(phone);
@@ -300,18 +270,12 @@ export async function PUT(request: NextRequest) {
 
     // 4. If still not found
     if (!matchedUser) {
-      return NextResponse.json(
-        { success: false, error: 'Nomor HP tidak terdaftar' },
-        { status: 404 }
-      );
+      return apiError('Nomor HP tidak terdaftar.', ErrorCodes.USER_NOT_FOUND, 404);
     }
 
     // 5. If found but no playerPin
     if (!matchedUser.playerPin) {
-      return NextResponse.json(
-        { success: false, error: 'Akun belum memiliki PIN. Silakan daftar terlebih dahulu.' },
-        { status: 403 }
-      );
+      return apiError('Akun belum memiliki PIN. Silakan daftar terlebih dahulu.', ErrorCodes.FORBIDDEN, 403);
     }
 
     // 6. Hash the provided PIN and compare
@@ -319,10 +283,7 @@ export async function PUT(request: NextRequest) {
 
     // 7. Compare
     if (hashedPin !== matchedUser.playerPin) {
-      return NextResponse.json(
-        { success: false, error: 'PIN salah' },
-        { status: 401 }
-      );
+      return apiError('PIN salah.', ErrorCodes.UNAUTHORIZED, 401);
     }
 
     // 8. If the phone in DB is not normalized, fix it now
@@ -341,14 +302,6 @@ export async function PUT(request: NextRequest) {
       isNewAccount: false,
     });
   } catch (error) {
-    console.error('[Player Auth] Login error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Terjadi kesalahan saat login',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return handlePrismaError(error);
   }
 }
