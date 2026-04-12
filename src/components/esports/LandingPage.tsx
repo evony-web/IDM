@@ -3919,20 +3919,8 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
       {/* ── Background ── */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0" style={{ background: '#050507' }} />
-        {/* Video Background Pattern */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ opacity: 0.15 }}
-        >
-          <source src="https://res.cloudinary.com/dagoryri5/video/upload/v1775996429/a962508d4a57662147d45e06c7cbb073_ynfpw4.mp4" type="video/mp4" />
-        </video>
-        {/* Dark overlay on video */}
-        <div className="absolute inset-0" style={{ background: 'rgba(5,5,7,0.70)' }} />
+        {/* Dark overlay */}
+        <div className="absolute inset-0" style={{ background: 'rgba(5,5,7,0.95)' }} />
         {/* Green glow (Male) */}
         <div
           className="absolute -top-20 left-1/4 w-[500px] h-[500px]"
