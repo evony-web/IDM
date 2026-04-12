@@ -9,19 +9,19 @@
    Male & Female use different Cloudinary images
    ═══════════════════════════════════════════ */
 .landing-bg-img {
-  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014375/bck_jm9jio.webp);
+  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014918/bck_tgq1qt.webp);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
 }
 .division-bg-img-male {
-  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014375/bck_jm9jio.webp);
+  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014918/bck_tgq1qt.webp);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
 }
 .division-bg-img-female {
-  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014376/bck2_pddgar.webp);
+  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014919/bck_ehheu8.jpg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
