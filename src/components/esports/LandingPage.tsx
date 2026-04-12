@@ -5236,74 +5236,26 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
     <style>{playerRowKeyframes}</style>
     <style>{fireGlowKeyframes}</style>
     <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} onOpenWallet={onOpenWallet} activeData={activeData} />
-    <PremiumAmbientParticles />
-    <PremiumGradientMeshOrbs />
+    {/* Background image — bck.jpg */}
+    <div
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{
+        backgroundImage: 'url(/bck.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+      }}
+    />
+    {/* Dark overlay for readability */}
+    <div
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{
+        background: 'linear-gradient(180deg, rgba(5,5,7,0.55) 0%, rgba(5,5,7,0.70) 50%, rgba(5,5,7,0.85) 100%)',
+      }}
+    />
     <div className="h-full relative overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
-      {/* ── Premium Vibrant Background ── */}
-      <div className="fixed inset-0 pointer-events-none">
-        {/* Rich dark gradient base — not flat black! */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(160deg, #0a0f1a 0%, #0d1117 25%, #0a0e14 50%, #0f0d14 75%, #0d0f14 100%)',
-        }} />
-        {/* Subtle noise texture for depth */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E")`,
-        }} />
-        {/* Animated gradient mesh — top left green glow (Male) */}
-        <div
-          className="absolute -top-20 -left-10 w-[600px] h-[600px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(115,255,0,0.08) 0%, rgba(115,255,0,0.03) 35%, transparent 65%)',
-            animation: 'orbFloatA 25s ease-in-out infinite',
-          }}
-        />
-        {/* Animated gradient mesh — top right blue glow (Female) */}
-        <div
-          className="absolute top-[10%] -right-10 w-[550px] h-[550px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(56,189,248,0.07) 0%, rgba(56,189,248,0.025) 35%, transparent 65%)',
-            animation: 'orbFloatB 30s ease-in-out infinite',
-          }}
-        />
-        {/* Animated gradient mesh — center gold glow */}
-        <div
-          className="absolute bottom-[15%] left-[20%] w-[500px] h-[500px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(255,215,0,0.05) 0%, rgba(255,215,0,0.015) 35%, transparent 65%)',
-            animation: 'orbFloatA 22s ease-in-out infinite',
-          }}
-        />
-        {/* Animated gradient mesh — bottom right pink glow */}
-        <div
-          className="absolute bottom-[5%] right-[5%] w-[450px] h-[450px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(244,114,182,0.015) 35%, transparent 65%)',
-            animation: 'orbFloatB 28s ease-in-out infinite',
-          }}
-        />
-        {/* Teal accent glow — mid-page */}
-        <div
-          className="absolute top-[45%] left-[50%] w-[400px] h-[400px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(20,184,166,0.04) 0%, transparent 55%)',
-            animation: 'orbFloatA 35s ease-in-out infinite',
-          }}
-        />
-        {/* Diamond pattern — slightly more visible */}
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='0.5'/%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-        {/* Animated top-to-bottom gradient sweep */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(180deg, rgba(115,255,0,0.015) 0%, transparent 15%, transparent 85%, rgba(56,189,248,0.015) 100%)',
-          animation: 'gradientShift 15s ease-in-out infinite',
-          backgroundSize: '200% 200%',
-        }} />
-      </div>
+      {/* Background already handled above via bck.jpg + overlay */}
 
       {/* ── Content ── */}
       <motion.div
