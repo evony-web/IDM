@@ -5241,10 +5241,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
       className="fixed inset-0 pointer-events-none z-0"
       style={{
         backgroundImage: 'url(/bck.jpg)',
-        backgroundSize: 'cover',
+        backgroundSize: '100% 100%',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
       }}
     />
     {/* Dark overlay for readability */}
