@@ -29,25 +29,18 @@ export function GradientBackground({ division = 'male' }: GradientBackgroundProp
 
   return (
     <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-      {/* Base Background Color - BLACK for both divisions */}
-      <motion.div
-        key={division}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="absolute inset-0"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.7)',
-        }}
+      {/* Background image — bck.jpg */}
+      <div
+        className="absolute inset-0 division-bg-img"
       />
 
-      {/* Subtle dark gradient overlay */}
+      {/* Dark overlay for readability + division color tint */}
       <div
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(180deg,
-            rgba(0,0,0,0) 0%,
-            rgba(0,0,0,0.15) 100%)`,
+          background: isMale
+            ? 'linear-gradient(180deg, rgba(5,8,2,0.65) 0%, rgba(5,5,7,0.75) 50%, rgba(3,5,2,0.88) 100%)'
+            : 'linear-gradient(180deg, rgba(2,5,8,0.65) 0%, rgba(5,5,7,0.75) 50%, rgba(2,3,5,0.88) 100%)',
         }}
       />
 

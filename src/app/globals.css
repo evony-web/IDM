@@ -4,6 +4,24 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════
+   BACKGROUND IMAGE — Responsive sizing
+   Mobile: stretch to fill, Desktop: cover
+   ═══════════════════════════════════════════ */
+.landing-bg-img,
+.division-bg-img {
+  background-image: url(/bck.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+@media (min-width: 768px) {
+  .landing-bg-img,
+  .division-bg-img {
+    background-size: cover;
+  }
+}
+
+/* ═══════════════════════════════════════════
    SPIN ANIMATION - For loading spinners
    ═══════════════════════════════════════════ */
 @keyframes spin {

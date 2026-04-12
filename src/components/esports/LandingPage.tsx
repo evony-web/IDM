@@ -5237,19 +5237,6 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
     <style>{fireGlowKeyframes}</style>
     <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} onOpenWallet={onOpenWallet} activeData={activeData} />
     {/* Background image — bck.jpg — responsive: mobile=stretch, desktop=cover */}
-    <style>{`
-      .landing-bg-img {
-        background-image: url(/bck.jpg);
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: 100% 100%;
-      }
-      @media (min-width: 768px) {
-        .landing-bg-img {
-          background-size: cover;
-        }
-      }
-    `}</style>
     <div className="landing-bg-img fixed inset-0 pointer-events-none z-0" />
     {/* Dark overlay for readability */}
     <div
