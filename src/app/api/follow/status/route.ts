@@ -8,13 +8,15 @@ export async function GET(req: NextRequest) {
     const auth = await requirePlayerAuth();
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const userId = auth.user.id;
+
     const { searchParams } = new URL(req.url);
     const targetUserId = searchParams.get('targetUserId');
     if (!targetUserId) return NextResponse.json({ error: 'targetUserId required' }, { status: 400 });
 
     const [followRecord, followerCount, followingCount] = await Promise.all([
       db.follow.findUnique({
-        where: { followerId_followingId: { followerId: auth.userId, followingId: targetUserId } },
+        where: { followerId_followingId: { followerId: userId, followingId: targetUserId } },
         select: { id: true },
       }),
       db.follow.count({ where: { followingId: targetUserId } }),

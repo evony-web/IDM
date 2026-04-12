@@ -314,16 +314,16 @@
   --ring: rgba(115, 255, 0, 0.35);
 }
 
-/* DARK FEMALE - Pink accent */
+/* DARK FEMALE - Blue accent */
 .dark[data-theme="dark-female"] {
   --background: #0d0a10;
   --background-secondary: #110e14;
   --background-tertiary: #1a1520;
   --background-elevated: #221e28;
-  
+
   --card: rgba(26, 22, 32, 0.72);
   --popover: rgba(30, 26, 36, 0.92);
-  
+
   --primary: #38BDF8;
   --primary-light: #7DD3FC;
   --primary-dark: #0EA5E9;
@@ -331,14 +331,37 @@
   --accent: rgba(56, 189, 248, 0.10);
   --accent-foreground: #38BDF8;
   --ring: rgba(56, 189, 248, 0.35);
-  
+
   --secondary: rgba(56, 189, 248, 0.06);
   --muted: rgba(56, 189, 248, 0.04);
+  --muted-foreground: rgba(255, 255, 255, 0.48);
   --border: rgba(56, 189, 248, 0.12);
   --input: rgba(56, 189, 248, 0.06);
-  
+
+  /* Gold = Female accent (blue) in female theme */
+  --gold: #38BDF8;
+  --gold-light: #7DD3FC;
+  --gold-dark: #0EA5E9;
+  --gold-muted: rgba(56, 189, 248, 0.18);
+  --gold-glow: rgba(56, 189, 248, 0.35);
+
+  /* Glass — Blue-tinted */
   --glass-bg: rgba(13, 10, 16, 0.65);
+  --glass-hover: rgba(56, 189, 248, 0.06);
   --glass-border: rgba(56, 189, 248, 0.10);
+  --glass-highlight: rgba(56, 189, 248, 0.12);
+  --glass-bg-subtle: rgba(56, 189, 248, 0.015);
+  --glass-bg-heavy: rgba(13, 10, 16, 0.88);
+
+  /* Inner glow — Blue-tinted */
+  --inner-glow-primary: inset 0 1px 0 rgba(56, 189, 248, 0.15), inset 0 0 32px rgba(56, 189, 248, 0.08);
+
+  /* Dragon eye glow — Blue */
+  --dragon-eye-glow: 0 0 20px rgba(56, 189, 248, 0.4), 0 0 40px rgba(56, 189, 248, 0.2);
+  --dragon-scale-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='rgba(56,189,248,0.03)' stroke-width='0.5'/%3E%3C/svg%3E");
+
+  /* Selection — Blue accent */
+  --selection-bg: rgba(56, 189, 248, 0.18);
 }
 
 

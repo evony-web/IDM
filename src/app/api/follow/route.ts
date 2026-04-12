@@ -8,10 +8,13 @@ export async function POST(req: NextRequest) {
     const auth = await requirePlayerAuth();
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const userId = auth.user.id;
+    const userName = auth.user.name;
+
     const body = await req.json();
     const { targetUserId } = body;
     if (!targetUserId) return NextResponse.json({ error: 'targetUserId required' }, { status: 400 });
-    if (targetUserId === auth.userId) return NextResponse.json({ error: 'Cannot follow yourself' }, { status: 400 });
+    if (targetUserId === userId) return NextResponse.json({ error: 'Cannot follow yourself' }, { status: 400 });
 
     // Check target user exists
     const target = await db.user.findUnique({ where: { id: targetUserId }, select: { id: true, name: true } });
@@ -19,18 +22,18 @@ export async function POST(req: NextRequest) {
 
     // Check if already following
     const existing = await db.follow.findUnique({
-      where: { followerId_followingId: { followerId: auth.userId, followingId: targetUserId } },
+      where: { followerId_followingId: { followerId: userId, followingId: targetUserId } },
     });
     if (existing) return NextResponse.json({ error: 'Already following' }, { status: 409 });
 
     // Create follow + notification in transaction
     await db.$transaction([
-      db.follow.create({ data: { followerId: auth.userId, followingId: targetUserId } }),
+      db.follow.create({ data: { followerId: userId, followingId: targetUserId } }),
       db.notification.create({
         data: {
           type: 'social',
           title: 'Pengikut Baru',
-          message: `${auth.userName || 'Seseorang'} mulai mengikuti kamu`,
+          message: `${userName || 'Seseorang'} mulai mengikuti kamu`,
           icon: '👥',
           userId: targetUserId,
         },
@@ -56,12 +59,14 @@ export async function DELETE(req: NextRequest) {
     const auth = await requirePlayerAuth();
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const userId = auth.user.id;
+
     const body = await req.json();
     const { targetUserId } = body;
     if (!targetUserId) return NextResponse.json({ error: 'targetUserId required' }, { status: 400 });
 
     const existing = await db.follow.findUnique({
-      where: { followerId_followingId: { followerId: auth.userId, followingId: targetUserId } },
+      where: { followerId_followingId: { followerId: userId, followingId: targetUserId } },
     });
     if (!existing) return NextResponse.json({ error: 'Not following' }, { status: 404 });
 

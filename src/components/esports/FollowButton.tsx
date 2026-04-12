@@ -22,7 +22,7 @@ export function FollowButton({
   onFollowChange,
 }: FollowButtonProps) {
   const dt = useDivisionTheme(division);
-  const { player } = useAppStore();
+  const { currentPlayer: player } = useAppStore();
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
