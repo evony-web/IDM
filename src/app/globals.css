@@ -6804,3 +6804,52 @@ img {
   border-bottom: 1px solid;
   border-right: 1px solid;
 }
+
+/* ========================================
+   ADSTERA AD SLOT — Responsive Layout
+   Desktop: 4 ad items per row
+   Tablet (md): 4 ad items per row
+   Mobile (<768px): 2 ad items per row only
+   ======================================== */
+
+/* Force the Adstera container to use CSS Grid */
+.ad-slot [id^="container-"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+/* On tablet and desktop, show 4 columns */
+@media (min-width: 768px) {
+  .ad-slot [id^="container-"] {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+/* Hide 3rd and 4th ad items on mobile (only show first 2) */
+.ad-slot [id^="container-"] > *:nth-child(n+3) {
+  display: none !important;
+}
+
+/* On tablet/desktop, show all items */
+@media (min-width: 768px) {
+  .ad-slot [id^="container-"] > *:nth-child(n+3) {
+    display: block !important;
+  }
+}
+
+/* Ensure iframe-based ads from Adstera also respect grid */
+.ad-slot [id^="container-"] iframe {
+  width: 100% !important;
+  min-height: 90px !important;
+  border: none !important;
+}
+
+/* Mobile: make each ad card slightly taller since it's wider */
+@media (max-width: 767px) {
+  .ad-slot [id^="container-"] iframe {
+    min-height: 120px !important;
+  }
+}
