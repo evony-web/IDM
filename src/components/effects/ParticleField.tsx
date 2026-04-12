@@ -29,6 +29,19 @@ export function GradientBackground({ division = 'male' }: GradientBackgroundProp
 
   return (
     <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+      {/* Video Background Pattern */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ opacity: 0.15 }}
+      >
+        <source src="https://res.cloudinary.com/dagoryri5/video/upload/v1775995492/c22b61a248ac92df5b6b33c97427f149_lk2ahs.mp4" type="video/mp4" />
+      </video>
+
       {/* Base Background Color - BLACK for both divisions */}
       <motion.div
         key={division}
@@ -37,7 +50,7 @@ export function GradientBackground({ division = 'male' }: GradientBackgroundProp
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="absolute inset-0"
         style={{
-          backgroundColor: '#000000',
+          backgroundColor: 'rgba(0,0,0,0.7)',
         }}
       />
 
