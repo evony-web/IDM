@@ -4009,7 +4009,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.15 }}
         >
-          <source src="https://res.cloudinary.com/dagoryri5/video/upload/v1775996353/40135b48f64f507a99eb4dfd7a012033_mbsiip.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/dagoryri5/video/upload/v1775996429/a962508d4a57662147d45e06c7cbb073_ynfpw4.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay on video */}
         <div className="absolute inset-0" style={{ background: 'rgba(5,5,7,0.70)' }} />
