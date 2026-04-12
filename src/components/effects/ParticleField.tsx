@@ -24,14 +24,15 @@ interface GradientBackgroundProps {
 export function GradientBackground({ division = 'male' }: GradientBackgroundProps) {
   const isMale = division === 'male';
   
-  // Both divisions use the same dark background, only glow color differs
+  // Each division has its own Cloudinary background image
   const glowRGB = isMale ? '115,255,0' : '56,189,248'; // Green for Male, Blue for Female
+  const bgClass = isMale ? 'division-bg-img-male' : 'division-bg-img-female';
 
   return (
     <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-      {/* Background image — bck.jpg */}
+      {/* Background image — Cloudinary CDN WebP, division-specific */}
       <div
-        className="absolute inset-0 division-bg-img"
+        className={`absolute inset-0 ${bgClass}`}
       />
 
       {/* Dark overlay for readability + division color tint */}

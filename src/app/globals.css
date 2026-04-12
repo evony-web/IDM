@@ -6,17 +6,30 @@
 /* ═══════════════════════════════════════════
    BACKGROUND IMAGE — Responsive sizing
    Mobile: stretch to fill, Desktop: cover
+   Male & Female use different Cloudinary images
    ═══════════════════════════════════════════ */
-.landing-bg-img,
-.division-bg-img {
-  background-image: url(/bck.jpg);
+.landing-bg-img {
+  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014375/bck_jm9jio.webp);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+.division-bg-img-male {
+  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014375/bck_jm9jio.webp);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+.division-bg-img-female {
+  background-image: url(https://res.cloudinary.com/dagoryri5/image/upload/v1776014376/bck2_pddgar.webp);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
 }
 @media (min-width: 768px) {
   .landing-bg-img,
-  .division-bg-img {
+  .division-bg-img-male,
+  .division-bg-img-female {
     background-size: cover;
   }
 }
