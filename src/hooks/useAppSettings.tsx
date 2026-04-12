@@ -66,7 +66,7 @@ const FALLBACK: AppSettings = {
   logo_url: 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png',
   banner_male_url: '',
   banner_female_url: '',
-  loading_video_url: 'https://res.cloudinary.com/dagoryri5/video/upload/v1775995492/c22b61a248ac92df5b6b33c97427f149_lk2ahs.mp4',
+  loading_video_url: 'https://res.cloudinary.com/dagoryri5/video/upload/v1775996353/40135b48f64f507a99eb4dfd7a012033_mbsiip.mp4',
   default_theme: 'dark',
   bank_name: '',
   bank_code: '',
