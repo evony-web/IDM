@@ -282,6 +282,23 @@ export async function checkAndAwardAchievements(
   // top_10: user has rank <= 10 in rankings
   if (isTop10) tryAward('top_10');
 
+  // ── Social (Follow) achievements ──────────────────────────────────────
+  const followerCount = await db.follow.count({
+    where: { followingId: userId },
+  });
+  const followingCount = await db.follow.count({
+    where: { followerId: userId },
+  });
+
+  // followed_5: followed by 5+ players
+  if (followerCount >= 5) tryAward('followed_5');
+
+  // followed_20: followed by 20+ players
+  if (followerCount >= 20) tryAward('followed_20');
+
+  // following_5: following 5+ players
+  if (followingCount >= 5) tryAward('following_5');
+
   // ─── Persist newly earned achievements ─────────────────────────────────
   if (newAchievementsToAward.length > 0) {
     await db.achievement.createMany({

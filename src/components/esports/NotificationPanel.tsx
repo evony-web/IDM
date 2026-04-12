@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, BellRing, X, CheckCheck } from 'lucide-react';
+import { useDivisionTheme } from '@/hooks/useDivisionTheme';
 
 /* ────────────────────────────────────────────
    Types
@@ -59,9 +60,7 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
   const [isLoading, setIsLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const accentColor = division === 'male' ? '#73FF00' : '#38BDF8';
-  const accentRGB = division === 'male' ? '115,255,0' : '56,189,248';
+  const dt = useDivisionTheme(division);
 
   // ── Fetch notifications ──
   const fetchNotifications = useCallback(async (showLoading = false) => {
@@ -150,11 +149,11 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
         className="relative flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer outline-none"
         style={{
           background: isOpen
-            ? `linear-gradient(180deg, rgba(${accentRGB},0.15) 0%, rgba(${accentRGB},0.05) 100%)`
-            : 'rgba(255,255,255,0.04)',
+            ? `linear-gradient(180deg, ${dt.accentBg(0.15)} 0%, ${dt.accentBg(0.05)} 100%)`
+            : 'var(--glass-bg-subtle)',
           border: isOpen
-            ? `1px solid rgba(${accentRGB},0.30)`
-            : '1px solid rgba(255,255,255,0.08)',
+            ? `1px solid ${dt.accentBorder(0.30)}`
+            : '1px solid var(--border-light)',
         }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -172,7 +171,7 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
             >
               <BellRing
                 className="w-4 h-4"
-                style={{ color: accentColor }}
+                style={{ color: dt.accent }}
                 strokeWidth={2}
               />
             </motion.div>
@@ -186,7 +185,7 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
             >
               <Bell
                 className="w-4 h-4"
-                style={{ color: unreadCount > 0 ? accentColor : 'rgba(255,255,255,0.50)' }}
+                style={{ color: unreadCount > 0 ? dt.accent : 'var(--text-tertiary)' }}
                 strokeWidth={unreadCount > 0 ? 2.2 : 1.8}
               />
             </motion.div>
@@ -203,8 +202,8 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
               minWidth: 16,
               height: 16,
               borderRadius: 8,
-              background: '#EF4444',
-              color: '#FFFFFF',
+              background: 'var(--destructive)',
+              color: 'var(--foreground)',
               boxShadow: '0 0 8px rgba(239,68,68,0.5)',
               padding: '0 4px',
             }}
@@ -238,33 +237,33 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                 background: 'rgba(18,18,22,0.95)',
                 backdropFilter: 'blur(64px) saturate(200%)',
                 WebkitBackdropFilter: 'blur(64px) saturate(200%)',
-                border: '0.5px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 16px 48px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.03)',
+                border: '0.5px solid var(--border-light)',
+                boxShadow: '0 16px 48px rgba(0,0,0,0.50), 0 0 0 1px var(--border-subtle)',
               }}
             >
               {/* ── Header ── */}
               <div
                 className="flex items-center justify-between px-4 py-3"
                 style={{
-                  borderBottom: '0.5px solid rgba(255,255,255,0.06)',
+                  borderBottom: '0.5px solid var(--border-subtle)',
                 }}
               >
                 <div className="flex items-center gap-2">
                   <Bell
                     className="w-4 h-4"
-                    style={{ color: accentColor }}
+                    style={{ color: dt.accent }}
                     strokeWidth={2}
                   />
-                  <span className="text-[13px] font-bold text-white/85">
+                  <span className="text-[13px] font-bold" style={{ color: 'var(--text-primary)' }}>
                     Notifikasi
                   </span>
                   {unreadCount > 0 && (
                     <span
                       className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
                       style={{
-                        background: `rgba(${accentRGB},0.15)`,
-                        color: accentColor,
-                        border: `0.5px solid rgba(${accentRGB},0.20)`,
+                        background: dt.accentBg(0.15),
+                        color: dt.accent,
+                        border: `0.5px solid ${dt.accentBorder(0.20)}`,
                       }}
                     >
                       {unreadCount}
@@ -277,12 +276,12 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                       onClick={markAllAsRead}
                       className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium cursor-pointer outline-none"
                       style={{
-                        color: accentColor,
-                        background: `rgba(${accentRGB},0.08)`,
-                        border: `0.5px solid rgba(${accentRGB},0.15)`,
+                        color: dt.accent,
+                        background: dt.accentBg(0.08),
+                        border: `0.5px solid ${dt.accentBorder(0.15)}`,
                       }}
                       whileHover={{
-                        background: `rgba(${accentRGB},0.14)`,
+                        background: dt.accentBg(0.14),
                       }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -294,12 +293,12 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                     onClick={() => setIsOpen(false)}
                     className="flex items-center justify-center w-6 h-6 rounded-md cursor-pointer outline-none"
                     style={{
-                      color: 'rgba(255,255,255,0.40)',
-                      background: 'rgba(255,255,255,0.04)',
+                      color: 'var(--text-quaternary)',
+                      background: 'var(--glass-bg-subtle)',
                     }}
                     whileHover={{
-                      background: 'rgba(255,255,255,0.08)',
-                      color: 'rgba(255,255,255,0.70)',
+                      background: 'var(--glass-hover)',
+                      color: 'var(--text-secondary)',
                     }}
                     whileTap={{ scale: 0.9 }}
                   >
@@ -313,7 +312,7 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                 className="max-h-[420px] overflow-y-auto"
                 style={{
                   scrollbarWidth: 'thin',
-                  scrollbarColor: 'rgba(255,255,255,0.12) transparent',
+                  scrollbarColor: `${dt.accentBorder(0.12)} transparent`,
                 }}
               >
                 {isLoading ? (
@@ -324,8 +323,8 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                         key={i}
                         className="flex gap-3 p-3 rounded-xl animate-pulse"
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '0.5px solid rgba(255,255,255,0.04)',
+                          background: 'var(--surface-1)',
+                          border: '0.5px solid var(--border-subtle)',
                         }}
                       >
                         <div className="w-8 h-8 rounded-lg bg-white/5 flex-shrink-0" />
@@ -346,20 +345,20 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                       transition={{ delay: 0.1 }}
                       className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
                       style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '0.5px solid rgba(255,255,255,0.06)',
+                        background: 'var(--glass-bg-subtle)',
+                        border: '0.5px solid var(--border-subtle)',
                       }}
                     >
                       <Bell
                         className="w-6 h-6"
-                        style={{ color: 'rgba(255,255,255,0.25)' }}
+                        style={{ color: 'var(--text-quaternary)' }}
                         strokeWidth={1.5}
                       />
                     </motion.div>
-                    <p className="text-[12px] font-medium text-white/35">
+                    <p className="text-[12px] font-medium" style={{ color: 'var(--text-quaternary)' }}>
                       Belum ada notifikasi
                     </p>
-                    <p className="text-[10px] text-white/20 mt-1">
+                    <p className="text-[10px] mt-1" style={{ color: 'var(--text-quaternary)' }}>
                       Notifikasi akan muncul di sini
                     </p>
                   </div>
@@ -383,20 +382,20 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                         style={{
                           background: notif.isRead
                             ? 'transparent'
-                            : 'rgba(255,255,255,0.03)',
+                            : 'var(--surface-1)',
                           border: notif.isRead
                             ? '0.5px solid transparent'
-                            : '0.5px solid rgba(255,255,255,0.05)',
+                            : '0.5px solid var(--border-subtle)',
                         }}
                         whileHover={{
-                          background: 'rgba(255,255,255,0.05)',
+                          background: 'var(--glass-hover)',
                         }}
                       >
                         {/* Unread indicator — left border accent */}
                         {!notif.isRead && (
                           <motion.div
                             className="absolute left-0 top-2 bottom-2 w-[2.5px] rounded-full"
-                            style={{ background: accentColor }}
+                            style={{ background: dt.accent }}
                             layoutId={`notif-unread-${notif.id}`}
                             initial={{ opacity: 0, scaleY: 0 }}
                             animate={{ opacity: 1, scaleY: 1 }}
@@ -409,11 +408,11 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                           className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-base"
                           style={{
                             background: notif.isRead
-                              ? 'rgba(255,255,255,0.04)'
-                              : `rgba(${accentRGB},0.10)`,
+                              ? 'var(--glass-bg-subtle)'
+                              : dt.accentBg(0.10),
                             border: notif.isRead
-                              ? '0.5px solid rgba(255,255,255,0.04)'
-                              : `0.5px solid rgba(${accentRGB},0.15)`,
+                              ? '0.5px solid var(--border-subtle)'
+                              : `0.5px solid ${dt.accentBorder(0.15)}`,
                           }}
                         >
                           {notif.icon}
@@ -424,16 +423,17 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                           <p
                             className={`text-[12px] leading-snug ${
                               notif.isRead
-                                ? 'font-medium text-white/55'
-                                : 'font-bold text-white/85'
+                                ? 'font-medium'
+                                : 'font-bold'
                             }`}
+                            style={{ color: notif.isRead ? 'var(--text-tertiary)' : 'var(--text-primary)' }}
                           >
                             {notif.title}
                           </p>
-                          <p className="text-[11px] text-white/40 mt-0.5 leading-relaxed line-clamp-2">
+                          <p className="text-[11px] mt-0.5 leading-relaxed line-clamp-2" style={{ color: 'var(--text-quaternary)' }}>
                             {notif.message}
                           </p>
-                          <p className="text-[9px] text-white/20 mt-1.5">
+                          <p className="text-[9px] mt-1.5" style={{ color: 'var(--text-quaternary)' }}>
                             {timeAgo(notif.createdAt)}
                           </p>
                         </div>
@@ -443,8 +443,8 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                           <div
                             className="w-2 h-2 rounded-full flex-shrink-0 mt-1"
                             style={{
-                              background: accentColor,
-                              boxShadow: `0 0 4px rgba(${accentRGB},0.5)`,
+                              background: dt.accent,
+                              boxShadow: `0 0 4px ${dt.accentGlow(0.5)}`,
                             }}
                           />
                         )}
@@ -459,10 +459,10 @@ export function NotificationPanel({ division = 'male' }: NotificationPanelProps)
                 <div
                   className="px-4 py-2.5 text-center"
                   style={{
-                    borderTop: '0.5px solid rgba(255,255,255,0.06)',
+                    borderTop: '0.5px solid var(--border-subtle)',
                   }}
                 >
-                  <span className="text-[10px] text-white/25">
+                  <span className="text-[10px]" style={{ color: 'var(--text-quaternary)' }}>
                     Menampilkan {notifications.length} notifikasi terbaru
                   </span>
                 </div>

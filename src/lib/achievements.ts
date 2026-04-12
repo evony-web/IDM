@@ -133,6 +133,27 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     icon: '📊',
     category: 'ranking',
   },
+  {
+    type: 'followed_5',
+    name: 'Populer',
+    description: 'Diikuti oleh 5 pemain',
+    icon: '🌟',
+    category: 'social',
+  },
+  {
+    type: 'followed_20',
+    name: 'Influencer',
+    description: 'Diikuti oleh 20 pemain',
+    icon: '⭐',
+    category: 'social',
+  },
+  {
+    type: 'following_5',
+    name: 'Ramah',
+    description: 'Mengikuti 5 pemain',
+    icon: '🤝',
+    category: 'social',
+  },
 ];
 
 /**

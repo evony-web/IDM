@@ -20,6 +20,7 @@ import {
   Shield,
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { FollowButton } from '@/components/esports/FollowButton';
 
 /* ═══════════════════════════════════════════════════════════════
    INTERFACES (DO NOT CHANGE)
@@ -554,13 +555,21 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                   )}
                 </div>
 
-                {/* Player Name */}
-                <h2
-                  className="text-2xl sm:text-3xl font-black tracking-tight text-center leading-tight"
-                  style={{ color: 'rgba(255,255,255,0.92)' }}
-                >
-                  {profile.name}
-                </h2>
+                {/* Player Name + Follow Button */}
+                <div className="flex items-center justify-center gap-3">
+                  <h2
+                    className="text-2xl sm:text-3xl font-black tracking-tight text-center leading-tight"
+                    style={{ color: 'rgba(255,255,255,0.92)' }}
+                  >
+                    {profile.name}
+                  </h2>
+                  <FollowButton
+                    targetUserId={profile.id}
+                    targetUserName={profile.name}
+                    division={division}
+                    size="sm"
+                  />
+                </div>
 
                 {/* Tier label + Points row — REMOVED to make avatar bigger */}
 

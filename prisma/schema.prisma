@@ -83,6 +83,8 @@ model User {
   sentTransfers   WalletTransfer[] @relation("TransferSender")
   receivedTransfers WalletTransfer[] @relation("TransferReceiver")
   clubJoinRequests ClubJoinRequest[]
+  followers       Follow[]        @relation("UserFollowers")  // people following this user
+  following       Follow[]        @relation("UserFollowing")  // people this user follows
 }
 
 model Club {
@@ -413,4 +415,20 @@ model MatchmakingQueue {
   matchedWith String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SOCIAL — Follow System
+// ═══════════════════════════════════════════════════════════════════════
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // who is following
+  followingId String   // who is being followed
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
 }

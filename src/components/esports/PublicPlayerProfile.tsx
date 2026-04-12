@@ -21,6 +21,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDivisionTheme, createDivisionTheme } from '@/hooks/useDivisionTheme';
 import { GOLD, goldRgba } from '@/lib/theme-tokens';
+import { FollowButton } from '@/components/esports/FollowButton';
 
 /* ── Interfaces ── */
 interface ClubInfo {
@@ -362,10 +363,18 @@ export default function PublicPlayerProfile({ playerId }: { playerId: string }) 
             </motion.div>
           </div>
 
-          {/* Name */}
-          <h1 className="text-2xl sm:text-3xl font-bold text-white/90 tracking-tight leading-tight">
-            {player.name}
-          </h1>
+          {/* Name + Follow Button */}
+          <div className="flex items-center justify-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white/90 tracking-tight leading-tight">
+              {player.name}
+            </h1>
+            <FollowButton
+              targetUserId={player.id}
+              targetUserName={player.name}
+              division={isMale ? 'male' : 'female'}
+              size="sm"
+            />
+          </div>
 
           {/* Tier label + points */}
           <div className="flex items-center gap-2.5 mt-2">
