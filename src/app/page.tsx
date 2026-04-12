@@ -819,7 +819,7 @@ export default function IDOLMETAApp() {
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ opacity: 0.35 }}
               >
-                <source src={settings.loading_video_url || '/videos/loading.mp4'} type="video/mp4" />
+                <source src={settings.loading_video_url} type="video/mp4" />
               </video>
               {/* Dark overlay on top of video for text readability */}
               <div
