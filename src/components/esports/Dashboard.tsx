@@ -1600,7 +1600,7 @@ export function Dashboard({
                             style={club.logoUrl ? undefined : { background: getClubGradient(club.name) }}
                           >
                             {club.logoUrl ? (
-                              <img src={club.logoUrl} alt={club.name} loading="lazy" className="w-full h-full object-cover" />
+                              <img src={club.logoUrl} alt={club.name} loading="lazy" className="w-[80%] h-[80%] object-contain" />
                             ) : (
                               <span className="club-avatar">
                                 {club.name.slice(0, 2).toUpperCase()}

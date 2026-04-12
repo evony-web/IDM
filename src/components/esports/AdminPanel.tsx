@@ -245,8 +245,9 @@ export function AdminPanel({
   const [prizeSaving, setPrizeSaving] = useState(false);
 
   // ── Payment settings state ──
-  const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner'>('tournament');
-  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore' | 'info' | 'video' | 'content'>('rbac');
+  const [adminTab, setAdminTab] = useState<'tournament' | 'payment' | 'rbac' | 'clubs' | 'peserta' | 'banner' | 'content'>('tournament');
+  const [adminSubTab, setAdminSubTab] = useState<'rbac' | 'bot' | 'restore'>('rbac');
+  const [contentSubTab, setContentSubTab] = useState<'rules' | 'info' | 'video' | 'tournament_info'>('rules');
 
   // ── Banner management state ──
   const [bannerMaleUrl, setBannerMaleUrl] = useState<string | null>(null);
@@ -657,10 +658,10 @@ export function AdminPanel({
   }, []);
 
   useEffect(() => {
-    if (showPanel && adminTab === 'rbac' && adminSubTab === 'info') {
+    if (showPanel && adminTab === 'content' && contentSubTab === 'info') {
       fetchQuickInfo();
     }
-  }, [showPanel, adminTab, adminSubTab, fetchQuickInfo]);
+  }, [showPanel, adminTab, contentSubTab, fetchQuickInfo]);
 
   // ── Fetch Video Highlights ──
   const fetchVideoHighlights = useCallback(() => {
@@ -680,10 +681,10 @@ export function AdminPanel({
   }, []);
 
   useEffect(() => {
-    if (showPanel && adminTab === 'rbac' && adminSubTab === 'video') {
+    if (showPanel && adminTab === 'content' && contentSubTab === 'video') {
       fetchVideoHighlights();
     }
-  }, [showPanel, adminTab, adminSubTab, fetchVideoHighlights]);
+  }, [showPanel, adminTab, contentSubTab, fetchVideoHighlights]);
 
   // ── Save QuickInfo items ──
   const saveQuickInfo = useCallback(async () => {
@@ -722,10 +723,10 @@ export function AdminPanel({
   }, []);
 
   useEffect(() => {
-    if (showPanel && adminTab === 'rbac' && adminSubTab === 'content') {
+    if (showPanel && adminTab === 'content' && (contentSubTab === 'rules' || contentSubTab === 'tournament_info')) {
       fetchLandingContent();
     }
-  }, [showPanel, adminTab, adminSubTab, fetchLandingContent]);
+  }, [showPanel, adminTab, contentSubTab, fetchLandingContent]);
 
   // ── Save Landing Content ──
   const saveLandingContent = useCallback(async () => {
@@ -943,9 +944,10 @@ export function AdminPanel({
                     { id: 'tournament' as const, label: 'Turnamen', icon: Shield },
                     { id: 'peserta' as const, label: 'Peserta', icon: Users },
                     { id: 'payment' as const, label: 'Bayar', icon: CreditCard },
-                    { id: 'rbac' as const, label: 'Admin', icon: UserCog },
                     { id: 'clubs' as const, label: 'Club', icon: Building2 },
+                    { id: 'content' as const, label: 'Konten', icon: ListChecks },
                     { id: 'banner' as const, label: 'Banner', icon: ImageIconLucide },
+                    { id: 'rbac' as const, label: 'Admin', icon: UserCog },
                   ]).map((tab) => (
                     <motion.button
                       key={tab.id}
@@ -2680,12 +2682,12 @@ export function AdminPanel({
                               /* Club Info Row */
                               <div className="flex items-center gap-3">
                                 {/* Club Avatar */}
-                                <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden">
+                                <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center">
                                   {club.logoUrl ? (
                                     <img
                                       src={club.logoUrl}
                                       alt={club.name}
-                                      className="w-full h-full object-cover object-top"
+                                      className="w-[85%] h-[85%] object-contain"
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).style.display = 'none';
                                         (e.target as HTMLImageElement).parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[13px] font-bold text-white/80 ${isMale ? 'bg-[#73FF00]/15' : 'bg-[#0EA5E9]/15'}">${club.name.slice(0, 2).toUpperCase()}</div>`;
@@ -2970,11 +2972,8 @@ export function AdminPanel({
                     <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1">
                       {([
                         { id: 'rbac' as const, label: 'Admin & RBAC', icon: ShieldCheck },
-                        { id: 'bot' as const, label: 'Bot Management', icon: Bot, superAdminOnly: true },
+                        { id: 'bot' as const, label: 'Bot', icon: Bot, superAdminOnly: true },
                         { id: 'restore' as const, label: 'Restore', icon: Database },
-                        { id: 'content' as const, label: 'Konten', icon: ListChecks },
-                        { id: 'info' as const, label: 'Info', icon: Info },
-                        { id: 'video' as const, label: 'Video', icon: Play },
                       ]).filter(sub => !sub.superAdminOnly || adminUser?.role === 'super_admin').map((sub) => (
                         <motion.button
                           key={sub.id}
@@ -3280,20 +3279,66 @@ export function AdminPanel({
                       />
                     )}
 
-                    {/* ═══ CONTENT SUB-TAB (Rules + Tournament Info) ═══ */}
-                    {adminSubTab === 'content' && (
+                    {/* ═══ CONTENT SUB-TAB moved to dedicated Konten main tab ═══ */}
+
+                    {/* ═══ INFO SUB-TAB moved to dedicated Konten main tab ═══ */}
+
+                    {/* ═══ VIDEO HIGHLIGHTS SUB-TAB moved to dedicated Konten main tab ═══ */}
+
+                  </div>
+                )}
+
+                {/* ═══ KONTEN TAB (Rules + Info + Video) ═══ */}
+                {adminTab === 'content' && (
+                  <div className="space-y-5">
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-8 h-8 rounded-xl ${accentBgSubtle} flex items-center justify-center`}>
+                          <ListChecks className={`w-4 h-4 ${accentClass}`} />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-bold text-white/90">Konten Landing Page</p>
+                          <p className="text-[10px] text-white/30">Edit Rules, Info, & Video di landing page</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── Sub-tab navigation ── */}
+                    <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1">
+                      {([
+                        { id: 'rules' as const, label: 'Rules', icon: ListChecks },
+                        { id: 'tournament_info' as const, label: 'Turnamen', icon: Trophy },
+                        { id: 'info' as const, label: 'Info', icon: Info },
+                        { id: 'video' as const, label: 'Video', icon: Play },
+                      ]).map((sub) => (
+                        <motion.button
+                          key={sub.id}
+                          onClick={() => setContentSubTab(sub.id)}
+                          className="relative flex-1 min-w-0 py-2 px-2 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 z-10 truncate"
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          {contentSubTab === sub.id && (
+                            <motion.div
+                              className="absolute inset-0 rounded-lg pointer-events-none"
+                              style={{ background: 'rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
+                              layoutId="contentSubTab"
+                              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          <sub.icon className={`w-3.5 h-3.5 relative z-10 ${contentSubTab === sub.id ? accentClass : 'text-white/30'}`} />
+                          <span className={`relative z-10 truncate ${contentSubTab === sub.id ? 'text-white/90' : 'text-white/30'}`}>
+                            {sub.label}
+                          </span>
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    {/* ═══ Sub-tab: Rules ═══ */}
+                    {contentSubTab === 'rules' && (
                       <div className="space-y-5">
-                        {/* Section Header */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,107,53,0.12)' }}>
-                              <ListChecks className="w-4 h-4 text-orange-400" />
-                            </div>
-                            <div>
-                              <p className="text-[13px] font-bold text-white/90">Konten Landing Page</p>
-                              <p className="text-[10px] text-white/30">Edit Rules & Tentang Turnamen di atas footer</p>
-                            </div>
-                          </div>
+                        {/* Save Button */}
+                        <div className="flex items-center justify-end">
                           <motion.button
                             onClick={saveLandingContent}
                             disabled={landingContentSaving}
@@ -3389,6 +3434,37 @@ export function AdminPanel({
                               <Plus className="w-3 h-3" /> Tambah Rule
                             </motion.button>
                           </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ═══ Sub-tab: Tournament Info ═══ */}
+                    {contentSubTab === 'tournament_info' && (
+                      <div className="space-y-5">
+                        {/* Save Button */}
+                        <div className="flex items-center justify-end">
+                          <motion.button
+                            onClick={saveLandingContent}
+                            disabled={landingContentSaving}
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all ${
+                              landingContentSaved
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                                : isMale
+                                  ? 'bg-[#73FF00]/15 text-[#73FF00] border border-[#73FF00]/20 hover:bg-[#73FF00]/20'
+                                  : 'bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/20 hover:bg-[#38BDF8]/20'
+                            }`}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {landingContentSaving ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : landingContentSaved ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : (
+                              <Save className="w-3.5 h-3.5" />
+                            )}
+                            {landingContentSaved ? 'Tersimpan!' : 'Simpan'}
+                          </motion.button>
                         </div>
 
                         {/* ── Tournament Info Card ── */}
@@ -3525,8 +3601,8 @@ export function AdminPanel({
                       </div>
                     )}
 
-                    {/* ═══ INFO SUB-TAB ═══ */}
-                    {adminSubTab === 'info' && (
+                    {/* ═══ Sub-tab: Info ═══ */}
+                    {contentSubTab === 'info' && (
                       <div className="space-y-5">
                         {/* Section Header */}
                         <div className="flex items-center justify-between">
@@ -3535,7 +3611,7 @@ export function AdminPanel({
                               <Info className="w-4 h-4 text-amber-400" />
                             </div>
                             <div>
-                              <p className="text-[13px] font-bold text-white/90">Kelola Informasi Landing</p>
+                              <p className="text-[13px] font-bold text-white/90">Kartu Informasi</p>
                               <p className="text-[10px] text-white/30">Edit kartu informasi di bagian bawah halaman utama</p>
                             </div>
                           </div>
@@ -3731,8 +3807,8 @@ export function AdminPanel({
                       </div>
                     )}
 
-                    {/* ═══ VIDEO HIGHLIGHTS SUB-TAB ═══ */}
-                    {adminSubTab === 'video' && (
+                    {/* ═══ Sub-tab: Video Highlights ═══ */}
+                    {contentSubTab === 'video' && (
                       <div className="space-y-5">
                         {/* Section Header */}
                         <div className="flex items-center justify-between">

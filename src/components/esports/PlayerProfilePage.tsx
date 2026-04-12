@@ -693,7 +693,7 @@ export function PlayerProfilePage({ playerId, division, onBack }: PlayerProfileP
                       profile.club ? (
                         <span className="flex items-center gap-1.5">
                           {profile.club.logoUrl ? (
-                            <img src={profile.club.logoUrl} alt={profile.club.name} className="w-4 h-4 rounded object-cover" />
+                            <img src={profile.club.logoUrl} alt={profile.club.name} className="w-4 h-4 rounded object-contain" />
                           ) : (
                             <Building2 className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.40)' }} />
                           )}

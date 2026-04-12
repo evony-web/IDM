@@ -160,7 +160,7 @@ export function ImageUpload({
             <img
               src={value}
               alt="Preview"
-              className="w-full h-full object-cover object-top rounded-xl"
+              className="w-full h-full object-contain rounded-xl"
             />
             <button
               onClick={handleRemove}

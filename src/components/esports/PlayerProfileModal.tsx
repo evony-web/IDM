@@ -436,7 +436,7 @@ export default function PlayerProfileModal() {
                             {profile.club ? (
                               <>
                                 {profile.club.logoUrl ? (
-                                  <img src={profile.club.logoUrl} alt="" className="w-4 h-4 rounded object-cover" />
+                                  <img src={profile.club.logoUrl} alt="" className="w-4 h-4 rounded object-contain" />
                                 ) : (
                                   <Building2 className="w-3.5 h-3.5 text-white/30" />
                                 )}

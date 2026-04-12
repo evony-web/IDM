@@ -331,7 +331,7 @@ export function ClubTab({ division, currentUserId, onPlayerClick }: ClubTabProps
               style={{ background: `rgba(${accent.glowRGB},0.12)`, border: `1px solid rgba(${accent.glowRGB},0.2)` }}
             >
               {myClub.logoUrl ? (
-                <img src={myClub.logoUrl} alt={myClub.name} className="w-full h-full object-cover" />
+                <img src={myClub.logoUrl} alt={myClub.name} className="w-[80%] h-[80%] object-contain" />
               ) : (
                 <Crown className={`w-6 h-6 ${accent.text}`} />
               )}
@@ -463,7 +463,7 @@ export function ClubTab({ division, currentUserId, onPlayerClick }: ClubTabProps
                     style={{ background: `rgba(${accent.glowRGB},0.12)`, border: `1px solid rgba(${accent.glowRGB},0.25)` }}
                   >
                     {selectedClub.logoUrl ? (
-                      <img src={selectedClub.logoUrl} alt={selectedClub.name} className="w-full h-full object-cover" />
+                      <img src={selectedClub.logoUrl} alt={selectedClub.name} className="w-[80%] h-[80%] object-contain" />
                     ) : (
                       <Building2 className={`w-7 h-7 ${accent.text}`} />
                     )}
@@ -820,7 +820,7 @@ function ClubRow({
         style={{ background: `rgba(${accent.glowRGB},0.08)`, border: `1px solid rgba(${accent.glowRGB},0.15)` }}
       >
         {club.logoUrl ? (
-          <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
+          <img src={club.logoUrl} alt={club.name} className="w-[80%] h-[80%] object-contain" />
         ) : (
           <Building2 className="w-5 h-5 text-white/30" />
         )}

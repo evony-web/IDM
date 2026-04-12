@@ -1726,7 +1726,7 @@ function ClubsCarousel({ clubs }: { clubs: ClubData[] }) {
                     <img
                       src={club.logoUrl}
                       alt={club.name}
-                      className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                      className="w-[80%] h-[80%] object-contain transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
                   ) : (
