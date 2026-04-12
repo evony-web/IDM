@@ -2308,19 +2308,13 @@ function UnifiedLeaderboard({ data, onPlayerClick }: { data: LandingData; onPlay
 }
 
 /* ────────────────────────────────────────────
-   Landing Content Section — Rules + Tentang Turnamen
-   2-card layout above footer, managed from admin panel
+   Landing Content Section — Rules
+   Card layout above footer, managed from admin panel
    ──────────────────────────────────────────── */
 
 interface RulesData {
   title: string;
   items: string[];
-}
-
-interface TournamentInfoData {
-  title: string;
-  description: string;
-  features: Array<{ icon: string; label: string; value: string }>;
 }
 
 const LANDING_ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }>> = {
@@ -2338,19 +2332,8 @@ const DEFAULT_RULES: RulesData = {
   ],
 };
 
-const DEFAULT_TOURNAMENT_INFO: TournamentInfoData = {
-  title: 'Tentang Turnamen',
-  description: 'IDOL META adalah platform turnamen esports yang mengadakan kompetisi mingguan untuk pemain dari berbagai tingkat kemampuan. Bergabunglah dengan komunitas kami dan buktikan kemampuanmu!',
-  features: [
-    { icon: 'Trophy', label: 'Hadiah Mingguan', value: 'Prize pool dari donasi & sawer' },
-    { icon: 'Users', label: 'Komunitas Aktif', value: 'Bergabung dengan club dan bertanding' },
-    { icon: 'Zap', label: 'ELO Rating', value: 'Sistem ranking berbasis kemampuan' },
-  ],
-};
-
 function LandingContentSection() {
   const [rules, setRules] = useState<RulesData>(DEFAULT_RULES);
-  const [tournamentInfo, setTournamentInfo] = useState<TournamentInfoData>(DEFAULT_TOURNAMENT_INFO);
   const [loaded, setLoaded] = useState(false);
 
   // Fetch data
@@ -2361,7 +2344,6 @@ function LandingContentSection() {
       .then(data => {
         if (!cancelled && data?.success) {
           if (data.rules) setRules(data.rules);
-          if (data.tournamentInfo) setTournamentInfo(data.tournamentInfo);
         }
       })
       .catch(() => {})
@@ -2379,7 +2361,6 @@ function LandingContentSection() {
         .then(data => {
           if (data?.success) {
             if (data.rules) setRules(data.rules);
-            if (data.tournamentInfo) setTournamentInfo(data.tournamentInfo);
           }
         })
         .catch(() => {});
@@ -2392,7 +2373,7 @@ function LandingContentSection() {
 
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
+      <div className="w-full">
         {/* ═══ RULES CARD ═══ */}
         <motion.div
           className="rounded-2xl overflow-hidden"
@@ -2439,67 +2420,6 @@ function LandingContentSection() {
               <p className="text-[12px] text-white/20 text-center py-6">Belum ada rules ditambahkan</p>
             )}
           </div>
-        </motion.div>
-
-        {/* ═══ TOURNAMENT INFO CARD ═══ */}
-        <motion.div
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: 'linear-gradient(180deg, rgba(56,189,248,0.04) 0%, rgba(115,255,0,0.01) 100%)',
-            border: '1px solid rgba(56,189,248,0.08)',
-          }}
-          whileHover={{ borderColor: 'rgba(56,189,248,0.15)', y: -2 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          {/* Header */}
-          <div className="flex items-center gap-3 p-4 pb-3 border-b border-white/[0.04]">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, rgba(56,189,248,0.12) 0%, rgba(115,255,0,0.06) 100%)',
-                border: '1px solid rgba(56,189,248,0.10)',
-              }}
-            >
-              <Trophy className="w-5 h-5 text-cyan-400" />
-            </div>
-            <div>
-              <h2 className="text-[15px] font-bold text-white/80 tracking-wide">{tournamentInfo.title}</h2>
-              <p className="text-[10px] text-white/25 mt-0.5">Informasi turnamen</p>
-            </div>
-          </div>
-          {/* Description */}
-          <div className="p-4 pb-2">
-            <p className="text-[12px] text-white/40 leading-relaxed">{tournamentInfo.description}</p>
-          </div>
-          {/* Features */}
-          {tournamentInfo.features && tournamentInfo.features.length > 0 && (
-            <div className="px-4 pb-4 space-y-2">
-              {tournamentInfo.features.map((feat, idx) => {
-                const FeatureIcon = LANDING_ICON_MAP[feat.icon] || Info;
-                return (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 p-2.5 rounded-xl"
-                    style={{
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.04)',
-                    }}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.10) 0%, rgba(115,255,0,0.05) 100%)' }}
-                    >
-                      <FeatureIcon className="w-4 h-4 text-cyan-400" strokeWidth={2} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-semibold text-white/70">{feat.label}</p>
-                      <p className="text-[10px] text-white/30">{feat.value}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </motion.div>
       </div>
     </motion.div>
@@ -4136,7 +4056,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           </div>
         </div>
 
-        {/* ═══ TENTANG APLIKASI / RULES + TENTANG TURNAMEN ═══ */}
+        {/* ═══ RULES ═══ */}
         <div id="info-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <LandingContentSection />
         </div>
