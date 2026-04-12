@@ -3,6 +3,34 @@ import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadBase64ToCloudinary } from '@/lib/server-utils';
 
+/** Ensure a user has a wallet — auto-create if missing, sync balance if user has points */
+async function ensureWallet(userId: string, userName: string, userPoints: number) {
+  const existingWallet = await db.wallet.findUnique({ where: { userId } });
+  if (!existingWallet) {
+    const initialBalance = userPoints || 0;
+    const newWallet = await db.wallet.create({
+      data: {
+        userId,
+        balance: initialBalance,
+        totalIn: initialBalance,
+        totalOut: 0,
+      },
+    });
+    if (initialBalance > 0) {
+      await db.walletTransaction.create({
+        data: {
+          walletId: newWallet.id,
+          type: 'credit',
+          amount: initialBalance,
+          category: 'prize',
+          description: 'Sinkronisasi poin leaderboard ke wallet',
+        },
+      });
+    }
+    console.log(`[Users POST] Auto-created wallet for existing user ${userName} (${userId})`);
+  }
+}
+
 /** Process avatar: upload base64 to Cloudinary, pass through URLs, return null for empty */
 async function processAvatar(avatar: string | null | undefined): Promise<string | null> {
   if (!avatar || avatar.trim().length === 0) return null;
@@ -141,6 +169,9 @@ export async function POST(request: NextRequest) {
         where: { whatsappJid: normalizedJid },
       });
       if (existingByJid) {
+        // Ensure wallet exists for existing user
+        await ensureWallet(existingByJid.id, existingByJid.name, existingByJid.points || 0);
+
         const updateData: Record<string, string | null> = {};
         if (avatar) updateData.avatar = await processAvatar(avatar);
         if (city !== undefined) updateData.city = city || null;
@@ -175,6 +206,9 @@ export async function POST(request: NextRequest) {
         where: { phone: normalizedPhone },
       });
       if (existingByPhone) {
+        // Ensure wallet exists for existing user
+        await ensureWallet(existingByPhone.id, existingByPhone.name, existingByPhone.points || 0);
+
         const updateData: Record<string, string | null> = {};
         if (normalizedJid && !existingByPhone.whatsappJid) {
           updateData.whatsappJid = normalizedJid;
@@ -216,6 +250,9 @@ export async function POST(request: NextRequest) {
     );
 
     if (existingByName) {
+      // Ensure wallet exists for existing user
+      await ensureWallet(existingByName.id, existingByName.name, existingByName.points || 0);
+
       const updateData: Record<string, string | null> = {};
       if (normalizedJid && !existingByName.whatsappJid) {
         updateData.whatsappJid = normalizedJid;
@@ -292,6 +329,11 @@ export async function POST(request: NextRequest) {
         losses: 0,
       },
     });
+
+    // ═══ Auto-create wallet for new player ═══
+    // Every new player gets a wallet immediately so they can receive
+    // tournament prizes without needing a separate wallet signup step
+    await ensureWallet(user.id, user.name, 0);
 
     return NextResponse.json({ success: true, user });
   } catch (error) {

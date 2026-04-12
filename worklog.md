@@ -148,3 +148,34 @@ Stage Summary:
 - Real-time warning shown in edit form when duplicate name detected
 - Save button blocked when duplicate name warning is active
 - All existing data verified healthy
+
+---
+Task ID: 8
+Agent: Main Agent
+Task: Implement auto-create wallet when player registers for tournament or admin adds new player
+
+Work Log:
+- Analyzed current wallet creation flow: wallet only auto-created during player signup (POST /api/player-auth) or lazy creation on wallet tab access
+- Identified 2 critical gaps: (1) Tournament registration did not create wallet, (2) Admin adding player via POST /api/users did not create wallet
+- Added auto-create wallet logic in POST /api/tournaments/register — creates wallet with synced balance if not exists
+- Created `ensureWallet()` helper function in /api/users/route.ts to avoid code duplication
+- Added `ensureWallet()` call in POST /api/users for new user creation
+- Added `ensureWallet()` call for existing user matched by WhatsApp JID
+- Added `ensureWallet()` call for existing user matched by phone number
+- Added `ensureWallet()` call for existing user matched by name in same division
+- Ran lint — no errors
+- Verified dev server running normally
+
+Stage Summary:
+- Wallet is now auto-created in ALL player entry points
+- Complete wallet creation coverage:
+  | Trigger | Creates Wallet? |
+  |---------|----------------|
+  | Player signup (POST /api/player-auth) | ✅ Yes |
+  | Admin adds player (POST /api/users) | ✅ Yes (NEW) |
+  | Admin re-adds existing player | ✅ Yes (NEW - ensureWallet) |
+  | Tournament registration (POST /api/tournaments/register) | ✅ Yes (NEW) |
+  | First wallet tab access (GET /api/wallet) | ✅ Yes (lazy) |
+  | Tournament finalize (prize distribution) | ✅ Yes (lazy) |
+  | Admin global sync (POST /api/wallet/sync) | ✅ Yes |
+- No separate wallet signup step needed anymore — wallet is created automatically
