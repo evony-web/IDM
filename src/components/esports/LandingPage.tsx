@@ -643,9 +643,9 @@ function timeAgo(dateStr: string): string {
 
 function LandingSkeleton() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start px-3 sm:px-5 lg:px-8 xl:px-12 py-4 md:py-8">
+    <div className="min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 lg:px-10 xl:px-16 py-4 md:py-8">
       {/* Hero skeleton (matches ChampionCarouselBanner layout) */}
-      <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+      <div className="w-full mb-6 md:mb-10">
         <div
           className="w-full aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5] rounded-[20px] skeleton-shimmer"
           style={{ background: 'var(--surface-2)' }}
@@ -653,7 +653,7 @@ function LandingSkeleton() {
       </div>
 
       {/* Stats skeleton */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-6xl mx-auto mb-6 md:mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full mb-6 md:mb-10">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface-2)', border: '1px solid var(--border-subtle)' }}>
             <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
@@ -666,7 +666,7 @@ function LandingSkeleton() {
       </div>
 
       {/* Tournament Cards skeleton (matches DivisionCard layout) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full max-w-6xl mx-auto mb-6 md:mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-6 md:mb-10">
         {[1, 2].map((i) => (
           <div
             key={i}
@@ -3969,17 +3969,17 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-3 sm:px-5 lg:px-8 xl:px-12 pt-1 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
+        className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-10 xl:px-16 pt-1 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
       >
         {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
-        <div className="w-full max-w-6xl mx-auto">
+        <div className="w-full">
           <ChampionCarouselBanner data={activeData} />
         </div>
 
         {/* ═══ STATS BAR ═══ */}
         <motion.div
           variants={itemVariants}
-          className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-6xl mx-auto mb-6 md:mb-10"
+          className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full mb-6 md:mb-10"
         >
           <StatCard
             icon={Users}
@@ -4013,7 +4013,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full max-w-6xl mx-auto mb-6 md:mb-10"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-6 md:mb-10"
         >
           <DivisionCard
             division="male"
@@ -4030,22 +4030,22 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         </motion.div>
 
         {/* ═══ UNIFIED LEADERBOARD — Overall + Season Points ═══ */}
-        <div id="leaderboard-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        <div id="leaderboard-section" className="w-full mb-6 md:mb-10">
           <UnifiedLeaderboard data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        <div className="w-full mb-6 md:mb-10">
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
         {/* ═══ DONASI & SAWER SECTION ═══ */}
-        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        <div className="w-full mb-6 md:mb-10">
           <DonasiSawerSection data={activeData} />
         </div>
 
         {/* ═══ VIDEO HIGHLIGHT + INFORMASI TERBARU (Side by Side) ═══ */}
-        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10 flex flex-col lg:flex-row gap-4 md:gap-6">
+        <div className="w-full mb-6 md:mb-10 flex flex-col lg:flex-row gap-4 md:gap-6">
           {/* Video Highlight — wider */}
           <div className="flex-1 min-w-0">
             <VideoHighlightSection division="all" />
@@ -4057,14 +4057,14 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
         </div>
 
         {/* ═══ RULES ═══ */}
-        <div id="info-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+        <div id="info-section" className="w-full mb-6 md:mb-10">
           <LandingContentSection />
         </div>
 
         {/* ═══ FOOTER ═══ */}
         <motion.footer
           variants={itemVariants}
-          className="mt-auto pt-8 pb-20 md:pb-4 flex flex-col items-center gap-3 w-full max-w-6xl mx-auto"
+          className="mt-auto pt-8 pb-20 md:pb-4 flex flex-col items-center gap-3 w-full"
         >
           <p className="text-[11px] text-white/20 hover:text-white/40 transition-colors cursor-pointer tracking-wide"
             onClick={onAdminLogin}
