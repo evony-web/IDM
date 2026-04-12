@@ -506,6 +506,21 @@ export default function IDOLMETAApp() {
     fetchAdmins();
   }, [setDivision, fetchData, fetchAdmins]);
 
+  // ── Handle wallet open from landing page ──
+  const handleOpenWalletFromLanding = useCallback(() => {
+    setDivision('male');
+    setActiveTab('wallet');
+    setView('app');
+    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 600));
+    Promise.all([
+      fetchData(false, false),
+      minLoadingTime
+    ]).finally(() => {
+      setIsInitialLoading(false);
+    });
+    fetchAdmins();
+  }, [setDivision, setActiveTab, fetchData, fetchAdmins]);
+
   // ── Handle player click from landing page leaderboard ──
   const handleLandingPlayerClick = useCallback((playerId: string, gender: 'male' | 'female') => {
     setLandingProfileId(playerId);
@@ -926,6 +941,7 @@ export default function IDOLMETAApp() {
               <LandingPage
                 onEnterDivision={handleEnterDivision}
                 onAdminLogin={handleAdminLoginFromLanding}
+                onOpenWallet={handleOpenWalletFromLanding}
                 onPlayerClick={handleLandingPlayerClick}
                 preloadedData={landingData}
               />

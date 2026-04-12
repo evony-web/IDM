@@ -36,6 +36,7 @@ import {
   ChevronUp,
   BarChart3,
   Medal,
+  Wallet,
 } from 'lucide-react';
 import AdSlot from '@/components/ads/AdSlot';
 
@@ -46,6 +47,7 @@ import AdSlot from '@/components/ads/AdSlot';
 interface LandingPageProps {
   onEnterDivision: (division: 'male' | 'female') => void;
   onAdminLogin: () => void;
+  onOpenWallet: () => void;
   onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void;
   preloadedData?: LandingData | null;
 }
@@ -204,10 +206,12 @@ interface LandingData {
 function TopNavBar({
   onEnterDivision,
   onAdminLogin,
+  onOpenWallet,
   activeData,
 }: {
   onEnterDivision: (division: 'male' | 'female') => void;
   onAdminLogin: () => void;
+  onOpenWallet: () => void;
   activeData: LandingData;
 }) {
   const [scrolled, setScrolled] = useState(false);
@@ -317,6 +321,19 @@ function TopNavBar({
               <Users className="w-3 h-3" style={{ color: dtMale.accent }} />
               <span className="text-[10px] font-bold text-white/60">{totalPlayers}</span>
             </div>
+
+            {/* Wallet button */}
+            <motion.button
+              onClick={onOpenWallet}
+              className="flex items-center justify-center w-10 h-10 rounded-xl cursor-pointer"
+              style={{
+                background: 'rgba(115,255,0,0.06)',
+                border: '1px solid rgba(115,255,0,0.12)',
+              }}
+              whileTap={{ scale: 0.88 }}
+            >
+              <Wallet className="w-4 h-4" style={{ color: 'rgb(115,255,0)' }} />
+            </motion.button>
 
             {/* Share button */}
             <ShareButton
@@ -478,6 +495,25 @@ function TopNavBar({
             >
               <ScrollText className="w-4 h-4" />
               Info
+            </motion.button>
+
+            {/* Wallet shortcut */}
+            <motion.button
+              onClick={onOpenWallet}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold tracking-wide uppercase cursor-pointer transition-all duration-200 text-white/50"
+              style={{
+                background: 'rgba(0,0,0,0)',
+                border: '1px solid rgba(0,0,0,0)',
+              }}
+              whileHover={{
+                color: 'rgb(115,255,0)',
+                background: 'rgba(115,255,0,0.06)',
+                borderColor: 'rgba(115,255,0,0.15)',
+              }}
+              whileTap={{ scale: 0.96 }}
+            >
+              <Wallet className="w-4 h-4" />
+              Wallet
             </motion.button>
           </div>
 
@@ -3874,7 +3910,7 @@ const FALLBACK_DATA: LandingData = {
   activityLogs: [],
 };
 
-export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, preloadedData }: LandingPageProps) {
+export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPlayerClick, preloadedData }: LandingPageProps) {
   const { settings } = useAppSettings();
   const [data, setData] = useState<LandingData | null>(preloadedData ?? null);
   const [loading, setLoading] = useState(!preloadedData);
@@ -3914,7 +3950,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
     <>
     <style>{playerRowKeyframes}</style>
     <style>{fireGlowKeyframes}</style>
-    <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} activeData={activeData} />
+    <TopNavBar onEnterDivision={onEnterDivision} onAdminLogin={onAdminLogin} onOpenWallet={onOpenWallet} activeData={activeData} />
     <div className="h-full relative overflow-y-auto overflow-x-hidden pb-16 md:pb-0">
       {/* ── Background ── */}
       <div className="fixed inset-0 pointer-events-none">
