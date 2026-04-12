@@ -493,8 +493,9 @@ export default function IDOLMETAApp() {
 
   // Fetch Grand Final on mount and division change
   useEffect(() => {
+    if (view !== 'app') return;
     fetchGrandFinal();
-  }, [division, fetchGrandFinal]);
+  }, [division, fetchGrandFinal, view]);
 
   // Apply theme — division-aware accent color (dark mode only)
   useEffect(() => {
@@ -627,7 +628,10 @@ export default function IDOLMETAApp() {
         .catch(() => {});
     };
     channel.addEventListener('message', handler);
-    return () => channel.removeEventListener('message', handler);
+    return () => {
+      channel.removeEventListener('message', handler);
+      channel.close();
+    };
   }, [division]);
 
   // Join tournament room when tournament loads
@@ -824,8 +828,29 @@ export default function IDOLMETAApp() {
   if (view === 'loading' || view === 'landing') {
     return (
       <main className="h-dvh overflow-hidden relative">
-        {/* Loading Screen Audio */}
-        <audio ref={loadingAudioRef} src="/loading_tone.mp3" loop preload="auto" />
+        {/* Loading Screen Audio — file not available, audio element is silent */}
+
+        {/* Persistent keyframes — stays mounted even when loading screen exits */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes idm-fade-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+          @keyframes idm-fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes idm-fade-only { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes idm-spin-cw { to { transform: rotate(360deg); } }
+          @keyframes idm-spin-ccw { to { transform: rotate(-360deg); } }
+          @keyframes idm-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+          @keyframes idm-dot-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+          @keyframes idm-glow-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+          .idm-logo-anim { animation: idm-fade-in 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+          .idm-brand-anim { animation: idm-fade-up 0.5s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
+          .idm-subtitle-anim { animation: idm-fade-only 0.4s 0.4s both; }
+          .idm-spinner-anim { animation: idm-fade-only 0.3s 0.5s both; }
+          .idm-footer-anim { animation: idm-fade-only 0.4s 0.6s both; }
+          .idm-glow-ring { animation: idm-pulse 2.5s ease-in-out infinite; }
+          .idm-outer-ring { animation: idm-spin-cw 1.2s linear infinite; }
+          .idm-inner-ring { animation: idm-spin-ccw 0.8s linear infinite; }
+          .idm-center-dot { animation: idm-dot-pulse 1s ease-in-out infinite; }
+          .idm-footer-text { animation: idm-glow-pulse 2.5s ease-in-out infinite; }
+        `}} />
 
         <AnimatePresence mode="wait">
           {view === 'loading' && (
@@ -837,28 +862,6 @@ export default function IDOLMETAApp() {
               className="absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden text-white"
               style={{ background: '#050507' }}
             >
-              {/* Inline keyframes — works WITHOUT JS hydration */}
-              <style dangerouslySetInnerHTML={{ __html: `
-                @keyframes idm-fade-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-                @keyframes idm-fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes idm-fade-only { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes idm-spin-cw { to { transform: rotate(360deg); } }
-                @keyframes idm-spin-ccw { to { transform: rotate(-360deg); } }
-                @keyframes idm-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-                @keyframes idm-dot-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
-                @keyframes idm-glow-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-                .idm-logo-anim { animation: idm-fade-in 0.6s cubic-bezier(0.16,1,0.3,1) both; }
-                .idm-brand-anim { animation: idm-fade-up 0.5s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
-                .idm-subtitle-anim { animation: idm-fade-only 0.4s 0.4s both; }
-                .idm-spinner-anim { animation: idm-fade-only 0.3s 0.5s both; }
-                .idm-footer-anim { animation: idm-fade-only 0.4s 0.6s both; }
-                .idm-glow-ring { animation: idm-pulse 2.5s ease-in-out infinite; }
-                .idm-outer-ring { animation: idm-spin-cw 1.2s linear infinite; }
-                .idm-inner-ring { animation: idm-spin-ccw 0.8s linear infinite; }
-                .idm-center-dot { animation: idm-dot-pulse 1s ease-in-out infinite; }
-                .idm-footer-text { animation: idm-glow-pulse 2.5s ease-in-out infinite; }
-              `}} />
-
               {/* Diamond pattern */}
               <div
                 className="absolute inset-0 opacity-[0.03]"
@@ -894,7 +897,7 @@ export default function IDOLMETAApp() {
                   }}
                 />
                 <img
-                  src={settings.logo_url || '/logo.png'}
+                  src={settings.logo_url || '/logo.svg'}
                   alt="Logo"
                   className="relative w-28 h-28 md:w-36 md:h-36"
                   loading="eager"

@@ -212,7 +212,7 @@ function TopNavBar({
 }) {
   const [scrolled, setScrolled] = useState(false);
   const { settings } = useAppSettings();
-  const logoUrl = settings.logo_url || '/logo.png';
+  const logoUrl = settings.logo_url || '/logo.svg';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -2849,7 +2849,7 @@ function InformasiTerbaruSection({ data, onPlayerClick }: { data: LandingData; o
 
 function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
   const { settings } = useAppSettings();
-  const logoUrl = settings.logo_url || '/logo.png';
+  const logoUrl = settings.logo_url || '/logo.svg';
 
   useEffect(() => {
     const timer = setTimeout(onComplete, 3200);
@@ -3658,7 +3658,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { settings } = useAppSettings();
-  const logoUrl = settings.logo_url || '/logo.png';
+  const logoUrl = settings.logo_url || '/logo.svg';
 
   const slides: {
     division: 'male' | 'female';

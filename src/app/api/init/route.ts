@@ -36,6 +36,8 @@ export async function GET(request: NextRequest) {
           isMVP: true,
           mvpScore: true,
           clubId: true,
+          role: true,
+          isAdmin: true,
           rankings: { select: { wins: true, losses: true, points: true } },
           club: { select: { id: true, name: true, slug: true, logoUrl: true } },
           seasonPoints: { select: { season: true, points: true }, orderBy: { season: 'asc' } },

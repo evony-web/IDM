@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       where: { id: tournamentId },
       include: {
         matches: {
-          where: { bracket: 'winners' },
+          where: { bracket: { in: ['winners', 'swiss'] } },
           include: {
             teamA: { include: { TeamMember: true } },
             teamB: { include: { TeamMember: true } },
@@ -81,28 +81,62 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find champion (winner of final match)
-    const finalMatch = tournament.matches[0];
-    if (!finalMatch || !finalMatch.winnerId) {
-      return apiError(
-        'Final match belum selesai. Tentukan pemenang terlebih dahulu.',
-        ErrorCodes.VALIDATION_ERROR,
-        400
-      );
-    }
+    // Determine champion, runner-up, third place based on bracket type
+    let champion, runnerUp, thirdPlace, finalMatch;
 
-    const champion = finalMatch.winner;
-    const runnerUp = finalMatch.winnerId === finalMatch.teamAId ? finalMatch.teamB : finalMatch.teamA;
+    if (tournament.bracketType === 'swiss') {
+      // Swiss tournament: champion is the top-ranked team by standings
+      const swissTeams = await db.team.findMany({
+        where: { tournamentId },
+        include: { TeamMember: true },
+      });
 
-    // Find third place (simplified - winner of previous round's losing match)
-    const previousRoundMatches = tournament.matches.filter(m => m.round === finalMatch.round - 1);
-    let thirdPlace = null;
-    if (previousRoundMatches.length > 0) {
-      for (const match of previousRoundMatches) {
-        const loser = match.winnerId === match.teamAId ? match.teamB : match.teamA;
-        if (loser && loser.id !== champion.id && (!runnerUp || loser.id !== runnerUp.id)) {
-          thirdPlace = loser;
-          break;
+      const completedSwissMatches = await db.match.findMany({
+        where: { tournamentId, bracket: 'swiss', status: 'completed' },
+      });
+
+      // Calculate standings
+      const standingsMap = new Map<string, { teamId: string; wins: number; seed: number }>();
+      for (const team of swissTeams) {
+        standingsMap.set(team.id, { teamId: team.id, wins: 0, seed: team.seed });
+      }
+      for (const m of completedSwissMatches) {
+        if (m.winnerId && standingsMap.has(m.winnerId)) {
+          standingsMap.get(m.winnerId)!.wins++;
+        }
+      }
+
+      const standings = Array.from(standingsMap.values()).sort((a, b) => b.wins - a.wins || a.seed - b.seed);
+
+      champion = swissTeams.find(t => t.id === standings[0]?.teamId) || null;
+      runnerUp = swissTeams.find(t => t.id === standings[1]?.teamId) || null;
+      thirdPlace = swissTeams.find(t => t.id === standings[2]?.teamId) || null;
+
+      finalMatch = null;
+    } else {
+      // Elimination bracket: champion is the winner of the final match
+      finalMatch = tournament.matches[0];
+      if (!finalMatch || !finalMatch.winnerId) {
+        return apiError(
+          'Final match belum selesai. Tentukan pemenang terlebih dahulu.',
+          ErrorCodes.VALIDATION_ERROR,
+          400
+        );
+      }
+
+      champion = finalMatch.winner;
+      runnerUp = finalMatch.winnerId === finalMatch.teamAId ? finalMatch.teamB : finalMatch.teamA;
+
+      // Find third place (simplified - winner of previous round's losing match)
+      const previousRoundMatches = tournament.matches.filter(m => m.round === finalMatch.round - 1);
+      thirdPlace = null;
+      if (previousRoundMatches.length > 0) {
+        for (const match of previousRoundMatches) {
+          const loser = match.winnerId === match.teamAId ? match.teamB : match.teamA;
+          if (loser && loser.id !== champion.id && (!runnerUp || loser.id !== runnerUp.id)) {
+            thirdPlace = loser;
+            break;
+          }
         }
       }
     }
@@ -167,9 +201,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // MVP
-    if (finalMatch.mvpId) {
-      addPoints(finalMatch.mvpId, pointSystem.mvp, 'mvp', false);
+    // MVP (for elimination brackets, from final match; for Swiss, from any match with MVP set)
+    const mvpId = finalMatch?.mvpId || null;
+    if (mvpId) {
+      addPoints(mvpId, pointSystem.mvp, 'mvp', false);
     }
 
     // Get ALL matches for participation points
@@ -273,8 +308,8 @@ export async function POST(request: NextRequest) {
       }
 
       // 3. MVP flag
-      if (finalMatch.mvpId) {
-        await tx.user.update({ where: { id: finalMatch.mvpId }, data: { isMVP: true } });
+      if (mvpId) {
+        await tx.user.update({ where: { id: mvpId }, data: { isMVP: true } });
       }
 
       // 4. Credit wallets for tournament earnings
@@ -376,7 +411,7 @@ export async function POST(request: NextRequest) {
       champion: champion ? { id: champion.id, name: champion.name } : null,
       runnerUp: runnerUp ? { id: runnerUp.id, name: runnerUp.name } : null,
       thirdPlace: thirdPlace ? { id: thirdPlace.id, name: thirdPlace.name } : null,
-      mvp: finalMatch.mvp ? { id: finalMatch.mvp.id, name: finalMatch.mvp.name } : null,
+      mvp: finalMatch?.mvp ? { id: finalMatch.mvp.id, name: finalMatch.mvp.name } : null,
       pointSystem,
       season: targetSeason,
       results,

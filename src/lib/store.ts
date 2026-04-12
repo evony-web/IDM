@@ -18,6 +18,8 @@ interface User {
   clubId?: string | null;
   city?: string | null;
   seasonPoints?: SeasonPoint[];
+  role?: string;
+  isAdmin?: boolean;
 }
 
 interface Tournament {
@@ -50,6 +52,7 @@ interface Team {
       tier: string;
       avatar: string;
     };
+    role?: string;
   }[];
 }
 

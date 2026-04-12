@@ -9,6 +9,16 @@ import { useSyncExternalStore } from 'react'
 // Uses the container-based invoke.js format for async loading.
 // Placed in strategic positions that don't interfere with UX.
 //
+// IMPORTANT: The Adstera invoke.js script uses document.getElementById()
+// to find the EXACT container ID below. We must NOT modify it (e.g.
+// appending "-landing" or "-banner") or the ad will NEVER render.
+//
+// Since landing page and app view are mutually exclusive (controlled by
+// the `view` state), the container ID is unique in the DOM at any time.
+// In app view, only the "dashboard" slot gets the real container ID;
+// the "banner" slot is a secondary placeholder without the ID to avoid
+// duplicate-id violations in the DOM.
+//
 // Props:
 //   slot  — which ad placement (determines container styling)
 //   className — optional extra styling
@@ -27,6 +37,13 @@ const AD_CONFIG = {
   containerId: 'container-f08adb6bad6f125ddae8a01271dec636',
 }
 
+// Only these slots get the REAL container ID that the script expects.
+// The "banner" slot in app view does NOT get the ID because the
+// "dashboard" slot is already using it on the same page.
+// Having two elements with the same ID is invalid HTML and would cause
+// the script to only inject into the first one anyway.
+const PRIMARY_SLOTS: AdSlotType[] = ['landing', 'dashboard']
+
 // Hydration-safe client detection using useSyncExternalStore
 const emptySubscribe = () => () => {}
 function useIsMounted() {
@@ -43,9 +60,11 @@ export default function AdSlot({ slot, className = '' }: AdSlotProps) {
   // Don't render on server — ads require DOM and client-side JS
   if (!mounted) return null
 
-  // Each slot gets a unique container ID to avoid conflicts
-  // when multiple AdSlot instances are rendered on the same page
-  const uniqueContainerId = `${AD_CONFIG.containerId}-${slot}`
+  // Use the EXACT container ID that the Adstera script expects.
+  // Only primary slots (landing, dashboard) get the real ID.
+  // Banner is a secondary placeholder — no real ID, stays empty.
+  const isPrimary = PRIMARY_SLOTS.includes(slot)
+  const containerId = isPrimary ? AD_CONFIG.containerId : undefined
 
   // Size/spacing based on slot type
   const slotStyles: Record<AdSlotType, string> = {
@@ -58,12 +77,12 @@ export default function AdSlot({ slot, className = '' }: AdSlotProps) {
     <div
       className={`ad-slot ad-slot--${slot} ${slotStyles[slot]} ${className}`}
       style={{
-        minHeight: 0,
+        minHeight: isPrimary ? 90 : 0,
         overflow: 'hidden',
         position: 'relative',
       }}
     >
-      {/* Adstera Script — loaded lazily via next/script */}
+      {/* Adstera Script — loaded lazily via next/script (deduplicated by Next.js) */}
       <Script
         id={`adstera-invoke-${slot}`}
         src={AD_CONFIG.scriptSrc}
@@ -71,9 +90,9 @@ export default function AdSlot({ slot, className = '' }: AdSlotProps) {
         async
       />
 
-      {/* Container where ad will be rendered */}
+      {/* Container where ad will be rendered — must use EXACT ID the script expects */}
       <div
-        id={uniqueContainerId}
+        id={containerId}
         data-ad-slot={slot}
         style={{
           width: '100%',

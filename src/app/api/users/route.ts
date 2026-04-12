@@ -538,7 +538,6 @@ export async function DELETE(request: NextRequest) {
       where: { mvpId: userId },
       data: { mvpId: null },
     });
-    await db.playerMatchStat.deleteMany({ where: { userId } });
     await db.user.delete({ where: { id: userId } });
 
     return NextResponse.json({ 

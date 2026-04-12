@@ -112,7 +112,6 @@ export async function POST() {
 
     // ── Clear all data ──
     const tables = [
-      () => db.playerMatchStat.deleteMany(),
       () => db.teamMember.deleteMany(),
       () => db.match.deleteMany(),
       () => db.team.deleteMany(),
@@ -122,7 +121,6 @@ export async function POST() {
       () => db.ranking.deleteMany(),
       () => db.character.deleteMany(),
       () => db.activityLog.deleteMany(),
-      () => db.botLog.deleteMany(),
       () => db.user.deleteMany(),
       () => db.tournament.deleteMany(),
       () => db.club.deleteMany(),

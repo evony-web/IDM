@@ -261,12 +261,13 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await db.playerMatchStat.deleteMany({ where: { match: { tournamentId } } });
-    await db.match.deleteMany({ where: { tournamentId } } );
-    await db.teamMember.deleteMany({ where: { team: { tournamentId } } });
-    await db.team.deleteMany({ where: { tournamentId } });
-    await db.registration.deleteMany({ where: { tournamentId } });
-    await db.tournament.delete({ where: { id: tournamentId } });
+    await db.$transaction([
+      db.match.deleteMany({ where: { tournamentId } }),
+      db.teamMember.deleteMany({ where: { team: { tournamentId } } }),
+      db.team.deleteMany({ where: { tournamentId } }),
+      db.registration.deleteMany({ where: { tournamentId } }),
+      db.tournament.delete({ where: { id: tournamentId } }),
+    ]);
 
     triggerTournamentUpdate(existing.division, { action: 'deleted', tournamentId, division: existing.division }).catch(() => {});
 

@@ -634,19 +634,15 @@ async function handleSwissAdvancement(tournamentId: string, completedRound: numb
       });
       const maxRound = Math.max(...allSwissMatches.map(m => m.round));
       if (completedRound >= maxRound) {
-        // All Swiss rounds complete — update tournament status
-        await db.tournament.update({
-          where: { id: tournamentId },
-          data: { status: 'completed' },
-        });
-        console.log('[Swiss] Tournament', tournamentId, 'completed!');
+        // Don't auto-complete — let admin run the finalize flow for proper rewards
+        console.log('[Swiss] All rounds complete for tournament', tournamentId, '. Admin should finalize to award prizes.');
 
         // Notify via Pusher
         if (pusher) {
           pusher.trigger(
             [globalChannel, tournamentChannel(tournamentId)],
             'tournament-update',
-            { action: 'tournament-completed', tournamentId }
+            { action: 'swiss-rounds-complete', tournamentId }
           ).catch(() => {});
         }
       }
@@ -678,7 +674,7 @@ async function handleSwissAdvancement(tournamentId: string, completedRound: numb
       const pairing = pairings[i];
 
       if (pairing) {
-        const updateData: { teamAId: string | null; teamBId: string | null; status?: string; winnerId?: string; scoreA?: number; scoreB?: number } = {
+        const updateData: { teamAId: string | null; teamBId: string | null; status?: string; winnerId?: string; scoreA?: number; scoreB?: number; completedAt?: Date } = {
           teamAId: pairing.teamAId,
           teamBId: pairing.teamBId,
         };

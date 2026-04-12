@@ -207,7 +207,7 @@ export function PWAInstallPrompt() {
                         }}
                       >
                         <img
-                          src={settings.logo_url || '/logo.png'}
+                          src={settings.logo_url || '/logo.svg'}
                           alt={settings.app_name}
                           className="w-10 h-10"
                           loading="lazy"
@@ -344,7 +344,7 @@ export function PWAInstallPrompt() {
                       }}
                     >
                       <img
-                        src={settings.logo_url || '/logo.png'}
+                        src={settings.logo_url || '/logo.svg'}
                         alt={settings.app_name}
                         className="w-10 h-10"
                         loading="lazy"

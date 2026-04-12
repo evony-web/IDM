@@ -192,3 +192,21 @@ Stage Summary:
 - All tournament + wallet routes now use consistent error handling (safeParseBody, apiError, handlePrismaError)
 - No more raw request.json() without error handling in any wallet/auth/tournament route
 - Transfer balance check is now inside transaction — prevents negative balances under concurrency
+
+---
+Task ID: 13
+Agent: Frontend Fix Agent
+Task: Fix critical frontend issues — User type, Team type, logo 404, BroadcastChannel leak, style tag removal, fetchGrandFinal guard
+
+Work Log:
+- **Fix 1 (CRITICAL)**: Added `role?: string` and `isAdmin?: boolean` to `User` interface in `/src/lib/store.ts` — admin accounts no longer leak into player leaderboard since `u.role === 'user' || !u.isAdmin` now evaluates correctly
+- **Fix 2 (CRITICAL)**: Added `role?: string` to `Team.members` type in `/src/lib/store.ts` — captain sorting now works because member role is available
+- **Fix 3**: Replaced all `/logo.png` references with `/logo.svg` across 4 files (page.tsx, PWAInstallPrompt.tsx, LandingPage.tsx) — fixes 404 since only logo.svg exists in /public
+- **Fix 4 (MEDIUM)**: Added `channel.close()` to BroadcastChannel cleanup in page.tsx — prevents resource leak
+- **Fix 5 (MEDIUM)**: Moved `<style dangerouslySetInnerHTML>` with CSS keyframes from inside the loading screen `motion.div` to before the `<AnimatePresence>` element — keyframes now persist when loading screen exits during AnimatePresence, preventing landing page animation breakage
+- **Fix 6 (HIGH)**: Added `if (view !== 'app') return;` guard to `fetchGrandFinal` useEffect — prevents unnecessary API call on initial mount when user is still on landing page
+- Lint: passes clean
+
+Stage Summary:
+- 6 frontend issues fixed (2 critical type bugs, 1 logo 404, 1 resource leak, 1 style removal bug, 1 unnecessary API call)
+- All lint checks pass

@@ -57,6 +57,8 @@ model User {
   updatedAt   DateTime @updatedAt
   city        String?
   playerPin   String?   // PIN for player login (hashed)
+  whatsappJid String?   // WhatsApp JID for bot integration
+  discordId   String?   // Discord user ID for bot integration
 
   // ── ELO / Skill Rating ──
   eloRating   Int      @default(1000)
@@ -288,6 +290,7 @@ model WhatsAppSettings {
   id               String    @id @default(cuid())
   provider         String    @default("baileys")
   isActive         Boolean   @default(true)
+  baileysEnabled   Boolean   @default(true)
   lastConnectedAt  DateTime?
   connectionStatus String    @default("disconnected")
   createdAt        DateTime  @default(now())
@@ -431,4 +434,16 @@ model Follow {
   following User @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+}
+
+model BotLog {
+  id           String    @id @default(cuid())
+  platform     String    @default("whatsapp") // whatsapp, discord
+  command      String
+  sender       String?
+  senderId     String?
+  response     String?
+  success      Boolean   @default(true)
+  tournamentId String?
+  createdAt    DateTime  @default(now())
 }
