@@ -25,6 +25,7 @@ import { PlayerAuth } from '@/components/esports/PlayerAuth';
 import type { PlayerUser } from '@/components/esports/PlayerAuth';
 import { LandingPage } from '@/components/esports/LandingPage';
 import { ToastContainer } from '@/components/esports/Toast';
+import AdSlot from '@/components/ads/AdSlot';
 
 import { Database } from 'lucide-react';
 import { usePusher } from '@/hooks/usePusher';
@@ -1403,6 +1404,10 @@ export default function IDOLMETAApp() {
 
               </motion.div>
             </AnimatePresence>
+
+            {/* ═══ AD SLOT — Persistent banner below tab content ═══ */}
+            <AdSlot slot="banner" />
+
             </div>{/* End Premium Full Width Container */}
           </div>
 

@@ -37,6 +37,7 @@ import {
   BarChart3,
   Medal,
 } from 'lucide-react';
+import AdSlot from '@/components/ads/AdSlot';
 
 /* ────────────────────────────────────────────
    Types
@@ -4071,6 +4072,9 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
             color="244,114,182"
           />
         </motion.div>
+
+        {/* ═══ AD SLOT — After Stats, before Division Cards ═══ */}
+        <AdSlot slot="landing" />
 
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div

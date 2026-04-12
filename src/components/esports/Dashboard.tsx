@@ -22,6 +22,7 @@ import {
   Shield,
   Target,
 } from 'lucide-react';
+import AdSlot from '@/components/ads/AdSlot';
 import { QualifiedPlayersModal } from './QualifiedPlayersModal';
 import { AllRankingsModal } from './AllRankingsModal';
 import { useDivisionTheme } from '@/hooks/useDivisionTheme';
@@ -1029,6 +1030,9 @@ export function Dashboard({
           </div>
         </motion.button>
       </motion.div>
+
+      {/* ═══ AD SLOT — Below Quick Stats, before Top 3 Podium ═══ */}
+      <AdSlot slot="dashboard" />
 
       {/* ═══════════════════════════════════════════════════════════
           TOP 3 PODIUM — Ranking Section with pulsing "Semua Peringkat"
