@@ -39,7 +39,7 @@ export function GradientBackground({ division = 'male' }: GradientBackgroundProp
         className="absolute inset-0 w-full h-full object-cover"
         style={{ opacity: 0.15 }}
       >
-        <source src="https://res.cloudinary.com/dagoryri5/video/upload/v1775995492/c22b61a248ac92df5b6b33c97427f149_lk2ahs.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dagoryri5/video/upload/v1775996353/40135b48f64f507a99eb4dfd7a012033_mbsiip.mp4" type="video/mp4" />
       </video>
 
       {/* Base Background Color - BLACK for both divisions */}
