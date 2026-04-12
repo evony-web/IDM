@@ -1,27 +1,28 @@
 'use client'
 
-import Script from 'next/script'
 import { useSyncExternalStore } from 'react'
 
 // ═══════════════════════════════════════════════════════════════════════
 // AdSlot — Non-intrusive Adstera native ad container
 //
-// Uses the container-based invoke.js format for async loading.
-// Placed in strategic positions that don't interfere with UX.
+// Uses the EXACT script format provided by Adstera:
+//   <script async="async" data-cfasync="false" src="...invoke.js"></script>
+//   <div id="container-..."></div>
 //
-// IMPORTANT: The Adstera invoke.js script uses document.getElementById()
-// to find the EXACT container ID below. We must NOT modify it (e.g.
-// appending "-landing" or "-banner") or the ad will NEVER render.
+// IMPORTANT:
+// - data-cfasync="false" tells Cloudflare to NOT optimize this script
+// - async="async" ensures non-blocking load
+// - The container ID must be EXACTLY as provided — no modifications
 //
-// Since landing page and app view are mutually exclusive (controlled by
-// the `view` state), the container ID is unique in the DOM at any time.
-// In app view, only the "dashboard" slot gets the real container ID;
-// the "banner" slot is a secondary placeholder without the ID to avoid
-// duplicate-id violations in the DOM.
+// Only ONE slot per page gets the real container ID (the script uses
+// document.getElementById and duplicate IDs are invalid HTML).
+// - Landing page: only "landing" gets the ID
+// - App view: only "dashboard" gets the ID
+// - "banner" slot stays empty (no duplicate ID)
 //
-// Props:
-//   slot  — which ad placement (determines container styling)
-//   className — optional extra styling
+// Responsive CSS:
+// - Desktop/tablet: 4 ad boxes horizontal (Adstera default)
+// - Mobile: 2 ad boxes per row (forced via CSS grid override)
 // ═══════════════════════════════════════════════════════════════════════
 
 type AdSlotType = 'landing' | 'dashboard' | 'banner'
@@ -38,10 +39,6 @@ const AD_CONFIG = {
 }
 
 // Only these slots get the REAL container ID that the script expects.
-// The "banner" slot in app view does NOT get the ID because the
-// "dashboard" slot is already using it on the same page.
-// Having two elements with the same ID is invalid HTML and would cause
-// the script to only inject into the first one anyway.
 const PRIMARY_SLOTS: AdSlotType[] = ['landing', 'dashboard']
 
 // Hydration-safe client detection using useSyncExternalStore
@@ -53,6 +50,52 @@ function useIsMounted() {
     () => false,  // server: never mounted
   )
 }
+
+// ── Responsive CSS for Adstera native ad ──
+// The script renders 4 ad items inside the container.
+// On mobile, force them into 2-column grid for better UX.
+const RESPONSIVE_AD_CSS = `
+  /* Target the Adstera container and its child ad items */
+  #${AD_CONFIG.containerId} {
+    width: 100% !important;
+  }
+
+  /* Force 2-column grid on mobile for ad items */
+  @media (max-width: 639px) {
+    #${AD_CONFIG.containerId} > div,
+    #${AD_CONFIG.containerId} > iframe,
+    #${AD_CONFIG.containerId} > table,
+    #${AD_CONFIG.containerId} > [id^="adngin-"],
+    #${AD_CONFIG.containerId} > [style*="display"] {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    /* Make each ad item take full width of its grid cell */
+    #${AD_CONFIG.containerId} > div > div,
+    #${AD_CONFIG.containerId} > div > a,
+    #${AD_CONFIG.containerId} > iframe {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    /* Also target common Adstera wrapper structures */
+    #${AD_CONFIG.containerId} [id^="adngin-"] {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+    }
+  }
+
+  /* Desktop: ensure horizontal layout */
+  @media (min-width: 640px) {
+    #${AD_CONFIG.containerId} {
+      text-align: center;
+    }
+  }
+`
 
 export default function AdSlot({ slot, className = '' }: AdSlotProps) {
   const mounted = useIsMounted()
@@ -82,13 +125,19 @@ export default function AdSlot({ slot, className = '' }: AdSlotProps) {
         position: 'relative',
       }}
     >
-      {/* Adstera Script — loaded lazily via next/script (deduplicated by Next.js) */}
-      <Script
-        id={`adstera-invoke-${slot}`}
-        src={AD_CONFIG.scriptSrc}
-        strategy="lazyOnload"
-        async
-      />
+      {/* Responsive CSS override for Adstera native ad items */}
+      {isPrimary && (
+        <style dangerouslySetInnerHTML={{ __html: RESPONSIVE_AD_CSS }} />
+      )}
+
+      {/* Adstera Script — EXACT format as provided by Adstera */}
+      {isPrimary && (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `<script async="async" data-cfasync="false" src="${AD_CONFIG.scriptSrc}"><\/script>`,
+          }}
+        />
+      )}
 
       {/* Container where ad will be rendered — must use EXACT ID the script expects */}
       <div
