@@ -1543,162 +1543,256 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function VideoHighlightSection({ division }: { division: 'male' | 'female' | 'all' }) {
-  const [highlights, setHighlights] = useState<VideoHighlightItem[]>([]);
+function VideoHighlightSection() {
+  const [maleHighlights, setMaleHighlights] = useState<VideoHighlightItem[]>([]);
+  const [femaleHighlights, setFemaleHighlights] = useState<VideoHighlightItem[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/video-highlights?division=${division}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (!cancelled && data?.success && Array.isArray(data.data)) {
-          setHighlights(data.data);
-        }
-      })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setLoaded(true); });
+    Promise.all([
+      fetch('/api/video-highlights?division=male').then(res => res.ok ? res.json() : null),
+      fetch('/api/video-highlights?division=female').then(res => res.ok ? res.json() : null),
+    ]).then(([maleData, femaleData]) => {
+      if (!cancelled) {
+        if (maleData?.success && Array.isArray(maleData.data)) setMaleHighlights(maleData.data);
+        if (femaleData?.success && Array.isArray(femaleData.data)) setFemaleHighlights(femaleData.data);
+        setLoaded(true);
+      }
+    }).catch(() => { if (!cancelled) setLoaded(true); });
     return () => { cancelled = true; };
-  }, [division]);
+  }, []);
+
+  // Real-time update
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const channel = new BroadcastChannel('idm-video-highlights');
+    const handler = () => {
+      Promise.all([
+        fetch('/api/video-highlights?division=male').then(res => res.ok ? res.json() : null),
+        fetch('/api/video-highlights?division=female').then(res => res.ok ? res.json() : null),
+      ]).then(([maleData, femaleData]) => {
+        if (maleData?.success && Array.isArray(maleData.data)) setMaleHighlights(maleData.data);
+        if (femaleData?.success && Array.isArray(femaleData.data)) setFemaleHighlights(femaleData.data);
+      }).catch(() => {});
+    };
+    channel.addEventListener('message', handler);
+    return () => channel.removeEventListener('message', handler);
+  }, []);
+
+  const dtMale = useDivisionTheme('male');
+  const dtFemale = useDivisionTheme('female');
 
   if (!loaded) return null;
 
-  // Show placeholder when no highlights available (keep the 3-column layout intact)
-  if (highlights.length === 0) {
+  const renderDivisionCard = (
+    division: 'male' | 'female',
+    highlights: VideoHighlightItem[],
+    dt: ReturnType<typeof useDivisionTheme>,
+  ) => {
+    const Icon = division === 'male' ? Swords : Shield;
+    const label = division === 'male' ? 'MALE DIVISION' : 'FEMALE DIVISION';
+    const featured = highlights[0]; // first video as featured
+    const rest = highlights.slice(1, 4); // up to 3 more
+
     return (
-      <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
-        <div className="flex items-center gap-2 mb-4">
-          <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Highlight</h2>
-        </div>
+      <motion.div
+        variants={cardVariants}
+        className="relative rounded-3xl overflow-hidden flex flex-col"
+        style={{
+          background: 'linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%)',
+          border: `1px solid ${dt.accentBorder(0.12)}`,
+          backdropFilter: 'blur(24px)',
+        }}
+      >
+        {/* Top accent bar */}
+        <div className="h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${dt.accentBg(0.5)}, transparent)` }} />
+
+        {/* Corner glow */}
         <div
-          className="rounded-2xl flex-1 flex flex-col items-center justify-center py-12 px-4"
-          style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,107,53,0.06)',
-          }}
-        >
-          <Play className="w-8 h-8 text-white/10 mb-3" />
-          <p className="text-[12px] text-white/25 text-center">Belum ada video highlight</p>
-          <p className="text-[10px] text-white/15 mt-1 text-center">Tambahkan dari panel admin</p>
+          className="absolute top-0 right-0 w-32 h-32 pointer-events-none"
+          style={{ background: `radial-gradient(circle at top right, ${dt.accentBg(0.08)} 0%, transparent 70%)` }}
+        />
+
+        <div className="relative p-3 sm:p-4 md:p-5 flex flex-col flex-1">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${dt.accentBg(0.20)} 0%, ${dt.accentBg(0.06)} 100%)`,
+                  border: `1px solid ${dt.accentBorder(0.18)}`,
+                }}
+              >
+                <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" style={{ color: dt.accent }} strokeWidth={2} />
+              </div>
+              <div>
+                <h3
+                  className="text-[11px] sm:text-[13px] font-bold tracking-wider uppercase"
+                  style={{
+                    background: `linear-gradient(135deg, ${dt.accent}, ${dt.accentDark})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  {label}
+                </h3>
+                <p className="text-[10px] text-white/35 mt-0.5">{highlights.length} video highlight</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Play className="w-3.5 h-3.5" style={{ color: dt.accent }} />
+              <span className="text-[10px] font-bold" style={{ color: dt.accent }}>Highlight</span>
+            </div>
+          </div>
+
+          {/* Featured Video or Empty State */}
+          {featured ? (
+            <>
+              <div
+                className="rounded-2xl overflow-hidden relative group"
+                style={{ border: `1px solid ${dt.accentBorder(0.08)}` }}
+              >
+                <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+                  {activeVideo === featured.id ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${extractYouTubeId(featured.youtubeUrl)}?autoplay=1&rel=0&modestbranding=1`}
+                      title={featured.title}
+                      className="absolute inset-0 w-full h-full"
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      style={{ border: 'none' }}
+                    />
+                  ) : (
+                    <>
+                      <img
+                        src={`https://img.youtube.com/vi/${extractYouTubeId(featured.youtubeUrl)}/mqdefault.jpg`}
+                        alt={featured.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/15 transition-colors duration-300" />
+                      {/* Play button */}
+                      <motion.button
+                        className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                        onClick={() => setActiveVideo(featured.id)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center"
+                          style={{
+                            background: `linear-gradient(135deg, ${dt.accentBg(0.90)}, ${dt.accentBg(0.75)})`,
+                            boxShadow: `0 0 20px ${dt.accentBg(0.4)}, 0 4px 12px rgba(0,0,0,0.3)`,
+                          }}
+                        >
+                          <Play className="w-5 h-5 text-white ml-0.5" fill="white" strokeWidth={0} />
+                        </div>
+                      </motion.button>
+                      {/* YouTube badge */}
+                      <div
+                        className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold text-white"
+                        style={{ background: 'rgba(0,0,0,0.75)' }}
+                      >
+                        ▶ YouTube
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Title under featured */}
+                <div className="p-2.5" style={{ background: `linear-gradient(135deg, ${dt.accentBg(0.04)} 0%, transparent 100%)` }}>
+                  <p className="text-[12px] font-semibold text-white/85 truncate">{featured.title}</p>
+                </div>
+              </div>
+
+              {/* More Videos List (compact) */}
+              {rest.length > 0 && (
+                <div className="mt-2.5 space-y-1.5">
+                  {rest.map((h) => {
+                    const vid = extractYouTubeId(h.youtubeUrl);
+                    if (!vid) return null;
+                    return (
+                      <motion.div
+                        key={h.id}
+                        className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/[0.04] press-scale"
+                        onClick={() => {
+                          // Swap featured: set this as active
+                          setActiveVideo(h.id);
+                          // Move this video to front for the featured slot
+                          if (division === 'male') {
+                            setMaleHighlights(prev => [h, ...prev.filter(p => p.id !== h.id)]);
+                          } else {
+                            setFemaleHighlights(prev => [h, ...prev.filter(p => p.id !== h.id)]);
+                          }
+                        }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        {/* Mini thumbnail */}
+                        <div className="w-16 h-9 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ border: `1px solid ${dt.accentBorder(0.10)}` }}>
+                          <img
+                            src={`https://img.youtube.com/vi/${vid}/default.jpg`}
+                            alt={h.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <Play className="w-2.5 h-2.5 text-white" fill="white" strokeWidth={0} />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-medium text-white/70 truncate">{h.title}</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          ) : (
+            /* Empty State */
+            <div
+              className="rounded-2xl flex flex-col items-center justify-center py-10 px-4 flex-1"
+              style={{
+                background: `${dt.accentBg(0.03)}`,
+                border: `1px solid ${dt.accentBorder(0.06)}`,
+              }}
+            >
+              <Play className="w-8 h-8 mb-3" style={{ color: dt.accent, opacity: 0.2 }} />
+              <p className="text-[12px] text-white/25 text-center">Belum ada video highlight</p>
+              <p className="text-[10px] text-white/15 mt-1 text-center">Tambahkan dari panel admin</p>
+            </div>
+          )}
         </div>
       </motion.div>
     );
-  }
+  };
 
   return (
-    <motion.div variants={itemVariants} className="w-full max-w-full md:h-full md:flex md:flex-col">
+    <motion.div variants={itemVariants} className="w-full max-w-full">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
-        <h2 className="text-[15px] font-bold text-white/80 tracking-wide">Highlight</h2>
-        <span className="text-[9px] text-white/20 ml-0.5">({highlights.length})</span>
+      <div className="flex items-center gap-2.5 mb-4">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,107,53,0.05) 100%)',
+            border: '1px solid rgba(255,107,53,0.12)',
+          }}
+        >
+          <Play className="w-4 h-4" style={{ color: '#FF6B35' }} />
+        </div>
+        <div>
+          <h2 className="text-[15px] sm:text-[17px] font-bold text-white/80 tracking-wide">Video Highlight</h2>
+          <p className="text-[10px] text-white/30 mt-0.5">{maleHighlights.length + femaleHighlights.length} video tersedia</p>
+        </div>
       </div>
 
-      {/* Video Cards — single column for the middle panel */}
-      <div className="space-y-3 md:flex-1 md:overflow-y-auto md:max-h-[520px] pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,107,53,0.15) transparent' }}>
-        {highlights.slice(0, 5).map((highlight, idx) => {
-          const videoId = extractYouTubeId(highlight.youtubeUrl);
-          if (!videoId) return null;
-
-          const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-          const isPlaying = activeVideo === highlight.id;
-
-          return (
-            <motion.div
-              key={highlight.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.06 }}
-              className="rounded-2xl overflow-hidden relative group"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,107,53,0.06) 0%, rgba(244,114,182,0.04) 50%, rgba(255,215,0,0.03) 100%)',
-                border: '1px solid rgba(255,107,53,0.10)',
-              }}
-            >
-              {/* Video area */}
-              <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
-                {isPlaying ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-                    title={highlight.title}
-                    className="absolute inset-0 w-full h-full"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    style={{ border: 'none' }}
-                  />
-                ) : (
-                  <>
-                    {/* Thumbnail */}
-                    <img
-                      src={thumbnailUrl}
-                      alt={highlight.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    {/* Dark overlay */}
-                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-300" />
-                    {/* Play button */}
-                    <motion.button
-                      className="absolute inset-0 flex items-center justify-center cursor-pointer"
-                      onClick={() => setActiveVideo(highlight.id)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
-                        style={{
-                          background: 'linear-gradient(135deg, rgba(255,107,53,0.90), rgba(255,69,0,0.85))',
-                          boxShadow: '0 0 16px rgba(255,107,53,0.4), 0 4px 12px rgba(0,0,0,0.3)',
-                        }}
-                      >
-                        <Play className="w-4 h-4 text-white ml-0.5" fill="white" strokeWidth={0} />
-                      </div>
-                    </motion.button>
-                    {/* YouTube badge */}
-                    <div
-                      className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold text-white"
-                      style={{ background: 'rgba(0,0,0,0.75)' }}
-                    >
-                      ▶ YouTube
-                    </div>
-                  </>
-                )}
-              </div>
-              {/* Title */}
-              <div className="p-2.5">
-                <p className="text-[11px] font-semibold text-white/80 truncate">{highlight.title}</p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  {highlight.division !== 'all' && (
-                    <span
-                      className="text-[7px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{
-                        background: highlight.division === 'male' ? 'rgba(115,255,0,0.08)' : 'rgba(56,189,248,0.08)',
-                        color: highlight.division === 'male' ? '#73FF00' : '#38BDF8',
-                        border: `1px solid ${highlight.division === 'male' ? 'rgba(115,255,0,0.15)' : 'rgba(56,189,248,0.15)'}`,
-                      }}
-                    >
-                      {highlight.division === 'male' ? 'MALE' : 'FEMALE'}
-                    </span>
-                  )}
-                  {highlight.division === 'all' && (
-                    <span
-                      className="text-[7px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{
-                        background: 'rgba(255,107,53,0.08)',
-                        color: '#FF6B35',
-                        border: '1px solid rgba(255,107,53,0.15)',
-                      }}
-                    >
-                      ALL
-                    </span>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+      {/* 2 Division Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5">
+        {renderDivisionCard('male', maleHighlights, dtMale)}
+        {renderDivisionCard('female', femaleHighlights, dtFemale)}
       </div>
     </motion.div>
   );
@@ -3985,7 +4079,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         <div className="w-full mb-6 md:mb-10 flex flex-col lg:flex-row gap-4 md:gap-6">
           {/* Video Highlight — wider */}
           <div className="flex-1 min-w-0">
-            <VideoHighlightSection division="all" />
+            <VideoHighlightSection />
           </div>
           {/* Informasi Terbaru — narrower */}
           <div className="w-full lg:w-[380px] flex-shrink-0">
