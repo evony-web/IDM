@@ -4110,15 +4110,19 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onPlayerClick, prel
           <DonasiSawerSection data={activeData} />
         </div>
 
-        {/* ═══ VIDEO HIGHLIGHT + INFORMASI TERBARU — side by side on md+ ═══ */}
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-6 md:mb-10 md:items-stretch">
+        {/* ═══ VIDEO HIGHLIGHT ═══ */}
+        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <VideoHighlightSection division="all" />
-          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
-        {/* ═══ RULES + TENTANG TURNAMEN ═══ */}
+        {/* ═══ TENTANG APLIKASI / RULES + TENTANG TURNAMEN ═══ */}
         <div id="info-section" className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
           <LandingContentSection />
+        </div>
+
+        {/* ═══ INFORMASI TERBARU ═══ */}
+        <div className="w-full max-w-6xl mx-auto mb-6 md:mb-10">
+          <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
         {/* ═══ FOOTER ═══ */}
