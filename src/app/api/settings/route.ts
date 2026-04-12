@@ -56,7 +56,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   ai_system_prompt: 'You are an AI Tournament Assistant for an esports tournament platform. Help users with tournament info, player stats, and match results. Be friendly and concise.',
 
   // Loading screen video (Cloudinary CDN or local path)
-  loading_video_url: process.env.NEXT_PUBLIC_LOADING_VIDEO_URL || '',
+  loading_video_url: process.env.NEXT_PUBLIC_LOADING_VIDEO_URL || 'https://res.cloudinary.com/dagoryri5/video/upload/v1775994076/vid_gca8eh.mp4',
 
   // OG Image
   og_base_url: process.env.NEXTAUTH_URL || '',
