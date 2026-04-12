@@ -750,6 +750,7 @@ export function Leaderboard({ division, players, currentUserId, onPlayerClick }:
   }, []);
 
   const accent = getAccent(division);
+  const dt = useDivisionTheme(division);
 
   return (
     <div className="space-y-4 sm:space-y-5">
