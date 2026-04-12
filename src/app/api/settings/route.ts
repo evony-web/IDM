@@ -9,12 +9,12 @@ import { DEFAULT_LOGO_URL } from '@/lib/server-utils';
 const DEFAULT_SETTINGS: Record<string, string> = {
   // Brand
   app_name: 'IDOL META',
-  app_subtitle: 'TARKAM Fan Made Edition',
+  app_subtitle: 'Fan Made Edition',
   app_tagline: 'Borneo Pride',
-  app_copyright_year: new Date().getFullYear().toString(),
-  app_copyright_holder: 'IDOL META',
-  app_description: 'Premium esports tournament platform. Weekly tournaments, bracket systems, leaderboard, dan competitive gaming experience.',
-  app_share_text: 'IDOL META — TARKAM Fan Made Tournament',
+  app_copyright_year: '2026',
+  app_copyright_holder: 'Borneo Prie',
+  app_description: 'Fan Made Edition — Borneo Prie @2026',
+  app_share_text: 'Borneo Prie @2026 — Fan Made Edition',
 
   // Logo & Images
   logo_url: process.env.NEXT_PUBLIC_LOGO_URL || DEFAULT_LOGO_URL,

@@ -4153,9 +4153,9 @@ function SplashLoadingScreen({ onComplete }: { onComplete: () => void }) {
           animate={{ opacity: [0.6, 1, 0.6] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          ✦ {settings.app_tagline} ✦
+          ✦ {settings.app_subtitle} ✦
         </motion.p>
-        <span className="mt-1 text-[9px] tracking-widest text-white/30">© {settings.app_copyright_year}</span>
+        <span className="mt-1 text-[9px] tracking-widest text-white/30">{settings.app_copyright_holder} @{settings.app_copyright_year}</span>
       </motion.div>
     </motion.div>
   );
@@ -5577,7 +5577,7 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           <div className="flex items-center gap-2">
             <div className="h-px w-4 bg-white/[0.06]" />
             <p className="text-[9px] text-white/15 tracking-wider">
-              © {settings.app_copyright_year} {settings.app_copyright_holder} — {settings.app_tagline}
+              {settings.app_copyright_holder} @{settings.app_copyright_year}
             </p>
             <div className="h-px w-4 bg-white/[0.06]" />
           </div>

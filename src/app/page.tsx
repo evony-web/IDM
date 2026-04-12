@@ -921,10 +921,10 @@ export default function IDOLMETAApp() {
                     backgroundClip: 'text',
                   }}
                 >
-                  ✦ {settings.app_tagline} ✦
+                  ✦ {settings.app_subtitle} ✦
                 </p>
                 <span className="mt-1 text-[9px] tracking-widest text-white/30">
-                  © {settings.app_copyright_year}
+                  {settings.app_copyright_holder} @{settings.app_copyright_year}
                 </span>
               </div>
             </motion.div>
@@ -1412,7 +1412,7 @@ export default function IDOLMETAApp() {
           <footer className="hidden lg:block mt-auto flex-shrink-0 py-3 px-8 text-center">
             <div className="flex items-center justify-center gap-3 opacity-40">
               <span className="text-[10px] tracking-wide font-medium text-white/15">
-                &copy; {settings.app_copyright_year} {settings.app_copyright_holder} &mdash; {settings.app_subtitle}
+                {settings.app_copyright_holder} @{settings.app_copyright_year} — {settings.app_subtitle}
               </span>
               <span className="text-[10px] text-white/10">|</span>
               <span className="text-[10px] tracking-wide font-medium text-white/15">

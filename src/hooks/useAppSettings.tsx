@@ -57,12 +57,12 @@ export interface AppSettings {
 // Fallback defaults (used before API response arrives)
 const FALLBACK: AppSettings = {
   app_name: 'IDOL META',
-  app_subtitle: 'TARKAM Fan Made Edition',
+  app_subtitle: 'Fan Made Edition',
   app_tagline: 'Borneo Pride',
-  app_copyright_year: new Date().getFullYear().toString(),
-  app_copyright_holder: 'IDOL META',
-  app_description: 'Esports Tournament Platform',
-  app_share_text: 'Esports Tournament',
+  app_copyright_year: '2026',
+  app_copyright_holder: 'Borneo Prie',
+  app_description: 'Fan Made Edition',
+  app_share_text: 'Borneo Prie @2026',
   logo_url: 'https://res.cloudinary.com/dagoryri5/image/upload/q_auto,f_webp/idm/static/idm-logo.png',
   banner_male_url: '',
   banner_female_url: '',
