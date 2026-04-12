@@ -2378,6 +2378,7 @@ const DEFAULT_RULES: RulesData = {
 function LandingContentSection() {
   const [rules, setRules] = useState<RulesData>(DEFAULT_RULES);
   const [loaded, setLoaded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Fetch data
   useEffect(() => {
@@ -2417,53 +2418,77 @@ function LandingContentSection() {
   return (
     <motion.div variants={itemVariants} className="w-full max-w-full">
       <div className="w-full">
-        {/* ═══ RULES CARD ═══ */}
-        <motion.div
+        {/* ═══ RULES CARD (Collapsible) ═══ */}
+        <div
           className="rounded-2xl overflow-hidden"
           style={{
             background: 'linear-gradient(180deg, rgba(255,107,53,0.04) 0%, rgba(255,255,255,0.01) 100%)',
             border: '1px solid rgba(255,107,53,0.08)',
           }}
-          whileHover={{ borderColor: 'rgba(255,107,53,0.15)', y: -2 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
-          {/* Header */}
-          <div className="flex items-center gap-3 p-4 pb-3 border-b border-white/[0.04]">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(255,107,53,0.04) 100%)',
-                border: '1px solid rgba(255,107,53,0.10)',
-              }}
-            >
-              <ListChecks className="w-5 h-5 text-orange-400" />
-            </div>
-            <div>
-              <h2 className="text-[15px] font-bold text-white/80 tracking-wide">{rules.title}</h2>
-              <p className="text-[10px] text-white/25 mt-0.5">Peraturan turnamen</p>
-            </div>
-          </div>
-          {/* Rules list */}
-          <div className="p-4 space-y-2.5 max-h-72 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,107,53,0.12) transparent' }}>
-            {rules.items.map((rule, idx) => (
-              <div key={idx} className="flex items-start gap-2.5">
-                <div
-                  className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,107,53,0.06) 100%)',
-                    color: 'rgba(255,107,53,0.7)',
-                  }}
-                >
-                  {idx + 1}
-                </div>
-                <p className="text-[12px] text-white/45 leading-relaxed">{rule}</p>
+          {/* Header — clickable to toggle */}
+          <motion.button
+            className="w-full flex items-center justify-between p-4 cursor-pointer"
+            onClick={() => setIsExpanded(prev => !prev)}
+            whileTap={{ scale: 0.995 }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,107,53,0.12) 0%, rgba(255,107,53,0.04) 100%)',
+                  border: '1px solid rgba(255,107,53,0.10)',
+                }}
+              >
+                <ListChecks className="w-4 h-4 text-orange-400" />
               </div>
-            ))}
-            {rules.items.length === 0 && (
-              <p className="text-[12px] text-white/20 text-center py-6">Belum ada rules ditambahkan</p>
+              <div className="text-left">
+                <h2 className="text-[14px] font-bold text-white/80 tracking-wide">{rules.title}</h2>
+                <p className="text-[10px] text-white/25 mt-0.5">{rules.items.length} peraturan</p>
+              </div>
+            </div>
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex-shrink-0"
+            >
+              <ChevronDown className="w-4 h-4 text-white/30" />
+            </motion.div>
+          </motion.button>
+
+          {/* Collapsible Rules List */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 space-y-2.5 max-h-60 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,107,53,0.12) transparent' }}>
+                  {rules.items.map((rule, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5">
+                      <div
+                        className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(255,107,53,0.06) 100%)',
+                          color: 'rgba(255,107,53,0.7)',
+                        }}
+                      >
+                        {idx + 1}
+                      </div>
+                      <p className="text-[12px] text-white/45 leading-relaxed">{rule}</p>
+                    </div>
+                  ))}
+                  {rules.items.length === 0 && (
+                    <p className="text-[12px] text-white/20 text-center py-4">Belum ada rules ditambahkan</p>
+                  )}
+                </div>
+              </motion.div>
             )}
-          </div>
-        </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </motion.div>
   );
@@ -3595,6 +3620,227 @@ function DonasiSawerSection({ data }: { data: LandingData }) {
    Shows Male & Female division champions alternately
    ════════════════════════════════════════════ */
 
+/* ────────────────────────────────────────────
+   Aktivitas Section — Tabbed (Semua | Match | Donasi | Achieve)
+   Merges InformasiTerbaru + DonasiSawer into one unified section
+   ──────────────────────────────────────────── */
+
+function AktivitasSection({ data, onPlayerClick }: { data: LandingData; onPlayerClick?: (playerId: string, gender: 'male' | 'female') => void }) {
+  const [activeTab, setActiveTab] = useState<'semua' | 'match' | 'donasi' | 'achieve'>('semua');
+
+  // Build news items (same logic as InformasiTerbaruSection)
+  const newsItems: NewsFeedItem[] = [];
+  if (data.activityLogs && Array.isArray(data.activityLogs)) {
+    data.activityLogs.forEach((log) => {
+      const dt = createDivisionTheme(log.userGender as 'male' | 'female');
+      const accent = dt.accentRgb;
+      if (log.action === 'club_transfer') {
+        try {
+          const details = log.details ? JSON.parse(log.details) : {};
+          newsItems.push({ id: `transfer-${log.id}`, type: 'club_transfer', timestamp: log.createdAt, playerName: log.userName, playerAvatar: log.userAvatar, playerGender: log.userGender, playerClub: log.userClub, icon: '🔄', title: `${log.userName} berpindah club`, subtitle: `${details.from || 'Tanpa Club'} → ${details.to || 'Tanpa Club'}`, accent });
+        } catch { /* skip */ }
+      }
+      if (log.action === 'win_streak') {
+        try {
+          const details = log.details ? JSON.parse(log.details) : {};
+          newsItems.push({ id: `streak-${log.id}`, type: 'win_streak', timestamp: log.createdAt, playerName: log.userName, playerAvatar: log.userAvatar, playerGender: log.userGender, playerClub: log.userClub, icon: '🔥', title: `${log.userName} Win Streak ${details.streak || 3}×!`, subtitle: `${details.streak || 3} kali menang beruntun`, accent: '255,165,0' });
+        } catch { /* skip */ }
+      }
+      if (log.action === 'tournament_win') {
+        try {
+          const details = log.details ? JSON.parse(log.details) : {};
+          newsItems.push({ id: `twin-${log.id}`, type: 'tournament_win', timestamp: log.createdAt, playerName: log.userName, playerAvatar: log.userAvatar, playerGender: log.userGender, playerClub: log.userClub, icon: '🏆', title: `${log.userName} juara turnamen!`, subtitle: details.tournamentName || details.division || '', accent });
+        } catch { /* skip */ }
+      }
+    });
+  }
+  data.recentMatches.forEach((match) => {
+    const dt = createDivisionTheme(match.division as 'male' | 'female');
+    const matchLabel = match.round >= 3 ? 'Final' : match.round === 2 ? 'Semi-Final' : `R${match.round}`;
+    newsItems.push({ id: `match-${match.id}`, type: 'match_result', timestamp: match.completedAt, playerName: match.winnerName || 'Unknown', playerAvatar: match.mvpAvatar, playerGender: match.division === 'male' ? 'male' : 'female', playerClub: null, icon: '⚔️', title: `Hasil ${matchLabel}: ${match.teamAName || 'TBD'} ${match.scoreA} - ${match.scoreB} ${match.teamBName || 'TBD'}`, subtitle: match.winnerName ? `🏆 ${match.winnerName} menang${match.mvpName ? ` · MVP: ${match.mvpName}` : ''}` : '', accent: dt.accentRgb });
+  });
+  data.recentAchievements.forEach((ach) => {
+    const dt = createDivisionTheme(ach.userGender as 'male' | 'female');
+    newsItems.push({ id: `ach-${ach.id}`, type: 'achievement', timestamp: ach.earnedAt, playerName: ach.userName, playerAvatar: ach.userAvatar, playerGender: ach.userGender, playerClub: null, icon: ach.icon || '🏅', title: `${ach.userName} mendapat pencapaian`, subtitle: ach.name, accent: dt.accentRgb });
+  });
+
+  // Build donasi items
+  const donasiItems: Array<{ id: string; name: string; avatar: string | null; amount: number; message: string | null; time: string; type: 'donasi' | 'sawer' }> = [];
+  data.recentDonations.forEach(d => donasiItems.push({ id: d.id, name: d.anonymous ? 'Anonim' : d.donorName, avatar: d.anonymous ? null : d.donorAvatar, amount: d.amount, message: d.message, time: d.createdAt, type: 'donasi' }));
+  data.recentSawers.forEach(s => donasiItems.push({ id: s.id, name: s.senderName, avatar: s.senderAvatar, amount: s.amount, message: s.message, time: s.createdAt, type: 'sawer' }));
+  donasiItems.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+  // Filter based on active tab
+  const filteredNews = activeTab === 'semua' ? newsItems
+    : activeTab === 'match' ? newsItems.filter(n => n.type === 'match_result' || n.type === 'tournament_win' || n.type === 'win_streak')
+    : activeTab === 'achieve' ? newsItems.filter(n => n.type === 'achievement' || n.type === 'club_transfer')
+    : [];
+  const filteredNewsSorted = [...filteredNews].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  const totalDana = data.totalDonation + data.totalSawer;
+
+  const tabs = [
+    { key: 'semua' as const, label: 'Semua', count: newsItems.length + donasiItems.length },
+    { key: 'match' as const, label: 'Match', count: newsItems.filter(n => n.type === 'match_result' || n.type === 'tournament_win' || n.type === 'win_streak').length },
+    { key: 'donasi' as const, label: 'Donasi', count: donasiItems.length },
+    { key: 'achieve' as const, label: 'Achieve', count: newsItems.filter(n => n.type === 'achievement' || n.type === 'club_transfer').length },
+  ];
+
+  return (
+    <motion.div variants={itemVariants} className="w-full max-w-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.04) 100%)', border: '1px solid rgba(255,215,0,0.12)' }}
+          >
+            <Zap className="w-4 h-4" style={{ color: 'var(--gold)' }} />
+          </div>
+          <div>
+            <h2 className="text-[15px] sm:text-[17px] font-bold text-white/80 tracking-wide">Aktivitas Terbaru</h2>
+            <p className="text-[10px] text-white/30 mt-0.5">{tabs[0].count} aktivitas</p>
+          </div>
+        </div>
+        {totalDana > 0 && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{ background: 'rgba(244,114,182,0.06)', border: '1px solid rgba(244,114,182,0.12)' }}>
+            <Coins className="w-3 h-3" style={{ color: 'var(--gold)' }} />
+            <span className="text-[10px] font-bold text-white/60">{formatRupiah(totalDana)}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Tab Bar */}
+      <div className="flex items-center gap-1.5 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        {tabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer flex-shrink-0"
+            style={{
+              background: activeTab === tab.key ? 'rgba(255,215,0,0.10)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${activeTab === tab.key ? 'rgba(255,215,0,0.18)' : 'rgba(255,255,255,0.06)'}`,
+              color: activeTab === tab.key ? 'var(--gold)' : 'rgba(255,255,255,0.35)',
+            }}
+          >
+            {tab.label}
+            <span className="text-[9px] font-normal opacity-60">({tab.count})</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.20), transparent)' }} />
+
+        {activeTab === 'donasi' ? (
+          /* Donasi Tab Content */
+          donasiItems.length > 0 ? (
+            <div className="p-2 max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(244,114,182,0.10) transparent' }}>
+              {donasiItems.slice(0, 10).map((item, idx) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.04 }}
+                  className="flex items-center gap-3 p-3 rounded-xl mb-1 transition-all hover:bg-white/[0.03]"
+                  style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}
+                >
+                  {/* Avatar */}
+                  <div
+                    className="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden"
+                    style={{
+                      background: item.avatar ? `url(${item.avatar}) center/cover` : 'linear-gradient(135deg, rgba(244,114,182,0.20), rgba(244,114,182,0.06))',
+                      border: '1px solid rgba(244,114,182,0.15)',
+                    }}
+                  >
+                    {!item.avatar && <span className="text-[11px] font-bold text-pink-400">{item.name.charAt(0).toUpperCase()}</span>}
+                  </div>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-[12px] font-semibold text-white/80 truncate">{item.name}</p>
+                      <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: item.type === 'donasi' ? 'rgba(244,114,182,0.10)' : 'rgba(115,255,0,0.08)', color: item.type === 'donasi' ? '#F472B6' : '#73FF00', border: `1px solid ${item.type === 'donasi' ? 'rgba(244,114,182,0.15)' : 'rgba(115,255,0,0.12)'}` }}>
+                        {item.type === 'donasi' ? 'DONASI' : 'SAWER'}
+                      </span>
+                    </div>
+                    {item.message && <p className="text-[10px] text-white/30 truncate mt-0.5">&quot;{item.message}&quot;</p>}
+                    <p className="text-[9px] text-white/15 mt-0.5">{timeAgo(item.time)}</p>
+                  </div>
+                  {/* Amount */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-[13px] font-bold" style={{ color: 'var(--gold)' }}>{formatRupiah(item.amount)}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-10 flex flex-col items-center text-center">
+              <Heart className="w-8 h-8 text-white/10 mb-2" />
+              <p className="text-[12px] text-white/25">Belum ada donasi atau sawer</p>
+            </div>
+          )
+        ) : (
+          /* News Feed Content */
+          filteredNewsSorted.length > 0 ? (
+            <div className="p-2 max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,215,0,0.10) transparent' }}>
+              {filteredNewsSorted.slice(0, 8).map((item, idx) => {
+                const dt = createDivisionTheme(item.playerGender as 'male' | 'female');
+                const typeConfig: Record<string, { bg: string; border: string; color: string; label: string }> = {
+                  club_transfer: { bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.15)', color: ACCENT.female.primary, label: 'Transfer' },
+                  match_result: { bg: 'rgba(115,255,0,0.08)', border: 'rgba(115,255,0,0.15)', color: ACCENT.male.primary, label: 'Match' },
+                  achievement: { bg: 'rgba(255,215,0,0.08)', border: 'rgba(255,215,0,0.15)', color: 'var(--gold)', label: 'Achieve' },
+                  win_streak: { bg: 'rgba(255,165,0,0.08)', border: 'rgba(255,165,0,0.15)', color: '#FFA500', label: 'Streak' },
+                  tournament_win: { bg: 'rgba(255,215,0,0.10)', border: 'rgba(255,215,0,0.20)', color: 'var(--gold)', label: 'Juara' },
+                };
+                const cfg = typeConfig[item.type] || typeConfig.achievement;
+
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: idx * 0.04 }}
+                    className="flex items-start gap-3 p-3 rounded-xl transition-all hover:bg-white/[0.03] mb-1 cursor-pointer"
+                    style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}
+                    onClick={item.playerGender && onPlayerClick ? () => onPlayerClick(item.playerName, item.playerGender as 'male' | 'female') : undefined}
+                  >
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base" style={{ background: `linear-gradient(135deg, rgba(${item.accent},0.12) 0%, rgba(${item.accent},0.04) 100%)`, border: `1px solid rgba(${item.accent},0.12)` }}>
+                      {item.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden" style={{ background: item.playerAvatar ? `url(${item.playerAvatar}) center/cover` : `linear-gradient(135deg, ${dt.accentBg(0.25)}, ${dt.accentBg(0.08)})`, border: `1px solid ${dt.accentBorder(0.20)}` }}>
+                          {!item.playerAvatar && <span className="text-[8px] font-bold" style={{ color: dt.accent }}>{item.playerName.charAt(0).toUpperCase()}</span>}
+                        </div>
+                        <p className="text-[12px] font-semibold text-white/85 truncate">{item.title}</p>
+                      </div>
+                      {item.subtitle && <p className="text-[11px] text-white/35 mt-0.5 truncate">{item.subtitle}</p>}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 uppercase tracking-wider" style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>{cfg.label}</span>
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: dt.accentBg(0.08), color: dt.accent, border: `1px solid ${dt.accentBorder(0.15)}` }}>{item.playerGender === 'male' ? 'M' : 'F'}</span>
+                        <span className="text-[9px] text-white/15">{timeAgo(item.timestamp)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-10 flex flex-col items-center text-center">
+              <Zap className="w-8 h-8 text-white/10 mb-2" />
+              <p className="text-[12px] text-white/25">Belum ada aktivitas</p>
+            </div>
+          )
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 // Helper: format team name as "Tim {Tier S player name}"
 function getChampionTeamName(champion: ChampionData): string {
   const tierSName = champion.tierSPlayerName;
@@ -3616,7 +3862,7 @@ function getChampionTeamName(champion: ChampionData): string {
   return '';
 }
 
-function ChampionCarouselBanner({ data }: { data: LandingData }) {
+function ChampionCarouselBanner({ data, stats }: { data: LandingData; stats?: { totalPlayers: number; clubCount: number; prizePool: number; totalDonation: number } }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -3870,6 +4116,44 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
 
             {/* ── Bottom glow line ── */}
             <div className="absolute bottom-0 left-[10%] right-[10%] h-px pointer-events-none z-20" style={{ background: `linear-gradient(90deg, transparent, rgba(${currentSlide.accent},0.30), rgba(255,215,0,0.20), rgba(${currentSlide.accent},0.30), transparent)` }} />
+
+            {/* ── Stats Overlay Bar ── */}
+            {stats && (
+              <div className="absolute bottom-0 left-0 right-0 z-20">
+                <div className="flex items-center justify-center gap-3 sm:gap-5 md:gap-8 py-2.5 sm:py-3 px-4"
+                  style={{
+                    background: 'rgba(5,5,7,0.70)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    borderTop: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: '#73FF00' }} />
+                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80">{stats.totalPlayers}</span>
+                    <span className="text-[8px] sm:text-[9px] text-white/30 hidden sm:inline">Pemain</span>
+                  </div>
+                  <div className="w-px h-4 bg-white/[0.08]" />
+                  <div className="flex items-center gap-1.5">
+                    <Swords className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: '#38BDF8' }} />
+                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80">{stats.clubCount}</span>
+                    <span className="text-[8px] sm:text-[9px] text-white/30 hidden sm:inline">Club</span>
+                  </div>
+                  <div className="w-px h-4 bg-white/[0.08]" />
+                  <div className="flex items-center gap-1.5">
+                    <Coins className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: 'var(--gold)' }} />
+                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80">{formatRupiah(stats.prizePool)}</span>
+                    <span className="text-[8px] sm:text-[9px] text-white/30 hidden sm:inline">Prize</span>
+                  </div>
+                  <div className="w-px h-4 bg-white/[0.08]" />
+                  <div className="flex items-center gap-1.5">
+                    <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: '#F472B6' }} />
+                    <span className="text-[10px] sm:text-[11px] font-bold text-white/80">{formatRupiah(stats.totalDonation)}</span>
+                    <span className="text-[8px] sm:text-[9px] text-white/30 hidden sm:inline">Donasi</span>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Top subtle glow line */}
             <div className="absolute top-0 left-[15%] right-[15%] h-px pointer-events-none z-20" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.12) 50%, transparent)' }} />
             {/* Inner border */}
@@ -4002,49 +4286,23 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
         animate="visible"
         className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-10 xl:px-16 pt-0 pb-24 md:pt-4 md:pb-12 min-h-screen overflow-x-hidden"
       >
-        {/* ═══ CHAMPION CAROUSEL BANNER ═══ */}
+        {/* ═══ CHAMPION CAROUSEL BANNER (with Stats Overlay) ═══ */}
         <div className="w-full">
-          <ChampionCarouselBanner data={activeData} />
+          <ChampionCarouselBanner data={activeData} stats={{
+            totalPlayers,
+            clubCount: activeData.clubs.length,
+            prizePool: totalPrizePool,
+            totalDonation: activeData.totalDonation + activeData.totalSawer,
+          }} />
         </div>
 
-        {/* ═══ STATS BAR ═══ */}
-        <motion.div
-          variants={itemVariants}
-          className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full mb-6 md:mb-10"
-        >
-          <StatCard
-            icon={Users}
-            label="Total Pemain"
-            value={totalPlayers.toString()}
-            color="115,255,0"
-          />
-          <StatCard
-            icon={Swords}
-            label="Club Peserta"
-            value={`${activeData.clubs.length}`}
-            color="56,189,248"
-          />
-          <StatCard
-            icon={Coins}
-            label="Total Prize Pool"
-            value={formatRupiah(totalPrizePool)}
-            color="255,215,0"
-          />
-          <StatCard
-            icon={Heart}
-            label="Total Donasi"
-            value={formatRupiah(activeData.totalDonation + activeData.totalSawer)}
-            color="244,114,182"
-          />
-        </motion.div>
-
-        {/* ═══ AD SLOT — After Stats, before Division Cards ═══ */}
+        {/* ═══ AD SLOT ═══ */}
         <AdSlot slot="landing" />
 
         {/* ═══ DIVISION CARDS ═══ */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-6 md:mb-10"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full mb-8 md:mb-14"
         >
           <DivisionCard
             division="male"
@@ -4060,35 +4318,40 @@ export function LandingPage({ onEnterDivision, onAdminLogin, onOpenWallet, onPla
           />
         </motion.div>
 
-        {/* ═══ UNIFIED LEADERBOARD — Overall + Season Points ═══ */}
-        <div id="leaderboard-section" className="w-full mb-6 md:mb-10">
+        {/* ═══ SECTION DIVIDER ═══ */}
+        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+
+        {/* ═══ VIDEO HIGHLIGHT ═══ */}
+        <div className="w-full mb-8 md:mb-14">
+          <VideoHighlightSection />
+        </div>
+
+        {/* ═══ SECTION DIVIDER ═══ */}
+        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+
+        {/* ═══ LEADERBOARD ═══ */}
+        <div id="leaderboard-section" className="w-full mb-8 md:mb-14">
           <UnifiedLeaderboard data={activeData} onPlayerClick={handlePlayerClick} />
         </div>
 
+        {/* ═══ SECTION DIVIDER ═══ */}
+        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+
+        {/* ═══ AKTIVITAS TERBARU (Tabbed) ═══ */}
+        <div className="w-full mb-8 md:mb-14">
+          <AktivitasSection data={activeData} onPlayerClick={handlePlayerClick} />
+        </div>
+
+        {/* ═══ SECTION DIVIDER ═══ */}
+        <div className="w-full mb-8 md:mb-14 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.10), rgba(115,255,0,0.06), rgba(56,189,248,0.06), transparent)' }} />
+
         {/* ═══ CLUBS CAROUSEL ═══ */}
-        <div className="w-full mb-6 md:mb-10">
+        <div className="w-full mb-8 md:mb-14">
           <ClubsCarousel clubs={activeData.clubs} />
         </div>
 
-        {/* ═══ DONASI & SAWER SECTION ═══ */}
-        <div className="w-full mb-6 md:mb-10">
-          <DonasiSawerSection data={activeData} />
-        </div>
-
-        {/* ═══ VIDEO HIGHLIGHT + INFORMASI TERBARU (Side by Side) ═══ */}
-        <div className="w-full mb-6 md:mb-10 flex flex-col lg:flex-row gap-4 md:gap-6">
-          {/* Video Highlight — wider */}
-          <div className="flex-1 min-w-0">
-            <VideoHighlightSection />
-          </div>
-          {/* Informasi Terbaru — narrower */}
-          <div className="w-full lg:w-[380px] flex-shrink-0">
-            <InformasiTerbaruSection data={activeData} onPlayerClick={handlePlayerClick} />
-          </div>
-        </div>
-
-        {/* ═══ RULES ═══ */}
-        <div id="info-section" className="w-full mb-6 md:mb-10">
+        {/* ═══ RULES (Collapsible) ═══ */}
+        <div id="info-section" className="w-full mb-8 md:mb-14">
           <LandingContentSection />
         </div>
 
