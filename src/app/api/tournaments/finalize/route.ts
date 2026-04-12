@@ -169,29 +169,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Execute all point updates in a single atomic transaction
-    // Using increment to avoid race conditions (no read-modify-write)
-    const userUpdateOps = Array.from(userPointsMap.entries()).map(([userId, data]) =>
-      db.user.update({
-        where: { id: userId },
-        data: { points: { increment: data.points } },
-      })
-    );
-
-    const rankingUpdateOps = Array.from(userPointsMap.entries()).map(([userId, data]) =>
-      db.ranking.update({
-        where: { userId },
-        data: {
-          points: { increment: data.points },
-          ...(data.wins > 0 ? { wins: { increment: data.wins } } : {}),
-        },
-      })
-    );
-
-    const mvpUpdateOp = finalMatch.mvpId
-      ? [db.user.update({ where: { id: finalMatch.mvpId }, data: { isMVP: true } })]
-      : [];
-
     // ── Credit wallets for tournament earnings ──
     // For each player who earned points, ensure they have a wallet and credit it
     const walletOps = await Promise.all(
@@ -199,11 +176,9 @@ export async function POST(request: NextRequest) {
         // Find or create wallet
         let wallet = await db.wallet.findUnique({ where: { userId } });
         if (!wallet) {
-          // Get user's current points to set as initial balance, then subtract what we're adding now
+          // Get user's current points to set as initial balance
           const user = await db.user.findUnique({ where: { id: userId }, select: { points: true } });
           const currentPoints = user?.points || 0;
-          // Initial balance should be currentPoints minus what we're about to add (to avoid double counting)
-          // since the userUpdateOps will increment points by data.points too
           const initialBalance = Math.max(0, currentPoints);
           wallet = await db.wallet.create({
             data: { userId, balance: initialBalance, totalIn: initialBalance, totalOut: 0 },
@@ -221,7 +196,7 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Create wallet transaction for tournament earnings
+        // Create wallet transaction label for tournament earnings
         const roleLabel = data.roles.length === 1
           ? data.roles[0] === 'champion' ? 'Juara'
             : data.roles[0] === 'runner-up' ? 'Runner-up'
@@ -239,18 +214,30 @@ export async function POST(request: NextRequest) {
       })
     );
 
+    // Execute all updates in a single atomic transaction
     await db.$transaction(async (tx) => {
       // Update User.points (leaderboard)
-      for (const op of userUpdateOps) {
-        await op;
+      for (const [userId, data] of userPointsMap) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { points: { increment: data.points } },
+        });
       }
+
       // Update Rankings
-      for (const op of rankingUpdateOps) {
-        await op;
+      for (const [userId, data] of userPointsMap) {
+        await tx.ranking.update({
+          where: { userId },
+          data: {
+            points: { increment: data.points },
+            ...(data.wins > 0 ? { wins: { increment: data.wins } } : {}),
+          },
+        });
       }
+
       // MVP flag
-      for (const op of mvpUpdateOp) {
-        await op;
+      if (finalMatch.mvpId) {
+        await tx.user.update({ where: { id: finalMatch.mvpId }, data: { isMVP: true } });
       }
 
       // Credit wallets for tournament earnings

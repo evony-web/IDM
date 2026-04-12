@@ -28,8 +28,6 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         points: true,
-        wins: true,
-        losses: true,
         eloRating: true,
         eloTier: true,
         gender: true,
@@ -41,6 +39,12 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       )
     }
+
+    // Get wins/losses from Ranking model (separate from User)
+    const ranking = await db.ranking.findUnique({
+      where: { userId },
+      select: { wins: true, losses: true },
+    })
 
     // Auto-create wallet if not exists — initialize with User.points as starting balance
     let wallet = await db.wallet.findUnique({
@@ -92,10 +96,10 @@ export async function GET(request: NextRequest) {
       },
       // Leaderboard points (from tournament earnings)
       leaderboardPoints: user.points,
-      // Player stats for display
+      // Player stats for display (wins/losses from Ranking model)
       playerStats: {
-        wins: user.wins,
-        losses: user.losses,
+        wins: ranking?.wins ?? 0,
+        losses: ranking?.losses ?? 0,
         eloRating: user.eloRating,
         eloTier: user.eloTier,
         gender: user.gender,

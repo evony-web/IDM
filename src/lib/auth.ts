@@ -8,6 +8,22 @@ function hashPin(pin: string): string {
   return createHash('sha256').update(pin).digest('hex');
 }
 
+/**
+ * Normalize Indonesian phone number to local format (08xxxxxxxxxx)
+ * Handles: +6281xxx → 081xxx, 6281xxx → 081xxx, 081xxx → 081xxx
+ */
+function normalizePhone(phone: string): string {
+  let p = phone.trim().replace(/[\s\-()]/g, '');
+  if (p.startsWith('+62')) {
+    p = '0' + p.slice(3);
+  } else if (p.startsWith('62') && p.length >= 10) {
+    p = '0' + p.slice(2);
+  } else if (/^[1-9]/.test(p)) {
+    p = '0' + p;
+  }
+  return p;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -22,16 +38,36 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Nomor HP dan PIN wajib diisi');
         }
 
-        const phone = credentials.phone.trim();
+        const phone = normalizePhone(credentials.phone);
         const pin = credentials.pin;
 
-        // Find user by phone
-        const user = await db.user.findFirst({
+        // Find user by phone (exact match on normalized number)
+        let user = await db.user.findFirst({
           where: {
             phone,
             isAdmin: false,
           },
         });
+
+        // Fallback: try matching by normalizing all stored phones in JS
+        // This handles users stored with +62 format before normalization was added
+        if (!user) {
+          const allPlayerUsers = await db.user.findMany({
+            where: { isAdmin: false, phone: { not: null } },
+          });
+          user = allPlayerUsers.find(u => {
+            if (!u.phone) return false;
+            return normalizePhone(u.phone) === phone;
+          }) || null;
+
+          // If found via fallback, fix the stored phone format
+          if (user && user.phone !== phone) {
+            await db.user.update({
+              where: { id: user.id },
+              data: { phone },
+            });
+          }
+        }
 
         if (!user) {
           throw new Error('Nomor HP tidak terdaftar');

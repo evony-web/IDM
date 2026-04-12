@@ -8,6 +8,31 @@ function hashPin(pin: string): string {
   return createHash('sha256').update(pin).digest('hex');
 }
 
+/**
+ * Normalize Indonesian phone number to local format (08xxxxxxxxxx)
+ * Handles: +6281xxx → 081xxx, 6281xxx → 081xxx, 081xxx → 081xxx
+ * This ensures consistent matching regardless of input format.
+ */
+function normalizePhone(phone: string): string {
+  let p = phone.trim().replace(/[\s\-()]/g, ''); // remove spaces, dashes, parens
+
+  // +6281xxx → 081xxx (international format with +)
+  if (p.startsWith('+62')) {
+    p = '0' + p.slice(3);
+  }
+  // 6281xxx → 081xxx (international format without +)
+  else if (p.startsWith('62') && p.length >= 10) {
+    p = '0' + p.slice(2);
+  }
+  // 081xxx → 081xxx (already local format, no change)
+  // 81xxx → 081xxx (missing leading 0)
+  else if (/^[1-9]/.test(p)) {
+    p = '0' + p;
+  }
+
+  return p;
+}
+
 /** Shape of user data returned in responses */
 function userResponseData(user: {
   id: string;
@@ -33,6 +58,66 @@ function userResponseData(user: {
     eloTier: user.eloTier,
     clubId: user.clubId,
   };
+}
+
+/**
+ * Ensure a user has a Ranking record and a Wallet (synced with User.points)
+ */
+async function ensureUserRecords(userId: string, userPoints: number) {
+  // Ensure Ranking record
+  const existingRanking = await db.ranking.findUnique({ where: { userId } });
+  if (!existingRanking) {
+    await db.ranking.create({
+      data: {
+        id: uuidv4(),
+        userId,
+        points: 0,
+        wins: 0,
+        losses: 0,
+      },
+    });
+  }
+
+  // Ensure Wallet record — sync with leaderboard points
+  let wallet = await db.wallet.findUnique({ where: { userId } });
+  if (!wallet) {
+    const initialBalance = userPoints || 0;
+    wallet = await db.wallet.create({
+      data: {
+        id: uuidv4(),
+        userId,
+        balance: initialBalance,
+        totalIn: initialBalance,
+        totalOut: 0,
+      },
+    });
+    if (initialBalance > 0) {
+      await db.walletTransaction.create({
+        data: {
+          walletId: wallet.id,
+          type: 'credit',
+          amount: initialBalance,
+          category: 'prize',
+          description: 'Sinkronisasi poin leaderboard ke wallet',
+        },
+      });
+    }
+  } else if (wallet.balance === 0 && userPoints > 0) {
+    // Wallet exists but empty — sync with leaderboard points
+    await db.wallet.update({
+      where: { id: wallet.id },
+      data: { balance: userPoints, totalIn: userPoints },
+    });
+    await db.walletTransaction.create({
+      data: {
+        walletId: wallet.id,
+        type: 'credit',
+        amount: userPoints,
+        category: 'prize',
+        description: 'Sinkronisasi poin leaderboard ke wallet',
+      },
+    });
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -69,17 +154,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const normalizedPhone = phone.trim();
+    const normalizedPhone = normalizePhone(phone);
     const normalizedName = name.trim();
     const hashedPin = hashPin(pin);
 
-    // 2. Check if a user with this phone number already exists
+    // Validate normalized phone format (must start with 08 and be 10-13 digits)
+    if (!/^08\d{8,11}$/.test(normalizedPhone)) {
+      return NextResponse.json(
+        { success: false, error: 'Format nomor HP tidak valid. Gunakan format 08xxxxxxxxxx' },
+        { status: 400 }
+      );
+    }
+
+    // 2. Check if a user with this phone number already exists (exact match, normalized)
     const existingByPhone = await db.user.findFirst({
       where: { phone: normalizedPhone },
     });
 
     if (existingByPhone) {
-      // 3a. If they already have a playerPin → already registered
+      // If user is admin, they can't sign up as player
+      if (existingByPhone.isAdmin) {
+        return NextResponse.json(
+          { success: false, error: 'Nomor HP terdaftar sebagai admin. Gunakan nomor HP lain.' },
+          { status: 409 }
+        );
+      }
+
+      // If they already have a playerPin → already registered
       if (existingByPhone.playerPin) {
         return NextResponse.json(
           { success: false, error: 'Akun sudah terdaftar. Silakan login.' },
@@ -87,43 +188,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // 3b. Admin created them but they have no PIN — set the PIN now
+      // Admin created them but they have no PIN — set the PIN now
       const updatedUser = await db.user.update({
         where: { id: existingByPhone.id },
         data: { playerPin: hashedPin },
       });
 
-      // Ensure they have a Ranking record
-      const existingRanking = await db.ranking.findUnique({
-        where: { userId: updatedUser.id },
-      });
-      if (!existingRanking) {
-        await db.ranking.create({
-          data: {
-            id: uuidv4(),
-            userId: updatedUser.id,
-            points: 0,
-            wins: 0,
-            losses: 0,
-          },
-        });
-      }
-
-      // Ensure they have a Wallet record
-      const existingWallet = await db.wallet.findUnique({
-        where: { userId: updatedUser.id },
-      });
-      if (!existingWallet) {
-        await db.wallet.create({
-          data: {
-            id: uuidv4(),
-            userId: updatedUser.id,
-            balance: 0,
-            totalIn: 0,
-            totalOut: 0,
-          },
-        });
-      }
+      // Ensure they have Ranking + Wallet (synced with points)
+      await ensureUserRecords(updatedUser.id, updatedUser.points);
 
       return NextResponse.json({
         success: true,
@@ -133,8 +205,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 4. User doesn't exist by phone — check by name + gender (admin may have created them)
-    // SQLite doesn't support mode: 'insensitive', so we fetch by gender and filter in JS
+    // 3. User doesn't exist by phone — check by name + gender (admin may have created them)
+    // Case-insensitive name matching, EXCLUDE admin users
     const usersWithSameGender = await db.user.findMany({
       where: { gender, isAdmin: false },
     });
@@ -143,56 +215,34 @@ export async function POST(request: NextRequest) {
     );
 
     if (existingByName) {
-      // Link to that account by setting phone + playerPin
-      const updatedUser = await db.user.update({
-        where: { id: existingByName.id },
-        data: {
-          phone: normalizedPhone,
-          playerPin: hashedPin,
-        },
-      });
-
-      // Ensure they have a Ranking record
-      const existingRanking = await db.ranking.findUnique({
-        where: { userId: updatedUser.id },
-      });
-      if (!existingRanking) {
-        await db.ranking.create({
+      // Check if this user already has a phone + PIN (already claimed by someone else)
+      if (existingByName.phone && existingByName.playerPin) {
+        // This name is already claimed by another player with a different phone
+        // Don't link — create a new account instead
+        // (This handles the case where two people have the same name)
+      } else {
+        // Link to that account by setting phone + playerPin
+        const updatedUser = await db.user.update({
+          where: { id: existingByName.id },
           data: {
-            id: uuidv4(),
-            userId: updatedUser.id,
-            points: 0,
-            wins: 0,
-            losses: 0,
+            phone: normalizedPhone,
+            playerPin: hashedPin,
           },
         });
-      }
 
-      // Ensure they have a Wallet record
-      const existingWallet = await db.wallet.findUnique({
-        where: { userId: updatedUser.id },
-      });
-      if (!existingWallet) {
-        await db.wallet.create({
-          data: {
-            id: uuidv4(),
-            userId: updatedUser.id,
-            balance: 0,
-            totalIn: 0,
-            totalOut: 0,
-          },
+        // Ensure they have Ranking + Wallet (synced with points)
+        await ensureUserRecords(updatedUser.id, updatedUser.points);
+
+        return NextResponse.json({
+          success: true,
+          user: userResponseData(updatedUser),
+          isNewLink: true,
+          isNewAccount: false,
         });
       }
-
-      return NextResponse.json({
-        success: true,
-        user: userResponseData(updatedUser),
-        isNewLink: true,
-        isNewAccount: false,
-      });
     }
 
-    // 5. No existing user found — create a brand new account
+    // 4. No existing user found — create a brand new account
     const newUser = await db.user.create({
       data: {
         id: uuidv4(),
@@ -218,7 +268,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create Wallet record
+    // Create Wallet record (balance = 0 for new player)
     await db.wallet.create({
       data: {
         id: uuidv4(),
@@ -270,9 +320,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const normalizedPhone = phone.trim();
+    const normalizedPhone = normalizePhone(phone);
 
-    // 2. Find user by phone where isAdmin: false
+    // 2. Find user by phone (exact match on normalized number) where isAdmin: false
     const user = await db.user.findFirst({
       where: {
         phone: normalizedPhone,
@@ -280,37 +330,58 @@ export async function PUT(request: NextRequest) {
       },
     });
 
-    // 3. If not found
-    if (!user) {
+    // 3. If not found with exact phone, try all phone numbers and normalize in JS
+    // This handles the case where existing phones are stored in +62 format
+    let matchedUser = user;
+    if (!matchedUser) {
+      const allPlayerUsers = await db.user.findMany({
+        where: { isAdmin: false, phone: { not: null } },
+      });
+      matchedUser = allPlayerUsers.find(u => {
+        if (!u.phone) return false;
+        return normalizePhone(u.phone) === normalizedPhone;
+      });
+    }
+
+    // 4. If still not found
+    if (!matchedUser) {
       return NextResponse.json(
         { success: false, error: 'Nomor HP tidak terdaftar' },
         { status: 404 }
       );
     }
 
-    // 4. If found but no playerPin
-    if (!user.playerPin) {
+    // 5. If found but no playerPin
+    if (!matchedUser.playerPin) {
       return NextResponse.json(
         { success: false, error: 'Akun belum memiliki PIN. Silakan daftar terlebih dahulu.' },
         { status: 403 }
       );
     }
 
-    // 5. Hash the provided PIN and compare
+    // 6. Hash the provided PIN and compare
     const hashedPin = hashPin(pin);
 
-    // 6-7. Compare
-    if (hashedPin !== user.playerPin) {
+    // 7. Compare
+    if (hashedPin !== matchedUser.playerPin) {
       return NextResponse.json(
         { success: false, error: 'PIN salah' },
         { status: 401 }
       );
     }
 
+    // 8. If the phone in DB is not normalized, fix it now
+    if (matchedUser.phone !== normalizedPhone) {
+      await db.user.update({
+        where: { id: matchedUser.id },
+        data: { phone: normalizedPhone },
+      });
+    }
+
     // Success
     return NextResponse.json({
       success: true,
-      user: userResponseData(user),
+      user: userResponseData(matchedUser),
       isNewLink: false,
       isNewAccount: false,
     });

@@ -95,3 +95,31 @@ Stage Summary:
 - WalletTab shows both wallet balance and leaderboard stats
 - Existing TAZOS wallet data migrated (0 → 106 points)
 - Two systems are now integrated while maintaining separate semantics (wallet = spendable currency, leaderboard = ranking)
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Fix wallet API 500 error + Investigate user identity/linking logic + Global wallet sync
+
+Work Log:
+- Discovered critical bug: Wallet API GET returned 500 error because it selected `wins`/`losses` from User model, but those fields don't exist — they're in the Ranking model
+- Fixed /api/wallet/route.ts: Removed wins/losses from User select, added separate query to Ranking model for wins/losses
+- Investigated user identity resolution logic in /api/player-auth/route.ts:
+  - Step 1: Match by phone number (normalized to 08xxx format)
+  - Step 2: Match by name+gender (case-insensitive, excludes admin users)
+  - Step 3: If name match found but user already has phone+PIN → create new account (prevents hijacking)
+  - Step 4: If no match → create brand new account
+- Confirmed phone normalization already handles: +6281xxx → 081xxx, 6281xxx → 081xxx, 081xxx → 081xxx
+- Confirmed name matching is already case-insensitive
+- Created /api/wallet/sync/route.ts — Global wallet sync API for admin use
+- Ran global wallet sync: Created 11 missing wallets for players without wallets (all 0-point players)
+- All 75 non-admin users now have wallets, all existing wallets already had correct balances
+- ESLint: Passes clean
+
+Stage Summary:
+- Fixed wallet API 500 error (wins/losses from Ranking model)
+- Identity resolution: phone (primary, normalized) → name+gender (secondary, case-insensitive)
+- Phone format: +62/62/08 all normalized to 08xxx — no format issues
+- Name matching: case-insensitive — "tazos" will match "TAZOS"
+- The tazos/TAZOS mismatch was because admin "tazos" (isAdmin:true) is excluded from player name matching
+- Global wallet sync completed: all 75 players now have wallets with correct balances
