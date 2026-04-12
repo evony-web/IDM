@@ -680,7 +680,7 @@ function LandingSkeleton() {
       {/* Hero skeleton (matches ChampionCarouselBanner layout) */}
       <div className="w-full mb-6 md:mb-10">
         <div
-          className="w-full aspect-[16/8] sm:aspect-[16/5] md:aspect-[16/4.5] rounded-[20px] skeleton-shimmer"
+          className="w-full aspect-[3/2] sm:aspect-[16/5] md:aspect-[16/4.5] rounded-[20px] skeleton-shimmer"
           style={{ background: 'var(--surface-2)' }}
         />
       </div>
@@ -3671,7 +3671,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/8] sm:aspect-[16/5] md:aspect-[16/4.5] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
+          <div className="relative w-full aspect-[3/2] sm:aspect-[16/5] md:aspect-[16/4.5] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(5,5,7,0.95) 0%, rgba(10,12,8,0.90) 50%, rgba(5,5,7,0.95) 100%)' }}>
             <div className="text-center">
               <motion.img
                 src={logoUrl}
@@ -3747,7 +3747,7 @@ function ChampionCarouselBanner({ data }: { data: LandingData }) {
           className="relative w-full overflow-hidden"
           style={{ borderRadius: '20px', boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' }}
         >
-          <div className="relative w-full aspect-[16/8] sm:aspect-[16/5] md:aspect-[16/4.5]">
+          <div className="relative w-full aspect-[3/2] sm:aspect-[16/5] md:aspect-[16/4.5]">
             {/* Slide Content with AnimatePresence */}
             <AnimatePresence mode="wait">
               <motion.div
